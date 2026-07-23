@@ -1,0 +1,35 @@
+name: 更新审核进度
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 10 * * *'
+  workflow_dispatch:
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: node update.mjs
+      - name: 提交更新
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --staged --quiet || git commit -m "auto: 更新审核进度 $(date -u '+%Y-%m-%d %H:%M')"
+          git push
+      - name: 上传Pages产物
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+      - name: 部署到GitHub Pages
+        uses: actions/deploy-pages@v4
