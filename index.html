@@ -86,14 +86,15 @@
     .card{border-radius:14px;margin-bottom:16px}
     thead{display:none}
     table,tbody,tr,td{display:block;width:100%}
-    tbody tr{border-bottom:10px solid var(--bg);background:#fff}
-    tbody td{border:none;padding:9px 14px;display:flex;justify-content:space-between;align-items:center;gap:12px;text-align:right;font-size:14px}
-    tbody td::before{content:attr(data-label);color:var(--muted);font-weight:700;text-align:left;flex:0 0 40%;font-size:12.5px}
-    tbody td:first-child{padding-top:16px}
+    tbody tr{border-bottom:10px solid var(--bg);background:#fff;padding:2px 0}
+    tbody td{border:none;padding:10px 16px;display:flex;flex-direction:column;gap:2px;text-align:left;font-size:14px}
+    tbody td::before{content:attr(data-label);color:var(--muted);font-weight:600;font-size:11.5px;display:block;margin-bottom:2px}
+    tbody td:first-child{padding-top:16px;background:linear-gradient(to bottom,#fffaf0 0%,#fff 100%)}
     tbody td:last-child{padding-bottom:16px}
-    .name{font-size:15px}
-    .code{font-size:11.5px}
-    .tag{font-size:12px !important;padding:4px 10px}
+    .name{font-size:16px;font-weight:700;color:var(--ink)}
+    .code{font-size:12px;color:var(--muted);margin-top:1px}
+    .tag{font-size:12px !important;padding:4px 10px;display:inline-block;margin-top:2px}
+    .num{font-weight:700;font-size:15px}
     /* 详情弹窗全屏化，更像原生App */
     .mask{padding:0}
     .modal{max-width:none;width:100%;max-height:100vh;height:100%;border-radius:0}
@@ -106,7 +107,9 @@
   @media(max-width:380px){
     .tab{font-size:13px;padding:11px 6px}
     .chip{padding:7px 11px;font-size:12px}
-    tbody td::before{flex:0 0 44%}
+    tbody td{padding:8px 12px}
+    .name{font-size:15px}
+    .num{font-size:14px}
   }
 </style>
 </head>
