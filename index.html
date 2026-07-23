@@ -86,19 +86,17 @@
     .tab{padding:12px 8px;font-size:14px}
     .search input{padding:13px 14px;font-size:16px}
     .chip{padding:8px 14px;font-size:13px}
-    .card{border-radius:14px;margin-bottom:16px}
+    .card{border-radius:14px;margin-bottom:16px;overflow-x:auto}
     thead{display:none}
-    table,tbody,tr,td{display:block;width:100%}
-    tbody tr{border-bottom:10px solid var(--bg);background:#fff;padding:2px 0}
-    tbody td{border:none;padding:10px 16px;display:flex;flex-direction:column;gap:2px;text-align:left;font-size:14px}
-    tbody td::before{content:attr(data-label);color:var(--muted);font-weight:600;font-size:11.5px;display:block;margin-bottom:2px}
-    tbody td:first-child{padding-top:16px;background:linear-gradient(to bottom,#fffaf0 0%,#fff 100%)}
-    tbody td:last-child{padding-bottom:16px}
-    .name{font-size:16px;font-weight:700;color:var(--ink)}
-    .code{font-size:12px;color:var(--muted);margin-top:1px}
-    .tag{font-size:12px !important;padding:4px 10px;display:inline-block;margin-top:2px}
-    .num{font-weight:700;font-size:15px}
-    /* 详情弹窗全屏化，更像原生App */
+    table{width:100%;min-width:640px}
+    tbody tr{display:table-row;background:#fff}
+    tbody td{display:table-cell;padding:8px 6px;font-size:12.5px;vertical-align:middle;border-bottom:1px solid var(--bg);white-space:nowrap}
+    td:first-child{white-space:normal;min-width:120px}
+    .name{font-size:14px}
+    .code{font-size:11px}
+    .tag{font-size:11px !important;padding:3px 8px}
+    .num{font-weight:700;font-size:13px}
+    /* 详情弹窗全屏化 */
     .mask{padding:0}
     .modal{max-width:none;width:100%;max-height:100vh;height:100%;border-radius:0}
     .modal .mh{padding:18px 16px}
@@ -325,7 +323,8 @@ function compute(r,price){
   }
   const needMoney=(needShares&&price)?needShares*price:null;
   const needMoneySafe=(needSharesSafe&&price)?needSharesSafe*price:null;
-  return {cv,needShares,needSharesSafe,needMoney,needMoneySafe,baiyuan,price,market:isSH?"沪":"深",isSH};
+  const estFloat=r.scale!=null?+(r.scale*0.75).toFixed(1):null;
+  return {cv,needShares,needSharesSafe,needMoney,needMoneySafe,baiyuan,price,market:isSH?"沪":"深",isSH,estFloat};
 }
 function fmt(v,d=2){return v==null?"待公告":(typeof v==="number"?v.toFixed(d):v);}
 function arrow(dir){return '<span class="sort-arrow'+(dir?' active':'')+'">'+(dir===1?'▲':(dir===-1?'↓':'⇅'))+'</span>';}
@@ -335,6 +334,7 @@ function getVal(r,f){
   if(f==="cv") return c.cv!=null?c.cv:-999;
   if(f==="baiyuan") return c.baiyuan!=null?c.baiyuan:-999;
   if(f==="scale") return r.scale||0;
+  if(f==="estFloat") { const c=r._c||{}; return c.estFloat!=null?c.estFloat:-999; }
   if(f==="needMoney") return c.needMoney!=null?c.needMoney:999999;
   if(f==="progress") return Number(r.progress)||0;
   if(f==="name") return (r.name||r.stockName||"");
@@ -362,11 +362,14 @@ function renderPend(){
   rows=doSort(rows,pendSort);
   const ps=pendSort;
   let h='<div class="card"><table><thead><tr>';
-  h+='<th data-sf="name">转债 / 正股 '+arrow(ps.field==="name"?ps.dir:0)+'</th>';
-  h+='<th data-sf="cv">转股价 / 转股价值 '+arrow(ps.field==="cv"?ps.dir:0)+'</th>';
-  h+='<th data-sf="needMoney">一手党股数 / 所需资金 '+arrow(ps.field==="needMoney"?ps.dir:0)+'</th>';
-  h+='<th data-sf="publicStart">申购日 / 阶段 '+arrow(ps.field==="publicStart"?ps.dir:0)+'</th>';
-  h+='<th data-sf="baiyuan">规模 / 百元含权 '+arrow(ps.field==="baiyuan"?ps.dir:0)+'</th>';
+  h+='<th>转债 / 正股</th>';
+  h+='<th>转股价</th><th>转股价值</th>';
+  h+='<th>一手党</th>';
+  h+='<th data-sf="needMoney">所需资金 '+(ps.field==="needMoney"?arrow(ps.dir):'')+'</th>';
+  h+='<th>申购日</th><th>阶段</th>';
+  h+='<th data-sf="scale">规模(亿) '+(ps.field==="scale"?arrow(ps.dir):'')+'</th>';
+  h+='<th data-sf="baiyuan">百元含权 '+(ps.field==="baiyuan"?arrow(ps.dir):'')+'</th>';
+  h+='<th data-sf="estFloat">预估流通(亿) '+(ps.field==="estFloat"?arrow(ps.dir):'')+'</th>';
   h+='</tr></thead><tbody>';
   rows.forEach((r,i)=>{
     const c=r._c||{};
@@ -374,11 +377,16 @@ function renderPend(){
     const mktTag=mkt?'<span style="font-size:10px;background:'+(mkt==="沪"?"#fff4ea;color:#ea580c":"#f3f4f6;color:#6b7280")+';padding:1px 6px;border-radius:8px;font-weight:700;margin-left:4px">'+mkt+'</span>':"";
     h+='<tr class="clickable" data-i="'+i+'" data-kind="pend">';
     h+='<td data-label="转债/正股"><div class="name">'+(r.name||"-")+mktTag+'</div><div class="code">'+(r.code||"")+' · '+(r.stockName||"")+'('+(r.stockCode||"")+')</div></td>';
-    h+='<td data-label="转股价/转股价值"><span class="num">'+fmt(r.convertPrice)+'</span> / <span class="hl num">'+(c.cv!=null?fmt(c.cv):"…")+'</span></td>';
+    h+='<td data-label="转股价"><span class="num">'+fmt(r.convertPrice)+'</span></td>';
+    h+='<td data-label="转股价值"><span class="hl num">'+(c.cv!=null?fmt(c.cv):"…")+'</span></td>';
     const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
-    h+='<td data-label="一手党/所需资金">'+(c.needShares!=null?('<span class="hl num">'+shLabel+'</span> / <span class="num">'+fmt(c.needMoney,0)+'元</span>'+(c.isSH&&c.needMoneySafe!=null?'<br><span class="muted" style="font-size:11px">稳配'+c.needSharesSafe+'股·'+fmt(c.needMoneySafe,0)+'元</span>':'')):'<span class="muted">待公告</span>')+'</td>';
-    h+='<td data-label="申购日/阶段"><span class="muted">'+(r.publicStart||"-")+'</span><br><span class="tag '+(r.stage==="申购"?"tag-sbuy":"tag-slist")+'">'+r.stage+'</span></td>';
-    h+='<td data-label="规模/百元含权"><span class="num">'+fmt(r.scale)+'亿</span> / <span class="hl num">'+(c.baiyuan!=null?fmt(c.baiyuan):"…")+'</span></td>';
+    h+='<td data-label="一手党">'+(c.needShares!=null?('<span class="hl num">'+shLabel+'</span>'+(c.isSH&&c.needSharesSafe!=null?'<br><span class="muted" style="font-size:11px">稳配'+c.needSharesSafe+'股</span>':'')):'<span class="muted">-</span>')+'</td>';
+    h+='<td data-label="所需资金">'+(c.needMoney!=null?('<span class="num">'+fmt(c.needMoney,0)+'</span>'+(c.isSH&&c.needMoneySafe!=null?'<br><span class="muted" style="font-size:11px">稳'+fmt(c.needMoneySafe,0)+'</span>':'')):'<span class="muted">-</span>')+'</td>';
+    h+='<td data-label="申购日"><span class="muted">'+(r.publicStart||"-")+'</span></td>';
+    h+='<td data-label="阶段"><span class="tag '+(r.stage==="申购"?"tag-sbuy":"tag-slist")+'">'+r.stage+'</span></td>';
+    h+='<td data-label="规模"><span class="num">'+fmt(r.scale)+'</span></td>';
+    h+='<td data-label="百元含权"><span class="hl num">'+(c.baiyuan!=null?fmt(c.baiyuan):"…")+'</span></td>';
+    h+='<td data-label="预估流通"><span class="num">'+(c.estFloat!=null?c.estFloat:'-')+'<span class="muted" style="font-size:10px;font-weight:400"> 预</span></span></td>';
     h+='</tr>';
   });
   h+='</tbody></table></div>';
@@ -415,11 +423,14 @@ function renderProgress(){
   rows=doSort(rows,progSort);
   const ps=progSort;
   let h='<div class="card"><table><thead><tr>';
-  h+='<th data-sf="stockName">正股 / 转债 '+arrow(ps.field==="stockName"?ps.dir:0)+'</th>';
-  h+='<th data-sf="progress">进度 / 评级 '+arrow(ps.field==="progress"?ps.dir:0)+'</th>';
-  h+='<th data-sf="cv">转股价 / 转股价值 '+arrow(ps.field==="cv"?ps.dir:0)+'</th>';
-  h+='<th data-sf="needMoney">一手党股数 / 所需资金 '+arrow(ps.field==="needMoney"?ps.dir:0)+'</th>';
-  h+='<th data-sf="baiyuan">百元含权 / 规模 '+arrow(ps.field==="baiyuan"?ps.dir:0)+'</th>';
+  h+='<th>正股 / 转债</th>';
+  h+='<th>进度</th><th>评级</th>';
+  h+='<th>转股价</th><th>转股价值</th>';
+  h+='<th>一手党</th>';
+  h+='<th data-sf="needMoney">所需资金 '+(ps.field==="needMoney"?arrow(ps.dir):'')+'</th>';
+  h+='<th data-sf="baiyuan">百元含权 '+(ps.field==="baiyuan"?arrow(ps.dir):'')+'</th>';
+  h+='<th data-sf="scale">规模(亿) '+(ps.field==="scale"?arrow(ps.dir):'')+'</th>';
+  h+='<th data-sf="estFloat">预估流通(亿) '+(ps.field==="estFloat"?arrow(ps.dir):'')+'</th>';
   h+='</tr></thead><tbody>';
   rows.forEach((r,i)=>{
     const c=r._c||{};
@@ -428,12 +439,16 @@ function renderProgress(){
     const mktTag=mkt?'<span style="font-size:10px;background:'+(mkt==="沪"?"#fff4ea;color:#ea580c":"#f3f4f6;color:#6b7280")+';padding:1px 6px;border-radius:8px;font-weight:700;margin-left:4px">'+mkt+'</span>':"";
     h+='<tr class="clickable" data-i="'+i+'" data-kind="progress">';
     h+='<td data-label="正股/转债"><div class="name">'+(r.stockName||"-")+mktTag+'</div><div class="code">'+(r.stockCode||"")+(r.name?(" · "+r.name):"")+'</div></td>';
-    h+='<td data-label="进度/评级"><span class="tag '+tagCls+'">'+progressLabel(r)+'</span><br><span class="muted">'+(r.rating_cd||"-")+'</span></td>';
-    h+='<td data-label="转股价/转股价值"><span class="num">'+fmt(r.convertPrice)+'</span> / <span class="hl num">'+(c.cv!=null?fmt(c.cv):"…")+'</span></td>';
+    h+='<td data-label="进度"><span class="tag '+tagCls+'">'+progressLabel(r)+'</span></td>';
+    h+='<td data-label="评级"><span class="muted">'+(r.rating_cd||"-")+'</span></td>';
+    h+='<td data-label="转股价"><span class="num">'+fmt(r.convertPrice)+'</span></td>';
+    h+='<td data-label="转股价值"><span class="hl num">'+(c.cv!=null?fmt(c.cv):"…")+'</span></td>';
     const shLabel2=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
-    h+='<td data-label="一手党股数">'+(c.needShares!=null?('<span class="hl num">'+shLabel2+'</span>'+(c.isSH&&c.needSharesSafe!=null?'<br><span class="muted" style="font-size:11px">稳配'+c.needSharesSafe+'股</span>':'')):'<span class="muted">-</span>')+'</td>';
-    h+='<td data-label="所需资金/百元含权">'+(c.needMoney!=null?('<span class="hl num">'+fmt(c.needMoney,0)+'元</span>'+(c.isSH&&c.needMoneySafe!=null?'<br><span class="muted" style="font-size:11px">稳'+fmt(c.needMoneySafe,0)+'元</span>':'')):'<span class="muted">-</span>')+' / <span class="hl num">'+(c.baiyuan!=null?fmt(c.baiyuan):"…")+'</span></td>';
-    h+='<td data-label="规模"><span class="num">'+fmt(r.scale)+'亿</span></td>';
+    h+='<td data-label="一手党">'+(c.needShares!=null?('<span class="hl num">'+shLabel2+'</span>'+(c.isSH&&c.needSharesSafe!=null?'<br><span class="muted" style="font-size:11px">稳配'+c.needSharesSafe+'股</span>':'')):'<span class="muted">-</span>')+'</td>';
+    h+='<td data-label="所需资金">'+(c.needMoney!=null?('<span class="num">'+fmt(c.needMoney,0)+'</span>'+(c.isSH&&c.needMoneySafe!=null?'<br><span class="muted" style="font-size:11px">稳'+fmt(c.needMoneySafe,0)+'</span>':'')):'<span class="muted">-</span>')+'</td>';
+    h+='<td data-label="百元含权"><span class="hl num">'+(c.baiyuan!=null?fmt(c.baiyuan):"…")+'</span></td>';
+    h+='<td data-label="规模"><span class="num">'+fmt(r.scale)+'</span></td>';
+    h+='<td data-label="预估流通"><span class="num">'+(c.estFloat!=null?c.estFloat:'-')+'<span class="muted" style="font-size:10px;font-weight:400"> 预</span></span></td>';
     h+='</tr>';
   });
   h+='</tbody></table></div>';
