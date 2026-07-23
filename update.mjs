@@ -17,7 +17,8 @@ function computeC(o){
     needShares=shares; needMoney=shares*o.price;
     if(effPerPre) baiyuan=effPerPre*100/o.price;
   }
-  return {cv,needShares,needMoney,baiyuan,price:o.price};
+  const estFloat=o.scale!=null?+(o.scale*0.75).toFixed(1):null;
+  return {cv,needShares,needMoney,baiyuan,price:o.price,estFloat};
 }
 
 (async()=>{
@@ -39,10 +40,12 @@ function computeC(o){
     apply_cd:x.apply_cd||null, ration_cd:x.ration_cd||null
   }));
   all.forEach(o=>{o._c=computeC(o);});
+  // 剔除25年以前(进度日期早于2025-01-01)的陈旧条目
+  const filtered=all.filter(o=>!(o.progress_dt && o.progress_dt < '2025-01-01'));
   // PEND: progress=90 + apply_date>=today
   // PROGRESS: all except 99 and 90-with-passed-apply_date
   const pend=[], progress=[];
-  all.forEach(o=>{
+  filtered.forEach(o=>{
     if(o.progress==='99') return;
     if(o.progress==='90'){
       if(o.apply_date && o.apply_date>=today){

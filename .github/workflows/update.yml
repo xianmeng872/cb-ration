@@ -3,7 +3,8 @@ on:
   push:
     branches: [main]
   schedule:
-    - cron: '0 10 * * *'
+    - cron: '0 1 * * *'   # 09:00 北京时间
+    - cron: '0 10 * * *'  # 18:00 北京时间
   workflow_dispatch:
 jobs:
   update:
