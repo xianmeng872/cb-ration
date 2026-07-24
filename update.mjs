@@ -29,7 +29,7 @@ function saveCache() { fs.writeFileSync(CACHE, JSON.stringify(LOCK_CACHE, null, 
 // 流通盘 = 总规模 × (1 − 锁定比例)。
 async function getLockRatio(stockCode) {
   if (!stockCode) return null;
-  if (LOCK_CACHE[stockCode] !== undefined) return LOCK_CACHE[stockCode]; // 仅缓存成功值，失败不缓存以便重试
+  if (LOCK_CACHE[stockCode] !== undefined && LOCK_CACHE[stockCode] !== null) return LOCK_CACHE[stockCode]; // 仅命中有效缓存；null视为未算，重试
   const url = EM_HOLDER.replace('CODE', emCode(stockCode));
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
@@ -94,6 +94,7 @@ async function getLockRatio(stockCode) {
   const filtered = arr.filter(o => {
     if (o.progress === '99') return false;
     if (o.progress === '90' && o.progress_nm && o.progress_nm.indexOf('申购') >= 0) return false;
+    if (o.progress_dt && o.progress_dt < '2025-01-01') return false; // 25年以前发债，剔除
     return true;
   });
 
