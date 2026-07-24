@@ -1,9 +1,8 @@
 import fs from 'fs';
 
-const DIR = 'C:/Users/丞哥飞呀/WorkBuddy/2026-07-23-23-45-49';
-const HTML = DIR + '/可转债抢权配售.html';
-const JSON_OUT = DIR + '/审核进度快照.json';
-const CACHE = DIR + '/流通盘缓存.json';
+const HTML = './index.html';
+const JSON_OUT = './审核进度快照.json';
+const CACHE = './流通盘缓存.json';
 const JSL = 'https://www.jisilu.cn/webapi/cb/pre/';
 // emweb 网页版股东接口（稳定不限流，返回十大股东+持股比例）
 const EM_HOLDER = 'https://emweb.securities.eastmoney.com/PC_HSF10/ShareholderResearch/PageAjax?code=CODE';
