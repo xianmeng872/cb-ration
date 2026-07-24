@@ -180,11 +180,6 @@
   <div id="view-progress" style="display:none">
     <div class="chips" id="progChips">
       <span class="chip active" data-f="all">全部</span>
-      <span class="chip" data-f="90">同意注册</span>
-      <span class="chip" data-f="80">上市委通过</span>
-      <span class="chip" data-f="50">交易所受理</span>
-      <span class="chip" data-f="20">股东大会通过</span>
-      <span class="chip" data-f="10">董事会预案</span>
     </div>
     <div class="search"><input id="q2" placeholder="🔍 搜索正股 / 转债 / 代码，如：炬申、千红"></div>
     <div id="progressPanel"></div>
@@ -515,8 +510,13 @@ function renderProgress(){
     h+='</div><div class="cb-list">';
     rows.forEach((r,i)=>{
       const c=r._c||{};
+      const tagCls="tag-s"+r.progress;
+      const pl=progressLabel(r);
       h+='<div class="cb-item" data-i="'+i+'" data-kind="progress">';
       h+='<div class="cb-name"><span class="n">'+(r.stockName||"-")+'</span><span class="c">'+(r.stockCode||"")+'</span></div>';
+      const pdStr=(r.progress_dt||"");
+      const shortPd=pdStr?pdStr.slice(5):"-";
+      h+='<div class="cb-sub"><span class="cb-d">📅 '+shortPd+'</span><span class="cb-tag"><span class="tag '+tagCls+'">'+pl+'</span></span></div>';
       // 一行四列：配售 | 规模 | 所需资金 | 流通
       const shLabel2=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
       h+='<div class="cb-stats">';
@@ -541,6 +541,7 @@ function renderProgress(){
   // ===== PC端：表格 =====
   let h='<div class="card"><table><thead><tr>';
   h+='<th>正股 / 转债</th>';
+  h+='<th data-sf="progress">进度 '+(ps.field==="progress"?arrow(ps.dir):'')+'</th>';
   h+='<th data-sf="cv">转股价值 '+(ps.field==="cv"?arrow(ps.dir):'')+'</th>';
   h+='<th>一手党</th>';
   h+='<th data-sf="needMoney">所需资金 '+(ps.field==="needMoney"?arrow(ps.dir):'')+'</th>';
@@ -552,8 +553,10 @@ function renderProgress(){
     const c=r._c||{};
     const mkt=c.market||"";
     const mktTag=mkt?'<span style="font-size:10px;background:'+(mkt==="沪"?"#fff4ea;color:#ea580c":"#f3f4f6;color:#6b7280")+';padding:1px 6px;border-radius:8px;font-weight:700;margin-left:4px">'+mkt+'</span>':"";
+    const tagCls="tag-s"+r.progress;
     h+='<tr class="clickable" data-i="'+i+'" data-kind="progress">';
     h+='<td data-label="正股/转债"><div class="name">'+(r.stockName||"-")+mktTag+'</div><div class="code">'+(r.stockCode||"")+(r.name?(" · "+r.name):"")+'</div></td>';
+    h+='<td data-label="进度"><span class="tag '+tagCls+'">'+progressLabel(r)+'</span></td>';
     h+='<td data-label="转股价值"><span class="hl num">'+(c.cv!=null?fmt(c.cv):"…")+'</span></td>';
     const shLabel2=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
     h+='<td data-label="一手党">'+(c.needShares!=null?('<span class="hl num">'+shLabel2+'</span>'+(c.isSH&&c.needSharesSafe!=null?'<br><span class="muted" style="font-size:11px">稳配'+c.needSharesSafe+'股</span>':'')):'<span class="muted">-</span>')+'</td>';
