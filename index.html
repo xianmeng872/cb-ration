@@ -107,12 +107,13 @@
     .cb-val{color:#1f2937;font-weight:700;font-variant-numeric:tabular-nums}
     .cb-val.hl{color:#ea580c;font-weight:800;font-size:14.5px}/* 橙色高亮：配售/资金 */
     .cb-val.blue{color:#2563eb;font-weight:700}/* 蓝色：名称类 */
-    /* 底部辅助行：日期 + 规模 + 预估流通，简洁一行 */
-    .cb-meta{color:#9ca3af;font-size:12px;display:flex;align-items:center;gap:1px;padding-top:6px;line-height:1.6}
-    .cb-meta .cb-date{color:#6b7280;font-weight:700;background:#f3f4f6;padding:2px 7px;border-radius:6px;font-size:11.5px;flex-shrink:0}
-    .cb-meta .cb-dot{color:#d1d5db;margin:0 2px}
-    .cb-meta .cb-scale{font-weight:600}
-    .cb-meta .cb-float{font-weight:700;color:#ea580c}
+    /* 底部辅助行：每个数据带清晰标签，一眼看清 */
+    .cb-meta{color:#9ca3af;font-size:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-top:9px;line-height:1.4}
+    .cb-meta .cb-date{color:#374151;font-weight:700;background:#f3f4f6;padding:3px 8px;border-radius:6px;font-size:12px;flex-shrink:0}
+    .cb-meta .cb-item2{display:flex;align-items:baseline;gap:3px}
+    .cb-meta .cb-k{color:#9ca3af;font-size:11px}
+    .cb-meta .cb-v{color:#374151;font-weight:700;font-size:12px}
+    .cb-meta .cb-float{color:#ea580c}
     /* 状态标签内联 */
     .cb-tag{display:inline-flex;align-items:center;margin-left:4px;vertical-align:middle}
     /* 详情弹窗全屏化 */
@@ -124,8 +125,9 @@
     .mrow{font-size:14px;padding:12px 0}
     .foot{display:none}
     /* 排序提示条（手机端卡片模式） */
-    .sort-bar{display:flex;gap:6px;padding:6px 0 10px;flex-wrap:wrap;overflow-x:auto;-webkit-overflow-scrolling:touch}
-    .sort-btn{font-size:11.5px;font-weight:700;padding:5px 10px;border-radius:16px;background:#f3f4f6;color:#6b7280;border:1px solid #e5e7eb;white-space:nowrap;cursor:pointer;transition:.15s;flex-shrink:0}
+    .sort-bar{display:flex;gap:6px;padding:8px 10px;margin:2px 0 8px;flex-wrap:wrap;background:var(--primary-light);border-radius:10px;align-items:center}
+    .sort-label{font-size:11px;color:var(--primary);font-weight:800;flex-shrink:0;margin-right:2px}
+    .sort-btn{font-size:11.5px;font-weight:700;padding:5px 10px;border-radius:16px;background:#fff;color:#6b7280;border:1px solid #e5e7eb;white-space:nowrap;cursor:pointer;transition:.15s;flex-shrink:0}
     .sort-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
     .foot{padding:20px 8px 30px}
   }
@@ -188,7 +190,7 @@ const LABEL={code:"转债代码",name:"转债名称",stockCode:"正股代码",st
   scale:"发行规模(亿)",publicStart:"申购日",stage:"进展阶段",baiyuan:"百元含权",listDate:"上市日",
   progress_nm:"当前进度",rating_cd:"评级",apply10:"配售10张所需股数"};
 let PEND=[], PROGRESS=[], keyword="", keyword2="", activeTab="pend", PROG_FILTER="all";
-let pendSort={field:"publicStart",dir:1}, progSort={field:"progress",dir:-1};
+let pendSort={field:"publicStart",dir:1}, progSort={field:"progress_dt",dir:-1};
 const SNAPSHOT_PEND=[
 {"code":"118074","name":"特宝转债","stockCode":"688278","stockName":"特宝生物","convertPrice":58.56,"perPre":3.857,"scale":15.33,"publicStart":"2026-07-28 00:00:00","listDate":"","stage":"申购","_c":{"cv":100.8879781420765,"needShares":260,"needMoney":15360.8,"baiyuan":6.528436018957347,"price":59.08,"estFloat":6.47},"apply10":260,"rating_cd":"AA+"},
 {"code":"127115","name":"炬申转债","stockCode":"001202","stockName":"炬申股份","convertPrice":13.76,"perPre":2.2911,"scale":3.8,"publicStart":"2026-07-24 00:00:00","listDate":"","stage":"申购","_c":{"cv":111.33720930232558,"needShares":437,"needMoney":6694.84,"baiyuan":14.954960835509139,"price":15.32,"estFloat":1.32},"apply10":437,"rating_cd":"AA-"},
@@ -358,6 +360,7 @@ function getVal(r,f){
   if(f==="cv") return c.cv!=null?c.cv:-999;
   if(f==="baiyuan") return c.baiyuan!=null?c.baiyuan:-999;
   if(f==="scale") return r.scale||0;
+  if(f==="progress_dt") return r.progress_dt||"0000-00-00";
   if(f==="estFloat") { const c=r._c||{}; return c.estFloat!=null?c.estFloat:-999; }
   if(f==="needMoney") return c.needMoney!=null?c.needMoney:999999;
   if(f==="progress") return Number(r.progress)||0;
@@ -390,8 +393,8 @@ function renderPend(){
 
   // ===== 手机端：卡片列表 =====
   if(isMobile()){
-    let h='<div class="sort-bar">';
-    const sfs=[{f:"cv",l:"转股价值"},{f:"needMoney",l:"所需资金"},{f:"baiyuan",l:"百元含权"},{f:"scale",l:"规模"},{f:"estFloat",l:"预估流通"}];
+    let h='<div class="sort-bar"><span class="sort-label">排序</span>';
+    const sfs=[{f:"publicStart",l:"申购日"},{f:"cv",l:"转股价值"},{f:"needMoney",l:"所需资金"},{f:"baiyuan",l:"百元含权"},{f:"scale",l:"规模"},{f:"estFloat",l:"预估流通"}];
     sfs.forEach(s=>{const ac=(ps.field===s.f);h+='<span class="sort-btn'+(ac?' active':'')+'" data-sf="'+s.f+'">'+s.l+(ac?arrow(ps.dir):'')+'</span>'});
     h+='</div><div class="cb-list">';
     rows.forEach((r,i)=>{
@@ -418,9 +421,9 @@ function renderPend(){
       h+='<div class="cb-meta">';
       const dStr=(r.publicStart||r.progress_dt||"");
       const shortD=dStr?dStr.slice(5):"-";
-      h+='<span class="cb-date">'+shortD+'</span>';
-      if(r.scale!=null) h+='<span class="cb-dot">·</span><span class="cb-scale">'+fmt(r.scale)+'亿</span>';
-      if(c.estFloat!=null) h+='<span class="cb-dot">·</span><span class="cb-float">预'+c.estFloat+'亿</span>';
+      h+='<span class="cb-date">📅 '+shortD+'</span>';
+      if(r.scale!=null) h+='<span class="cb-item2"><span class="cb-k">规模</span><span class="cb-v">'+fmt(r.scale)+'亿</span></span>';
+      if(c.estFloat!=null) h+='<span class="cb-item2"><span class="cb-k">流通</span><span class="cb-v cb-float">'+c.estFloat+'亿</span></span>';
       h+='</div>';
       h+='</div>';
     });
@@ -499,8 +502,8 @@ function renderProgress(){
 
   // ===== 手机端：卡片列表 =====
   if(isMobile()){
-    let h='<div class="sort-bar">';
-    const sfs=[{f:"cv",l:"转股价值"},{f:"needMoney",l:"所需资金"},{f:"baiyuan",l:"百元含权"},{f:"scale",l:"规模"},{f:"estFloat",l:"预估流通"}];
+    let h='<div class="sort-bar"><span class="sort-label">排序</span>';
+    const sfs=[{f:"progress_dt",l:"最新进度"},{f:"cv",l:"转股价值"},{f:"needMoney",l:"所需资金"},{f:"baiyuan",l:"百元含权"},{f:"scale",l:"规模"},{f:"estFloat",l:"预估流通"}];
     sfs.forEach(s=>{const ac=(ps.field===s.f);h+='<span class="sort-btn'+(ac?' active':'')+'" data-sf="'+s.f+'">'+s.l+(ac?arrow(ps.dir):'')+'</span>'});
     h+='</div><div class="cb-list">';
     rows.forEach((r,i)=>{
@@ -529,9 +532,9 @@ function renderProgress(){
       h+='<div class="cb-meta">';
       const pdStr=(r.progress_dt||"");
       const shortPd=pdStr?pdStr.slice(5):"-";
-      h+='<span class="cb-date">'+shortPd+'</span>';
-      if(r.scale!=null) h+='<span class="cb-dot">·</span><span class="cb-scale">'+fmt(r.scale)+'亿</span>';
-      if(c.estFloat!=null) h+='<span class="cb-dot">·</span><span class="cb-float">预'+c.estFloat+'亿</span>';
+      h+='<span class="cb-date">📅 '+shortPd+'</span>';
+      if(r.scale!=null) h+='<span class="cb-item2"><span class="cb-k">规模</span><span class="cb-v">'+fmt(r.scale)+'亿</span></span>';
+      if(c.estFloat!=null) h+='<span class="cb-item2"><span class="cb-k">流通</span><span class="cb-v cb-float">'+c.estFloat+'亿</span></span>';
       h+='</div>';
       h+='</div>';
     });
