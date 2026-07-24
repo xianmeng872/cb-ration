@@ -109,6 +109,7 @@
     .cb-val{color:#1f2937;font-weight:700;font-variant-numeric:tabular-nums}
     .cb-val.hl{color:#ea580c;font-weight:800;font-size:14.5px}/* 橙色高亮：配售/资金 */
     .cb-v2{color:#374151;font-weight:700;font-size:13.5px;font-variant-numeric:tabular-nums}
+    .cb-date2{color:#374151;font-weight:700;font-size:13px;font-variant-numeric:tabular-nums}
     .cb-val.blue{color:#2563eb;font-weight:700}/* 蓝色：名称类 */
     /* 底部辅助行：每个数据带清晰标签，一眼看清 */
     .cb-meta{color:#9ca3af;font-size:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-top:9px;line-height:1.4}
@@ -411,26 +412,29 @@ function renderPend(){
       // 正股
       if(r.stockName) h+='<div class="cb-stock">'+r.stockName+'('+(r.stockCode||"")+')'+'</div>';
       else if(r.stockCode) h+='<div class="cb-stock">'+r.stockCode+'</div>';
-      // 行1：配售 + 所需资金
+      // 单列：配售
       h+='<div class="cb-row">';
       const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
       h+='<span class="cb-cell"><span class="cb-lbl">配售</span><span class="cb-val hl">'+(c.needShares!=null?shLabel:'-')+'</span></span>';
+      h+='</div>';
+      // 单列：所需资金
+      h+='<div class="cb-row">';
       h+='<span class="cb-cell"><span class="cb-lbl">所需资金</span><span class="cb-val hl">'+(c.needMoney!=null?fmt(c.needMoney,0)+'元':'-')+'</span></span>';
       h+='</div>';
-      // 行2：规模 + 预估流通
+      // 单列：规模
       h+='<div class="cb-row">';
       h+='<span class="cb-cell"><span class="cb-lbl">规模</span><span class="cb-v2">'+(r.scale!=null?fmt(r.scale)+'亿':'-')+'</span></span>';
+      h+='</div>';
+      // 单列：流通
+      h+='<div class="cb-row">';
       h+='<span class="cb-cell"><span class="cb-lbl">流通</span><span class="cb-v2 cb-float">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span>';
       h+='</div>';
-      // 行3：转股价值（末行，无下边框）
-      h+='<div class="cb-row" style="border-bottom:none;padding-bottom:0">';
-      h+='<span class="cb-cell"><span class="cb-lbl">转股价值</span><span class="cb-val hl">'+(c.cv!=null?fmt(c.cv):"…")+'</span></span>';
-      h+='</div>';
-      // 底部：仅日期
-      h+='<div class="cb-meta">';
+      // 末行：日期 + 转股价值（一行2列）
       const dStr=(r.publicStart||r.progress_dt||"");
       const shortD=dStr?dStr.slice(5):"-";
-      h+='<span class="cb-date">📅 '+shortD+'</span>';
+      h+='<div class="cb-row" style="border-bottom:none;padding-bottom:0">';
+      h+='<span class="cb-cell"><span class="cb-lbl">日期</span><span class="cb-date2">📅 '+shortD+'</span></span>';
+      h+='<span class="cb-cell"><span class="cb-lbl">转股价值</span><span class="cb-val hl">'+(c.cv!=null?fmt(c.cv):"…")+'</span></span>';
       h+='</div>';
       h+='</div>';
     });
@@ -524,26 +528,29 @@ function renderProgress(){
       h+='<div class="cb-name"><span class="n">'+(r.stockName||"-")+'</span><span class="cb-tag"><span class="tag '+tagCls+'">'+pl+'</span></span><span class="c">'+(r.stockCode||"")+'</span>'+mktTag+'</div>';
       // 转债名（无市场标记了，已上移）
       if(r.name) h+='<div class="cb-stock">'+r.name+'</div>';
-      // 行1：配售 + 所需资金
+      // 单列：配售
       h+='<div class="cb-row">';
       const shLabel2=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
       h+='<span class="cb-cell"><span class="cb-lbl">配售</span><span class="cb-val hl">'+(c.needShares!=null?shLabel2:'-')+'</span></span>';
+      h+='</div>';
+      // 单列：所需资金
+      h+='<div class="cb-row">';
       h+='<span class="cb-cell"><span class="cb-lbl">所需资金</span><span class="cb-val hl">'+(c.needMoney!=null?fmt(c.needMoney,0)+'元':'-')+'</span></span>';
       h+='</div>';
-      // 行2：规模 + 预估流通
+      // 单列：规模
       h+='<div class="cb-row">';
       h+='<span class="cb-cell"><span class="cb-lbl">规模</span><span class="cb-v2">'+(r.scale!=null?fmt(r.scale)+'亿':'-')+'</span></span>';
+      h+='</div>';
+      // 单列：流通
+      h+='<div class="cb-row">';
       h+='<span class="cb-cell"><span class="cb-lbl">流通</span><span class="cb-v2 cb-float">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span>';
       h+='</div>';
-      // 行3：转股价值（末行）
-      h+='<div class="cb-row" style="border-bottom:none;padding-bottom:0">';
-      h+='<span class="cb-cell"><span class="cb-lbl">转股价值</span><span class="cb-val hl">'+(c.cv!=null?fmt(c.cv):"…")+'</span></span>';
-      h+='</div>';
-      // 底部：仅日期
-      h+='<div class="cb-meta">';
+      // 末行：日期 + 转股价值（一行2列）
       const pdStr=(r.progress_dt||"");
       const shortPd=pdStr?pdStr.slice(5):"-";
-      h+='<span class="cb-date">📅 '+shortPd+'</span>';
+      h+='<div class="cb-row" style="border-bottom:none;padding-bottom:0">';
+      h+='<span class="cb-cell"><span class="cb-lbl">日期</span><span class="cb-date2">📅 '+shortPd+'</span></span>';
+      h+='<span class="cb-cell"><span class="cb-lbl">转股价值</span><span class="cb-val hl">'+(c.cv!=null?fmt(c.cv):"…")+'</span></span>';
       h+='</div>';
       h+='</div>';
     });
