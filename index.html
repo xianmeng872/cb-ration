@@ -510,7 +510,7 @@ function renderProgress(){
   // ===== 手机端：卡片列表 =====
   if(isMobile()){
     let h='<div class="sort-bar"><span class="sort-label">排序</span>';
-    const sfs=[{f:"progress_dt",l:"最新进度"},{f:"needMoney",l:"所需资金"},{f:"baiyuan",l:"百元含权"},{f:"scale",l:"规模"},{f:"estFloat",l:"预估流通"}];
+    const sfs=[{f:"progress",l:"进度"},{f:"needMoney",l:"所需资金"},{f:"baiyuan",l:"百元含权"},{f:"scale",l:"规模"},{f:"estFloat",l:"预估流通"}];
     sfs.forEach(s=>{const ac=(ps.field===s.f);h+='<span class="sort-btn'+(ac?' active':'')+'" data-sf="'+s.f+'">'+s.l+(ac?arrow(ps.dir):'')+'</span>'});
     h+='</div><div class="cb-list">';
     rows.forEach((r,i)=>{
@@ -548,7 +548,7 @@ function renderProgress(){
   // ===== PC端：表格 =====
   let h='<div class="card"><table><thead><tr>';
   h+='<th>正股 / 转债</th>';
-  h+='<th data-sf="progress_dt">进度 '+(ps.field==="progress_dt"?arrow(ps.dir):'')+'</th>';
+  h+='<th data-sf="progress">进度 '+(ps.field==="progress"?arrow(ps.dir):'')+'</th>';
   h+='<th data-sf="cv">转股价值 '+(ps.field==="cv"?arrow(ps.dir):'')+'</th>';
   h+='<th>一手党</th>';
   h+='<th data-sf="needMoney">所需资金 '+(ps.field==="needMoney"?arrow(ps.dir):'')+'</th>';
