@@ -394,22 +394,22 @@ function renderPend(){
       const c=r._c||{};
       const mkt=c.market||"";
       h+='<div class="cb-item" data-i="'+i+'" data-kind="pend">';
-      // 第一行：名称 + 状态标签（紧跟名字旁） + 代码
-      const stageTag=r.stage==="申购"?'<span class="tag tag-sbuy">申购</span>':(r.stage==="待发行"?'<span class="tag tag-slist">待发行</span>':'');
-      h+='<div class="cb-name"><span class="n">'+(r.name||"-")+'</span><span class="cb-tag">'+stageTag+'</span><span class="c">'+(r.code||"")+'</span></div>';
+      // 第一行：名称 + 代码
+      h+='<div class="cb-name"><span class="n">'+(r.name||"-")+'</span><span class="c">'+(r.code||"")+'</span></div>';
       // 正股
       h+='<div class="cb-stock">'+(r.stockName||"")+'('+(r.stockCode||"")+')'+(mkt?' · '+mkt:'')+'</div>';
-      // 数据行：转股价值（去掉转股价）
+      // 数据行
       h+='<div class="cb-row">';
+      h+='<span class="cb-cell"><span class="cb-lbl">转股价</span><span class="cb-val">'+fmt(r.convertPrice)+'元</span></span>';
       h+='<span class="cb-cell"><span class="cb-lbl">转股价值</span><span class="cb-val hl">'+(c.cv!=null?fmt(c.cv):"…")+'</span></span>';
       h+='</div>';
       h+='<div class="cb-row">';
       // 配售股数（最醒目）
-      const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
+      const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股'):(c.needShares!=null?c.needShares+'股':'-');
       h+='<span class="cb-cell"><span class="cb-lbl">配售</span><span class="cb-val hl">'+(c.needShares!=null?shLabel:'-')+'</span></span>';
-      // 所需资金（最醒目）
-      h+='<span class="cb-cell"><span class="cb-lbl">所需资金</span><span class="cb-val hl">'+(c.needMoney!=null?fmt(c.needMoney,0)+'元':'-')+'</span></span>';
-      if(c.isSH&&c.needMoneySafe!=null) h+='<span class="cb-cell" style="min-width:auto"><span class="cb-lbl">稳配</span><span class="cb-val">'+fmt(c.needMoneySafe,0)+'元</span></span>';
+      // 所需资金（最醒目）+ 状态标签
+      const stageTag=r.stage==="申购"?'<span class="tag tag-sbuy">申购</span>':(r.stage==="待发行"?'<span class="tag tag-slist">待发行</span>':'');
+      h+='<span class="cb-cell"><span class="cb-lbl">所需资金</span><span class="cb-val hl">'+(c.needMoney!=null?fmt(c.needMoney,0):'-')+'元</span><span class="cb-tag">'+stageTag+'</span></span>';
       h+='</div>';
       // 底部辅助信息
       h+='<div class="cb-meta">';
@@ -434,7 +434,7 @@ function renderPend(){
   // ===== PC端：表格 =====
   let h='<div class="card"><table><thead><tr>';
   h+='<th>转债 / 正股</th>';
-  h+='<th data-sf="cv">转股价值 '+(ps.field==="cv"?arrow(ps.dir):'')+'</th>';
+  h+='<th>转股价</th><th data-sf="cv">转股价值 '+(ps.field==="cv"?arrow(ps.dir):'')+'</th>';
   h+='<th>一手党</th>';
   h+='<th data-sf="needMoney">所需资金 '+(ps.field==="needMoney"?arrow(ps.dir):'')+'</th>';
   h+='<th>申购日</th><th>阶段</th>';
@@ -448,6 +448,7 @@ function renderPend(){
     const mktTag=mkt?'<span style="font-size:10px;background:'+(mkt==="沪"?"#fff4ea;color:#ea580c":"#f3f4f6;color:#6b7280")+';padding:1px 6px;border-radius:8px;font-weight:700;margin-left:4px">'+mkt+'</span>':"";
     h+='<tr class="clickable" data-i="'+i+'" data-kind="pend">';
     h+='<td data-label="转债/正股"><div class="name">'+(r.name||"-")+mktTag+'</div><div class="code">'+(r.code||"")+' · '+(r.stockName||"")+'('+(r.stockCode||"")+')</div></td>';
+    h+='<td data-label="转股价"><span class="num">'+fmt(r.convertPrice)+'</span></td>';
     h+='<td data-label="转股价值"><span class="hl num">'+(c.cv!=null?fmt(c.cv):"…")+'</span></td>';
     const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
     h+='<td data-label="一手党">'+(c.needShares!=null?('<span class="hl num">'+shLabel+'</span>'+(c.isSH&&c.needSharesSafe!=null?'<br><span class="muted" style="font-size:11px">稳配'+c.needSharesSafe+'股</span>':'')):'<span class="muted">-</span>')+'</td>';
@@ -505,20 +506,20 @@ function renderProgress(){
       const mkt=c.market||"";
       const pl=progressLabel(r);
       h+='<div class="cb-item" data-i="'+i+'" data-kind="progress">';
-      // 第一行：正股名称 + 审核状态标签（紧跟名字旁） + 代码
-      h+='<div class="cb-name"><span class="n">'+(r.stockName||"-")+'</span><span class="cb-tag"><span class="tag '+tagCls+'">'+pl+'</span></span><span class="c">'+(r.stockCode||"")+'</span></div>';
+      // 第一行：正股名称 + 代码
+      h+='<div class="cb-name"><span class="n">'+(r.stockName||"-")+'</span><span class="c">'+(r.stockCode||"")+'</span></div>';
       // 转债名
       if(r.name) h+='<div class="cb-stock">'+r.name+(mkt?' · '+mkt:'')+'</div>';
       else if(mkt) h+='<div class="cb-stock">'+mkt+'</div>';
-      // 数据行：转股价值（去掉转股价）
+      // 数据行
       h+='<div class="cb-row">';
+      h+='<span class="cb-cell"><span class="cb-lbl">转股价</span><span class="cb-val">'+fmt(r.convertPrice)+'元</span></span>';
       h+='<span class="cb-cell"><span class="cb-lbl">转股价值</span><span class="cb-val hl">'+(c.cv!=null?fmt(c.cv):"…")+'</span></span>';
       h+='</div>';
       h+='<div class="cb-row">';
-      const shLabel2=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
+      const shLabel2=(c.isSH&&c.needShares!=null)?(c.needShares+'股'):(c.needShares!=null?c.needShares+'股':'-');
       h+='<span class="cb-cell"><span class="cb-lbl">配售</span><span class="cb-val hl">'+(c.needShares!=null?shLabel2:'-')+'</span></span>';
-      h+='<span class="cb-cell"><span class="cb-lbl">所需资金</span><span class="cb-val hl">'+(c.needMoney!=null?fmt(c.needMoney,0)+'元':'-')+'</span></span>';
-      if(c.isSH&&c.needMoneySafe!=null) h+='<span class="cb-cell" style="min-width:auto"><span class="cb-lbl">稳配</span><span class="cb-val">'+fmt(c.needMoneySafe,0)+'元</span></span>';
+      h+='<span class="cb-cell"><span class="cb-lbl">所需资金</span><span class="cb-val hl">'+(c.needMoney!=null?fmt(c.needMoney,0):'-')+'元</span><span class="cb-tag"><span class="tag '+tagCls+'">'+pl+'</span></span></span>';
       h+='</div>';
       // 底部辅助
       h+='<div class="cb-meta">';
@@ -544,7 +545,7 @@ function renderProgress(){
   let h='<div class="card"><table><thead><tr>';
   h+='<th>正股 / 转债</th>';
   h+='<th>进度</th>';
-  h+='<th data-sf="cv">转股价值 '+(ps.field==="cv"?arrow(ps.dir):'')+'</th>';
+  h+='<th>转股价</th><th data-sf="cv">转股价值 '+(ps.field==="cv"?arrow(ps.dir):'')+'</th>';
   h+='<th>一手党</th>';
   h+='<th data-sf="needMoney">所需资金 '+(ps.field==="needMoney"?arrow(ps.dir):'')+'</th>';
   h+='<th data-sf="baiyuan">百元含权 '+(ps.field==="baiyuan"?arrow(ps.dir):'')+'</th>';
@@ -559,6 +560,7 @@ function renderProgress(){
     h+='<tr class="clickable" data-i="'+i+'" data-kind="progress">';
     h+='<td data-label="正股/转债"><div class="name">'+(r.stockName||"-")+mktTag+'</div><div class="code">'+(r.stockCode||"")+(r.name?(" · "+r.name):"")+'</div></td>';
     h+='<td data-label="进度"><span class="tag '+tagCls+'">'+progressLabel(r)+'</span></td>';
+    h+='<td data-label="转股价"><span class="num">'+fmt(r.convertPrice)+'</span></td>';
     h+='<td data-label="转股价值"><span class="hl num">'+(c.cv!=null?fmt(c.cv):"…")+'</span></td>';
     const shLabel2=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
     h+='<td data-label="一手党">'+(c.needShares!=null?('<span class="hl num">'+shLabel2+'</span>'+(c.isSH&&c.needSharesSafe!=null?'<br><span class="muted" style="font-size:11px">稳配'+c.needSharesSafe+'股</span>':'')):'<span class="muted">-</span>')+'</td>';
