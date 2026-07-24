@@ -99,8 +99,9 @@
     .cb-name .c{font-size:12px;color:#6b7280;font-weight:600;flex-shrink:0;margin-left:8px}
     .cb-name .cb-l{display:flex;align-items:baseline;min-width:0;overflow:hidden}
     .cb-name .cb-r{display:flex;align-items:baseline;gap:5px;flex-shrink:0}
-    /* 名称行日期：紧跟代码后面 */
-    .cb-name .cb-d{font-size:11px;color:#9ca3af;font-weight:600;margin-left:6px;white-space:nowrap;flex-shrink:0}
+    /* 公司名下方单列一行：日期（左） + 进度标签（右） */
+    .cb-sub{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+    .cb-d{font-size:11.5px;color:#6b7280;font-weight:700;white-space:nowrap;flex-shrink:0}
     /* 2×2 网格：配售 | 规模 / 所需资金 | 流通 */
     .cb-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;padding:7px 0}
     .cb-stats .s{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
@@ -416,11 +417,13 @@ function renderPend(){
       const c=r._c||{};
       const mkt=c.market||"";
       h+='<div class="cb-item" data-i="'+i+'" data-kind="pend">';
-      // 第一行：名称+代码+日期（左） | 状态标签（右）
+      // 第一行：名称+代码
       const stageTag=r.stage==="申购"?'<span class="tag tag-sbuy">申购</span>':(r.stage==="待发行"?'<span class="tag tag-slist">待发行</span>':'');
       const dStr=(r.publicStart||r.progress_dt||"");
       const shortD=dStr?dStr.slice(5):"-";
-      h+='<div class="cb-name"><span class="cb-l"><span class="n">'+(r.name||"-")+'</span><span class="c">'+(r.code||"")+'</span><span class="cb-d">📅 '+shortD+'</span></span><span class="cb-r"><span class="cb-tag">'+stageTag+'</span></span></div>';
+      h+='<div class="cb-name"><span class="n">'+(r.name||"-")+'</span><span class="c">'+(r.code||"")+'</span></div>';
+      // 第二行：日期（左）+ 进度标签（右），单列一行
+      h+='<div class="cb-sub"><span class="cb-d">📅 '+shortD+'</span><span class="cb-tag">'+stageTag+'</span></div>';
       // 正股
       if(r.stockName) h+='<div class="cb-stock">'+r.stockName+'('+(r.stockCode||"")+')'+'</div>';
       else if(r.stockCode) h+='<div class="cb-stock">'+r.stockCode+'</div>';
@@ -518,10 +521,12 @@ function renderProgress(){
       const tagCls="tag-s"+r.progress;
       const pl=progressLabel(r);
       h+='<div class="cb-item" data-i="'+i+'" data-kind="progress">';
-      // 第一行：正股名+代码+日期（左） | 审核状态标签（右）
+      // 第一行：正股名+代码
       const pdStr=(r.progress_dt||"");
       const shortPd=pdStr?pdStr.slice(5):"-";
-      h+='<div class="cb-name"><span class="cb-l"><span class="n">'+(r.stockName||"-")+'</span><span class="c">'+(r.stockCode||"")+'</span><span class="cb-d">📅 '+shortPd+'</span></span><span class="cb-r"><span class="cb-tag"><span class="tag '+tagCls+'">'+pl+'</span></span></span></div>';
+      h+='<div class="cb-name"><span class="n">'+(r.stockName||"-")+'</span><span class="c">'+(r.stockCode||"")+'</span></div>';
+      // 第二行：日期（左）+ 审核状态标签（右），单列一行
+      h+='<div class="cb-sub"><span class="cb-d">📅 '+shortPd+'</span><span class="cb-tag"><span class="tag '+tagCls+'">'+pl+'</span></span></div>';
       // 转债名
       if(r.name) h+='<div class="cb-stock">'+r.name+'</div>';
       // 一行四列：配售 | 规模 | 所需资金 | 流通
