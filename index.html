@@ -411,7 +411,7 @@ function renderPend(){
 
   // ===== 手机端：卡片列表 =====
   if(isMobile()){
-    let h='<div class="sort-bar"><span class="sort-label">排序</span>';
+    let h='<div class="sort-bar">';
     const sfs=[{f:"publicStart",l:"申购日"},{f:"needMoney",l:"所需资金"},{f:"baiyuan",l:"百元含权"},{f:"scale",l:"规模"},{f:"estFloat",l:"预估流通"}];
     sfs.forEach(s=>{const ac=(ps.field===s.f);h+='<span class="sort-btn'+(ac?' active':'')+'" data-sf="'+s.f+'">'+s.l+(ac?arrow(ps.dir):'')+'</span>'});
     h+='</div><div class="cb-list">';
@@ -511,7 +511,7 @@ function renderProgress(){
 
   // ===== 手机端：卡片列表 =====
   if(isMobile()){
-    let h='<div class="sort-bar"><span class="sort-label">排序</span>';
+    let h='<div class="sort-bar">';
     const sfs=[{f:"progress",l:"进度"},{f:"needMoney",l:"所需资金"},{f:"baiyuan",l:"百元含权"},{f:"scale",l:"规模"},{f:"estFloat",l:"预估流通"}];
     sfs.forEach(s=>{const ac=(ps.field===s.f);h+='<span class="sort-btn'+(ac?' active':'')+'" data-sf="'+s.f+'">'+s.l+(ac?arrow(ps.dir):'')+'</span>'});
     h+='</div><div class="cb-list">';
