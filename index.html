@@ -95,21 +95,21 @@
     .cb-list{display:flex;flex-direction:column;gap:10px}
     .cb-item{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:12px 13px 10px;box-shadow:0 1px 3px rgba(0,0,0,.04);cursor:pointer;transition:.15s;-webkit-tap-highlight-color:rgba(249,115,22,.08)}
     .cb-item:active{transform:scale(.985);box-shadow:0 1px 6px rgba(0,0,0,.1)}
-    /* 第一行：名称+代码（左）+ 阶段标签（右） */
-    .cb-name{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:0}
+    /* 第一行：名称+代码（左） */
+    .cb-name{display:flex;align-items:baseline;justify-content:flex-start;margin-bottom:2px}
     .cb-name .n{font-size:16px;font-weight:800;color:#2563eb;line-height:1.2}
     .cb-name .c{font-size:12px;color:#6b7280;font-weight:600;flex-shrink:0;margin-left:6px}
     .cb-name .cb-tag{flex-shrink:0;margin-left:8px}
-    /* 名称下面：日期小字，右对齐紧跟标签 */
-    .cb-sub{display:flex;justify-content:flex-end;align-items:center;margin-bottom:4px}
+    /* 公司名下方单列一行：日期（左） + 进度标签（右） */
+    .cb-sub{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
     .cb-d{font-size:11px;color:#9ca3af;font-weight:500;white-space:nowrap}
     /* 2×2 网格：配售 | 规模 / 所需资金 | 流通 */
     .cb-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;padding:7px 0}
     .cb-stats .s{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
     .cb-stats .s .l{font-size:10px;color:#9ca3af;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .cb-stats .s .v{font-size:12.5px;font-weight:800;color:#1f2937;font-variant-numeric:tabular-nums;line-height:1.15;white-space:nowrap}
-    .cb-stats .s .v.hl{color:#ea580c}
-    .cb-stats .s .v.f{color:#ea580c}
+    .cb-stats .s .v.hl{color:#1f2937}
+    .cb-stats .s .v.f{color:#1f2937}
     /* 市场标记(沪/深)紧跟代码后面 */
     .cb-mkt{font-size:10.5px;font-weight:800;padding:1px 6px;border-radius:8px;margin-left:4px;flex-shrink:0}
     /* 第二行：正股信息 */
@@ -422,9 +422,9 @@ function renderPend(){
       const stageTag=r.stage==="申购"?'<span class="tag tag-sbuy">申购</span>':(r.stage==="待发行"?'<span class="tag tag-slist">待发行</span>':'');
       const dStr=(r.publicStart||r.progress_dt||"");
       const shortD=dStr?dStr.slice(5,10):"-";
-      h+='<div class="cb-name"><span class="n">'+(r.name||"-")+'</span><span class="c">'+(r.code||"")+'</span><span class="cb-tag">'+stageTag+'</span></div>';
-      // 日期小字右对齐
-      h+='<div class="cb-sub"><span class="cb-d">📅 '+shortD+'</span></div>';
+      h+='<div class="cb-name"><span class="n">'+(r.name||"-")+'</span><span class="c">'+(r.code||"")+'</span></div>';
+      // 第二行：日期（左）+ 进度标签（右），单开一行，在公司名称下面
+      h+='<div class="cb-sub"><span class="cb-d">📅 '+shortD+'</span><span class="cb-tag">'+stageTag+'</span></div>';
       // 一行四列：配售 | 规模 | 所需资金 | 流通
       const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
       h+='<div class="cb-stats">';
@@ -519,12 +519,12 @@ function renderProgress(){
       const tagCls="tag-s"+r.progress;
       const pl=progressLabel(r);
       h+='<div class="cb-item" data-i="'+i+'" data-kind="progress">';
-      // 第一行：正股名+代码（左）+ 阶段标签（右）
-      h+='<div class="cb-name"><span class="n">'+(r.stockName||"-")+'</span><span class="c">'+(r.stockCode||"")+'</span><span class="cb-tag"><span class="tag '+tagCls+'">'+pl+'</span></span></div>';
+      // 第一行：正股名+代码
+      h+='<div class="cb-name"><span class="n">'+(r.stockName||"-")+'</span><span class="c">'+(r.stockCode||"")+'</span></div>';
       const pdStr=(r.progress_dt||"");
       const shortPd=pdStr?pdStr.slice(5,10):"-";
-      // 名称下面：日期小字
-      h+='<div class="cb-sub"><span class="cb-d">📅 '+shortPd+'</span></div>';
+      // 第二行：日期（左）+ 阶段标签（右），单开一行，在公司名称下面
+      h+='<div class="cb-sub"><span class="cb-d">📅 '+shortPd+'</span><span class="cb-tag"><span class="tag '+tagCls+'">'+pl+'</span></span></div>';
       // 一行四列：配售 | 规模 | 所需资金 | 流通
       const shLabel2=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
       h+='<div class="cb-stats">';
