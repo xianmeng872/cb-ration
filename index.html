@@ -242,9 +242,8 @@
     #progressPanel .cb-stats .s:last-child{padding-right:0}
     /* 第2行整行加顶部分隔线（列间距0→边框相接成一条连续线） */
     #progressPanel .cb-stats .s:nth-child(n+4){border-top:1px solid #eee;padding-top:7px;margin-top:3px}
-    /* 无标签格子（状态/日期）垂直居中，与邻格值对齐 */
-    /* 无标签格子：和邻格同样"标签占位+值在下"结构，仅标签文字隐藏，值位置不变 */
-    #progressPanel .cb-stats .s-plain{display:flex;flex-direction:column;gap:2px;align-items:flex-start;justify-content:flex-start}
+    /* 审核进度卡片：标签固定行高→六格标签区等高→值自动对齐同一水平线 */
+    #progressPanel .cb-stats .s .l{height:15px;line-height:15px}
     /* 日期值和其他值一样醒目 */
     #progressPanel .cb-stats .s .cb-d{font-size:12.5px;font-weight:800;color:#1f2937}
     .cb-stats .s{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
@@ -433,7 +432,7 @@
 
   <div class="foot">
     数据源：东方财富 + 腾讯行情 + 集思录 · 每日自动更新(9:00/18:00) · 仅供参考，非投资建议
-    <div style="margin-top:6px;font-size:11px;color:#bbb">版本 v20260727-0303 (8544172)</div>
+    <div style="margin-top:6px;font-size:11px;color:#bbb">版本 v20260727-0311 (pending)</div>
   </div>
 </div>
 <div class="mask" id="mask"><div class="modal">
@@ -1031,11 +1030,11 @@ function renderProgress(){
         // 第1行：配售 | 规模 | (状态标签：标签文字隐藏，值位置不变)
         h+='<span class="s"><span class="l">配售</span><span class="v hl">'+(c.needShares!=null?shLabel:'-')+'</span></span>';
         h+='<span class="s"><span class="l">规模</span><span class="v">'+(r.scale!=null?fmt(r.scale)+'亿':'-')+'</span></span>';
-        h+='<span class="s s-plain"><span class="l" style="visibility:hidden">状态</span><span class="v"><span class="tag '+tagCls+'">'+pl+'</span></span></span>';
+        h+='<span class="s"><span class="l" style="visibility:hidden">状态</span><span class="v"><span class="tag '+tagCls+'">'+pl+'</span></span></span>';
         // 第2行：所需资金 | 预估流通 | 日期(标签文字隐藏，值位置不变)
         h+='<span class="s"><span class="l">所需资金</span><span class="v hl">'+(c.needMoney!=null?fmt(c.needMoney,0)+'元':'-')+'</span></span>';
         h+='<span class="s"><span class="l">预估流通</span><span class="v f">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span>';
-        h+='<span class="s s-plain"><span class="l" style="visibility:hidden">日期</span><span class="v"><span class="cb-d">🗓️ '+(r.progress_dt?r.progress_dt.slice(0,10):"-")+'</span></span></span>';
+        h+='<span class="s"><span class="l" style="visibility:hidden">日期</span><span class="v"><span class="cb-d">🗓️ '+(r.progress_dt?r.progress_dt.slice(0,10):"-")+'</span></span></span>';
         h+='</div>';
         if(c.isSH && (c.needSharesSafe!=null || c.needMoneySafe!=null)){
           h+='<div class="cb-safe">';
