@@ -77,6 +77,45 @@
   .mrow .v{color:var(--ink);text-align:right;font-weight:700;word-break:break-all}
   .toast{position:fixed;left:50%;bottom:40px;transform:translateX(-50%) translateY(20px);background:#9a3412;color:#fff;padding:11px 20px;border-radius:24px;font-size:13px;opacity:0;transition:.25s;z-index:99;max-width:360px;text-align:center;line-height:1.4}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* ===== 用户/登录区 ===== */
+  .user-bar{display:flex;align-items:center;gap:8px}
+  .user-info{display:flex;align-items:center;gap:6px;background:#fff4ea;color:#ea580c;padding:5px 12px;border-radius:18px;font-size:12.5px;font-weight:700;border:1px solid #ffd6b3}
+  .user-info .avatar{width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800}
+  .btn-login{cursor:pointer;border:1px solid var(--primary);border-radius:18px;padding:6px 14px;font-size:12.5px;font-weight:700;background:#fff;color:var(--primary);transition:.15s}
+  .btn-login:active{transform:scale(.96)}
+  .btn-logout{cursor:pointer;border:none;background:transparent;color:#9ca3af;font-size:11.5px;padding:5px 8px;border-radius:14px;transition:.15s}
+  .btn-logout:hover{color:#ef4444;background:#fef2f2}
+
+  /* ===== 卡片关注按钮 ===== */
+  .fav-btn{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;border:none;background:#fff;color:#d1d5db;font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.08);transition:.15s;z-index:5}
+  .fav-btn:active{transform:scale(.9)}
+  .fav-btn.active{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#fff;box-shadow:0 2px 6px rgba(245,158,11,.4)}
+  .cb-item{position:relative}
+
+  /* ===== 登录弹窗 ===== */
+  .auth-mask{position:fixed;inset:0;background:rgba(31,41,55,.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:80;padding:18px}
+  .auth-mask.show{display:flex}
+  .auth-modal{background:#fff;border-radius:18px;max-width:380px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden;animation:authIn .25s ease-out}
+  @keyframes authIn{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+  .auth-head{background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;padding:22px 24px 18px}
+  .auth-head h3{margin:0;font-size:18px;font-weight:800}
+  .auth-head p{margin:4px 0 0;font-size:12px;opacity:.9}
+  .auth-body{padding:20px 24px 24px}
+  .auth-tabs{display:flex;gap:6px;background:#f5f5f7;border-radius:12px;padding:4px;margin-bottom:18px}
+  .auth-tab{flex:1;text-align:center;padding:8px;border-radius:9px;font-size:13px;font-weight:700;color:#9ca3af;cursor:pointer;transition:.15s}
+  .auth-tab.active{background:#fff;color:#ea580c;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+  .auth-field{margin-bottom:14px}
+  .auth-field label{display:block;font-size:12px;color:#6b7280;margin-bottom:6px;font-weight:600}
+  .auth-field input{width:100%;border:1.5px solid #ececef;border-radius:11px;padding:11px 14px;font-size:14px;outline:none;transition:.15s;background:#fff}
+  .auth-field input:focus{border-color:#f97316;box-shadow:0 0 0 3px rgba(249,115,22,.15)}
+  .auth-error{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:10px;padding:9px 12px;font-size:12.5px;margin-bottom:12px;display:none}
+  .auth-error.show{display:block}
+  .auth-submit{width:100%;background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;transition:.15s;box-shadow:0 4px 12px rgba(249,115,22,.25)}
+  .auth-submit:active{transform:scale(.98)}
+  .auth-submit:disabled{opacity:.6;cursor:default}
+  .auth-close{position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.2);color:#fff;border:none;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+  .auth-close:hover{background:rgba(255,255,255,.35)}
   /* ===== 手机适配：≤720px 卡片式列表（参考"小鱼的钱钱助手"风格） ===== */
   @media(max-width:720px){
     body{font-size:15px;-webkit-text-size-adjust:100%;background:#f5f5f7}
@@ -96,6 +135,7 @@
     .cb-list{display:flex;flex-direction:column;gap:10px}
     .cb-item{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:12px 13px 10px;box-shadow:0 1px 3px rgba(0,0,0,.04);cursor:pointer;transition:.15s;-webkit-tap-highlight-color:rgba(249,115,22,.08)}
     .cb-item:active{transform:scale(.985);box-shadow:0 1px 6px rgba(0,0,0,.1)}
+    .fav-btn{top:8px;right:8px;width:28px;height:28px;font-size:14px}
     /* 第一行：名称+代码（左） */
     .cb-name{display:flex;align-items:baseline;justify-content:flex-start;margin-bottom:2px}
     .cb-name .n{font-size:16px;font-weight:800;color:#2563eb;line-height:1.2}
@@ -157,6 +197,34 @@
     .cb-val.hl{font-size:13.5px}
     .cb-row{font-size:12.5px}
   }
+
+  /* ===== 手机端底部筛选排序Sheet（审核进度Tab） ===== */
+  .sheet-mask{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:90;align-items:flex-end;justify-content:center}
+  .sheet-mask.show{display:flex;animation:maskIn .2s ease}
+  @keyframes maskIn{from{opacity:0}to{opacity:1}}
+  .sheet{background:#fff;width:100%;max-width:560px;border-radius:18px 18px 0 0;padding:8px 18px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -8px 30px rgba(0,0,0,.18);animation:sheetUp .28s cubic-bezier(.2,.8,.2,1);max-height:88vh;overflow:auto}
+  @keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  .sheet-handle{width:38px;height:4px;border-radius:3px;background:#e5e7eb;margin:6px auto 12px}
+  .sheet-title{font-size:16px;font-weight:800;color:#1f2937;margin-bottom:14px;text-align:center}
+  .sheet-sec{margin-bottom:16px}
+  .sheet-sec-label{font-size:12px;font-weight:700;color:#6b7280;margin-bottom:9px}
+  .sheet-chips{display:flex;flex-wrap:wrap;gap:9px}
+  .schip{cursor:pointer;font-size:13.5px;font-weight:700;padding:8px 15px;border-radius:18px;background:#f5f5f7;color:#6b7280;border:1px solid #ececef;transition:.15s;white-space:nowrap}
+  .schip.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+  .sheet-sorts{display:flex;flex-wrap:wrap;gap:9px}
+  .ssort{cursor:pointer;font-size:13.5px;font-weight:700;padding:8px 15px;border-radius:18px;background:#f5f5f7;color:#6b7280;border:1px solid #ececef;transition:.15s;white-space:nowrap}
+  .ssort.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+  .sheet-dir{display:flex;align-items:center;gap:10px;margin-top:12px}
+  .sheet-dir span{font-size:12px;font-weight:700;color:#6b7280}
+  .sheet-dir button{cursor:pointer;border:1px solid var(--primary);background:#fff;color:var(--primary);font-weight:700;font-size:13px;padding:7px 16px;border-radius:18px;transition:.15s}
+  .sheet-dir button:active{transform:scale(.96)}
+  .sheet-apply{width:100%;background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;border:none;border-radius:14px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;margin-top:6px;box-shadow:0 4px 14px rgba(249,115,22,.3)}
+  .sheet-apply:active{transform:scale(.98)}
+  /* 手机端筛选排序触发按钮（仅手机端显示） */
+  .filter-trigger{display:none;align-items:center;justify-content:space-between;width:100%;background:#fff4ea;border:1px solid #ffd6b3;border-radius:12px;padding:11px 14px;margin:2px 0 10px;cursor:pointer;font-size:13.5px;font-weight:700;color:#ea580c}
+  .filter-trigger .ft-arrow{font-size:12px;opacity:.75;background:#fff;padding:3px 10px;border-radius:14px;border:1px solid #ffd6b3}
+  @media(max-width:720px){ .filter-trigger{display:flex} }
+
 </style>
 </head>
 <body>
@@ -165,13 +233,22 @@
   <div class="sub">配债潜伏 · 待发实时 · 审核进度自动更新</div>
   <div class="bar">
     <span class="time" id="time">加载中…</span>
-    <button class="btn" id="refresh">↻ 刷新实时</button>
+    <div class="user-bar">
+      <button class="btn" id="refresh">↻ 刷新实时</button>
+      <span id="userArea"></span>
+    </div>
   </div>
 </div>
 <div class="wrap">
   <div class="tabs">
     <div class="tab active" id="tab-pend" data-tab="pend">待发债（实时）</div>
     <div class="tab" id="tab-progress" data-tab="progress">审核进度（自动）</div>
+    <div class="tab" id="tab-fav" data-tab="fav" style="display:none">我的关注 <span id="favCount" style="font-size:11px;background:#fff3;color:inherit;padding:1px 6px;border-radius:10px;margin-left:3px">0</span></div>
+  </div>
+
+  <div id="view-fav" style="display:none">
+    <div class="search"><input id="qfav" placeholder="🔍 在关注列表中搜索"></div>
+    <div id="favPanel"></div>
   </div>
 
   <div id="view-pend">
@@ -201,6 +278,68 @@
   <div class="mb" id="mbody"></div>
 </div></div>
 <div class="toast" id="toast"></div>
+
+<!-- 登录/注册弹窗 -->
+<div class="auth-mask" id="authMask">
+  <div class="auth-modal" style="position:relative">
+    <div class="auth-head">
+      <button class="auth-close" id="authClose">×</button>
+      <h3 id="authTitle">欢迎登录</h3>
+      <p id="authSub">登录后可关注转债，关注数据永久保存</p>
+    </div>
+    <div class="auth-body">
+      <div class="auth-tabs">
+        <div class="auth-tab active" data-mode="login">登录</div>
+        <div class="auth-tab" data-mode="register">注册</div>
+      </div>
+      <div class="auth-error" id="authError"></div>
+      <div class="auth-field">
+        <label>用户名</label>
+        <input type="text" id="authUser" placeholder="3-20位字符" autocomplete="off">
+      </div>
+      <div class="auth-field">
+        <label>密码</label>
+        <input type="password" id="authPass" placeholder="至少4位" autocomplete="off">
+      </div>
+      <button class="auth-submit" id="authSubmit">登录</button>
+    </div>
+  </div>
+</div>
+
+<!-- 手机端底部筛选排序Sheet（审核进度Tab） -->
+<div class="sheet-mask" id="progSheetMask">
+  <div class="sheet" id="progSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">筛选 / 排序</div>
+    <div class="sheet-sec">
+      <div class="sheet-sec-label">审核阶段（不选=全部阶段）</div>
+      <div class="sheet-chips" id="sheetProgChips">
+        <span class="schip active" data-f="all">全部阶段</span>
+        <span class="schip" data-f="90">同意注册</span>
+        <span class="schip" data-f="80">上市委通过</span>
+        <span class="schip" data-f="50">交易所受理</span>
+        <span class="schip" data-f="20">股东大会通过</span>
+        <span class="schip" data-f="10">董事会预案</span>
+      </div>
+    </div>
+    <div class="sheet-sec">
+      <div class="sheet-sec-label">排序方式</div>
+      <div class="sheet-sorts" id="sheetSortBtns">
+        <span class="ssort active" data-f="progress">进度</span>
+        <span class="ssort" data-f="needMoney">所需资金</span>
+        <span class="ssort" data-f="baiyuan">百元含权</span>
+        <span class="ssort" data-f="scale">规模</span>
+        <span class="ssort" data-f="estFloat">预估流通</span>
+      </div>
+      <div class="sheet-dir">
+        <span>排序方向</span>
+        <button id="sheetDirBtn" type="button">↓ 降序</button>
+      </div>
+    </div>
+    <button class="sheet-apply" id="sheetApply" type="button">确定</button>
+  </div>
+</div>
+
 <script>
 const EM_URL="https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPT_BOND_CB_LIST&pageSize=1000&columns=ALL&sortColumns=PUBLIC_START_DATE&sortDirection=desc&source=WEB&client=WEB";
 const LABEL={code:"转债代码",name:"转债名称",stockCode:"正股代码",stockName:"正股名称",convertPrice:"转股价",price:"正股实时价",
@@ -227,7 +366,7 @@ const SNAPSHOT_PROGRESS=[
 {"stockCode":"002913","stockName":"奥士康","code":"","name":"","progress":"90","progress_nm":"同意注册","scale":10,"convertPrice":51.3,"price":45.08,"perPre":null,"apply10":318,"ration_rt":null,"rating_cd":null,"progress_full":"2025-08-01 董事会预案\n2025-08-19 股东大会通过\n2025-10-11 交易所受理\n2026-02-11 上市委通过\n2026-04-02 同意注册","accept_date":"2025-10-11","progress_dt":"2026-04-02","_c":{"cv":87.87524366471735,"needShares":318,"needMoney":14335.439999999999,"baiyuan":6.975718917591648,"price":45.08,"estFloat":3.64}},
 {"stockCode":"603125","stockName":"常青科技","code":"","name":"","progress":"80","progress_nm":"上市委通过","scale":8,"convertPrice":26.59,"price":20.66,"perPre":null,"apply10":507,"ration_rt":null,"rating_cd":null,"progress_full":"2025-09-04 董事会预案\n2025-09-20 股东大会通过\n2025-10-30 交易所受理\n2026-07-24 上市委通过","accept_date":"2025-10-30","progress_dt":"2026-07-24","_c":{"cv":77.69838285069575,"needShares":507,"needMoney":10474.62,"baiyuan":9.546885710412406,"price":20.66,"estFloat":2.18}},
 {"stockCode":"001380","stockName":"华纬科技","code":"","name":"","progress":"80","progress_nm":"上市委通过","scale":5.75,"convertPrice":16.01,"price":15.04,"perPre":null,"apply10":471,"ration_rt":null,"rating_cd":null,"progress_full":"2025-04-22 董事会预案\n2025-05-08 股东大会通过\n2025-12-04 交易所受理\n2026-07-13 上市委通过","accept_date":"2025-12-04","progress_dt":"2026-07-13","_c":{"cv":93.9412866958151,"needShares":471,"needMoney":7083.839999999999,"baiyuan":14.116637304061076,"price":15.04,"estFloat":2.15}},
-{"stockCode":"600368","stockName":"五洲交通","code":"","name":"","progress":"80","progress_nm":"上市委通过","scale":30,"convertPrice":3.69,"price":3.75,"perPre":null,"apply10":537,"ration_rt":null,"rating_cd":null,"progress_full":"2025-01-11 董事会预案\n2025-05-09 股东大会通过\n2026-05-23 交易所受理\n2026-07-11 上市委通过","accept_date":"2026-05-23","progress_dt":"2026-07-11","_c":{"cv":101.62601626016261,"needShares":537,"needMoney":2013.75,"baiyuan":49.65859714463067,"price":3.75,"estFloat":14.32}},
+{"stockCode":"600368","stockName":"五洲交通","code":"","name":"","progress":"80","progress_nm":"上市委通过","scale":30,"convertPrice":3.69,"price":3.75,"perPre":null,"apply10":537,"ration_rt":null,"rating_cd":null,"progress_full":"2025-01-11 董事会预案\n2025-05-09 股东大会���过\n2026-05-23 交易所受理\n2026-07-11 上市委通过","accept_date":"2026-05-23","progress_dt":"2026-07-11","_c":{"cv":101.62601626016261,"needShares":537,"needMoney":2013.75,"baiyuan":49.65859714463067,"price":3.75,"estFloat":14.32}},
 {"stockCode":"300727","stockName":"润禾材料","code":"","name":"","progress":"80","progress_nm":"上市委通过","scale":3.7,"convertPrice":34.62,"price":26.18,"perPre":null,"apply10":487,"ration_rt":null,"rating_cd":null,"progress_full":"2025-08-28 董事会预案\n2026-01-14 股东大会通过\n2026-02-09 交易所受理\n2026-07-02 上市委通过","accept_date":"2026-02-09","progress_dt":"2026-07-02","_c":{"cv":75.6210283073368,"needShares":487,"needMoney":12749.66,"baiyuan":7.843346410806248,"price":26.18,"estFloat":1.91}},
 {"stockCode":"300909","stockName":"汇创达","code":"","name":"","progress":"80","progress_nm":"上市委通过","scale":6.5,"convertPrice":51.79,"price":40.86,"perPre":null,"apply10":267,"ration_rt":null,"rating_cd":null,"progress_full":"2025-09-16 董事会预案\n2025-10-10 股东大会通过\n2025-10-27 交易所受理\n2026-06-26 上市委通过","accept_date":"2025-10-27","progress_dt":"2026-06-26","_c":{"cv":78.89553967947481,"needShares":267,"needMoney":10909.619999999999,"baiyuan":9.166222104894578,"price":40.86,"estFloat":3.62}},
 {"stockCode":"000887","stockName":"中鼎股份","code":"","name":"","progress":"80","progress_nm":"上市委通过","scale":19.2,"convertPrice":18.51,"price":16.2,"perPre":null,"apply10":686,"ration_rt":null,"rating_cd":null,"progress_full":"2025-12-03 董事会预案\n2025-12-25 股东大会通过\n2026-04-27 交易所受理\n2026-06-23 上市委通过","accept_date":"2026-04-27","progress_dt":"2026-06-23","_c":{"cv":87.52025931928686,"needShares":686,"needMoney":11113.199999999999,"baiyuan":8.99830831803621,"price":16.2,"estFloat":11.43}},
@@ -300,8 +439,22 @@ const SNAPSHOT_PROGRESS=[
 {"stockCode":"002948","stockName":"青岛银行","code":"","name":"","progress":"10","progress_nm":"董事会预案","scale":48,"convertPrice":5.48,"price":5.71,"perPre":null,"apply10":736,"ration_rt":null,"rating_cd":null,"progress_full":"2025-08-29 董事会预案","accept_date":null,"progress_dt":"2025-08-29","_c":{"cv":104.19708029197079,"needShares":736,"needMoney":4202.56,"baiyuan":23.79502017817711,"price":5.71,"estFloat":19.86}}
 ];
 
+// ============ Supabase 云端同步（可选，配置即启用） ============
+// 反查某关注id当前所处的审核进度 / 名称（用于进度提醒对比）
+function progressOfId(id){
+  for(const r of PEND){ if(getRowId(r,"pend")===id) return r.stage||"待发"; }
+  for(const r of PROGRESS){ if(getRowId(r,"progress")===id) return String(r.progress); }
+  return "";
+}
+function nameOfId(id){
+  for(const r of PEND){ if(getRowId(r,"pend")===id) return (r.name||r.stockName||id); }
+  for(const r of PROGRESS){ if(getRowId(r,"progress")===id) return (r.stockName||r.name||id); }
+  return id;
+}
+const PROG_LABEL={ "90":"同意注册","80":"上市委通过","50":"交易所受理","20":"股东大会通过","10":"董事会预案" };
+
 const $=s=>document.querySelector(s);
-function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2200);}
+function toast(m,d=2200){const t=$("#toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),d);}
 function setTime(msg){const d=new Date();const p=n=>String(n).padStart(2,"0");
   $("#time").textContent=msg+" "+d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+" "+p(d.getHours())+":"+p(d.getMinutes())+":"+p(d.getSeconds());}
 
@@ -511,10 +664,12 @@ function renderProgress(){
 
   // ===== 手机端：卡片列表 =====
   if(isMobile()){
-    let h='<div class="sort-bar">';
-    const sfs=[{f:"progress",l:"进度"},{f:"needMoney",l:"所需资金"},{f:"baiyuan",l:"百元含权"},{f:"scale",l:"规模"},{f:"estFloat",l:"预估流通"}];
-    sfs.forEach(s=>{const ac=(ps.field===s.f);h+='<span class="sort-btn'+(ac?' active':'')+'" data-sf="'+s.f+'">'+s.l+(ac?arrow(ps.dir):'')+'</span>'});
-    h+='</div><div class="cb-list">';
+    const PROG_STAGE_LABEL={all:"全部阶段","90":"同意注册","80":"上市委通过","50":"交易所受理","20":"股东大会通过","10":"董事会预案"};
+    const SORT_LABEL={progress:"进度",needMoney:"所需资金",baiyuan:"百元含权",scale:"规模",estFloat:"预估流通"};
+    const stageTxt=PROG_STAGE_LABEL[PROG_FILTER]||"全部阶段";
+    const sortTxt=SORT_LABEL[progSort.field]||"进度";
+    const dirTxt=progSort.dir===1?"升序↑":"降序↓";
+    let h='<button class="filter-trigger" id="progFilterBtn" type="button"><span>当前：'+stageTxt+' · '+sortTxt+dirTxt+'</span><span class="ft-arrow">筛选排序 ▾</span></button><div class="cb-list">';
     rows.forEach((r,i)=>{
       const c=r._c||{};
       const tagCls="tag-s"+r.progress;
@@ -539,11 +694,7 @@ function renderProgress(){
     h+='</div>';
     p.innerHTML=h;
     p.querySelectorAll(".cb-item").forEach(el=>el.onclick=()=>openDetail(rows[+el.dataset.i],"progress"));
-    p.querySelectorAll(".sort-btn").forEach(btn=>btn.onclick=()=>{
-      const f=btn.dataset.sf;
-      progSort={field:f, dir:progSort.field===f?-progSort.dir:1};
-      renderProgress();
-    });
+    const fb=$("#progFilterBtn"); if(fb) fb.onclick=openProgSheet;
     return;
   }
 
@@ -668,15 +819,465 @@ document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
   t.classList.add("active");
   $("#view-pend").style.display=activeTab==="pend"?"block":"none";
   $("#view-progress").style.display=activeTab==="progress"?"block":"none";
+  $("#view-fav").style.display=activeTab==="fav"?"block":"none";
   if(activeTab==="progress") loadProgressRealtime();
+  if(activeTab==="fav") renderFav();
 });
-// init: 先用快照价重算(离线也能显示正确的一手党/百元含权)，再实时覆盖
-PEND=SNAPSHOT_PEND.map(r=>{ const cc=r._c; return {...r, _c: cc&&cc.price!=null?compute(r,cc.price):(cc||null)}; });
-renderPend();
-PROGRESS=SNAPSHOT_PROGRESS.map(r=>{ const cc=r._c; return {...r, _c: cc&&cc.price!=null?compute(r,cc.price):(cc||null)}; });
-renderProgress();
-loadAll();
-loadProgressRealtime();
+
+// ==================== 用户认证 & 关注功能（纯前端 localStorage 版） ====================
+// 说明：本版本不依赖任何服务器，用户账号与关注列表均保存在浏览器 localStorage。
+// 优点：GitHub Pages 等纯静态托管即可使用；缺点：关注列表不跨设备同步，清缓存/换浏览器会丢失。
+// 如需云端多设备同步，请改用 server.cjs 后端（见 README「部署到云/VPS」章节）。
+const USERS_KEY="cb_ration_users";   // { 用户名: { password, favorites:[{id,seen}] } }
+const CUR_KEY="cb_ration_cur";       // 当前登录用户名
+let currentUser=null; // { username, favorites: [] }
+let favKeyword="";
+let authMode="login";
+
+// ---- 本地用户表读写 ----
+function loadUsers(){ try{ return JSON.parse(localStorage.getItem(USERS_KEY)||"{}"); }catch(e){ return {}; } }
+function saveUsers(u){ localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
+function saveCur(name){ name?localStorage.setItem(CUR_KEY,name):localStorage.removeItem(CUR_KEY); }
+function getCur(){ return localStorage.getItem(CUR_KEY)||""; }
+
+// 进度提醒需要比对"见过"的快照，复用 favorites 里的 seen 字段，无需网络回写。
+async function syncSeen(updates){
+  if(!updates||!updates.length) return;
+  const users=loadUsers(); const name=getCur(); const u=users[name];
+  if(!u) return;
+  updates.forEach(({id,seen})=>{ const f=u.favorites.find(x=>x.id===id); if(f)f.seen=seen; });
+  saveUsers(users);
+}
+
+function renderUserArea(){
+  const ua=$("#userArea");
+  if(currentUser){
+    ua.innerHTML='<span class="user-info"><span class="avatar">'+currentUser.username.charAt(0).toUpperCase()+'</span>'+currentUser.username+'</span><button class="btn-logout" id="btnLogout">退出</button>';
+    $("#btnLogout").onclick=()=>{
+      currentUser=null;saveCur(null);
+      renderUserArea();updateFavTab();
+      if(activeTab==="fav"){activeTab="pend";$("#tab-pend").click();}
+      toast("已退出登录");
+    };
+    $("#tab-fav").style.display="block";
+  }else{
+    ua.innerHTML='<button class="btn-login" id="btnLogin">登录/注册</button>';
+    $("#btnLogin").onclick=()=>showAuthModal(true);
+    $("#tab-fav").style.display="none";
+  }
+  updateFavTab();
+}
+
+function updateFavTab(){
+  const count=currentUser?currentUser.favorites.length:0;
+  $("#favCount").textContent=count;
+}
+
+function showAuthModal(show){
+  const m=$("#authMask");
+  if(show){
+    m.classList.add("show");
+    $("#authUser").value="";$("#authPass").value="";
+    $("#authError").classList.remove("show");
+    setAuthMode("login");
+    setTimeout(()=>$("#authUser").focus(),100);
+  }else{
+    m.classList.remove("show");
+  }
+}
+function setAuthMode(mode){
+  authMode=mode;
+  document.querySelectorAll(".auth-tab").forEach(t=>t.classList.toggle("active",t.dataset.mode===mode));
+  $("#authTitle").textContent=mode==="login"?"欢迎登录":"创建账号";
+  $("#authSub").textContent=mode==="login"?"登录后可关注转债，数据保存在本机浏览器":"注册账号后即可关注喜欢的转债（数据存本机）";
+  $("#authSubmit").textContent=mode==="login"?"登录":"注册";
+}
+function showAuthError(msg){
+  const e=$("#authError");e.textContent=msg;e.classList.add("show");
+}
+async function doAuth(){
+  const u=$("#authUser").value.trim();
+  const p=$("#authPass").value;
+  if(u.length<3){showAuthError("用户名至少3位");return;}
+  if(u.length>20){showAuthError("用户名最多20位");return;}
+  if(p.length<4){showAuthError("密码至少4位");return;}
+  $("#authSubmit").disabled=true;
+  showAuthError("");
+  try{
+    const users=loadUsers();
+    if(authMode==="register"){
+      if(users[u]){ showAuthError("该用户名已被注册"); return; }
+      users[u]={password:p, favorites:[]};
+      saveUsers(users);
+    }else{
+      const rec=users[u];
+      if(!rec||rec.password!==p){ showAuthError("用户名或密码错误"); return; }
+    }
+    saveCur(u);
+    currentUser={username:u, favorites:(users[u].favorites||[]).map(f=>typeof f==="string"?{id:f,seen:""}:f)};
+    showAuthModal(false);renderUserArea();
+    // 刷新视图
+    if(activeTab==="pend")renderPend();
+    if(activeTab==="progress")renderProgress();
+    if(activeTab==="fav")renderFav();
+    toast("✅ "+(authMode==="login"?"登录成功，欢迎回来 "+u:"注册成功，已自动登录"));
+  }catch(e){
+    showAuthError("操作失败");
+  }finally{
+    $("#authSubmit").disabled=false;
+  }
+}
+
+// 唯一ID：待发债用code，审核进度用stockCode
+function getRowId(r,kind){return kind==="pend"?(r.code||"pend_"+r.stockCode):(r.stockCode||"prog_"+(r.code||""));}
+function isFav(id){return currentUser&&currentUser.favorites.some(f=>f.id===id);}
+async function toggleFav(id,kind){
+  if(!currentUser){toast("请先登录后再关注");showAuthModal(true);return;}
+  try{
+    const users=loadUsers(); const u=users[currentUser.username];
+    if(!u) throw new Error("用户不存在");
+    const fs=u.favorites||(u.favorites=[]);
+    const idx=fs.findIndex(f=>f.id===id);
+    let added;
+    if(idx>=0){ fs.splice(idx,1); added=false; }
+    else { fs.push({id, seen:progressOfId(id)}); added=true; }
+    saveUsers(users);
+    currentUser.favorites=fs.map(f=>typeof f==="string"?{id:f,seen:""}:f);
+    toast(added?"⭐ 已加入关注":"已取消关注");
+    updateFavTab();
+    // 刷新所有视图
+    if(activeTab==="pend")renderPend();
+    if(activeTab==="progress")renderProgress();
+    if(activeTab==="fav")renderFav();
+  }catch(e){
+    toast("操作失败: "+e.message);
+  }
+}
+
+// 进度变化提醒：对比关注转债当前进度与上次记录，有推进则提示（打开App/进入关注Tab时触发）
+async function checkProgress(){
+  if(!currentUser || !currentUser.favorites || !currentUser.favorites.length) return;
+  const updates=[], msgs=[];
+  currentUser.favorites.forEach(f=>{
+    const now=progressOfId(f.id);
+    if(f.seen && f.seen!==now && now){
+      msgs.push("「"+nameOfId(f.id)+"」已更新为【"+(PROG_LABEL[now]||now)+"】");
+      updates.push({id:f.id, seen:now});
+    }
+    f.seen=now;
+  });
+  if(updates.length){
+    try{ await syncSeen(updates); }catch(e){}
+    toast("📌 进度更新："+msgs.join("；"),4200);
+  }
+}
+
+// 给卡片渲染插入关注按钮的HTML
+function favBtnHtml(id,kind){
+  const active=isFav(id)?" active":"";
+  return '<button class="fav-btn'+active+'" data-fav="'+id+'" data-kind="'+kind+'">'+(active?"★":"☆")+'</button>';
+}
+// 绑定关注按钮事件
+function bindFavBtns(container){
+  container.querySelectorAll(".fav-btn").forEach(btn=>{
+    btn.onclick=(e)=>{
+      e.stopPropagation();
+      toggleFav(btn.dataset.fav,btn.dataset.kind);
+    };
+  });
+}
+
+// 渲染"我的关注"
+function renderFav(){
+  checkProgress();
+  const p=$("#favPanel");
+  if(!currentUser){
+    p.innerHTML='<div class="card"><div class="empty">请先登录后查看关注列表</div></div>';
+    return;
+  }
+  // 合并所有数据
+  const all=[
+    ...PEND.map(r=>({...r,_kind:"pend"})),
+    ...PROGRESS.map(r=>({...r,_kind:"progress"}))
+  ];
+  let rows=all.filter(r=>currentUser.favorites.some(f=>f.id===getRowId(r,r._kind)));
+  if(favKeyword){
+    const q=favKeyword.toLowerCase();
+    rows=rows.filter(r=>(r.name||"").toLowerCase().includes(q)||(r.code||"").includes(q)||(r.stockName||"").toLowerCase().includes(q)||(r.stockCode||"").includes(q));
+  }
+  if(!rows.length){
+    p.innerHTML='<div class="card"><div class="empty">'+(favKeyword?"无匹配":"还没有关注的转债，点击卡片右上角的 ☆ 加入关注")+'</div></div>';
+    return;
+  }
+  // 按类型分组：待发/审核中
+  const pendRows=rows.filter(r=>r._kind==="pend");
+  const progRows=rows.filter(r=>r._kind==="progress");
+
+  let h="";
+  if(isMobile()){
+    if(pendRows.length){
+      h+='<div class="sort-bar"><span class="sort-label" style="color:#ea580c">📌 待发债 ('+pendRows.length+')</span></div><div class="cb-list">';
+      pendRows.forEach((r,i)=>{
+        const c=r._c||{};
+        const stageTag=r.stage==="申购"?'<span class="tag tag-sbuy">申购</span>':'';
+        const dStr=(r.publicStart||r.progress_dt||"");
+        const shortD=dStr?dStr.slice(5,10):"-";
+        const id=getRowId(r,"pend");
+        h+='<div class="cb-item" data-i="'+i+'" data-kind="pend">';
+        h+=favBtnHtml(id,"pend");
+        h+='<div class="cb-name"><span class="n">'+(r.name||"-")+'</span><span class="c">'+(r.code||"")+'</span></div>';
+        h+='<div class="cb-sub"><span class="cb-d">📅 '+shortD+'</span><span class="cb-tag">'+stageTag+'</span></div>';
+        const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
+        h+='<div class="cb-stats">';
+        h+='<span class="s"><span class="l">配售</span><span class="v hl">'+(c.needShares!=null?shLabel:'-')+'</span></span>';
+        h+='<span class="s"><span class="l">规模</span><span class="v">'+(r.scale!=null?fmt(r.scale)+'亿':'-')+'</span></span>';
+        h+='<span class="s"><span class="l">所需资金</span><span class="v hl">'+(c.needMoney!=null?fmt(c.needMoney,0)+'元':'-')+'</span></span>';
+        h+='<span class="s"><span class="l">流通</span><span class="v f">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span>';
+        h+='</div></div>';
+      });
+      h+='</div>';
+    }
+    if(progRows.length){
+      h+='<div class="sort-bar" style="margin-top:14px"><span class="sort-label" style="color:#ea580c">📋 审核中 ('+progRows.length+')</span></div><div class="cb-list">';
+      progRows.forEach((r,i)=>{
+        const c=r._c||{};
+        const stageTag='<span class="tag tag-s'+r.progress+'">'+r.progress_nm+'</span>';
+        const dStr=(r.progress_dt||"");
+        const shortD=dStr?dStr.slice(5,10):"-";
+        const id=getRowId(r,"progress");
+        h+='<div class="cb-item" data-i="'+i+'" data-kind="progress">';
+        h+=favBtnHtml(id,"progress");
+        h+='<div class="cb-name"><span class="n">'+(r.stockName||r.name||"-")+'</span><span class="c">'+(r.code||r.stockCode||"")+'</span></div>';
+        h+='<div class="cb-sub"><span class="cb-d">📅 '+shortD+'</span><span class="cb-tag">'+stageTag+'</span></div>';
+        const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
+        h+='<div class="cb-stats">';
+        h+='<span class="s"><span class="l">配售</span><span class="v hl">'+(c.needShares!=null?shLabel:'-')+'</span></span>';
+        h+='<span class="s"><span class="l">规模</span><span class="v">'+(r.scale!=null?fmt(r.scale)+'亿':'-')+'</span></span>';
+        h+='<span class="s"><span class="l">所需资金</span><span class="v hl">'+(c.needMoney!=null?fmt(c.needMoney,0)+'元':'-')+'</span></span>';
+        h+='<span class="s"><span class="l">流通</span><span class="v f">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span>';
+        h+='</div></div>';
+      });
+      h+='</div>';
+    }
+  }else{
+    // PC端用表格
+    if(pendRows.length){
+      h+='<div class="card" style="margin-top:12px"><div style="padding:10px 14px;background:#fff4ea;color:#ea580c;font-weight:800;font-size:13px;border-bottom:1px solid #ececef">📌 待发债 ('+pendRows.length+')</div><table><thead><tr>';
+      h+='<th>转债 / 正股</th>';
+      h+='<th>转股价值</th>';
+      h+='<th>一手党</th>';
+      h+='<th>所需资金</th>';
+      h+='<th>申购日</th><th>阶段</th>';
+      h+='<th>规模(亿)</th>';
+      h+='<th>百元含权</th>';
+      h+='<th>预估流通(亿)</th>';
+      h+='<th>操作</th>';
+      h+='</tr></thead><tbody>';
+      pendRows.forEach((r,i)=>{
+        const c=r._c||{};
+        const id=getRowId(r,"pend");
+        h+='<tr class="clickable" data-i="'+i+'" data-kind="pend" style="position:relative">';
+        h+='<td data-label="转债/正股"><div class="name">'+(r.name||"-")+'</div><div class="code">'+(r.code||"")+' · '+(r.stockName||"")+'</div></td>';
+        h+='<td data-label="转股价值"><span class="num">'+(c.cv!=null?fmt(c.cv):"…")+'</span></td>';
+        const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
+        h+='<td data-label="一手党">'+(c.needShares!=null?('<span class="num">'+shLabel+'</span>'+(c.isSH&&c.needSharesSafe!=null?'<br><span class="muted" style="font-size:11px">稳配'+c.needSharesSafe+'股</span>':'')):'<span class="muted">-</span>')+'</td>';
+        h+='<td data-label="所需资金">'+(c.needMoney!=null?('<span class="hl-fund num">'+fmt(c.needMoney,0)+'元</span>'+(c.isSH&&c.needMoneySafe!=null?'<br><span class="muted" style="font-size:11px">稳'+fmt(c.needMoneySafe,0)+'元</span>':'')):'<span class="muted">-</span>')+'</td>';
+        h+='<td data-label="申购日"><span class="muted">'+(r.publicStart||"-")+'</span></td>';
+        h+='<td data-label="阶段"><span class="tag '+(r.stage==="申购"?"tag-sbuy":"tag-slist")+'">'+r.stage+'</span></td>';
+        h+='<td data-label="规模"><span class="num">'+fmt(r.scale)+'</span></td>';
+        h+='<td data-label="百元含权"><span class="num">'+(c.baiyuan!=null?fmt(c.baiyuan):"…")+'</span></td>';
+        h+='<td data-label="预估流通"><span class="num">'+(c.estFloat!=null?c.estFloat:'-')+'<span class="muted" style="font-size:10px;font-weight:400"> 预</span></span></td>';
+        h+='<td style="text-align:right">'+favBtnHtml(id,"pend")+'</td>';
+        h+='</tr>';
+      });
+      h+='</tbody></table></div>';
+    }
+    if(progRows.length){
+      h+='<div class="card" style="margin-top:12px"><div style="padding:10px 14px;background:#fff4ea;color:#ea580c;font-weight:800;font-size:13px;border-bottom:1px solid #ececef">📋 审核中 ('+progRows.length+')</div><table><thead><tr>';
+      h+='<th>正股 / 转债</th>';
+      h+='<th>进度</th>';
+      h+='<th>转股价值</th>';
+      h+='<th>一手党</th>';
+      h+='<th>所需资金</th>';
+      h+='<th>百元含权</th>';
+      h+='<th>规模(亿)</th>';
+      h+='<th>预估流通(亿)</th>';
+      h+='<th>操作</th>';
+      h+='</tr></thead><tbody>';
+      progRows.forEach((r,i)=>{
+        const c=r._c||{};
+        const id=getRowId(r,"progress");
+        const tagCls="tag-s"+r.progress;
+        h+='<tr class="clickable" data-i="'+i+'" data-kind="progress" style="position:relative">';
+        h+='<td data-label="正股/转债"><div class="name">'+(r.stockName||"-")+'</div><div class="code">'+(r.stockCode||"")+(r.name?(" · "+r.name):"")+'</div></td>';
+        h+='<td data-label="进度"><span class="tag '+tagCls+'">'+progressLabel(r)+'</span></td>';
+        h+='<td data-label="转股价值"><span class="num">'+(c.cv!=null?fmt(c.cv):"…")+'</span></td>';
+        const shLabel2=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
+        h+='<td data-label="一手党">'+(c.needShares!=null?('<span class="num">'+shLabel2+'</span>'+(c.isSH&&c.needSharesSafe!=null?'<br><span class="muted" style="font-size:11px">稳配'+c.needSharesSafe+'股</span>':'')):'<span class="muted">-</span>')+'</td>';
+        h+='<td data-label="所需资金">'+(c.needMoney!=null?('<span class="hl-fund num">'+fmt(c.needMoney,0)+'元</span>'+(c.isSH&&c.needMoneySafe!=null?'<br><span class="muted" style="font-size:11px">稳'+fmt(c.needMoneySafe,0)+'元</span>':'')):'<span class="muted">-</span>')+'</td>';
+        h+='<td data-label="百元含权"><span class="num">'+(c.baiyuan!=null?fmt(c.baiyuan):"…")+'</span></td>';
+        h+='<td data-label="规模"><span class="num">'+fmt(r.scale)+'</span></td>';
+        h+='<td data-label="预估流通"><span class="num">'+(c.estFloat!=null?c.estFloat:'-')+'<span class="muted" style="font-size:10px;font-weight:400"> 预</span></span></td>';
+        h+='<td style="text-align:right">'+favBtnHtml(id,"progress")+'</td>';
+        h+='</tr>';
+      });
+      h+='</tbody></table></div>';
+    }
+  }
+  p.innerHTML=h;
+  // 绑定点击事件
+  p.querySelectorAll(".cb-item").forEach(el=>el.onclick=(e)=>{
+    if(e.target.classList.contains("fav-btn"))return;
+    const kind=el.dataset.kind;
+    const rows=kind==="pend"?pendRows:progRows;
+    openDetail(rows[+el.dataset.i],kind);
+  });
+  p.querySelectorAll("tr.clickable").forEach(tr=>tr.onclick=(e)=>{
+    if(e.target.classList.contains("fav-btn"))return;
+    const kind=tr.dataset.kind;
+    const rows=kind==="pend"?pendRows:progRows;
+    openDetail(rows[+tr.dataset.i],kind);
+  });
+  bindFavBtns(p);
+}
+
+// 修改卡片渲染，注入关注按钮
+const _origRenderPend=renderPend;
+renderPend=function(){
+  _origRenderPend.apply(this,arguments);
+  // 在每个 cb-item 和 tr.clickable 中插入关注按钮
+  const p=$("#panel");
+  p.querySelectorAll(".cb-item").forEach(el=>{
+    if(el.querySelector(".fav-btn"))return;
+    const i=+el.dataset.i;
+    const kind=el.dataset.kind||"pend";
+    const rows=doSort(PEND.filter(r=>!r.publicStart||r.publicStart.slice(0,10)>=todayStr()).filter(r=>!keyword||(r.name||"").toLowerCase().includes(keyword.toLowerCase())||(r.code||"").includes(keyword.toLowerCase())||(r.stockName||"").toLowerCase().includes(keyword.toLowerCase())||(r.stockCode||"").includes(keyword.toLowerCase())),pendSort);
+    const r=rows[i];
+    if(r){
+      const id=getRowId(r,kind);
+      el.insertAdjacentHTML("afterbegin",favBtnHtml(id,kind));
+    }
+  });
+  p.querySelectorAll("tr.clickable").forEach(tr=>{
+    if(tr.querySelector(".fav-btn"))return;
+    const i=+tr.dataset.i;
+    const kind=tr.dataset.kind||"pend";
+    const rows=doSort(PEND.filter(r=>!r.publicStart||r.publicStart.slice(0,10)>=todayStr()).filter(r=>!keyword||(r.name||"").toLowerCase().includes(keyword.toLowerCase())||(r.code||"").includes(keyword.toLowerCase())||(r.stockName||"").toLowerCase().includes(keyword.toLowerCase())||(r.stockCode||"").includes(keyword.toLowerCase())),pendSort);
+    const r=rows[i];
+    if(r){
+      const id=getRowId(r,kind);
+      const lastTd=tr.querySelector("td:last-child");
+      if(lastTd){
+        lastTd.style.position="relative";
+        lastTd.insertAdjacentHTML("beforeend",favBtnHtml(id,kind));
+      }
+    }
+  });
+  bindFavBtns(p);
+};
+
+const _origRenderProgress=renderProgress;
+renderProgress=function(){
+  _origRenderProgress.apply(this,arguments);
+  const p=$("#progressPanel");
+  p.querySelectorAll(".cb-item").forEach(el=>{
+    if(el.querySelector(".fav-btn"))return;
+    const i=+el.dataset.i;
+    const kind=el.dataset.kind||"progress";
+    const rows=filterProgressRaw(PROGRESS);
+    const r=rows[i];
+    if(r){
+      const id=getRowId(r,kind);
+      el.insertAdjacentHTML("afterbegin",favBtnHtml(id,kind));
+    }
+  });
+  p.querySelectorAll("tr.clickable").forEach(tr=>{
+    if(tr.querySelector(".fav-btn"))return;
+    const i=+tr.dataset.i;
+    const kind=tr.dataset.kind||"progress";
+    const rows=filterProgressRaw(PROGRESS);
+    const r=rows[i];
+    if(r){
+      const id=getRowId(r,kind);
+      const lastTd=tr.querySelector("td:last-child");
+      if(lastTd){
+        lastTd.style.position="relative";
+        lastTd.insertAdjacentHTML("beforeend",favBtnHtml(id,kind));
+      }
+    }
+  });
+  bindFavBtns(p);
+};
+
+// ==================== 手机端底部筛选排序Sheet（审核进度Tab） ====================
+function openProgSheet(){
+  const curF=PROG_FILTER||"all";
+  $("#sheetProgChips").querySelectorAll(".schip").forEach(c=>c.classList.toggle("active",(c.dataset.f||"all")===curF));
+  $("#sheetSortBtns").querySelectorAll(".ssort").forEach(s=>s.classList.toggle("active",s.dataset.f===progSort.field));
+  $("#sheetDirBtn").textContent=(progSort.dir===1?"↑ 升序":"↓ 降序");
+  $("#progSheetMask").classList.add("show");
+}
+function closeProgSheet(){$("#progSheetMask").classList.remove("show");}
+$("#sheetProgChips").querySelectorAll(".schip").forEach(c=>c.onclick=()=>{
+  $("#sheetProgChips").querySelectorAll(".schip").forEach(x=>x.classList.remove("active"));
+  c.classList.add("active");
+});
+$("#sheetSortBtns").querySelectorAll(".ssort").forEach(s=>s.onclick=()=>{
+  $("#sheetSortBtns").querySelectorAll(".ssort").forEach(x=>x.classList.remove("active"));
+  s.classList.add("active");
+});
+$("#sheetDirBtn").onclick=()=>{
+  const asc=$("#sheetDirBtn").textContent.indexOf("升序")>=0;
+  $("#sheetDirBtn").textContent=(asc?"↓ 降序":"↑ 升序");
+};
+$("#sheetApply").onclick=()=>{
+  const f=$("#sheetProgChips").querySelector(".schip.active").dataset.f;
+  const sf=$("#sheetSortBtns").querySelector(".ssort.active").dataset.f;
+  const dir=$("#sheetDirBtn").textContent.indexOf("降序")>=0?-1:1;
+  PROG_FILTER=f;
+  progSort={field:sf,dir};
+  // 同步PC端chips高亮
+  $("#progChips").querySelectorAll(".chip").forEach(x=>x.classList.toggle("active",(x.dataset.f||"all")===f));
+  closeProgSheet();
+  renderProgress();
+};
+$("#progSheetMask").onclick=e=>{if(e.target.id==="progSheetMask")closeProgSheet();};
+
+// 登录弹窗事件
+$("#authClose").onclick=()=>showAuthModal(false);
+$("#authMask").onclick=e=>{if(e.target.id==="authMask")showAuthModal(false);};
+document.querySelectorAll(".auth-tab").forEach(t=>t.onclick=()=>setAuthMode(t.dataset.mode));
+$("#authSubmit").onclick=doAuth;
+$("#authPass").addEventListener("keydown",e=>{if(e.key==="Enter")doAuth();});
+$("#authUser").addEventListener("keydown",e=>{if(e.key==="Enter")$("#authPass").focus();});
+$("#qfav").addEventListener("input",e=>{favKeyword=e.target.value.trim();renderFav();});
+
+// 初始化：从 localStorage 读取已登录用户
+async function initApp(){
+  // 先渲染数据（不依赖登录状态）
+  PEND=SNAPSHOT_PEND.map(r=>{ const cc=r._c; return {...r, _c: cc&&cc.price!=null?compute(r,cc.price):(cc||null)}; });
+  renderPend();
+  PROGRESS=SNAPSHOT_PROGRESS.map(r=>{ const cc=r._c; return {...r, _c: cc&&cc.price!=null?compute(r,cc.price):(cc||null)}; });
+  renderProgress();
+
+  // 本地读取登录状态
+  const cur=getCur();
+  if(cur){
+    const rec=loadUsers()[cur];
+    if(rec) currentUser={username:cur, favorites:(rec.favorites||[]).map(f=>typeof f==="string"?{id:f,seen:""}:f)};
+  }
+  renderUserArea();
+  // 重新渲染以显示关注状态
+  if(activeTab==="pend")renderPend();
+  if(activeTab==="progress")renderProgress();
+
+  // 加载实时数据
+  loadAll();
+  loadProgressRealtime();
+  // 打开App即检查关注转债进度变化并提醒
+  checkProgress();
+}
+initApp();
 </script>
 </body>
 </html>
