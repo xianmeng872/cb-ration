@@ -202,9 +202,9 @@
     .cb-item:active{transform:scale(.985);box-shadow:0 1px 6px rgba(0,0,0,.1)}
     .fav-btn{top:8px;right:8px;width:28px;height:28px;font-size:14px}
     /* 审核进度/待发债卡片：星号放右上角圆形（手机端通用惯例，不打断名称阅读） */
-    #progressPanel .cb-item .fav-btn,#panel .cb-item .fav-btn{position:absolute;top:6px;right:8px;width:32px;height:32px;border-radius:50%;border:2px solid #e5e7eb;background:linear-gradient(145deg,#fff,#f3f4f6);color:#f59e0b;font-size:17px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.1),inset 0 -1px 3px rgba(0,0,0,.04);transition:.2s;z-index:5}
-    #progressPanel .cb-item .fav-btn:hover,#panel .cb-item .fav-btn:hover{transform:scale(1.1);box-shadow:0 3px 12px rgba(245,158,11,.25)}
-    #progressPanel .cb-item .fav-btn.active,#panel .cb-item .fav-btn.active{background:linear-gradient(145deg,#fbbf24,#f59e0b);border-color:#d97706;color:#fff;box-shadow:0 3px 10px rgba(245,158,11,.45)}
+    #progressPanel .cb-item .fav-btn,#panel .cb-item .fav-btn{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;border:1px solid #e5e7eb;background:#fff;color:#ef4444;font-size:15px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.08);transition:.2s;z-index:5}
+    #progressPanel .cb-item .fav-btn:hover,#panel .cb-item .fav-btn:hover{transform:scale(1.08)}
+    #progressPanel .cb-item .fav-btn.active,#panel .cb-item .fav-btn.active{background:#fef2f2;border-color:#fecaca;color:#ef4444;box-shadow:0 1px 6px rgba(239,68,68,.25)}
     #progressPanel .cb-item .unfav-btn,#panel .cb-item .unfav-btn{position:absolute;top:8px;right:8px;width:auto;height:28px;padding:0 10px;font-size:13px;margin:0}
     #view-fav .cb-item{padding-right:10px}
     #view-fav .cb-item .fav-btn{position:relative;top:auto;right:auto;width:auto;height:auto;padding:2px 6px;border-radius:10px;font-size:16px;margin-left:6px;flex-shrink:0;display:inline-flex;align-items:center;box-shadow:none;border:1.5px solid #e5e7eb;background:#f9fafb}
@@ -1805,10 +1805,10 @@ async function checkProgress(){
 function favBtnHtml(id,kind){
   const active=isFav(id);
   if(active){
-    // 已关注：显示明确的取消按钮（PC端文字+手机端大星号）
-    return '<button class="fav-btn active unfav-btn" data-fav="'+id+'" data-kind="'+kind+'">★<span class="unfav-text">取消</span></button>';
+    // 已关注：显示明确的取消按钮（PC端文字+手机端心形）
+    return '<button class="fav-btn active unfav-btn" data-fav="'+id+'" data-kind="'+kind+'">♥<span class="unfav-text">取消</span></button>';
   }
-  return '<button class="fav-btn" data-fav="'+id+'" data-kind="'+kind+'">☆</button>';
+  return '<button class="fav-btn" data-fav="'+id+'" data-kind="'+kind+'">♡</button>';
 }
 // 绑定关注按钮事件
 function bindFavBtns(container){
