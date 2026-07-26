@@ -307,10 +307,7 @@
   .sheet-dir button:active{transform:scale(.96)}
   .sheet-apply{width:100%;background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;border:none;border-radius:14px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;margin-top:6px;box-shadow:0 4px 14px rgba(249,115,22,.3);touch-action:manipulation}
   .sheet-apply:active{transform:scale(.98)}
-  /* 手机端筛选排序触发按钮（仅手机端显示） */
-  .filter-trigger{display:none;align-items:center;justify-content:space-between;width:100%;background:#fff4ea;border:1px solid #ffd6b3;border-radius:12px;padding:11px 14px;margin:2px 0 10px;cursor:pointer;font-size:13.5px;font-weight:700;color:#ea580c}
-  .filter-trigger .ft-arrow{font-size:12px;opacity:.75;background:#fff;padding:3px 10px;border-radius:14px;border:1px solid #ffd6b3}
-  @media(max-width:720px){ .filter-trigger{display:flex} }
+  /* filter-trigger 仅PC端显示（通过JS openProgSheet 触发），手机端已由全局 @media 隐藏 */
 
 
   /* ===== 布局切换器 ===== */
