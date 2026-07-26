@@ -1010,8 +1010,10 @@ function renderProgress(){
         const mkt=c.market||"";
         const mktTag=mkt?'<span class="mkt-tag">'+mkt+'</span>':"";
         h+='<div class="cb-item" data-i="'+i+'" data-kind="progress">';
-        h+='<div class="cb-header"><div class="cb-name"><span class="n">'+(r.stockName||"-")+'</span>'+mktTag+favBtnHtml(getRowId(r,"progress"),"progress")+'</div><span class="tag '+tagCls+'">'+pl+'</span></div>';
-        h+='<div class="cb-sub"><span class="cb-code">'+(r.stockCode||"")+(r.name?(" · "+r.name):"")+'</span><span class="cb-d">📅 '+(r.progress_dt?r.progress_dt.slice(5,10):"-")+'</span></div>';
+        // 第一行：名称+代码+市场标签+★（和待发债cb-name结构一致）
+        h+='<div class="cb-name"><span class="n">'+(r.stockName||"-")+'</span><span class="c">'+(r.stockCode||"")+'</span>'+mktTag+favBtnHtml(getRowId(r,"progress"),"progress")+'</div>';
+        // 第二行：日期（左）+ 状态标签（右）（和待发债cb-sub结构一致）
+        h+='<div class="cb-sub"><span class="cb-d">📅 '+(r.progress_dt?r.progress_dt.slice(5,10):"-")+'</span><span class="cb-tag"><span class="tag '+tagCls+'">'+pl+'</span></span></div>';
         // 一行四列：配售 | 规模 / 所需资金 | 流通（与待发债布局一致）
         const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
         h+='<div class="cb-stats">';
