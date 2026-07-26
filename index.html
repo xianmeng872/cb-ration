@@ -1012,12 +1012,10 @@ function renderProgress(){
         h+='<div class="cb-item" data-i="'+i+'" data-kind="progress">';
         h+='<div class="cb-header"><div class="cb-name"><span class="n">'+(r.stockName||"-")+'</span>'+mktTag+favBtnHtml(getRowId(r,"progress"),"progress")+'</div><span class="tag '+tagCls+'">'+pl+'</span></div>';
         h+='<div class="cb-sub"><span class="cb-code">'+(r.stockCode||"")+(r.name?(" · "+r.name):"")+'</span><span class="cb-d">📅 '+(r.progress_dt?r.progress_dt.slice(5,10):"-")+'</span></div>';
-        h+='<div class="cb-row"><span class="cb-stat"><span class="cb-stat-label">转股价值</span><span class="cb-stat-val">'+(c.cv!=null?fmt(c.cv):"…")+'</span></span>';
-        h+='<span class="cb-stat"><span class="cb-stat-label">百元含权</span><span class="cb-stat-val">'+(c.baiyuan!=null?fmt(c.baiyuan):"…")+'</span></span>';
-        h+='<span class="cb-stat"><span class="cb-stat-label">规模</span><span class="cb-stat-val">'+(r.scale!=null?fmt(r.scale)+'亿':'-')+'</span></span></div>';
         h+='<div class="cb-row"><span class="cb-stat"><span class="cb-stat-label">配售</span><span class="cb-stat-val hl">'+(c.needShares!=null?((c.isSH?c.needShares+'股(搏)':c.needShares+'股')):'-')+'</span></span>';
-        h+='<span class="cb-stat"><span class="cb-stat-label">所需资金</span><span class="cb-stat-val hl">'+(c.needMoney!=null?fmt(c.needMoney,0)+'元':'-')+'</span></span>';
-        h+='<span class="cb-stat"><span class="cb-stat-label">预估流通</span><span class="cb-stat-val f">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span></div>';
+        h+='<span class="cb-stat"><span class="cb-stat-label">规模</span><span class="cb-stat-val">'+(r.scale!=null?fmt(r.scale)+'亿':'-')+'</span></span></div>';
+        h+='<div class="cb-row"><span class="cb-stat"><span class="cb-stat-label">所需资金</span><span class="cb-stat-val hl">'+(c.needMoney!=null?fmt(c.needMoney,0)+'元':'-')+'</span></span>';
+        h+='<span class="cb-stat"><span class="cb-stat-label">流通</span><span class="cb-stat-val f">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span></div>';
         if(c.isSH && (c.needSharesSafe!=null || c.needMoneySafe!=null)){
           h+='<div class="cb-safe">';
           if(c.needSharesSafe!=null)h+='<span>稳配'+c.needSharesSafe+'股</span>';
