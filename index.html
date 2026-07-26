@@ -158,6 +158,9 @@
     .cb-item{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:12px 13px 10px;box-shadow:0 1px 3px rgba(0,0,0,.04);cursor:pointer;transition:.15s;-webkit-tap-highlight-color:rgba(249,115,22,.08)}
     .cb-item:active{transform:scale(.985);box-shadow:0 1px 6px rgba(0,0,0,.1)}
     .fav-btn{top:8px;right:8px;width:28px;height:28px;font-size:14px}
+    /* 审核进度卡片：星号改为标题行右侧相对定位（不再悬浮压内容） */
+    #progressPanel .cb-item .fav-btn{position:relative;top:auto;right:auto;width:auto;height:auto;padding:2px 6px;border-radius:10px;font-size:16px;margin-left:auto;flex-shrink:0;display:inline-flex;align-items:center;box-shadow:none;border:1.5px solid #e5e7eb;background:#f9fafb}
+    #progressPanel .cb-item .fav-btn.active{background:linear-gradient(135deg,#fbbf24,#f59e0b);border-color:#f59e0b}
     /* 关注列表内：星号放到名称行右侧（非绝对定位） */
     #view-fav .cb-item{padding-right:10px}
     #view-fav .cb-item .fav-btn{position:relative;top:auto;right:auto;width:auto;height:auto;padding:2px 6px;border-radius:10px;font-size:16px;margin-left:6px;flex-shrink:0;display:inline-flex;align-items:center;box-shadow:none;border:1.5px solid #e5e7eb;background:#f9fafb}
@@ -1798,7 +1801,8 @@ renderProgress=function(){
     const r=rows[i];
     if(r){
       const id=getRowId(r,kind);
-      el.insertAdjacentHTML("afterbegin",favBtnHtml(id,kind));
+      const hdr=el.querySelector(".cb-header")||el.querySelector(".cb-bar-header")||el.querySelector(".cb-fold-header")||el.querySelector(".cb-list-left")||el;
+      hdr.insertAdjacentHTML("beforeend",favBtnHtml(id,kind));
     }
   });
   p.querySelectorAll("tr.clickable").forEach(tr=>{
