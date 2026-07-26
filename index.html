@@ -88,6 +88,8 @@
   /* ===== 用户/登录区（标题右侧同行） ===== */
   .hero-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
   .hero-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+  /* PC端：显示完整用户区，隐藏手机端圆钮 */
+  #userAreaMobile{display:none}
   .user-info{display:flex;align-items:center;gap:6px;background:#f8f9fb;color:#374151;padding:4px 12px 4px 6px;border-radius:20px;font-size:12.5px;font-weight:600;border:1px solid #e5e7eb;transition:.15s}
   .user-info:hover{border-color:#d1d5db;background:#f3f4f6}
   .user-info .avatar{width:26px;height:26px;border-radius:50%;background:#fff4ea;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:1;border:1.5px solid #ffd6b3;overflow:hidden}
@@ -148,6 +150,7 @@
     .hero-top{justify-content:center;gap:4px;flex-wrap:wrap}
     .hero-right{order:2;margin-left:auto;display:flex;align-items:center;gap:6px;width:auto;justify-content:flex-end;margin-top:0;padding-top:0;border-top:none}
     .hero-right #refresh{display:none} /* 手机端隐藏PC刷新（已移到bar行） */
+    .hero-right #userArea{display:none} /* 手机端隐藏PC用户区 */
     .hero-right #userAreaMobile{display:inline-flex} /* 手机端头像圆钮 */
     .btn-refresh-bar{display:inline-flex !important} /* 手机端bar行显示刷新实时按钮 */
     .sub{text-align:center;font-size:11.5px}
@@ -343,7 +346,9 @@
   <div class="hero-top">
     <h1>可转债抢权配售<span class="hero-badge">· 实时</span></h1>
     <div class="hero-right" id="heroRight">
-      <!-- 手机端用户头像放这里（小圆形） -->
+      <!-- PC端用户区（登录/注册/头像） -->
+      <span id="userArea"></span>
+      <!-- 手机端用户头像圆钮 -->
       <span id="userAreaMobile"></span>
       <button class="btn btn-sm" id="refresh">↻ 刷新</button>
     </div>
