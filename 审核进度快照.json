@@ -78,32 +78,6 @@
   }
  },
  {
-  "stockCode": "688686",
-  "stockName": "奥普特",
-  "code": "",
-  "name": "",
-  "progress": "90",
-  "progress_nm": "同意注册",
-  "scale": 12.7,
-  "convertPrice": 150.03,
-  "price": 106.84,
-  "perPre": null,
-  "apply10": 97,
-  "ration_rt": null,
-  "rating_cd": null,
-  "progress_full": "2026-02-10 董事会预案\n2026-02-26 股东大会通过\n2026-04-04 交易所受理\n2026-05-29 上市委通过\n2026-06-30 同意注册",
-  "accept_date": "2026-04-04",
-  "progress_dt": "2026-06-30",
-  "_c": {
-   "cv": 71.2124241818303,
-   "needShares": 97,
-   "needMoney": 10363.48,
-   "baiyuan": 9.649268392470484,
-   "price": 106.84,
-   "estFloat": 3.53
-  }
- },
- {
   "stockCode": "603067",
   "stockName": "振华股份",
   "code": "",
@@ -205,32 +179,6 @@
    "baiyuan": 29.052200994747366,
    "price": 11.36,
    "estFloat": 6.11
-  }
- },
- {
-  "stockCode": "300815",
-  "stockName": "玉禾田",
-  "code": "",
-  "name": "",
-  "progress": "90",
-  "progress_nm": "同意注册",
-  "scale": 15,
-  "convertPrice": 16.35,
-  "price": 15.5,
-  "perPre": null,
-  "apply10": 266,
-  "ration_rt": null,
-  "rating_cd": null,
-  "progress_full": "2024-08-30 董事会预案\n2024-09-18 股东大会通过\n2025-10-20 交易所受理\n2026-03-05 上市委通过\n2026-04-22 同意注册",
-  "accept_date": "2025-10-20",
-  "progress_dt": "2026-04-22",
-  "_c": {
-   "cv": 94.80122324159021,
-   "needShares": 266,
-   "needMoney": 4123,
-   "baiyuan": 24.25418384671356,
-   "price": 15.5,
-   "estFloat": 8.56
   }
  },
  {
