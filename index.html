@@ -998,7 +998,10 @@ function renderProgress(){
   if(isMobile()){
     // 布局A：卡片式（完整信息）
     if(MOBILE_LAYOUT==='card'){
-      let h='<div class="cb-list">';
+      let h='<div class="sort-bar">';
+      const progSfs=[{f:"progress",l:"进度"},{f:"needMoney",l:"所需资金"},{f:"baiyuan",l:"百元含权"},{f:"scale",l:"规模"},{f:"estFloat",l:"预估流通"}];
+      progSfs.forEach(s=>{const ac=(ps.field===s.f);h+='<span class="sort-btn'+(ac?' active':'')+'" data-sf="'+s.f+'" data-kind="progress">'+s.l+(ac?arrow(ps.dir):'')+'</span>'});
+      h+='</div><div class="cb-list">';
       rows.forEach((r,i)=>{
         const c=r._c||{};
         const tagCls="tag-s"+r.progress;
@@ -1008,10 +1011,14 @@ function renderProgress(){
         h+='<div class="cb-item" data-i="'+i+'" data-kind="progress">';
         h+='<div class="cb-header"><div class="cb-name"><span class="n">'+(r.stockName||"-")+'</span>'+mktTag+favBtnHtml(getRowId(r,"progress"),"progress")+'</div><span class="tag '+tagCls+'">'+pl+'</span></div>';
         h+='<div class="cb-sub"><span class="cb-code">'+(r.stockCode||"")+(r.name?(" · "+r.name):"")+'</span><span class="cb-d">📅 '+(r.progress_dt?r.progress_dt.slice(5,10):"-")+'</span></div>';
-        h+='<div class="cb-row"><span class="cb-stat"><span class="cb-stat-label">配售</span><span class="cb-stat-val hl">'+(c.needShares!=null?((c.isSH?c.needShares+'股(搏)':c.needShares+'股')):'-')+'</span></span>';
-        h+='<span class="cb-stat"><span class="cb-stat-label">规模</span><span class="cb-stat-val">'+(r.scale!=null?fmt(r.scale)+'亿':'-')+'</span></span></div>';
-        h+='<div class="cb-row"><span class="cb-stat"><span class="cb-stat-label">所需资金</span><span class="cb-stat-val hl">'+(c.needMoney!=null?fmt(c.needMoney,0)+'元':'-')+'</span></span>';
-        h+='<span class="cb-stat"><span class="cb-stat-label">流通</span><span class="cb-stat-val f">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span></div>';
+        // 一行四列：配售 | 规模 / 所需资金 | 流通（与待发债布局一致）
+        const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
+        h+='<div class="cb-stats">';
+        h+='<span class="s"><span class="l">配售</span><span class="v hl">'+(c.needShares!=null?shLabel:'-')+'</span></span>';
+        h+='<span class="s"><span class="l">规模</span><span class="v">'+(r.scale!=null?fmt(r.scale)+'亿':'-')+'</span></span>';
+        h+='<span class="s"><span class="l">所需资金</span><span class="v hl">'+(c.needMoney!=null?fmt(c.needMoney,0)+'元':'-')+'</span></span>';
+        h+='<span class="s"><span class="l">流通</span><span class="v f">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span>';
+        h+='</div>';
         if(c.isSH && (c.needSharesSafe!=null || c.needMoneySafe!=null)){
           h+='<div class="cb-safe">';
           if(c.needSharesSafe!=null)h+='<span>稳配'+c.needSharesSafe+'股</span>';
@@ -1023,6 +1030,12 @@ function renderProgress(){
       h+='</div>';
       p.innerHTML=h;
       p.querySelectorAll(".cb-item").forEach(el=>el.onclick=()=>openDetail(rows[+el.dataset.i],"progress"));
+      p.querySelectorAll(".sort-btn").forEach(btn=>btn.onclick=>{
+        if(!recordUsage())return;
+        const f=btn.dataset.sf;
+        progSort={field:f, dir:progSort.field===f?-progSort.dir:1};
+        renderProgress();
+      });
       return;
     }
     
