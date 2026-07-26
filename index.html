@@ -166,7 +166,8 @@
   @media(max-width:720px){
     body{font-size:15px;-webkit-text-size-adjust:100%;background:#f5f5f7}
     /* 手机端：隐藏审核进度Tab下的审核阶段chips(飞哥要求只显示排序chips) */
-    #progChips{display:none}
+    /* 必须 !important：第192行 .chips{display:flex !important} 会覆盖普通隐藏规则 */
+    #progChips{display:none !important}
     /* 手机端：隐藏排序触发器(filter-trigger)，排序由顶部排序chips完成 */
     .filter-trigger{display:none}
     .hero{padding:14px 12px 10px}
