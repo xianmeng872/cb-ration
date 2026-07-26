@@ -33,8 +33,8 @@
   .tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
   .tab-sub{font-size:10.5px;font-weight:600;opacity:.7;margin-left:1px}
   .tab.active .tab-sub{opacity:.85}
-  .search{padding:0 0 6px;display:flex;gap:6px;align-items:center;justify-content:flex-end}
-  .search input{width:100%;max-width:180px;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13px;background:var(--card);outline:none;flex:1;min-width:0}
+  .search{padding:0 0 6px;display:flex;gap:6px;align-items:center}
+  .search input{width:100%;border:1px solid var(--line);border-radius:10px;padding:6px 12px;font-size:13px;background:var(--card);outline:none;flex:1;min-width:0}
   .search input:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(249,115,22,.14)}
   /* 搜索框内刷新按钮（手机端显示），低调不抢眼 */
   .btn-refresh-sm{flex-shrink:0;width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:#fff;color:#9ca3af;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;touch-action:manipulation}
@@ -193,7 +193,7 @@
     .wrap{padding:0 10px 72px}
     .tabs{padding:10px 0 6px}
     .tab{padding:12px 8px;font-size:14px}
-    .search input{padding:13px 14px;font-size:16px}
+    .search input{padding:10px 14px;font-size:15px}
     .chip{padding:8px 14px;font-size:13px}
     /* 手机端：阶段筛选chips内联横滑（标准做法，不再单靠底部Sheet） */
     .chips{display:flex !important;flex-wrap:nowrap;overflow-x:auto;gap:8px;padding:4px 0 10px;-webkit-overflow-scrolling:touch;-ms-overflow-style:none;scrollbar-width:none}
@@ -261,14 +261,14 @@
     /* ===== 审批进度条（卡片底部，6阶段约17%每档，柔和色彩） ===== */
     .cb-progress{margin-top:6px;height:5px;background:#f3f4f6;border-radius:3px;overflow:hidden}
     .cb-progress>span{display:block;height:100%;border-radius:3px;transition:width .3s}
-    .cb-progress>span.p10{width:17%;background:#d4d4d8}      /* 董事会预案：浅灰 */
-    .cb-progress>span.p20{width:33%;background:#93c5fd}      /* 股东大会通过：柔蓝 */
-    .cb-progress>span.p50{width:50%;background:#fde68a}      /* 交易所受理：柔黄 */
-    .cb-progress>span.p80{width:75%;background:#fdba74}      /* 上市委通过：柔橙 */
-    .cb-progress>span.p90{width:92%;background:#fdba74}      /* 同意注册：柔橙 */
-    .cb-progress>span.p99{width:100%;background:#86efac}     /* 已上市/申购：柔绿 */
-    .cb-progress>span.psbuy{width:100%;background:#86efac}   /* 申购中：柔绿 */
-    .cb-progress>span.plist{width:40%;background:#c4b5fd}    /* 待发行(待申购)：柔紫 */
+    .cb-progress>span.p10{width:17%;background:#9ca3af}      /* 董事会预案：灰 */
+    .cb-progress>span.p20{width:33%;background:#60a5fa}      /* 股东大会通过：蓝 */
+    .cb-progress>span.p50{width:50%;background:#fbbf24}      /* 交易所受理：黄 */
+    .cb-progress>span.p80{width:75%;background:#fb923c}      /* 上市委通过：橙 */
+    .cb-progress>span.p90{width:92%;background:#f97316}      /* 同意注册：橙 */
+    .cb-progress>span.p99{width:100%;background:#22c55e}     /* 已上市/申购：绿 */
+    .cb-progress>span.psbuy{width:100%;background:#ef4444}   /* 申购中：红 */
+    .cb-progress>span.plist{width:40%;background:#a78bfa}    /* 待发行(待申购)：紫 */
     /* 第二行：正股信息 */
     .cb-stock{font-size:12px;color:#9ca3af;margin-bottom:6px}
     /* 数据行：两列网格 */
@@ -447,7 +447,7 @@
 
   <div class="foot">
     数据源：东方财富 + 腾讯行情 + 集思录 · 每日自动更新(9:00/18:00) · 仅供参考，非投资建议
-    <div id="verStamp" style="margin-top:6px;font-size:11px;color:#bbb">版本 v20260727-0450 (fix-round7)</div>
+    <div id="verStamp" style="margin-top:6px;font-size:11px;color:#bbb">版本 v20260727-0500 (fix-round8)</div>
   </div>
 </div>
 <div class="mask" id="mask"><div class="modal">
