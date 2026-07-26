@@ -61,7 +61,8 @@ async function getLockRatio(stockCode) {
       // 锁定比例 = 十大股东中持股≥5% 的合计
       const lock = uniq.filter(x => parseFloat(x.HOLD_NUM_RATIO) >= 5)
         .reduce((s, x) => s + (parseFloat(x.HOLD_NUM_RATIO) || 0), 0);
-      if (lock <= 0) { await sleep(800); continue; } // 至少有一个≥5%股东才算成功
+      // 无≥5%股东 → 锁定比例按 0（全流通），缓存并返回 0，不再重试
+      if (lock <= 0) { LOCK_CACHE[stockCode] = 0; saveCache(); return 0; }
       const v = +(lock > 100 ? 100 : lock).toFixed(2);
       LOCK_CACHE[stockCode] = v; saveCache();
       return v;
