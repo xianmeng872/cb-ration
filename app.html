@@ -34,10 +34,10 @@
   .tab-sub{font-size:10.5px;font-weight:600;opacity:.7;margin-left:1px}
   .tab.active .tab-sub{opacity:.85}
   .search{padding:0 0 6px;display:flex;gap:6px;align-items:center}
-  .search input{width:100%;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13px;background:var(--card);outline:none;flex:1;min-width:0}
+  .search input{width:100%;border:1px solid var(--line);border-radius:9px;padding:5px 10px;font-size:12px;background:var(--card);outline:none;flex:1;min-width:0}
   .search input:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(249,115,22,.14)}
-  /* 搜索框内刷新小按钮（手机端显示） */
-  .btn-refresh-sm{flex-shrink:0;width:38px;height:38px;border-radius:12px;border:1.5px solid var(--line);background:#fff;color:var(--muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;touch-action:manipulation}
+  /* 搜索框内刷新按钮（手机端显示），放大并改为橙色醒目 */
+  .btn-refresh-sm{flex-shrink:0;width:46px;height:46px;border-radius:13px;border:1.5px solid var(--primary);background:#fff;color:var(--primary);font-size:19px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;touch-action:manipulation}
   .btn-refresh-sm:active{background:var(--primary-light);color:var(--primary);transform:scale(.93)}
   @media(min-width:721px){.btn-refresh-sm{display:none}} /* PC端隐藏 */
   .chips{display:flex;gap:7px;padding:4px 0 10px;flex-wrap:wrap}
@@ -248,6 +248,9 @@
     #progressPanel .cb-stats .s .v{display:flex;align-items:center;height:16px;line-height:16px}
     #progressPanel .cb-stats .s .cb-d{display:flex;align-items:center;height:16px;line-height:16px;font-size:12.5px;font-weight:800;color:#1f2937}
     #progressPanel .cb-stats .s .tag{display:inline-flex;align-items:center;height:16px;padding:0 8px;line-height:16px;box-sizing:border-box}
+    /* 第一列(配售/所需资金)字略小 */
+    #progressPanel .cb-stats .s:nth-child(3n+1) .l{font-size:9px}
+    #progressPanel .cb-stats .s:nth-child(3n+1) .v{font-size:11px}
     .cb-stats .s{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
     .cb-stats .s .l{font-size:10px;color:#9ca3af;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .cb-stats .s .v{font-size:12.5px;font-weight:800;color:#1f2937;font-variant-numeric:tabular-nums;line-height:1.15;white-space:nowrap}
@@ -397,8 +400,6 @@
   </div>
   <div class="sub">xianmeng872.github.io</div>
   <div class="hero-desc">配债潜伏 · 待发实时 · 审核进度自动更新</div>
-  <div id="heroSearch" class="search" style="display:none"><input id="q2" placeholder="🔍 搜索正股 / 转债 / 代码，如：炬申、千红"><button class="btn-refresh-sm" id="refreshMobile2" title="刷新数据">↻</button></div>
-  <div id="heroSearchPend" class="search"><input id="q" placeholder="🔍 搜索转债 / 正股 / 代码，如：炬申、特宝、110103"><button class="btn-refresh-sm" id="refreshMobile" title="刷新数据">↻</button></div>
   <div class="bar">
     <span class="time" id="time">加载中…</span>
     <button class="btn btn-sm btn-refresh-bar" id="refreshBar" style="display:none">↻ 刷新实时</button>
@@ -417,6 +418,7 @@
   </div>
 
   <div id="view-pend">
+    <div class="search"><input id="q" placeholder="🔍 搜索"><button class="btn-refresh-sm" id="refreshMobile" title="刷新数据">↻</button></div>
     <div id="panel"></div>
   </div>
 
@@ -429,12 +431,13 @@
       <span class="chip" data-f="20">股东大会通过</span>
       <span class="chip" data-f="10">董事会预案</span>
     </div>
+    <div class="search"><input id="q2" placeholder="🔍 搜索"><button class="btn-refresh-sm" id="refreshMobile2" title="刷新数据">↻</button></div>
     <div id="progressPanel"></div>
   </div>
 
   <div class="foot">
     数据源：东方财富 + 腾讯行情 + 集思录 · 每日自动更新(9:00/18:00) · 仅供参考，非投资建议
-    <div id="verStamp" style="margin-top:6px;font-size:11px;color:#bbb">版本 v20260727-0343 (8761779)</div>
+    <div id="verStamp" style="margin-top:6px;font-size:11px;color:#bbb">版本 v20260727-0352 (pending)</div>
   </div>
 </div>
 <div class="mask" id="mask"><div class="modal">
@@ -1360,8 +1363,6 @@ document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
   $("#view-pend").style.display=activeTab==="pend"?"block":"none";
   $("#view-progress").style.display=activeTab==="progress"?"block":"none";
   $("#view-fav").style.display=activeTab==="fav"?"block":"none";
-  $("#heroSearch").style.display=activeTab==="progress"?"flex":"none";
-  $("#heroSearchPend").style.display=activeTab==="pend"?"flex":"none";
   if(activeTab==="progress") loadProgressRealtime();
   if(activeTab==="fav") renderFav();
 });
