@@ -109,6 +109,20 @@
   .avatar-btn:active{transform:scale(.9)}
   .avatar-btn.logged-in{border-color:var(--primary);background:var(--primary-light)}
 
+  /* ===== 手机端用户菜单（头像点击弹出） ===== */
+  .user-menu-mask{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.25);z-index:999;display:flex;justify-content:flex-end;align-items:flex-start;padding-top:50px}
+  .user-menu{background:#fff;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.15);min-width:180px;overflow:hidden;margin-right:12px;animation:menuSlideIn .2s ease}
+  @keyframes menuSlideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+  .user-menu-header{padding:14px 16px 8px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;gap:8px}
+  .user-menu-header .um-avatar{width:32px;height:32px;border-radius:50%;background:#fff4ea;display:flex;align-items:center;justify-content:center;font-size:17px;line-height:1;border:1.5px solid #ffd6b3}
+  .user-menu-header .um-name{font-size:14px;font-weight:700;color:#1f2937}
+  .user-menu-body{padding:6px}
+  .user-menu-item{display:flex;align-items:center;gap:8px;width:100%;padding:10px 12px;border:none;background:none;font-size:13.5px;color:#374151;border-radius:10px;cursor:pointer;transition:.15s;text-align:left;font-weight:500}
+  .user-menu-item:hover{background:#f3f4f6}
+  .user-menu-item.danger{color:#ef4444}
+  .user-menu-item.danger:hover{background:#fef2f2}
+  .user-menu-divider{height:1px;background:#f3f4f6;margin:4px 0}
+
   /* ===== 卡片关注按钮 ===== */
   .fav-btn{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;border:none;background:#fff;color:#d1d5db;font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.08);transition:.15s;z-index:5}
   .fav-btn:active{transform:scale(.9)}
@@ -154,6 +168,7 @@
     .hero-right #userAreaMobile{display:inline-flex} /* 手机端头像圆钮 */
     .btn-refresh-bar{display:inline-flex !important} /* 手机端bar行显示刷新实时按钮 */
     .sub{text-align:center;font-size:11.5px}
+  .hero-desc{text-align:center;font-size:11px;color:#9ca3af;margin-top:2px}
     .bar{justify-content:space-between;padding:2px 0}
     .time{font-size:10.5px;padding:4px 8px}
     .wrap{padding:0 10px 72px}
@@ -173,7 +188,10 @@
     .cb-item{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:12px 13px 10px;box-shadow:0 1px 3px rgba(0,0,0,.04);cursor:pointer;transition:.15s;-webkit-tap-highlight-color:rgba(249,115,22,.08)}
     .cb-item:active{transform:scale(.985);box-shadow:0 1px 6px rgba(0,0,0,.1)}
     .fav-btn{top:8px;right:8px;width:28px;height:28px;font-size:14px}
-    /* 关注列表内：星号放到名称行右侧（非绝对定位） */
+    /* 审核进度/待发债卡片：星号放到标题行右侧（相对定位，不悬浮压状态标签） */
+    #progressPanel .cb-item .fav-btn,#panel .cb-item .fav-btn{position:relative;top:auto;right:auto;width:auto;height:auto;padding:2px 6px;border-radius:10px;font-size:16px;margin-left:6px;flex-shrink:0;display:inline-flex;align-items:center;box-shadow:none;border:1.5px solid #e5e7eb;background:#f9fafb}
+    #progressPanel .cb-item .fav-btn.active,#panel .cb-item .fav-btn.active{background:linear-gradient(135deg,#fbbf24,#f59e0b);border-color:#f59e0b}
+    #progressPanel .cb-item .unfav-btn,#panel .cb-item .unfav-btn{position:relative;top:auto;right:auto;padding:3px 10px;font-size:13px;margin-left:6px}
     #view-fav .cb-item{padding-right:10px}
     #view-fav .cb-item .fav-btn{position:relative;top:auto;right:auto;width:auto;height:auto;padding:2px 6px;border-radius:10px;font-size:16px;margin-left:6px;flex-shrink:0;display:inline-flex;align-items:center;box-shadow:none;border:1.5px solid #e5e7eb;background:#f9fafb}
     #view-fav .cb-item .fav-btn.active{background:linear-gradient(135deg,#fbbf24,#f59e0b);border-color:#f59e0b}
@@ -354,6 +372,7 @@
     </div>
   </div>
   <div class="sub">xianmeng872.github.io</div>
+  <div class="hero-desc">配债潜伏 · 待发实时 · 审核进度自动更新</div>
   <div class="bar">
     <span class="time" id="time">加载中…</span>
     <button class="btn btn-sm btn-refresh-bar" id="refreshBar" style="display:none">↻ 刷新实时</button>
@@ -438,6 +457,14 @@
       </div>
       <button class="auth-submit" id="authSubmit">登录</button>
     </div>
+  </div>
+</div>
+
+<!-- 手机端用户菜单（点击头像弹出） -->
+<div class="user-menu-mask" id="userMenuMask" style="display:none" onclick="document.getElementById('userMenuMask').style.display='none'">
+  <div class="user-menu" id="userMenu" onclick="event.stopPropagation()">
+    <div class="user-menu-header" id="userMenuHeader"></div>
+    <div class="user-menu-body" id="userMenuBody"></div>
   </div>
 </div>
 
@@ -624,8 +651,13 @@ const PROG_LABEL={ "90":"同意注册","80":"上市委通过","50":"交易所受
 
 const $=s=>document.querySelector(s);
 function toast(m,d=2200){const t=$("#toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),d);}
-function setTime(msg){const d=new Date();const p=n=>String(n).padStart(2,"0");
-  $("#time").textContent=msg+" "+d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+" "+p(d.getHours())+":"+p(d.getMinutes())+":"+p(d.getSeconds());}
+function setTime(msg){
+  const d=new Date();
+  const p=n=>String(n).padStart(2,"0");
+  // 根据当前Tab加前缀：待发债实时 / 审核进度 / 我的关注
+  const tabLabel = activeTab==="pend"?"待发债实时":activeTab==="progress"?"审核进度":"我的关注";
+  $("#time").textContent=tabLabel+" "+d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+" "+p(d.getHours())+":"+p(d.getMinutes())+":"+p(d.getSeconds());
+}
 
 // 东财列表 -> 待发(空上市日) 且 申购日>=今天
 function todayStr(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
@@ -1364,9 +1396,9 @@ function renderUserArea(){
     };
     const sd=ua.querySelector(".sync-dot");
     if(sd) sd.onclick=(e)=>{e.stopPropagation();showGistSettings();};
-    // 手机端：仅显示头像圆钮（点击弹登录/用户菜单）
+    // 手机端：仅显示头像圆钮（点击弹用户菜单）
     um.innerHTML='<span class="avatar-btn logged-in" id="avatarBtn" title="'+currentUser.username+'">'+em+'</span>'+syncDot;
-    $("#avatarBtn").onclick=(e)=>{e.stopPropagation();showAuthModal(true);};
+    $("#avatarBtn").onclick=(e)=>{e.stopPropagation();showUserMenu();};
     const sdm=um.querySelector(".sync-dot");
     if(sdm) sdm.onclick=(e)=>{e.stopPropagation();showGistSettings();};
     $("#tab-fav").style.display="";
@@ -1374,7 +1406,7 @@ function renderUserArea(){
     ua.innerHTML='<button class="btn-login" id="btnLogin">登录 / 注册</button>';
     $("#btnLogin").onclick=()=>showAuthModal(true);
     um.innerHTML='<span class="avatar-btn" id="avatarBtn" title="点击登录">👤</span>';
-    $("#avatarBtn").onclick=(e)=>{e.stopPropagation();showAuthModal(true);};
+    $("#avatarBtn").onclick=(e)=>{e.stopPropagation();showUserMenu();};
     $("#tab-fav").style.display="none";
   }
   updateFavTab();
@@ -1383,6 +1415,33 @@ function renderUserArea(){
 function updateFavTab(){
   const count=currentUser?currentUser.favorites.length:0;
   $("#favCount").textContent=count;
+}
+
+// 手机端用户菜单（头像点击弹出）
+function showUserMenu(){
+  const mask=$("#userMenuMask");
+  const header=$("#userMenuHeader");
+  const body=$("#userMenuBody");
+  if(currentUser){
+    // 已登录：显示头像+用户名 + 菜单项
+    const em=emojiAvatar(currentUser.username);
+    header.innerHTML='<span class="um-avatar">'+em+'</span><span class="um-name">'+currentUser.username+'</span>';
+    body.innerHTML='<button class="user-menu-item" onclick="document.getElementById(\'userMenuMask\').style.display=\'none\';showGistSettings();">☁️ 云端同步设置</button>'
+      +'<div class="user-menu-divider"></div>'
+      +'<button class="user-menu-item danger" id="menuLogout">🚪 退出登录</button>';
+    $("#menuLogout").onclick=()=>{
+      document.getElementById('userMenuMask').style.display='none';
+      currentUser=null;saveCur(null);
+      renderUserArea();updateFavTab();
+      if(activeTab==="fav"){activeTab="pend";$("#tab-pend").click();}
+      toast("已退出登录");
+    };
+  }else{
+    // 未登录：显示登录/注册入口
+    header.innerHTML='<span class="um-avatar">👤</span><span class="um-name" style="color:#9ca3af">未登录</span>';
+    body.innerHTML='<button class="user-menu-item" onclick="document.getElementById(\'userMenuMask\').style.display=\'none\';showAuthModal(true);">🔑 登录 / 注册</button>';
+  }
+  mask.style.display='flex';
 }
 
 function showAuthModal(show){
@@ -1942,7 +2001,13 @@ renderProgress=function(){
     const r=rows[i];
     if(r){
       const id=getRowId(r,kind);
-      el.insertAdjacentHTML("afterbegin",favBtnHtml(id,kind));
+      // 找到标题行元素（card用.cb-name，bar用.cb-bar-name，fold用.cb-fold-name，list用.cb-list-name）
+      // 如果都找不到，回退到.cb-header或卡片本身
+      const nameEl=el.querySelector('.cb-name,.cb-bar-name,.cb-fold-name,.cb-list-name')
+        ||el.querySelector('.cb-header,.cb-bar-header,.cb-fold-header,.cb-list-top')
+        ||el;
+      // 注入到标题行末尾（相对定位，不悬浮）
+      nameEl.insertAdjacentHTML("beforeend",favBtnHtml(id,kind));
     }
   });
   p.querySelectorAll("tr.clickable").forEach(tr=>{
