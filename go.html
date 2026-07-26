@@ -34,11 +34,11 @@
   .tab-sub{font-size:10.5px;font-weight:600;opacity:.7;margin-left:1px}
   .tab.active .tab-sub{opacity:.85}
   .search{padding:0 0 6px;display:flex;gap:6px;align-items:center}
-  .search input{width:100%;max-width:280px;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13px;background:var(--card);outline:none;flex:1;min-width:0}
+  .search input{width:100%;max-width:220px;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13px;background:var(--card);outline:none;flex:1;min-width:0}
   .search input:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(249,115,22,.14)}
-  /* 搜索框内刷新按钮（手机端显示），放大并改为橙色醒目 */
-  .btn-refresh-sm{flex-shrink:0;width:46px;height:46px;border-radius:13px;border:1.5px solid var(--primary);background:var(--primary);color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;touch-action:manipulation}
-  .btn-refresh-sm:active{background:var(--primary-light);color:var(--primary);transform:scale(.93)}
+  /* 搜索框内刷新按钮（手机端显示），描边无底色不抢眼 */
+  .btn-refresh-sm{flex-shrink:0;width:46px;height:46px;border-radius:13px;border:1.5px solid var(--line);background:#fff;color:var(--muted);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;touch-action:manipulation}
+  .btn-refresh-sm:active{background:var(--primary-light);color:var(--primary);transform:scale(.93);border-color:var(--primary)}
   @media(min-width:721px){.btn-refresh-sm{display:none}} /* PC端隐藏 */
   .chips{display:flex;gap:7px;padding:4px 0 10px;flex-wrap:wrap}
   .chip{cursor:pointer;font-size:12.5px;font-weight:700;padding:6px 13px;border-radius:18px;background:var(--card);border:1px solid var(--line);color:var(--muted)}
@@ -98,7 +98,7 @@
   #userAreaMobile{display:none}
   .user-info{display:flex;align-items:center;gap:6px;background:#f8f9fb;color:#374151;padding:4px 12px 4px 6px;border-radius:20px;font-size:12.5px;font-weight:600;border:1px solid #e5e7eb;transition:.15s;cursor:pointer;position:relative}
   .user-info:hover{border-color:#d1d5db;background:#f3f4f6}
-  .user-info .avatar{width:26px;height:26px;border-radius:50%;background:#fff4ea;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:1;border:1.5px solid #ffd6b3;overflow:hidden}
+  .user-info .avatar{width:26px;height:26px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;line-height:1;border:1.5px solid #ffd6b3;flex-shrink:0}
   .user-info .u-dropdown{display:none;position:absolute;top:calc(100% + 6px);right:0;background:#fff;border:1px solid #e5e7eb;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:140px;overflow:hidden;z-index:40}
   .user-info .u-dropdown.show{display:block}
   .user-info .u-dropdown button{width:100%;padding:8px 12px;border:none;background:none;font-size:13px;color:#374151;cursor:pointer;text-align:left;display:flex;align-items:center;gap:6px;font-weight:500}
@@ -137,8 +137,8 @@
   .fav-btn{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;border:none;background:#fff;color:#d1d5db;font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.08);transition:.15s;z-index:5}
   .fav-btn:active{transform:scale(.9)}
   .fav-btn.active{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#fff;box-shadow:0 2px 6px rgba(245,158,11,.4)}
-  /* 取消关注按钮：已关注时显示更明显的样式 */
-  .unfav-btn{width:auto;padding:4px 10px;border-radius:14px;font-size:12px;font-weight:700;gap:4px;background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;box-shadow:0 2px 8px rgba(239,68,68,.35)}
+  /* 取消关注按钮：已关注时显示更明显的样式；必须覆盖 .fav-btn 的 position:absolute */
+  .unfav-btn{position:relative !important;top:auto !important;right:auto !important;width:auto;padding:4px 10px;border-radius:14px;font-size:12px;font-weight:700;gap:4px;background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;box-shadow:0 2px 8px rgba(239,68,68,.35)}
   .unfav-btn:active{transform:scale(.92)}
   .unfav-text{font-size:11px;font-weight:600;margin-left:2px;opacity:.9}
   .cb-item{position:relative}
@@ -260,6 +260,17 @@
     .cb-stats .s .v.f{color:#1f2937}
     /* 市场标记(沪/深)紧跟代码后面 */
     .cb-mkt{font-size:10.5px;font-weight:800;padding:1px 6px;border-radius:8px;margin-left:4px;flex-shrink:0}
+    /* ===== 审批进度条（卡片底部，6阶段约17%每档） ===== */
+    .cb-progress{margin-top:6px;height:5px;background:#f3f4f6;border-radius:3px;overflow:hidden}
+    .cb-progress>span{display:block;height:100%;border-radius:3px;transition:width .3s}
+    .cb-progress>span.p10{width:17%;background:#9ca3af}      /* 董事会预案 */
+    .cb-progress>span.p20{width:33%;background:#60a5fa}      /* 股东大会通过 */
+    .cb-progress>span.p50{width:50%;background:#fbbf24}      /* 交易所受理 */
+    .cb-progress>span.p80{width:75%;background:#fb923c}      /* 上市委通过 */
+    .cb-progress>span.p90{width:92%;background:#f97316}      /* 同意注册 */
+    .cb-progress>span.p99{width:100%;background:#22c55e}     /* 已上市/申购 */
+    .cb-progress>span.psbuy{width:100%;background:#22c55e}   /* 申购中 */
+    .cb-progress>span.plist{width:40%;background:#a78bfa}    /* 待发行(待申购) */
     /* 第二行：正股信息 */
     .cb-stock{font-size:12px;color:#9ca3af;margin-bottom:6px}
     /* 数据行：两列网格 */
@@ -438,7 +449,7 @@
 
   <div class="foot">
     数据源：东方财富 + 腾讯行情 + 集思录 · 每日自动更新(9:00/18:00) · 仅供参考，非投资建议
-    <div id="verStamp" style="margin-top:6px;font-size:11px;color:#bbb">版本 v20260727-0413 (3c1848d)</div>
+    <div id="verStamp" style="margin-top:6px;font-size:11px;color:#bbb">版本 v20260727-0435 (fix-round6)</div>
   </div>
 </div>
 <div class="mask" id="mask"><div class="modal">
@@ -904,9 +915,9 @@ function isMobile(){return window.matchMedia("(max-width:720px)").matches;}
 function renderPend(){
   const p=$("#panel");
   let rows=PEND;
-  // 剔除已过申购日的
-  const t=todayStr();
-  rows=rows.filter(r=>!r.publicStart || r.publicStart.slice(0,10)>=t);
+  // 不再按申购日过滤：用户需看到全部待发债（含已开始申购的），stage标签已标明状态
+  // const t=todayStr();
+  // rows=rows.filter(r=>!r.publicStart || r.publicStart.slice(0,10)>=t);
   if(keyword){const q=keyword.toLowerCase();rows=rows.filter(r=>(r.name||"").toLowerCase().includes(q)||(r.code||"").includes(q)||(r.stockName||"").toLowerCase().includes(q)||(r.stockCode||"").includes(q));}
   if(!rows.length){p.innerHTML='<div class="card"><div class="empty">'+(keyword?"无匹配":"加载失败或暂无待发")+'</div></div>';return;}
   rows=doSort(rows,pendSort);
@@ -927,18 +938,19 @@ function renderPend(){
       const dStr=(r.publicStart||r.progress_dt||"");
       const shortD=dStr?dStr.slice(5,10):"-";
       h+='<div class="cb-name"><span class="n">'+(r.name||"-")+'</span><span class="c">'+(r.code||"")+'</span>'+favBtnHtml(getRowId(r,"pend"),"pend")+'</div>';
-      // 3列×2行网格（与审核进度统一）：配售 | 规模 | 阶段 / 所需资金 | 流通 | 日期
+      // 3列×2行网格（与审核进度统一）：配售 | 规模 | 阶段(标签隐藏) / 所需资金 | 流通 | 日期(标签隐藏)
       const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
       h+='<div class="cb-stats">';
-      // 第1行：配售 | 规模 | 阶段
+      // 第1行：配售 | 规模 | 阶段（标签文字隐藏占位，值位置与审核进度一致）
       h+='<span class="s"><span class="l">配售</span><span class="v hl">'+(c.needShares!=null?shLabel:'-')+'</span></span>';
       h+='<span class="s"><span class="l">规模</span><span class="v">'+(r.scale!=null?fmt(r.scale)+'亿':'-')+'</span></span>';
-      h+='<span class="s"><span class="v"><span class="tag '+(stageTag?'tag-sbuy':'')+'">'+(stageTag?stageTag:'待发行')+'</span></span></span>';
-      // 第2行：所需资金 | 流通 | 日期
+      h+='<span class="s"><span class="l" style="visibility:hidden">状态</span><span class="v"><span class="tag '+(stageTag?'tag-sbuy':'')+'">'+(stageTag?stageTag:'待发行')+'</span></span></span>';
+      // 第2行：所需资金 | 流通 | 日期（标签文字隐藏占位）
       h+='<span class="s"><span class="l">所需资金</span><span class="v hl">'+(c.needMoney!=null?fmt(c.needMoney,0)+'元':'-')+'</span></span>';
       h+='<span class="s"><span class="l">流通</span><span class="v f">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span>';
-      h+='<span class="s"><span class="v"><span class="cb-d">🗓️ '+shortD+'</span></span></span>';
+      h+='<span class="s"><span class="l" style="visibility:hidden">日期</span><span class="v"><span class="cb-d">🗓️ '+shortD+'</span></span></span>';
       h+='</div>';
+      h+=progressBarHtml("pend",r);
       h+='</div>';
     });
     h+='</div>';
@@ -998,6 +1010,22 @@ function progressLabel(r){
   if(r.progress==="10") return "董事会预案";
   return (r.progress_nm||"其他").replace(/<br>/g," ");
 }
+// 审批进度条HTML（根据阶段返回对应进度条）
+function progressBarHtml(kind,r){
+  var cls="";
+  if(kind==="progress"){
+    var pg=r.progress||"10";
+    if(pg==="99") cls="p99";
+    else if(pg==="90") cls=(r.progress_nm&&r.progress_nm.indexOf("申购")>=0)?"psbuy":"p90";
+    else cls="p"+pg;
+  }else{
+    // 待发债
+    if(r.stage==="申购") cls="psbuy";
+    else if(r.stage==="待发行") cls="plist";
+    else cls="p80"; // fallback
+  }
+  return '<div class="cb-progress"><span class="'+cls+'"></span></div>';
+}
 // 审核进度只显示「还在审批中」的：排除已上市(99)和已排期申购(90含"申购")
 function filterProgressRaw(arr){
   return arr.filter(r=>{
@@ -1050,6 +1078,7 @@ function renderProgress(){
           if(c.needMoneySafe!=null)h+='<span>稳'+fmt(c.needMoneySafe,0)+'元</span>';
           h+='</div>';
         }
+        h+=progressBarHtml("progress",r);
         h+='</div>';
       });
       h+='</div>';
@@ -1330,9 +1359,17 @@ async function loadProgressRealtime(){
   finally{btn.disabled=false;btn.textContent="↻ 刷新实时";}
 }
 
-// 事件：关闭详情弹窗时确保页面状态正常
-$("#mx").onclick=()=>{document.getElementById("mask").classList.remove("show");ensureViewsVisible();};
-$("#mask").onclick=e=>{if(e.target.id==="mask"){document.getElementById("mask").classList.remove("show");ensureViewsVisible();}};
+// 事件：关闭详情弹窗时确保页面状态正常（返回来源Tab）
+$("#mx").onclick=()=>{closeDetailMask();};
+$("#mask").onclick=e=>{if(e.target.id==="mask"){closeDetailMask();}};
+function closeDetailMask(){
+  document.getElementById("mask").classList.remove("show");
+  ensureViewsVisible();
+  // 确保对应的Tab按钮高亮
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  var activeBtn=document.getElementById("tab-"+activeTab);
+  if(activeBtn) activeBtn.classList.add("active");
+}
 function ensureViewsVisible(){
   // 确保当前激活的Tab视图可见（防止某些情况下返回后白屏）
   var pv=document.getElementById("view-"+activeTab);
@@ -1407,7 +1444,17 @@ function fetchCurrentUser(){
   return {username:u,favorites:(user.favorites||[]).map(f=>typeof f==="string"?{id:f,seen:""}:f)};
 }
 
-// Emoji头像池：根据用户名稳定分配，每次登录同一用户显示相同表情
+// 卡通头像：根据用户名稳定分配相同卡通形象（DiceBear Adventurer 风格）
+function cartoonAvatarUrl(name){
+  if(!name) return 'https://api.dicebear.com/7.x/adventurer/svg?seed=guest&backgroundColor=b6e3f4';
+  let h=0;
+  for(let i=0;i<name.length;i++) h=((h<<5)-h)+name.charCodeAt(i);
+  const seed='user'+Math.abs(h);
+  const colors=['b6e3f4','c0aede','d1d4f9','ffd5dc','ffdfbf','c1f0cf'];
+  const bg=colors[Math.abs(h)%colors.length];
+  return 'https://api.dicebear.com/7.x/adventurer/svg?seed='+encodeURIComponent(seed)+'&backgroundColor='+bg;
+}
+// Emoji头像池：保留用于后备/未登录状态显示
 const EMOJI_POOL=['🐱','🦊','🐼','🦁','🐸','🦄','🐯','🐷','🐰','🦋','🐬','🐲','🦅','🐺','🦩','🌟','⚡','🔥','💎','🎯','🐝','🦀','🐋','🪼'];
 function emojiAvatar(name){
   if(!name) return '👤';
@@ -1420,13 +1467,14 @@ function renderUserArea(){
   const ua=$("#userArea"); // PC端 hero-right 内
   const um=$("#userAreaMobile"); // 手机端 hero-right 内（圆钮）
   if(currentUser){
-    const em=emojiAvatar(currentUser.username);
+    const em=emojiAvatar(currentUser.username); // 保留emoji用于手机端小圆钮后备显示
+    const avatarUrl=cartoonAvatarUrl(currentUser.username); // 卡通头像URL
     const syncReady=isGistReady();
     const syncDot=syncReady
       ? '<span class="sync-dot on" title="云端同步已开启">☁️</span>'
       : '<span class="sync-dot off" title="未开启云端同步">☁️</span>';
-    // PC端：头像+用户名，点击弹出下拉菜单（含退出）
-    ua.innerHTML='<span class="user-info" id="pcUserInfo"><span class="avatar">'+em+'</span><span class="uname">'+currentUser.username+'</span>'+syncDot+'<div class="u-dropdown" id="pcUDrop"><button id="btnLogout">🚪 退出登录</button></div></span>';
+    // PC端：卡通头像+用户名，点击弹出下拉菜单（含退出）
+    ua.innerHTML='<span class="user-info" id="pcUserInfo"><img class="avatar" src="'+avatarUrl+'" alt="头像" referrerpolicy="no-referrer"><span class="uname">'+currentUser.username+'</span>'+syncDot+'<div class="u-dropdown" id="pcUDrop"><button id="btnLogout">🚪 退出登录</button></div></span>';
     $("#pcUserInfo").onclick=(e)=>{e.stopPropagation();const d=document.getElementById("pcUDrop");d.classList.toggle("show");};
     $("#btnLogout").onclick=(e)=>{e.stopPropagation();document.getElementById("pcUDrop").classList.remove("show");
       currentUser=null;saveToken(null);
@@ -1436,8 +1484,8 @@ function renderUserArea(){
     };
     const sd=ua.querySelector(".sync-dot");
     if(sd) sd.onclick=(e)=>{e.stopPropagation();showGistSettings();};
-    // 手机端：仅显示头像圆钮（点击弹用户菜单）
-    um.innerHTML='<span class="avatar-btn logged-in" id="avatarBtn" title="'+currentUser.username+'">'+em+'</span>'+syncDot;
+    // 手机端：卡通头像圆钮（点击弹用户菜单）
+    um.innerHTML='<span class="avatar-btn logged-in" id="avatarBtn" title="'+currentUser.username+'"><img src="'+avatarUrl+'" style="width:100%;height:100%;border-radius:50%" alt="" referrerpolicy="no-referrer"></span>'+syncDot;
     $("#avatarBtn").onclick=(e)=>{e.stopPropagation();showUserMenu();};
     const sdm=um.querySelector(".sync-dot");
     if(sdm) sdm.onclick=(e)=>{e.stopPropagation();showGistSettings();};
@@ -1463,9 +1511,9 @@ function showUserMenu(){
   const header=$("#userMenuHeader");
   const body=$("#userMenuBody");
   if(currentUser){
-    // 已登录：显示头像+用户名 + 菜单项
-    const em=emojiAvatar(currentUser.username);
-    header.innerHTML='<span class="um-avatar">'+em+'</span><span class="um-name">'+currentUser.username+'</span>';
+    // 已登录：显示卡通头像+用户名 + 菜单项
+    const avatarUrl=cartoonAvatarUrl(currentUser.username);
+    header.innerHTML='<span class="um-avatar" style="overflow:hidden"><img src="'+avatarUrl+'" style="width:100%;height:100%;border-radius:50%" alt="" referrerpolicy="no-referrer"></span><span class="um-name">'+currentUser.username+'</span>';
     body.innerHTML='<button class="user-menu-item" onclick="document.getElementById(\'userMenuMask\').style.display=\'none\';showGistSettings();">☁️ 云端同步设置</button>'
       +'<div class="user-menu-divider"></div>'
       +'<button class="user-menu-item danger" id="menuLogout">🚪 退出登录</button>';
@@ -1882,16 +1930,18 @@ function renderFav(){
         const id=getRowId(r,"pend");
         h+='<div class="cb-item" data-i="'+i+'" data-kind="pend">';
         h+='<div class="cb-name"><span class="n">'+(r.name||"-")+'</span><span class="c">'+(r.code||"")+'</span>'+favBtnHtml(id,"pend")+'</div>';
-        // 3列×2行（与审核进度统一）
+        // 3列×2行（与审核进度统一，标签隐藏占位）
         const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
         h+='<div class="cb-stats">';
         h+='<span class="s"><span class="l">配售</span><span class="v hl">'+(c.needShares!=null?shLabel:'-')+'</span></span>';
         h+='<span class="s"><span class="l">规模</span><span class="v">'+(r.scale!=null?fmt(r.scale)+'亿':'-')+'</span></span>';
-        h+='<span class="s"><span class="v"><span class="tag '+(stageTag?'tag-sbuy':'')+'">'+(stageTag?stageTag:'待发行')+'</span></span></span>';
+        h+='<span class="s"><span class="l" style="visibility:hidden">状态</span><span class="v"><span class="tag '+(stageTag?'tag-sbuy':'')+'">'+(stageTag?stageTag:'待发行')+'</span></span></span>';
         h+='<span class="s"><span class="l">所需资金</span><span class="v hl">'+(c.needMoney!=null?fmt(c.needMoney,0)+'元':'-')+'</span></span>';
         h+='<span class="s"><span class="l">流通</span><span class="v f">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span>';
-        h+='<span class="s"><span class="v"><span class="cb-d">🗓️ '+shortD+'</span></span></span>';
-        h+='</div></div>';
+        h+='<span class="s"><span class="l" style="visibility:hidden">日期</span><span class="v"><span class="cb-d">🗓️ '+shortD+'</span></span></span>';
+        h+='</div>';
+        h+=progressBarHtml("pend",r);
+        h+='</div>';
       });
       h+='</div>';
     }
@@ -1905,16 +1955,18 @@ function renderFav(){
         const id=getRowId(r,"progress");
         h+='<div class="cb-item" data-i="'+i+'" data-kind="progress">';
         h+='<div class="cb-name"><span class="n">'+(r.stockName||r.name||"-")+'</span><span class="c">'+(r.code||r.stockCode||"")+'</span>'+favBtnHtml(id,"progress")+'</div>';
-        // 3列×2行（与审核进度Tab统一）
+        // 3列×2行（与审核进度Tab统一，标签隐藏占位）
         const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
         h+='<div class="cb-stats">';
         h+='<span class="s"><span class="l">配售</span><span class="v hl">'+(c.needShares!=null?shLabel:'-')+'</span></span>';
         h+='<span class="s"><span class="l">规模</span><span class="v">'+(r.scale!=null?fmt(r.scale)+'亿':'-')+'</span></span>';
-        h+='<span class="s"><span class="v"><span class="tag tag-s'+r.progress+'">'+r.progress_nm+'</span></span></span>';
+        h+='<span class="s"><span class="l" style="visibility:hidden">状态</span><span class="v"><span class="tag tag-s'+r.progress+'">'+r.progress_nm+'</span></span></span>';
         h+='<span class="s"><span class="l">所需资金</span><span class="v hl">'+(c.needMoney!=null?fmt(c.needMoney,0)+'元':'-')+'</span></span>';
-        h+='<span class="s"><span class="l">流通</span><span class="v f">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span>';
-        h+='<span class="s"><span class="v"><span class="cb-d">🗓️ '+shortD+'</span></span></span>';
-        h+='</div></div>';
+        h+='<span class="s"><span class="l">预估流通</span><span class="v f">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span>';
+        h+='<span class="s"><span class="l" style="visibility:hidden">日期</span><span class="v"><span class="cb-d">🗓️ '+shortD+'</span></span></span>';
+        h+='</div>';
+        h+=progressBarHtml("progress",r);
+        h+='</div>';
       });
       h+='</div>';
     }
