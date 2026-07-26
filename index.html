@@ -24,9 +24,13 @@
   .tabs{display:flex;gap:8px;padding:12px 0 8px}
   .tab{flex:1;cursor:pointer;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:10px;text-align:center;font-size:13.5px;font-weight:700;color:var(--muted)}
   .tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
-  .search{padding:4px 0 10px}
-  .search input{width:100%;border:1px solid var(--line);border-radius:12px;padding:11px 14px;font-size:14px;background:var(--card);outline:none}
+  .search{padding:4px 0 10px;display:flex;gap:6px;align-items:center}
+  .search input{width:100%;border:1px solid var(--line);border-radius:12px;padding:11px 14px;font-size:14px;background:var(--card);outline:none;flex:1;min-width:0}
   .search input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(249,115,22,.16)}
+  /* 搜索框内刷新小按钮（手机端显示） */
+  .btn-refresh-sm{flex-shrink:0;width:38px;height:38px;border-radius:12px;border:1.5px solid var(--line);background:#fff;color:var(--muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;touch-action:manipulation}
+  .btn-refresh-sm:active{background:var(--primary-light);color:var(--primary);transform:scale(.93)}
+  @media(min-width:721px){.btn-refresh-sm{display:none}} /* PC端隐藏 */
   .chips{display:flex;gap:7px;padding:4px 0 10px;flex-wrap:wrap}
   .chip{cursor:pointer;font-size:12.5px;font-weight:700;padding:6px 13px;border-radius:18px;background:var(--card);border:1px solid var(--line);color:var(--muted)}
   .chip.active{background:var(--primary);color:#fff;border-color:var(--primary)}
@@ -78,19 +82,29 @@
   .toast{position:fixed;left:50%;bottom:40px;transform:translateX(-50%) translateY(20px);background:#9a3412;color:#fff;padding:11px 20px;border-radius:24px;font-size:13px;opacity:0;transition:.25s;z-index:99;max-width:360px;text-align:center;line-height:1.4}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-  /* ===== 用户/登录区 ===== */
-  .user-bar{display:flex;align-items:center;gap:8px}
-  .user-info{display:flex;align-items:center;gap:6px;background:#fff4ea;color:#ea580c;padding:5px 12px;border-radius:18px;font-size:12.5px;font-weight:700;border:1px solid #ffd6b3}
-  .user-info .avatar{width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800}
-  .btn-login{cursor:pointer;border:1px solid var(--primary);border-radius:18px;padding:6px 14px;font-size:12.5px;font-weight:700;background:#fff;color:var(--primary);transition:.15s}
+  /* ===== 用户/登录区（标题右侧同行） ===== */
+  .hero-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .hero-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+  .user-info{display:flex;align-items:center;gap:6px;background:#f8f9fb;color:#374151;padding:4px 12px 4px 6px;border-radius:20px;font-size:12.5px;font-weight:600;border:1px solid #e5e7eb;transition:.15s}
+  .user-info:hover{border-color:#d1d5db;background:#f3f4f6}
+  .user-info .avatar{width:26px;height:26px;border-radius:50%;background:#fff4ea;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:1;border:1.5px solid #ffd6b3;overflow:hidden}
+  .btn-sm{cursor:pointer;border:1px solid var(--primary);border-radius:16px;padding:5px 11px;font-size:11.5px;font-weight:700;background:#fff;color:var(--primary);transition:.15s;white-space:nowrap}
+  .btn-sm:active{transform:scale(.96)}
+  .btn-login{cursor:pointer;border:1px solid var(--primary);border-radius:16px;padding:5px 12px;font-size:11.5px;font-weight:700;background:#fff;color:var(--primary);transition:.15s;white-space:nowrap}
   .btn-login:active{transform:scale(.96)}
-  .btn-logout{cursor:pointer;border:none;background:transparent;color:#9ca3af;font-size:11.5px;padding:5px 8px;border-radius:14px;transition:.15s}
+  .btn-logout{cursor:pointer;border:none;background:transparent;color:#9ca3af;font-size:11px;padding:4px 8px;border-radius:14px;transition:.15s;font-weight:600}
   .btn-logout:hover{color:#ef4444;background:#fef2f2}
+  .sync-dot{cursor:pointer;font-size:14px;margin-left:2px;transition:.15s;line-height:1}
+  .sync-dot:hover{transform:scale(1.2)}
 
   /* ===== 卡片关注按钮 ===== */
   .fav-btn{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;border:none;background:#fff;color:#d1d5db;font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.08);transition:.15s;z-index:5}
   .fav-btn:active{transform:scale(.9)}
   .fav-btn.active{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#fff;box-shadow:0 2px 6px rgba(245,158,11,.4)}
+  /* 取消关注按钮：已关注时显示更明显的样式 */
+  .unfav-btn{width:auto;padding:4px 10px;border-radius:14px;font-size:12px;font-weight:700;gap:4px;background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;box-shadow:0 2px 8px rgba(239,68,68,.35)}
+  .unfav-btn:active{transform:scale(.92)}
+  .unfav-text{font-size:11px;font-weight:600;margin-left:2px;opacity:.9}
   .cb-item{position:relative}
 
   /* ===== 登录弹窗 ===== */
@@ -121,6 +135,10 @@
     body{font-size:15px;-webkit-text-size-adjust:100%;background:#f5f5f7}
     .hero{padding:16px 14px 12px}
     .hero h1{font-size:18px}
+    .hero-top{flex-wrap:wrap;gap:6px}
+    .hero-right{order:3;width:100%;justify-content:flex-end;margin-top:4px;padding-top:8px;border-top:1px solid #f3f4f6}
+    .hero-right #refresh{display:none} /* 手机端隐藏PC刷新（已移到搜索框旁） */
+    .btn-sm{padding:6px 12px;font-size:12px}
     .wrap{padding:0 10px 72px}
     .tabs{padding:10px 0 6px}
     .tab{padding:12px 8px;font-size:14px}
@@ -136,15 +154,35 @@
     .cb-item{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:12px 13px 10px;box-shadow:0 1px 3px rgba(0,0,0,.04);cursor:pointer;transition:.15s;-webkit-tap-highlight-color:rgba(249,115,22,.08)}
     .cb-item:active{transform:scale(.985);box-shadow:0 1px 6px rgba(0,0,0,.1)}
     .fav-btn{top:8px;right:8px;width:28px;height:28px;font-size:14px}
+    /* 关注列表内：星号放到名称行右侧（非绝对定位） */
+    #view-fav .cb-item{padding-right:10px}
+    #view-fav .cb-item .fav-btn{position:relative;top:auto;right:auto;width:auto;height:auto;padding:2px 6px;border-radius:10px;font-size:16px;margin-left:6px;flex-shrink:0;display:inline-flex;align-items:center;box-shadow:none;border:1.5px solid #e5e7eb;background:#f9fafb}
+    #view-fav .cb-item .fav-btn.active{background:linear-gradient(135deg,#fbbf24,#f59e0b);border-color:#f59e0b}
+    #view-fav .cb-item .unfav-btn{position:relative;top:auto;right:auto;padding:3px 10px;font-size:13px;margin-left:6px}
     /* 第一行：名称+代码（左） */
     .cb-name{display:flex;align-items:baseline;justify-content:flex-start;margin-bottom:2px}
     .cb-name .n{font-size:16px;font-weight:800;color:#2563eb;line-height:1.2}
     .cb-name .c{font-size:12px;color:#6b7280;font-weight:600;flex-shrink:0;margin-left:6px}
     .cb-name .cb-tag{flex-shrink:0;margin-left:8px}
     /* 公司名下方单列一行：日期（左） + 进度标签（右） */
-    .cb-sub{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+    .cb-sub{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
     .cb-d{font-size:11px;color:#9ca3af;font-weight:500;white-space:nowrap}
-    /* 2×2 网格：配售 | 规模 / 所需资金 | 流通 */
+    .cb-code{font-size:12px;color:#6b7280;font-weight:600;white-space:nowrap}
+    /* 审核进度专用：头部（名称+市场标签+阶段标签） */
+    .cb-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
+    .mkt-tag{font-size:10px;font-weight:800;padding:1px 6px;border-radius:8px;margin-left:4px;flex-shrink:0;background:#fff4ea;color:#ea580c}
+    /* 数据行：3列等宽 */
+    .cb-row{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid #f3f4f6}
+    .cb-row:last-child{border-bottom:none}
+    .cb-stat{flex:1;display:flex;flex-direction:column;gap:1px;min-width:0;text-align:center}
+    .cb-stat-label{font-size:10px;color:#9ca3af;font-weight:500;white-space:nowrap}
+    .cb-stat-val{font-size:12px;font-weight:800;color:#1f2937;font-variant-numeric:tabular-nums;line-height:1.2;white-space:nowrap}
+    .cb-stat-val.hl{color:#ea580c}
+    .cb-stat-val.f{color:#6b7280}
+    /* 稳配信息行 */
+    .cb-safe{display:flex;gap:12px;padding-top:6px;font-size:11px;color:#9ca3af;font-weight:500}
+    .cb-safe span{background:#f3f4f6;padding:3px 8px;border-radius:6px}
+    /* 2×2 网格：配售 | 规模 / 所需资金 | 流通（待发债用） */
     .cb-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;padding:7px 0}
     .cb-stats .s{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
     .cb-stats .s .l{font-size:10px;color:#9ca3af;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -202,23 +240,23 @@
   .sheet-mask{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:90;align-items:flex-end;justify-content:center}
   .sheet-mask.show{display:flex;animation:maskIn .2s ease}
   @keyframes maskIn{from{opacity:0}to{opacity:1}}
-  .sheet{background:#fff;width:100%;max-width:560px;border-radius:18px 18px 0 0;padding:8px 18px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -8px 30px rgba(0,0,0,.18);animation:sheetUp .28s cubic-bezier(.2,.8,.2,1);max-height:88vh;overflow:auto}
+  .sheet{background:#fff;width:100%;max-width:560px;border-radius:18px 18px 0 0;padding:8px 18px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -8px 30px rgba(0,0,0,.18);animation:sheetUp .28s cubic-bezier(.2,.8,.2,1);max-height:88vh;overflow:auto;touch-action:pan-y;-webkit-overflow-scrolling:touch}
   @keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
   .sheet-handle{width:38px;height:4px;border-radius:3px;background:#e5e7eb;margin:6px auto 12px}
   .sheet-title{font-size:16px;font-weight:800;color:#1f2937;margin-bottom:14px;text-align:center}
   .sheet-sec{margin-bottom:16px}
   .sheet-sec-label{font-size:12px;font-weight:700;color:#6b7280;margin-bottom:9px}
   .sheet-chips{display:flex;flex-wrap:wrap;gap:9px}
-  .schip{cursor:pointer;font-size:13.5px;font-weight:700;padding:8px 15px;border-radius:18px;background:#f5f5f7;color:#6b7280;border:1px solid #ececef;transition:.15s;white-space:nowrap}
+  .schip{cursor:pointer;font-size:13.5px;font-weight:700;padding:8px 15px;border-radius:18px;background:#f5f5f7;color:#6b7280;border:1px solid #ececef;transition:.15s;white-space:nowrap;touch-action:manipulation;-webkit-tap-highlight-color:rgba(249,115,22,.15);user-select:none}
   .schip.active{background:var(--primary);color:#fff;border-color:var(--primary)}
   .sheet-sorts{display:flex;flex-wrap:wrap;gap:9px}
-  .ssort{cursor:pointer;font-size:13.5px;font-weight:700;padding:8px 15px;border-radius:18px;background:#f5f5f7;color:#6b7280;border:1px solid #ececef;transition:.15s;white-space:nowrap}
+  .ssort{cursor:pointer;font-size:13.5px;font-weight:700;padding:8px 15px;border-radius:18px;background:#f5f5f7;color:#6b7280;border:1px solid #ececef;transition:.15s;white-space:nowrap;touch-action:manipulation;-webkit-tap-highlight-color:rgba(249,115,22,.15);user-select:none}
   .ssort.active{background:var(--primary);color:#fff;border-color:var(--primary)}
   .sheet-dir{display:flex;align-items:center;gap:10px;margin-top:12px}
   .sheet-dir span{font-size:12px;font-weight:700;color:#6b7280}
-  .sheet-dir button{cursor:pointer;border:1px solid var(--primary);background:#fff;color:var(--primary);font-weight:700;font-size:13px;padding:7px 16px;border-radius:18px;transition:.15s}
+  .sheet-dir button{cursor:pointer;border:1px solid var(--primary);background:#fff;color:var(--primary);font-weight:700;font-size:13px;padding:7px 16px;border-radius:18px;transition:.15s;touch-action:manipulation}
   .sheet-dir button:active{transform:scale(.96)}
-  .sheet-apply{width:100%;background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;border:none;border-radius:14px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;margin-top:6px;box-shadow:0 4px 14px rgba(249,115,22,.3)}
+  .sheet-apply{width:100%;background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;border:none;border-radius:14px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;margin-top:6px;box-shadow:0 4px 14px rgba(249,115,22,.3);touch-action:manipulation}
   .sheet-apply:active{transform:scale(.98)}
   /* 手机端筛选排序触发按钮（仅手机端显示） */
   .filter-trigger{display:none;align-items:center;justify-content:space-between;width:100%;background:#fff4ea;border:1px solid #ffd6b3;border-radius:12px;padding:11px 14px;margin:2px 0 10px;cursor:pointer;font-size:13.5px;font-weight:700;color:#ea580c}
@@ -229,14 +267,16 @@
 </head>
 <body>
 <div class="hero">
-  <h1>可转债抢权配售</h1>
+  <div class="hero-top">
+    <h1>可转债抢权配售</h1>
+    <div class="hero-right" id="heroRight">
+      <span id="userArea"></span>
+      <button class="btn btn-sm" id="refresh">↻ 刷新</button>
+    </div>
+  </div>
   <div class="sub">配债潜伏 · 待发实时 · 审核进度自动更新</div>
   <div class="bar">
     <span class="time" id="time">加载中…</span>
-    <div class="user-bar">
-      <button class="btn" id="refresh">↻ 刷新实时</button>
-      <span id="userArea"></span>
-    </div>
   </div>
 </div>
 <div class="wrap">
@@ -252,7 +292,7 @@
   </div>
 
   <div id="view-pend">
-    <div class="search"><input id="q" placeholder="🔍 搜索转债 / 正股 / 代码，如：炬申、特宝、110103"></div>
+    <div class="search"><input id="q" placeholder="🔍 搜索转债 / 正股 / 代码，如：炬申、特宝、110103"><button class="btn-refresh-sm" id="refreshMobile" title="刷新数据">↻</button></div>
     <div id="panel"></div>
   </div>
 
@@ -265,7 +305,7 @@
       <span class="chip" data-f="20">股东大会通过</span>
       <span class="chip" data-f="10">董事会预案</span>
     </div>
-    <div class="search"><input id="q2" placeholder="🔍 搜索正股 / 转债 / 代码，如：炬申、千红"></div>
+    <div class="search"><input id="q2" placeholder="🔍 搜索正股 / 转债 / 代码，如：炬申、千红"><button class="btn-refresh-sm" id="refreshMobile2" title="刷新数据">↻</button></div>
     <div id="progressPanel"></div>
   </div>
 
@@ -312,17 +352,6 @@
     <div class="sheet-handle"></div>
     <div class="sheet-title">筛选 / 排序</div>
     <div class="sheet-sec">
-      <div class="sheet-sec-label">审核阶段（不选=全部阶段）</div>
-      <div class="sheet-chips" id="sheetProgChips">
-        <span class="schip active" data-f="all">全部阶段</span>
-        <span class="schip" data-f="90">同意注册</span>
-        <span class="schip" data-f="80">上市委通过</span>
-        <span class="schip" data-f="50">交易所受理</span>
-        <span class="schip" data-f="20">股东大会通过</span>
-        <span class="schip" data-f="10">董事会预案</span>
-      </div>
-    </div>
-    <div class="sheet-sec">
       <div class="sheet-sec-label">排序方式</div>
       <div class="sheet-sorts" id="sheetSortBtns">
         <span class="ssort active" data-f="progress">进度</span>
@@ -334,6 +363,17 @@
       <div class="sheet-dir">
         <span>排序方向</span>
         <button id="sheetDirBtn" type="button">↓ 降序</button>
+      </div>
+    </div>
+    <div class="sheet-sec">
+      <div class="sheet-sec-label">审核阶段（不选=全部阶段）</div>
+      <div class="sheet-chips" id="sheetProgChips">
+        <span class="schip active" data-f="all">全部阶段</span>
+        <span class="schip" data-f="90">同意注册</span>
+        <span class="schip" data-f="80">上市委通过</span>
+        <span class="schip" data-f="50">交易所受理</span>
+        <span class="schip" data-f="20">股东大会通过</span>
+        <span class="schip" data-f="10">董事会预案</span>
       </div>
     </div>
     <button class="sheet-apply" id="sheetApply" type="button">确定</button>
@@ -495,6 +535,106 @@ function fetchPrice(stockCode){
     setTimeout(()=>finish(null), 6000);
   });
 }
+
+// ===== 正股K线数据获取（东方财富历史K线接口） =====
+async function fetchKLine(stockCode, months=3){
+  if(!stockCode) return [];
+  const mkt=stockCode[0]==="6"?"1":"0"; // 1=沪,0=深
+  const url="https://push2his.eastmoney.com/api/qt/stock/kline/get?secid="+mkt+"."+stockCode+"&fields1=f1,f2,f3&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=101&fqt=1&beg=0&end=20500101&lmt="+Math.ceil(months*22);
+  try{
+    const resp=await fetch(url,{cache:"no-store"});
+    const json=await resp.json();
+    if(json.data&&json.data.klines){
+      return json.data.klines.map(line=>{
+        const p=line.split(",");
+        return{date:p[0],open:+p[1],close:+p[2],high:+p[3],low:+p[4],vol:+p[5],amt:+p[6]||0};
+      });
+    }
+  }catch(e){ console.warn("K线获取失败:",stockCode,e.message); }
+  return [];
+}
+// 根据K线数据生成AI风格点评
+function generateStockComment(klines, stockName){
+  if(!klines||klines.length<10) return null;
+  const first=klines[0].close, last=klines[klines.length-1].close;
+  const chgPct=((last-first)/first*100).toFixed(1);
+  const highs=klines.map(k=>k.high), lows=klines.map(k=>k.low);
+  const highMax=Math.max(...highs), lowMin=Math.min(...lows);
+  // 最大回撤
+  let maxDrawdown=0, peak=first;
+  klines.forEach(k=>{
+    if(k.close>peak) peak=k.close;
+    const dd=(peak-k.close)/peak*100;
+    if(dd>maxDrawdown) maxDrawdown=dd;
+  });
+  // 近期趋势（最近5日 vs 前5日）
+  const recent5=klines.slice(-5).map(k=>k.close);
+  const prev5=klines.slice(-10,-5).map(k=>k.close);
+  const avgRecent=recent5.reduce((a,b)=>a+b,0)/5;
+  const avgPrev=prev5.reduce((a,b)=>a+b,0)/5;
+  const trendDir=avgRecent>avgPrev?"上行":avgRecent<avgPrev?"下行":"横盘";
+  const trendStr={"上行":"近期有走强迹象","下行":"短期偏弱需注意","横盘":"区间震荡等待方向"}[trendDir];
+  // 波动率
+  const returns=[];
+  for(let i=1;i<klines.length;i++) returns.push((klines[i].close-klines[i-1].close)/klines[i-1].close);
+  const avgRet=returns.reduce((a,b)=>a+b,0)/returns.length;
+  const volatility=Math.sqrt(returns.map(r=>(r-avgRet)**2).reduce((a,b)=>a+b,0)/returns.length)*100;
+  // 支撑位/压力位
+  const support=lowMin.toFixed(2);
+  const resistance=highMax.toFixed(2);
+  let comment="📊 "+(stockName||"正股")+"近"+Math.round(klines.length/22)+"个月走势点评\n";
+  comment+="• 累计涨跌："+(chgPct>=0?"+":"")+chgPct+"%\n";
+  comment+="• 趋势判断："+trendDir+"（"+trendStr+"）\n";
+  comment+="• 区间范围："+support+" ~ "+resistance+"\n";
+  comment+="• 最大回撤："+maxDrawdown.toFixed(1)+"%\n";
+  comment+="• 波动率："+volatility.toFixed(1)+"%（"+(volatility>4?"高波动":volatility>2.5?"中等波动":"低波动")+"）\n";
+  if(chgPct<-15) comment+="⚠️ 跌幅较大，注意风险；";
+  else if(chgPct>20) comment+="🔥 涨势较强，追高需谨慎；";
+  else if(trendDir==="上行"&&maxDrawdown<8) comment+="✅ 走势稳健，可关注；";
+  return comment;
+}
+// Canvas迷你走势图
+function renderMiniChart(canvasId,klines,w,h){
+  const cv=document.getElementById(canvasId);
+  if(!cv||!klines||klines.length<3){ if(cv){cv.style.display="none";} return; }
+  const ctx=cv.getContext("2d");
+  const dpr=window.devicePixelRatio||1;
+  cv.width=w*dpr; cv.height=h*dpr;
+  ctx.scale(dpr,dpr);
+  const closes=klines.map(k=>k.close);
+  const lo=Math.min(...closes,...klines.map(k=>k.low)), hi=Math.max(...closes,...klines.map(k=>k.high));
+  const pad=(hi-lo)*0.12, range=hi-lo+2*pad;
+  // 网格
+  ctx.strokeStyle="#f0f0f0"; ctx.lineWidth=0.5;
+  for(let i=0;i<=4;i++){const y=i*h/4; ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+  // 收盘价折线（渐变填充）
+  ctx.beginPath();
+  klines.forEach((k,i)=>{
+    const x=i/(klines.length-1)*w, y=h-(k.close-lo+pad)/range*h;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.lineTo(w,h); ctx.lineTo(0,h); ctx.closePath();
+  const grad=ctx.createLinearGradient(0,0,0,h);
+  grad.addColorStop(0,"rgba(249,115,22,0.25)"); grad.addColorStop(1,"rgba(249,115,22,0.02)");
+  ctx.fillStyle=grad; ctx.fill();
+  // 折线
+  ctx.beginPath();
+  klines.forEach((k,i)=>{
+    const x=i/(klines.length-1)*w, y=h-(k.close-lo+pad)/range*h;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.strokeStyle="#f97316"; ctx.lineWidth=2; ctx.stroke();
+  // 最新价格标记
+  const lastX=w, lastY=h-(closes[closes.length-1]-lo+pad)/range*h;
+  ctx.beginPath(); ctx.arc(lastX,lastY,3.5,0,Math.PI*2);
+  ctx.fillStyle="#ea580c"; ctx.fill();
+  // 价格标签
+  ctx.fillStyle="#ea580c"; ctx.font="bold 11px -apple-system,sans-serif";
+  ctx.textAlign="right"; ctx.fillText(closes[closes.length-1].toFixed(2),w-6,lastY-6);
+  ctx.fillStyle="#9ca3af"; ctx.font="10px -apple-system,sans-serif";
+  ctx.textAlign="left"; ctx.fillText(lo.toFixed(2),2,h-3);
+  ctx.textAlign="right"; ctx.fillText(hi.toFixed(2),w-2,12);
+}
 function compute(r,price){
   const cv=(price&&r.convertPrice)?price/r.convertPrice*100:null;
   const code=(r.stockCode||"");
@@ -540,12 +680,27 @@ function getVal(r,f){
   if(f==="stockName") return r.stockName||"";
   return "";
 }
+// 审核阶段优先级（用于百元含权等字段的二级排序）：数值越大越靠前
+const PROG_PRIORITY={90:5,80:4,50:3,20:2,10:1};
+function progPriorityVal(r){
+  const p=r.progress;
+  return p!=null?(PROG_PRIORITY[p]||0):0;
+}
 function doSort(rows,sort){
   if(!sort.field) return rows;
+  // 百元含权排序时，增加二级排序：同含权量按审核阶段优先级排（同意注册>上市委通过>...>董事会预案）
+  const needSecondary=sort.field==="baiyuan";
   return rows.slice().sort((a,b)=>{
     let va=getVal(a,sort.field), vb=getVal(b,sort.field);
-    if(typeof va==="string"&&typeof vb==="string"){const cmp=va.localeCompare(vb);return sort.dir*cmp;}
-    if(typeof va==="number"&&typeof vb==="number"){return sort.dir*(va-vb);}
+    let cmp=0;
+    if(typeof va==="string"&&typeof vb==="string"){cmp=va.localeCompare(vb);}
+    else if(typeof va==="number"&&typeof vb==="number"){cmp=va-vb;}
+    if(cmp!==0) return sort.dir*cmp;
+    // 主字段相等时，二级排序按阶段优先级（仅百元含权）
+    if(needSecondary){
+      const pa=progPriorityVal(a), pb=progPriorityVal(b);
+      if(pa!==pb) return sort.dir*(pb-pa); // 高优先级排前面
+    }
     return 0;
   });
 }
@@ -663,7 +818,7 @@ function renderProgress(){
   rows=doSort(rows,progSort);
   const ps=progSort;
 
-  // ===== 手机端：卡片列表 =====
+  // ===== 手机端：卡片列表（包含所有PC端信息） =====
   if(isMobile()){
     const PROG_STAGE_LABEL={all:"全部阶段","90":"同意注册","80":"上市委通过","50":"交易所受理","20":"股东大会通过","10":"董事会预案"};
     const SORT_LABEL={progress:"进度",needMoney:"所需资金",baiyuan:"百元含权",scale:"规模",estFloat:"预估流通"};
@@ -675,21 +830,41 @@ function renderProgress(){
       const c=r._c||{};
       const tagCls="tag-s"+r.progress;
       const pl=progressLabel(r);
+      const mkt=c.market||"";
+      const mktTag=mkt?'<span class="mkt-tag">'+mkt+'</span>':"";
       h+='<div class="cb-item" data-i="'+i+'" data-kind="progress">';
-      // 第一行：正股名+代码
-      h+='<div class="cb-name"><span class="n">'+(r.stockName||"-")+'</span><span class="c">'+(r.stockCode||"")+'</span></div>';
+      // 第一行：正股名 + 市场标签 + 阶段标签
+      h+='<div class="cb-header">';
+      h+='<div class="cb-name"><span class="n">'+(r.stockName||"-")+'</span>'+mktTag+'</div>';
+      h+='<span class="tag '+tagCls+'">'+pl+'</span>';
+      h+='</div>';
+      // 第二行：代码 + 日期
+      h+='<div class="cb-sub">';
+      h+='<span class="cb-code">'+(r.stockCode||"")+(r.name?(" · "+r.name):"")+'</span>';
       const pdStr=(r.progress_dt||"");
       const shortPd=pdStr?pdStr.slice(5,10):"-";
-      // 第二行：日期（左）+ 阶段标签（右），单开一行，在公司名称下面
-      h+='<div class="cb-sub"><span class="cb-d">📅 '+shortPd+'</span><span class="cb-tag"><span class="tag '+tagCls+'">'+pl+'</span></span></div>';
-      // 一行四列：配售 | 规模 | 所需资金 | 流通
-      const shLabel2=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
-      h+='<div class="cb-stats">';
-      h+='<span class="s"><span class="l">配售</span><span class="v hl">'+(c.needShares!=null?shLabel2:'-')+'</span></span>';
-      h+='<span class="s"><span class="l">规模</span><span class="v">'+(r.scale!=null?fmt(r.scale)+'亿':'-')+'</span></span>';
-      h+='<span class="s"><span class="l">所需资金</span><span class="v hl">'+(c.needMoney!=null?fmt(c.needMoney,0)+'元':'-')+'</span></span>';
-      h+='<span class="s"><span class="l">流通</span><span class="v f">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span>';
+      h+='<span class="cb-d">📅 '+shortPd+'</span>';
       h+='</div>';
+      // 第三行：转股价值 | 百元含权 | 规模
+      h+='<div class="cb-row">';
+      h+='<span class="cb-stat"><span class="cb-stat-label">转股价值</span><span class="cb-stat-val">'+(c.cv!=null?fmt(c.cv):"…")+'</span></span>';
+      h+='<span class="cb-stat"><span class="cb-stat-label">百元含权</span><span class="cb-stat-val">'+(c.baiyuan!=null?fmt(c.baiyuan):"…")+'</span></span>';
+      h+='<span class="cb-stat"><span class="cb-stat-label">规模</span><span class="cb-stat-val">'+(r.scale!=null?fmt(r.scale)+'亿':'-')+'</span></span>';
+      h+='</div>';
+      // 第四行：配售 | 所需资金 | 预估流通
+      h+='<div class="cb-row">';
+      const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
+      h+='<span class="cb-stat"><span class="cb-stat-label">配售</span><span class="cb-stat-val hl">'+(c.needShares!=null?shLabel:'-')+'</span></span>';
+      h+='<span class="cb-stat"><span class="cb-stat-label">所需资金</span><span class="cb-stat-val hl">'+(c.needMoney!=null?fmt(c.needMoney,0)+'元':'-')+'</span></span>';
+      h+='<span class="cb-stat"><span class="cb-stat-label">预估流通</span><span class="cb-stat-val f">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span>';
+      h+='</div>';
+      // 第五行：稳配信息（沪市显示）
+      if(c.isSH && (c.needSharesSafe!=null || c.needMoneySafe!=null)){
+        h+='<div class="cb-safe">';
+        if(c.needSharesSafe!=null)h+='<span>稳配'+c.needSharesSafe+'股</span>';
+        if(c.needMoneySafe!=null)h+='<span>稳'+fmt(c.needMoneySafe,0)+'元</span>';
+        h+='</div>';
+      }
       h+='</div>';
     });
     h+='</div>';
@@ -770,6 +945,37 @@ function openDetail(r,kind){
   });
   $("#mbody").innerHTML=h||'<div class="empty">无字段</div>';
   $("#mask").classList.add("show");
+  // 异步加载正股近3个月K线走势（所有有stockCode的转债）
+  const sc=(r.stockCode||"").replace(/^\s+|\s+$/g,"");
+  if(sc){
+    loadStockChart(sc, (r.stockName||r.name||""));
+  }
+}
+
+// 异步加载正股走势图并追加到详情弹窗
+async function loadStockChart(stockCode, stockName){
+  const mb=$("#mbody");
+  // 显示加载占位
+  let chartId="chart_"+stockCode;
+  mb.innerHTML+='<div style="margin-top:14px;padding-top:14px;border-top:2px solid #f3f4f6"><div style="font-size:13px;font-weight:800;color:#ea580c;margin-bottom:10px">📈 正股近3个月走势</div><div id="'+chartId+'_wrap'" style="text-align:center"><span style="color:#9ca3af;font-size:12px">加载走势数据…</span></div></div>';
+  try{
+    const klines=await fetchKLine(stockCode,3);
+    const wrap=document.getElementById(chartId+"_wrap");
+    if(!wrap) return;
+    if(klines.length<5){
+      wrap.innerHTML='<span style="color:#9ca3af;font-size:12px">暂无足够走势数据</span>';
+      return;
+    }
+    // 渲染图表 + 点评
+    const comment=generateStockComment(klines,stockName);
+    wrap.innerHTML='<canvas id="'+chartId+'" style="width:100%;max-width:360px;height:130px;display:block;margin:0 auto 8px;border-radius:8px;background:#fafbfc"></canvas>'
+      +(comment?'<pre style="font-size:11.5px;line-height:1.7;color:#4b5563;background:#f9fafb;padding:10px 12px;border-radius:8px;margin-top:6px;white-space:pre-wrap;font-family:-apple-system,sans-serif;word-break:break-all">'+comment+"</pre>":"");
+    // 等待DOM渲染后画图
+    requestAnimationFrame(()=>{ renderMiniChart(chartId,klines,Math.min(wrap.clientWidth-16,360),120); });
+  }catch(e){
+    const wrap=document.getElementById(chartId+"_wrap");
+    if(wrap) wrap.innerHTML='<span style="color:#ef4444;font-size:12px">走势加载失败</span>';
+  }
 }
 async function loadAll(){
   const btn=$("#refresh");btn.disabled=true;btn.textContent="刷新中…";
@@ -808,6 +1014,10 @@ $("#mask").onclick=e=>{if(e.target.id==="mask")$("#mask").classList.remove("show
 $("#q").addEventListener("input",e=>{keyword=e.target.value.trim();renderPend();});
 $("#q2").addEventListener("input",e=>{keyword2=e.target.value.trim();renderProgress();});
 $("#refresh").onclick=()=>{ if(activeTab==="pend") loadAll(); else loadProgressRealtime(); };
+// 手机端搜索框旁的刷新按钮（待发债/审核进度各一个）
+document.querySelectorAll("#refreshMobile,#refreshMobile2").forEach(btn=>{
+  if(btn) btn.onclick=()=>{ if(activeTab==="pend") loadAll(); else loadProgressRealtime(); };
+});
 $("#progChips").querySelectorAll(".chip").forEach(ch=>ch.onclick=()=>{
   PROG_FILTER=ch.dataset.f;
   $("#progChips").querySelectorAll(".chip").forEach(x=>x.classList.remove("active"));
@@ -825,44 +1035,67 @@ document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
   if(activeTab==="fav") renderFav();
 });
 
-// ==================== 用户认证 & 关注功能（纯前端 localStorage 版） ====================
-// 说明：本版本不依赖任何服务器，用户账号与关注列表均保存在浏览器 localStorage。
-// 优点：GitHub Pages 等纯静态托管即可使用；缺点：关注列表不跨设备同步，清缓存/换浏览器会丢失。
-// 如需云端多设备同步，请改用 server.cjs 后端（见 README「部署到云/VPS」章节）。
-const USERS_KEY="cb_ration_users";   // { 用户名: { password, favorites:[{id,seen}] } }
-const CUR_KEY="cb_ration_cur";       // 当前登录用户名
+// ==================== 用户认证 & 关注功能（后端版） ====================
+const TOKEN_KEY="cb_ration_token";
 let currentUser=null; // { username, favorites: [] }
 let favKeyword="";
 let authMode="login";
 
-// ---- 本地用户表读写 ----
-function loadUsers(){ try{ return JSON.parse(localStorage.getItem(USERS_KEY)||"{}"); }catch(e){ return {}; } }
-function saveUsers(u){ localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
-function saveCur(name){ name?localStorage.setItem(CUR_KEY,name):localStorage.removeItem(CUR_KEY); }
-function getCur(){ return localStorage.getItem(CUR_KEY)||""; }
+// 存/取 token
+function getToken(){return localStorage.getItem(TOKEN_KEY)||"";}
+function saveToken(t){t?localStorage.setItem(TOKEN_KEY,t):localStorage.removeItem(TOKEN_KEY);}
 
-// 进度提醒需要比对"见过"的快照，复用 favorites 里的 seen 字段，无需网络回写。
-async function syncSeen(updates){
-  if(!updates||!updates.length) return;
-  const users=loadUsers(); const name=getCur(); const u=users[name];
-  if(!u) return;
-  updates.forEach(({id,seen})=>{ const f=u.favorites.find(x=>x.id===id); if(f)f.seen=seen; });
-  saveUsers(users);
+// 封装 API 请求
+async function api(path,options={}){
+  const headers={"Content-Type":"application/json",...(options.headers||{})};
+  const token=getToken();
+  if(token)headers["Authorization"]="Bearer "+token;
+  const res=await fetch(path,{...options,headers});
+  const data=await res.json();
+  if(!res.ok)throw new Error(data.error||"请求失败");
+  return data;
+}
+
+// 获取当前用户（通过 token）
+async function fetchCurrentUser(){
+  try{
+    const token=getToken();
+    if(!token)return null;
+    const data=await api("/api/me");
+    return {username:data.username,favorites:(data.favorites||[]).map(f=>typeof f==="string"?{id:f,seen:""}:f)};
+  }catch(e){
+    saveToken(null);
+    return null;
+  }
+}
+
+// Emoji头像池：根据用户名稳定分配，每次登录同一用户显示相同表情
+const EMOJI_POOL=['🐱','🦊','🐼','🦁','🐸','🦄','🐯','🐷','🐰','🦋','🐬','🐲','🦅','🐺','🦩','🌟','⚡','🔥','💎','🎯','🐝','🦀','🐋','🪼'];
+function emojiAvatar(name){
+  if(!name) return '👤';
+  let h=0;
+  for(let i=0;i<name.length;i++) h=((h<<5)-h)+name.charCodeAt(i);
+  return EMOJI_POOL[Math.abs(h)%EMOJI_POOL.length];
 }
 
 function renderUserArea(){
   const ua=$("#userArea");
   if(currentUser){
-    ua.innerHTML='<span class="user-info"><span class="avatar">'+currentUser.username.charAt(0).toUpperCase()+'</span>'+currentUser.username+'</span><button class="btn-logout" id="btnLogout">退出</button>';
+    const em=emojiAvatar(currentUser.username);
+    const syncIcon=isGistReady()?'<span class="sync-dot" title="云端已连接">☁️</span>':'<span class="sync-dot" style="opacity:0.4" title="未配置云端同步" onclick="showGistSettings();event.stopPropagation();">☁</span>';
+    ua.innerHTML='<span class="user-info"><span class="avatar">'+em+'</span><span class="uname">'+currentUser.username+'</span>'+syncIcon+'</span><button class="btn-logout" id="btnLogout">退出</button>';
     $("#btnLogout").onclick=()=>{
       currentUser=null;saveCur(null);
       renderUserArea();updateFavTab();
       if(activeTab==="fav"){activeTab="pend";$("#tab-pend").click();}
       toast("已退出登录");
     };
+    // 云同步图标点击
+    const sd=ua.querySelector(".sync-dot");
+    if(sd) sd.onclick=(e)=>{e.stopPropagation();showGistSettings();};
     $("#tab-fav").style.display="block";
   }else{
-    ua.innerHTML='<button class="btn-login" id="btnLogin">登录/注册</button>';
+    ua.innerHTML='<button class="btn-login" id="btnLogin">登录 / 注册</button>';
     $("#btnLogin").onclick=()=>showAuthModal(true);
     $("#tab-fav").style.display="none";
   }
@@ -890,7 +1123,7 @@ function setAuthMode(mode){
   authMode=mode;
   document.querySelectorAll(".auth-tab").forEach(t=>t.classList.toggle("active",t.dataset.mode===mode));
   $("#authTitle").textContent=mode==="login"?"欢迎登录":"创建账号";
-  $("#authSub").textContent=mode==="login"?"登录后可关注转债，数据保存在本机浏览器":"注册账号后即可关注喜欢的转债（数据存本机）";
+  $("#authSub").textContent=mode==="login"?"登录后可关注转债，多设备同步保存":"注册账号后即可关注喜欢的转债";
   $("#authSubmit").textContent=mode==="login"?"登录":"注册";
 }
 function showAuthError(msg){
@@ -905,28 +1138,177 @@ async function doAuth(){
   $("#authSubmit").disabled=true;
   showAuthError("");
   try{
+    // localStorage 版认证（无需后端）
     const users=loadUsers();
     if(authMode==="register"){
-      if(users[u]){ showAuthError("该用户名已被注册"); return; }
-      users[u]={password:p, favorites:[]};
+      if(users[u]) throw new Error("用户名已被注册");
+      users[u]={password:p,favorites:[]};
       saveUsers(users);
     }else{
-      const rec=users[u];
-      if(!rec||rec.password!==p){ showAuthError("用户名或密码错误"); return; }
+      if(!users[u]||users[u].password!==p) throw new Error("用户名或密码错误");
     }
+    currentUser={username:u,favorites:(users[u].favorites||[]).map(f=>typeof f==="string"?{id:f,seen:""}:f)};
     saveCur(u);
-    currentUser={username:u, favorites:(users[u].favorites||[]).map(f=>typeof f==="string"?{id:f,seen:""}:f)};
     showAuthModal(false);renderUserArea();
-    // 刷新视图
+    // 尝试从Gist拉取云端数据
+    await tryPullGist();
     if(activeTab==="pend")renderPend();
     if(activeTab==="progress")renderProgress();
     if(activeTab==="fav")renderFav();
     toast("✅ "+(authMode==="login"?"登录成功，欢迎回来 "+u:"注册成功，已自动登录"));
   }catch(e){
-    showAuthError("操作失败");
+    showAuthError(e.message);
   }finally{
     $("#authSubmit").disabled=false;
   }
+}
+
+// ==================== localStorage 用户系统 ====================
+const USERS_KEY="cb_ration_users", CUR_KEY="cb_ration_cur";
+function loadUsers(){try{return JSON.parse(localStorage.getItem(USERS_KEY)||"{}");}catch(e){return{};}}
+function saveUsers(o){localStorage.setItem(USERS_KEY,JSON.stringify(o));}
+function saveCur(u){u?localStorage.setItem(CUR_KEY,u):localStorage.removeItem(CUR_KEY);}
+function getCur(){return localStorage.getItem(CUR_KEY)||"";}
+function syncSeen(updates){
+  const u=getCur();if(!u)return;
+  const users=loadUsers();if(!users[u])return;
+  updates.forEach(up=>{const f=(users[u].favorites||[]).find(x=>x.id===up.id);if(f)f.seen=up.seen;});
+  saveUsers(users);
+}
+
+// ==================== GitHub Gist 云端同步 ====================
+const GIST_TOKEN_KEY="cb_ration_gist_token", GIST_ID_KEY="cb_ration_gist_id";
+let _syncTimer=null; // 防抖推送定时器
+function getGistToken(){return localStorage.getItem(GIST_TOKEN_KEY)||"";}
+function saveGistToken(t){t?localStorage.setItem(GIST_TOKEN_KEY,t):localStorage.removeItem(GIST_TOKEN_KEY);}
+function getGistId(){return localStorage.getItem(GIST_ID_KEY)||"";}
+function saveGistId(id){id?localStorage.setItem(GIST_ID_KEY,id):localStorage.removeItem(GIST_ID_KEY);}
+function gistHeaders(){
+  const t=getGistToken();
+  return{"Authorization":"Bearer "+t,"Accept":"application/vnd.github.v3+json","Content-Type":"application/json"};
+}
+function isGistReady(){return!!getGistToken();}
+// 合并关注列表（云端优先，保留本地新关注的）
+function mergeFavorites(local, remote){
+  if(!remote||!remote.length) return local;
+  const map=new Map(local.map(f=>[f.id,f]));
+  remote.forEach(r=>{if(!map.has(r.id)) map.set(r.id,r); else{const existing=map.get(r.id);if(r.seen&&(!existing.seen||r.seen>existing.seen)) existing.seen=r.seen;}});
+  return Array.from(map.values());
+}
+// 推送数据到 Gist
+async function syncPushToGist(){
+  if(!isGistReady()||!currentUser) return false;
+  const payload={version:1,user:currentUser.username,lastSync:new Date().toISOString(),favorites:currentUser.favorites};
+  const gistId=getGistId();
+  const body={description:"cb-ration 可转债关注数据（自动同步）",public:false,
+    files:{"data.json":{content:JSON.stringify(payload,null,2)}}};
+  try{
+    let res;
+    if(gistId){
+      res=await fetch("https://api.github.com/gists/"+gistId,{method:"PATCH",headers:gistHeaders(),body:JSON.stringify(body)});
+    }else{
+      res=await fetch("https://api.github.com/gists",{method:"POST",headers:gistHeaders(),body:JSON.stringify(body)});
+    }
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    const data=await res.json();
+    if(data.id&&!gistId) saveGistId(data.id);
+    return true;
+  }catch(e){ console.warn("Gist推送失败:",e.message); return false; }
+}
+// 从 Gist 拉取数据
+async function syncPullFromGist(){
+  if(!isGistReady()) return null;
+  const gistId=getGistId();
+  if(!gistId) return null;
+  try{
+    const res=await fetch("https://api.github.com/gists/"+gistId,{headers:gistHeaders()});
+    if(res.status===404){saveGistId("");return null;} // Gist被删了
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    const data=await res.json();
+    const f=data.files["data.json"];
+    if(!f) return null;
+    const payload=JSON.parse(f.content);
+    return payload;
+  }catch(e){ console.warn("Gist拉取失败:",e.message); return null; }
+}
+// 登录后尝试拉取云端数据
+async function tryPullGist(){
+  if(!isGistReady()||!currentUser) return;
+  const cloud=await syncPullFromGist();
+  if(cloud&&cloud.favorites){
+    const merged=mergeFavorites(currentUser.favorites||[],cloud.favorites);
+    if(merged.length!==currentUser.favorites.length){
+      currentUser.favorites=merged;
+      // 回写本地
+      const users=loadUsers();const u=getCur();
+      if(users[u]) users[u].favorites=merged;
+      saveUsers(users);
+      toast("☁️ 已从云端同步 "+merged.length+" 条关注");
+    }
+  }
+}
+// 操作后防抖推送
+function scheduleSyncPush(){
+  if(_syncTimer) clearTimeout(_syncTimer);
+  _syncTimer=setTimeout(async()=>{
+    if(await syncPushToGist()){
+      // 静默成功，不打扰用户
+    }
+  },2500); // 2.5秒防抖
+}
+// 显示 Gist 设置弹窗
+function showGistSettings(){
+  const token=getGistToken();
+  const m=$("#gistMask")||createGistMask();
+  $("#gistTokenInput").value=token;
+  $("#gistStatusTxt").textContent=token?"已配置 Token（"+token.slice(0,6)+"…）":"未配置";
+  m.classList.add("show");
+}
+function createGistMask(){
+  const d=document.createElement("div");
+  d.className="auth-mask";d.id="gistMask";
+  d.innerHTML='<div class="auth-modal" style="position:relative"><div class="auth-head"><button class="auth-close" id="gistClose">×</button><h3>☁️ 云端同步设置</h3><p>绑定 GitHub 后，关注列表自动跨设备同步</p></div><div class="auth-body"><div class="auth-error" id="gistError"></div><div class="auth-field"><label>GitHub Personal Access Token</label><input type="password" id="gistTokenInput" placeholder="ghp_xxxx（仅需 gist 权限）" autocomplete="off"><div style="font-size:11px;color:#9ca3af;margin-top:5px">→ <a href="https://github.com/settings/tokens/new?scopes=gist&description=cb-ration-sync" target="_blank" style="color:#f97316">点此创建 Token</a>（勾选 gist 权限即可）</div></div><div id="gistStatusTxt" style="font-size:12px;color:#6b7280;padding:8px 0"></div><button class="auth-submit" id="gistSaveBtn" style="margin-top:8px">保存并测试连接</button><button id="gistSyncNowBtn" style="width:100%;background:#f3f4f6;color:#374151;border:none;border-radius:10px;padding:10px;font-size:13px;font-weight:700;margin-top:8px;cursor:pointer">🔄 立即同步</button></div></div>';
+  document.body.appendChild(d);
+  // 绑定事件
+  $("#gistClose").onclick=()=>d.classList.remove("show");
+  d.onclick=e=>{if(e.target.id==="gistMask")d.classList.remove("show");};
+  $("#gistSaveBtn").onclick=async()=>{
+    const t=$("#gistTokenInput").value.trim();
+    if(!t){$("#gistError").textContent="请输入 Token";$("#gistError").classList.add("show");return;}
+    $("#gistError").classList.remove("show");
+    saveGistToken(t);
+    // 测试：列出用户的 gist
+    try{
+      const res=await fetch("https://api.github.com/gists?per_page=1",{headers:{Authorization:"Bearer "+t,"Accept":"application/vnd.github.v3+json"}});
+      if(res.ok){
+        $("#gistStatusTxt").innerHTML='<span style="color:#16a34a">✅ 连接成功！</span>';
+        toast("✅ Token 已保存，正在同步...");
+        // 如果有本地数据立即推送
+        if(currentUser&&currentUser.favorites.length) scheduleSyncPush();
+        // 尝试拉取
+        await tryPullGist();
+        if(activeTab==="fav") renderFav();
+      }else{
+        throw new Error("HTTP "+res.status);
+      }
+    }catch(e){
+      saveGistToken("");
+      $("#gistError").textContent="Token 无效："+e.message;$("#gistError").classList.add("show");
+      $("#gistStatusTxt").textContent="连接失败";
+    }
+  };
+  $("#gistSyncNowBtn").onclick=async()=>{
+    if(!isGistToken()){toast("请先配置 Token");return;}
+    $("#gistSyncNowBtn").textContent="⏳ 同步中...";$("#gistSyncNowBtn").disabled=true;
+    try{
+      const pushed=await syncPushToGist();
+      const pulled=await tryPullGist();
+      toast(pushed?"☁️ 同步完成":"⚠️ 推送失败，检查网络");
+      if(activeTab==="fav") renderFav();
+    }catch(e){toast("同步失败："+e.message);}
+    finally{$("#gistSyncNowBtn").textContent="🔄 立即同步";$("#gistSyncNowBtn").disabled=false;}
+  };
+  return d;
 }
 
 // 唯一ID：待发债用code，审核进度用stockCode
@@ -935,21 +1317,23 @@ function isFav(id){return currentUser&&currentUser.favorites.some(f=>f.id===id);
 async function toggleFav(id,kind){
   if(!currentUser){toast("请先登录后再关注");showAuthModal(true);return;}
   try{
-    const users=loadUsers(); const u=users[currentUser.username];
-    if(!u) throw new Error("用户不存在");
-    const fs=u.favorites||(u.favorites=[]);
-    const idx=fs.findIndex(f=>f.id===id);
-    let added;
-    if(idx>=0){ fs.splice(idx,1); added=false; }
-    else { fs.push({id, seen:progressOfId(id)}); added=true; }
+    // localStorage 版：直接操作本地数据
+    const idx=currentUser.favorites.findIndex(f=>f.id===id);
+    let added=false;
+    if(idx>=0){currentUser.favorites.splice(idx,1);} // 取消
+    else{currentUser.favorites.push({id,seen:""});added=true;} // 关注
+    // 回写 localStorage
+    const users=loadUsers();const u=getCur();
+    if(users[u]) users[u].favorites=currentUser.favorites;
     saveUsers(users);
-    currentUser.favorites=fs.map(f=>typeof f==="string"?{id:f,seen:""}:f);
     toast(added?"⭐ 已加入关注":"已取消关注");
     updateFavTab();
     // 刷新所有视图
     if(activeTab==="pend")renderPend();
     if(activeTab==="progress")renderProgress();
     if(activeTab==="fav")renderFav();
+    // 触发云端同步（如果配置了Token）
+    scheduleSyncPush();
   }catch(e){
     toast("操作失败: "+e.message);
   }
@@ -975,8 +1359,12 @@ async function checkProgress(){
 
 // 给卡片渲染插入关注按钮的HTML
 function favBtnHtml(id,kind){
-  const active=isFav(id)?" active":"";
-  return '<button class="fav-btn'+active+'" data-fav="'+id+'" data-kind="'+kind+'">'+(active?"★":"☆")+'</button>';
+  const active=isFav(id);
+  if(active){
+    // 已关注：显示明确的取消按钮（PC端文字+手机端大星号）
+    return '<button class="fav-btn active unfav-btn" data-fav="'+id+'" data-kind="'+kind+'">★<span class="unfav-text">取消</span></button>';
+  }
+  return '<button class="fav-btn" data-fav="'+id+'" data-kind="'+kind+'">☆</button>';
 }
 // 绑定关注按钮事件
 function bindFavBtns(container){
@@ -1025,8 +1413,7 @@ function renderFav(){
         const shortD=dStr?dStr.slice(5,10):"-";
         const id=getRowId(r,"pend");
         h+='<div class="cb-item" data-i="'+i+'" data-kind="pend">';
-        h+=favBtnHtml(id,"pend");
-        h+='<div class="cb-name"><span class="n">'+(r.name||"-")+'</span><span class="c">'+(r.code||"")+'</span></div>';
+        h+='<div class="cb-name"><span class="n">'+(r.name||"-")+'</span><span class="c">'+(r.code||"")+'</span>'+favBtnHtml(id,"pend")+'</div>';
         h+='<div class="cb-sub"><span class="cb-d">📅 '+shortD+'</span><span class="cb-tag">'+stageTag+'</span></div>';
         const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
         h+='<div class="cb-stats">';
@@ -1047,8 +1434,7 @@ function renderFav(){
         const shortD=dStr?dStr.slice(5,10):"-";
         const id=getRowId(r,"progress");
         h+='<div class="cb-item" data-i="'+i+'" data-kind="progress">';
-        h+=favBtnHtml(id,"progress");
-        h+='<div class="cb-name"><span class="n">'+(r.stockName||r.name||"-")+'</span><span class="c">'+(r.code||r.stockCode||"")+'</span></div>';
+        h+='<div class="cb-name"><span class="n">'+(r.stockName||r.name||"-")+'</span><span class="c">'+(r.code||r.stockCode||"")+'</span>'+favBtnHtml(id,"progress")+'</div>';
         h+='<div class="cb-sub"><span class="cb-d">📅 '+shortD+'</span><span class="cb-tag">'+stageTag+'</span></div>';
         const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
         h+='<div class="cb-stats">';
@@ -1251,7 +1637,7 @@ $("#authPass").addEventListener("keydown",e=>{if(e.key==="Enter")doAuth();});
 $("#authUser").addEventListener("keydown",e=>{if(e.key==="Enter")$("#authPass").focus();});
 $("#qfav").addEventListener("input",e=>{favKeyword=e.target.value.trim();renderFav();});
 
-// 初始化：从 localStorage 读取已登录用户
+// 初始化：从 localStorage 加载已登录用户
 async function initApp(){
   // 先渲染数据（不依赖登录状态）
   PEND=SNAPSHOT_PEND.map(r=>{ const cc=r._c; return {...r, _c: cc&&cc.price!=null?compute(r,cc.price):(cc||null)}; });
@@ -1259,11 +1645,15 @@ async function initApp(){
   PROGRESS=SNAPSHOT_PROGRESS.map(r=>{ const cc=r._c; return {...r, _c: cc&&cc.price!=null?compute(r,cc.price):(cc||null)}; });
   renderProgress();
 
-  // 本地读取登录状态
+  // 从 localStorage 读取登录状态
   const cur=getCur();
   if(cur){
-    const rec=loadUsers()[cur];
-    if(rec) currentUser={username:cur, favorites:(rec.favorites||[]).map(f=>typeof f==="string"?{id:f,seen:""}:f)};
+    const users=loadUsers();
+    if(users[cur]){
+      currentUser={username:cur,favorites:(users[cur].favorites||[]).map(f=>typeof f==="string"?{id:f,seen:""}:f)};
+      // 尝试从 Gist 拉取云端数据
+      await tryPullGist();
+    }
   }
   renderUserArea();
   // 重新渲染以显示关注状态
@@ -1273,7 +1663,7 @@ async function initApp(){
   // 加载实时数据
   loadAll();
   loadProgressRealtime();
-  // 打开App即检查关注转债进度变化并提醒
+  // ���开App即检查关注转债进度变化并提醒
   checkProgress();
 }
 initApp();
