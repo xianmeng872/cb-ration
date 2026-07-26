@@ -59,7 +59,7 @@
   .hl{color:var(--primary);font-weight:800}
   .hl-fund{color:var(--primary);font-weight:800}
   .muted{color:var(--muted)}
-  .tag{display:inline-block;line-height:1.15;padding:3px 8px;white-space:nowrap;letter-spacing:.3px}
+  .tag{display:inline-block;line-height:1.15;padding:3px 8px;white-space:nowrap;letter-spacing:.3px;min-width:80px;text-align:center}
   /* 同意注册：实橙白字，最大最粗——离申购最近，最关键 */
   .tag-s90{background:var(--primary);color:#fff;font-weight:800;font-size:12.5px;box-shadow:0 1px 3px rgba(249,115,22,.28)}
   /* 已排期申购：深橙实底白字，最强 */
@@ -259,7 +259,7 @@
     /* 市场标记(沪/深)紧跟代码后面 */
     .cb-mkt{font-size:10.5px;font-weight:800;padding:1px 6px;border-radius:8px;margin-left:4px;flex-shrink:0}
     /* ===== 审批进度条（卡片底部，6阶段约17%每档，柔和色彩） ===== */
-    .cb-progress{margin-top:6px;height:3px;background:#f3f4f6;border-radius:2px;overflow:hidden}
+    .cb-progress{margin-bottom:6px;height:2px;background:#f3f4f6;border-radius:1px;overflow:hidden}
     .cb-progress>span{display:block;height:100%;border-radius:3px;transition:width .3s}
     .cb-progress>span.p10{width:17%;background:#9ca3af}      /* 董事会预案：灰 */
     .cb-progress>span.p20{width:33%;background:#60a5fa}      /* 股东大会通过：蓝 */
@@ -447,7 +447,7 @@
 
   <div class="foot">
     数据源：东方财富 + 腾讯行情 + 集思录 · 每日自动更新(9:00/18:00) · 仅供参考，非投资建议
-    <div id="verStamp" style="margin-top:6px;font-size:11px;color:#bbb">版本 v20260727-0510 (fix-round10)</div>
+    <div id="verStamp" style="margin-top:6px;font-size:11px;color:#bbb">版本 v20260727-0515 (fix-round11)</div>
   </div>
 </div>
 <div class="mask" id="mask"><div class="modal">
@@ -936,7 +936,9 @@ function renderPend(){
       const dStr=(r.publicStart||r.progress_dt||"");
       const shortD=dStr?dStr.slice(5,10):"-";
       h+='<div class="cb-name"><span class="n">'+(r.name||"-")+'</span><span class="c">'+(r.code||"")+'</span>'+favBtnHtml(getRowId(r,"pend"),"pend")+'</div>';
-      // 3列×2行网格（与审核进度统一）：配售 | 规模 | 阶段(标签隐藏) / 所需资金 | 流通 | 日期(标签隐藏)
+      // 进度条（顶部，名称下方）
+      h+=progressBarHtml("pend",r);
+      // 3列×2行网格
       const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
       h+='<div class="cb-stats">';
       // 第1行：配售 | 规模 | 阶段（标签文字隐藏占位，值位置与审核进度一致）
@@ -948,7 +950,7 @@ function renderPend(){
       h+='<span class="s"><span class="l">流通</span><span class="v f">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span>';
       h+='<span class="s"><span class="l" style="visibility:hidden">日期</span><span class="v"><span class="cb-d">🗓️ '+shortD+'</span></span></span>';
       h+='</div>';
-      h+=progressBarHtml("pend",r);
+      // (进度条已移到cb-name下方顶部)
       h+='</div>';
     });
     h+='</div>';
@@ -1064,6 +1066,8 @@ function renderProgress(){
         h+='<div class="cb-item" data-i="'+i+'" data-kind="progress">';
         // 第一行：名称+代码+市场标签+★（和待发债cb-name结构一致）
         h+='<div class="cb-name"><span class="n">'+(r.stockName||"-")+'</span><span class="c">'+(r.stockCode||"")+'</span>'+mktTag+favBtnHtml(getRowId(r,"progress"),"progress")+'</div>';
+        // 进度条（顶部，名称下方）
+        h+=progressBarHtml("progress",r);
         // 数据区：3列×2行网格（和待发债一致，所有格子标签在上值在下面），中间横线贯穿
         const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
         h+='<div class="cb-stats">';
@@ -1082,7 +1086,6 @@ function renderProgress(){
           if(c.needMoneySafe!=null)h+='<span>稳'+fmt(c.needMoneySafe,0)+'元</span>';
           h+='</div>';
         }
-        h+=progressBarHtml("progress",r);
         h+='</div>';
       });
       h+='</div>';
@@ -1943,6 +1946,7 @@ function renderFav(){
         const id=getRowId(r,"pend");
         h+='<div class="cb-item" data-i="'+i+'" data-kind="pend">';
         h+='<div class="cb-name"><span class="n">'+(r.name||"-")+'</span><span class="c">'+(r.code||"")+'</span>'+favBtnHtml(id,"pend")+'</div>';
+        h+=progressBarHtml("pend",r);
         // 3列×2行（与审核进度统一，标签隐藏占位）
         const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
         h+='<div class="cb-stats">';
@@ -1953,7 +1957,6 @@ function renderFav(){
         h+='<span class="s"><span class="l">流通</span><span class="v f">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span>';
         h+='<span class="s"><span class="l" style="visibility:hidden">日期</span><span class="v"><span class="cb-d">🗓️ '+shortD+'</span></span></span>';
         h+='</div>';
-        h+=progressBarHtml("pend",r);
         h+='</div>';
       });
       h+='</div>';
@@ -1968,6 +1971,7 @@ function renderFav(){
         const id=getRowId(r,"progress");
         h+='<div class="cb-item" data-i="'+i+'" data-kind="progress">';
         h+='<div class="cb-name"><span class="n">'+(r.stockName||r.name||"-")+'</span><span class="c">'+(r.code||r.stockCode||"")+'</span>'+favBtnHtml(id,"progress")+'</div>';
+        h+=progressBarHtml("progress",r);
         // 3列×2行（与审核进度Tab统一，标签隐藏占位）
         const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
         h+='<div class="cb-stats">';
@@ -1978,7 +1982,6 @@ function renderFav(){
         h+='<span class="s"><span class="l">预估流通</span><span class="v f">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span>';
         h+='<span class="s"><span class="l" style="visibility:hidden">日期</span><span class="v"><span class="cb-d">🗓️ '+shortD+'</span></span></span>';
         h+='</div>';
-        h+=progressBarHtml("progress",r);
         h+='</div>';
       });
       h+='</div>';
