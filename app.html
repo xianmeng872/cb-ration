@@ -447,7 +447,7 @@
 
   <div class="foot">
     数据源：东方财富 + 腾讯行情 + 集思录 · 每日自动更新(9:00/18:00) · 仅供参考，非投资建议
-    <div id="verStamp" style="margin-top:6px;font-size:11px;color:#bbb">版本 v20260727-0500 (fix-round8)</div>
+    <div id="verStamp" style="margin-top:6px;font-size:11px;color:#bbb">版本 v20260727-0508 (fix-round9)</div>
   </div>
 </div>
 <div class="mask" id="mask"><div class="modal">
@@ -1377,9 +1377,11 @@ function closeDetailMask(){
   if(activeBtn) activeBtn.classList.add("active");
 }
 function ensureViewsVisible(){
-  // 确保当前激活的Tab视图可见（防止某些情况下返回后白屏）
-  var pv=document.getElementById("view-"+activeTab);
-  if(pv)pv.style.display="block";
+  // 确保只有来源Tab视图可见，其余全部隐藏（防止返回后多视图叠加）
+  ["pend","progress","fav"].forEach(k=>{
+    var v=document.getElementById("view-"+k);
+    if(v) v.style.display=(k===activeTab)?"block":"none";
+  });
 }
 $("#q").addEventListener("input",e=>{if(!recordUsage())return;keyword=e.target.value.trim();renderPend();});
 $("#q2").addEventListener("input",e=>{if(!recordUsage())return;keyword2=e.target.value.trim();renderProgress();});
