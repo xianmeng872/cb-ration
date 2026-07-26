@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- 强制防缓存 -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>可转债抢权配售 · 实时</title>
 <style>
   :root{
@@ -364,8 +368,6 @@
 </style>
 </head>
 <body>
-<!-- 版本横幅：确认是否最新版，缓存必失效则删除此行 -->
-<div style="background:#16a34a;color:#fff;text-align:center;padding:6px 12px;font-size:13px;font-weight:700;letter-spacing:.3px">✅ 已更新至 V13（2026-07-27）· 若看到此横幅 = 最新版 · 确认后可忽略</div>
 <div class="hero">
   <div class="hero-top">
     <h1>可转债抢权配售<span class="hero-badge">· 实时</span></h1>
@@ -2246,6 +2248,5 @@ async function initApp(){
 initApp();
 setInterval(()=>setTime("数据更新"), 30000);
 </script>
-<div style="text-align:center;font-size:10.5px;color:#b0b0b0;padding:10px 0 18px;letter-spacing:.3px">本页版本 v12 · 部署于 2026-07-26 23:58 ｜ 若看到 v11 或更早 = 浏览器缓存，请在网址后加 ?v=2 重开</div>
 </body>
 </html>
