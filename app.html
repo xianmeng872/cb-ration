@@ -933,7 +933,7 @@ function renderPend(){
       // 第1行：配售 | 规模 | 阶段
       h+='<span class="s"><span class="l">配售</span><span class="v hl">'+(c.needShares!=null?shLabel:'-')+'</span></span>';
       h+='<span class="s"><span class="l">规模</span><span class="v">'+(r.scale!=null?fmt(r.scale)+'亿':'-')+'</span></span>';
-      h+='<span class="s"><span class="v"><span class="tag '+stageTag?'tag-sbuy':''+'">'+(stageTag?stageTag:'待发行')+'</span></span></span>';
+      h+='<span class="s"><span class="v"><span class="tag '+(stageTag?'tag-sbuy':'')+'">'+(stageTag?stageTag:'待发行')+'</span></span></span>';
       // 第2行：所需资金 | 流通 | 日期
       h+='<span class="s"><span class="l">所需资金</span><span class="v hl">'+(c.needMoney!=null?fmt(c.needMoney,0)+'元':'-')+'</span></span>';
       h+='<span class="s"><span class="l">流通</span><span class="v f">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span>';
