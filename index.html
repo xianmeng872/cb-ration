@@ -1030,7 +1030,7 @@ function renderProgress(){
       h+='</div>';
       p.innerHTML=h;
       p.querySelectorAll(".cb-item").forEach(el=>el.onclick=()=>openDetail(rows[+el.dataset.i],"progress"));
-      p.querySelectorAll(".sort-btn").forEach(btn=>btn.onclick=>{
+      p.querySelectorAll(".sort-btn").forEach(btn=>btn.onclick=()=>{
         if(!recordUsage())return;
         const f=btn.dataset.sf;
         progSort={field:f, dir:progSort.field===f?-progSort.dir:1};
