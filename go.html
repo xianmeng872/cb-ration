@@ -438,7 +438,7 @@
 
   <div class="foot">
     数据源：东方财富 + 腾讯行情 + 集思录 · 每日自动更新(9:00/18:00) · 仅供参考，非投资建议
-    <div id="verStamp" style="margin-top:6px;font-size:11px;color:#bbb">版本 v20260727-0411 (8b22912)</div>
+    <div id="verStamp" style="margin-top:6px;font-size:11px;color:#bbb">版本 v20260727-0413 (3c1848d)</div>
   </div>
 </div>
 <div class="mask" id="mask"><div class="modal">
@@ -933,7 +933,7 @@ function renderPend(){
       // 第1行：配售 | 规模 | 阶段
       h+='<span class="s"><span class="l">配售</span><span class="v hl">'+(c.needShares!=null?shLabel:'-')+'</span></span>';
       h+='<span class="s"><span class="l">规模</span><span class="v">'+(r.scale!=null?fmt(r.scale)+'亿':'-')+'</span></span>';
-      h+='<span class="s"><span class="v"><span class="tag '+stageTag?'tag-sbuy':''+'">'+(stageTag?stageTag:'待发行')+'</span></span></span>';
+      h+='<span class="s"><span class="v"><span class="tag '+(stageTag?'tag-sbuy':'')+'">'+(stageTag?stageTag:'待发行')+'</span></span></span>';
       // 第2行：所需资金 | 流通 | 日期
       h+='<span class="s"><span class="l">所需资金</span><span class="v hl">'+(c.needMoney!=null?fmt(c.needMoney,0)+'元':'-')+'</span></span>';
       h+='<span class="s"><span class="l">流通</span><span class="v f">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span>';
