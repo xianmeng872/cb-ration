@@ -14,9 +14,12 @@
   body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.5}
   .hero{background:#ffffff;color:var(--ink);padding:18px 16px 14px;border-bottom:3px solid var(--primary)}
   .hero h1{margin:0 0 3px;font-size:19px;font-weight:800;letter-spacing:.5px;color:var(--ink)}
+  .hero .hero-badge{color:var(--primary);font-weight:800;font-size:16px;margin-left:2px}
   .hero .sub{color:var(--muted);font-size:12px}
   .hero .bar{display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:8px;flex-wrap:wrap}
   .hero .time{font-size:11.5px;background:#f5f5f7;color:var(--muted);padding:5px 10px;border-radius:18px}
+  .btn-refresh-bar{flex-shrink:0;border:1.5px solid var(--primary);border-radius:18px;padding:5px 14px;font-size:11.5px;font-weight:700;background:#fff;color:var(--primary);cursor:pointer;transition:.15s;white-space:nowrap}
+  .btn-refresh-bar:active{transform:scale(.96)}
   .btn{cursor:pointer;border:1px solid var(--primary);border-radius:20px;padding:7px 16px;font-size:13px;font-weight:700;background:#fff;color:var(--primary);transition:.15s}
   .btn:active{transform:scale(.96)}
   .btn[disabled]{opacity:.6;cursor:default}
@@ -99,6 +102,11 @@
   .sync-dot.off{filter:grayscale(1);opacity:.45}
   .sync-dot:hover{transform:scale(1.2)}
 
+  /* ===== 手机端用户头像（角落小圆钮） ===== */
+  .avatar-btn{width:32px;height:32px;border-radius:50%;border:1.5px solid #e5e7eb;background:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;transition:.15s;box-shadow:0 1px 3px rgba(0,0,0,.08);flex-shrink:0;line-height:1}
+  .avatar-btn:active{transform:scale(.9)}
+  .avatar-btn.logged-in{border-color:var(--primary);background:var(--primary-light)}
+
   /* ===== 卡片关注按钮 ===== */
   .fav-btn{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;border:none;background:#fff;color:#d1d5db;font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.08);transition:.15s;z-index:5}
   .fav-btn:active{transform:scale(.9)}
@@ -135,12 +143,16 @@
   /* ===== 手机适配：≤720px 卡片式列表（参考"小鱼的钱钱助手"风格） ===== */
   @media(max-width:720px){
     body{font-size:15px;-webkit-text-size-adjust:100%;background:#f5f5f7}
-    .hero{padding:16px 14px 12px}
-    .hero h1{font-size:18px}
-    .hero-top{flex-wrap:wrap;gap:6px;align-items:center}
-    .hero-right{order:2;margin-left:auto;display:flex;align-items:center;gap:8px;width:auto;justify-content:flex-end;margin-top:0;padding-top:0;border-top:none}
-    .hero-right #refresh{display:none} /* 手机端隐藏PC刷新（已移到搜索框旁） */
-    .btn-sm{padding:6px 12px;font-size:12px}
+    .hero{padding:14px 12px 10px}
+    .hero h1{font-size:17px;text-align:center}
+    .hero-top{justify-content:center;gap:4px;flex-wrap:wrap}
+    .hero-right{order:2;margin-left:auto;display:flex;align-items:center;gap:6px;width:auto;justify-content:flex-end;margin-top:0;padding-top:0;border-top:none}
+    .hero-right #refresh{display:none} /* 手机端隐藏PC刷新（已移到bar行） */
+    .hero-right #userAreaMobile{display:inline-flex} /* 手机端头像圆钮 */
+    .btn-refresh-bar{display:inline-flex !important} /* 手机端bar行显示刷新实时按钮 */
+    .sub{text-align:center;font-size:11.5px}
+    .bar{justify-content:space-between;padding:2px 0}
+    .time{font-size:10.5px;padding:4px 8px}
     .wrap{padding:0 10px 72px}
     .tabs{padding:10px 0 6px}
     .tab{padding:12px 8px;font-size:14px}
@@ -329,22 +341,24 @@
 <body>
 <div class="hero">
   <div class="hero-top">
-    <h1>可转债抢权配售</h1>
+    <h1>可转债抢权配售<span class="hero-badge">· 实时</span></h1>
     <div class="hero-right" id="heroRight">
-      <span id="userArea"></span>
+      <!-- 手机端用户头像放这里（小圆形） -->
+      <span id="userAreaMobile"></span>
       <button class="btn btn-sm" id="refresh">↻ 刷新</button>
     </div>
   </div>
-  <div class="sub">配债潜伏 · 待发实时 · 审核进度自动更新</div>
+  <div class="sub">xianmeng872.github.io</div>
   <div class="bar">
     <span class="time" id="time">加载中…</span>
+    <button class="btn btn-sm btn-refresh-bar" id="refreshBar" style="display:none">↻ 刷新实时</button>
   </div>
 </div>
 <div class="wrap">
   <div class="tabs">
-    <div class="tab active" id="tab-pend" data-tab="pend">待发债（实时）</div>
-    <div class="tab" id="tab-progress" data-tab="progress">审核进度（自动）</div>
-    <div class="tab" id="tab-fav" data-tab="fav" style="display:none">我的关注 <span id="favCount" style="font-size:11px;background:#fff3;color:inherit;padding:1px 6px;border-radius:10px;margin-left:3px">0</span></div>
+    <div class="tab active" id="tab-pend" data-tab="pend">待发债</div>
+    <div class="tab" id="tab-progress" data-tab="progress">审核进度</div>
+    <div class="tab" id="tab-fav" data-tab="fav">我的关注 <span id="favCount" style="font-size:11px;background:rgba(255,255,255,.3);color:inherit;padding:1px 6px;border-radius:10px;margin-left:3px">0</span></div>
   </div>
 
   <div id="view-fav" style="display:none">
@@ -386,7 +400,7 @@
     <div class="auth-head">
       <button class="auth-close" id="authClose">×</button>
       <h3 id="authTitle">欢迎登录</h3>
-      <p id="authSub">登录后可关注转债，关注数据永久保存</p>
+      <p id="authSub">登录后可自选转债，数据多端同步保存</p>
     </div>
     <div class="auth-body">
       <div class="auth-tabs">
@@ -394,15 +408,63 @@
         <div class="auth-tab" data-mode="register">注册</div>
       </div>
       <div class="auth-error" id="authError"></div>
-      <div class="auth-field">
+      <div class="auth-field" id="authUserField">
         <label>用户名</label>
         <input type="text" id="authUser" placeholder="3-20位字符" autocomplete="off">
       </div>
-      <div class="auth-field">
+      <!-- 登录/注册共用密码 -->
+      <div class="auth-field" id="authPassField">
         <label>密码</label>
         <input type="password" id="authPass" placeholder="至少4位" autocomplete="off">
       </div>
+      <!-- 注册时显示：安全码 -->
+      <div class="auth-field" id="authSecField" style="display:none">
+        <label>安全码 <span style="color:#9ca3af;font-weight:400;font-size:11px">（忘密时用于重置密码，请牢记）</span></label>
+        <input type="password" id="authSec" placeholder="4-6位数字或字母" autocomplete="off" maxlength="6">
+      </div>
+      <!-- 忘记密码模式 -->
+      <div class="auth-field" id="authNewPassField" style="display:none">
+        <label>新密码</label>
+        <input type="password" id="authNewPass" placeholder="输入新密码（至少4位）" autocomplete="off">
+      </div>
+      <div style="text-align:right;margin-bottom:12px">
+        <a href="javascript:void(0)" id="forgotLink" style="color:var(--primary);font-size:12px;font-weight:600;text-decoration:none;display:none">忘记密码？用安全码重置 →</a>
+        <a href="javascript:void(0)" id="backToLogin" style="color:#9ca3af;font-size:12px;text-decoration:none;display:none">← 返回登录</a>
+      </div>
       <button class="auth-submit" id="authSubmit">登录</button>
+    </div>
+  </div>
+</div>
+
+<!-- 邀请码验证弹窗 -->
+<div class="auth-mask" id="inviteMask">
+  <div class="auth-modal" style="position:relative">
+    <div class="auth-head" style="background:linear-gradient(135deg,#6366f1,#4f46e5)">
+      <h3 style="margin:0;font-size:18px;font-weight:800">🔐 使用次数已达上限</h3>
+      <p style="margin:4px 0 0;font-size:12px;opacity:.9">搜索/筛选已使用 10 次，请输入邀请码继续使用</p>
+    </div>
+    <div class="auth-body">
+      <div class="auth-error" id="inviteError"></div>
+      <div class="auth-field">
+        <label>邀请码</label>
+        <input type="text" id="inviteCodeInput" placeholder="请输入邀请码" autocomplete="off" style="letter-spacing:2px;text-transform:uppercase">
+      </div>
+      <button class="auth-submit" id="inviteSubmit" style="background:linear-gradient(135deg,#6366f1,#4f46e5)">验证并继续</button>
+      <p style="text-align:center;margin-top:12px;font-size:11px;color:#9ca3af">没有邀请码？联系管理员获取</p>
+    </div>
+  </div>
+</div>
+
+<!-- 邀请码管理页（隐藏，通过特殊方式进入） -->
+<div class="auth-mask" id="adminMask">
+  <div class="auth-modal" style="max-width:480px;position:relative">
+    <div class="auth-head" style="background:linear-gradient(135deg,#059669,#047857)">
+      <button class="auth-close" id="adminClose">×</button>
+      <h3 style="margin:0;font-size:17px;font-weight:800">🔧 邀请码管理</h3>
+      <p style="margin:4px 0 0;font-size:11.5px;opacity:.9">增删邀请码 · 查看使用统计</p>
+    </div>
+    <div class="auth-body" id="adminBody">
+      <!-- 动态渲染 -->
     </div>
   </div>
 </div>
@@ -747,18 +809,25 @@ function progPriorityVal(r){
 }
 function doSort(rows,sort){
   if(!sort.field) return rows;
-  // 百元含权排序时，增加二级排序：同含权量按审核阶段优先级排（同意注册>上市委通过>...>董事会预案）
+  // 百元含权排序时，强化阶段权重：低进度项目显著靠后（不仅作为同值排位）
   const needSecondary=sort.field==="baiyuan";
+  // 百元含权的典型范围约5~50，用权重10让阶段优先级(1-5)产生±50的影响
+  const PROG_WEIGHT=needSecondary?10:0;
   return rows.slice().sort((a,b)=>{
     let va=getVal(a,sort.field), vb=getVal(b,sort.field);
+    // 百元含权：复合分数=含权值+阶段优先级×权重（高进度加分）
+    if(needSecondary && typeof va==="number" && typeof vb==="number"){
+      va=va+progPriorityVal(a)*PROG_WEIGHT;
+      vb=vb+progPriorityVal(b)*PROG_WEIGHT;
+    }
     let cmp=0;
     if(typeof va==="string"&&typeof vb==="string"){cmp=va.localeCompare(vb);}
     else if(typeof va==="number"&&typeof vb==="number"){cmp=va-vb;}
     if(cmp!==0) return sort.dir*cmp;
-    // 主字段相等时，二级排序按阶段优先级（仅百元含权）
+    // 完全相等时再按阶段排
     if(needSecondary){
       const pa=progPriorityVal(a), pb=progPriorityVal(b);
-      if(pa!==pb) return sort.dir*(pb-pa); // 高优先级排前面
+      if(pa!==pb) return sort.dir*(pb-pa);
     }
     return 0;
   });
@@ -808,6 +877,7 @@ function renderPend(){
     p.innerHTML=h;
     p.querySelectorAll(".cb-item").forEach(el=>el.onclick=()=>openDetail(rows[+el.dataset.i],"pend"));
     p.querySelectorAll(".sort-btn").forEach(btn=>btn.onclick=()=>{
+      if(!recordUsage())return;
       const f=btn.dataset.sf;
       pendSort={field:f, dir:pendSort.field===f?-pendSort.dir:1};
       renderPend();
@@ -1190,8 +1260,8 @@ async function loadProgressRealtime(){
 // 事件
 $("#mx").onclick=()=>$("#mask").classList.remove("show");
 $("#mask").onclick=e=>{if(e.target.id==="mask")$("#mask").classList.remove("show");};
-$("#q").addEventListener("input",e=>{keyword=e.target.value.trim();renderPend();});
-$("#q2").addEventListener("input",e=>{keyword2=e.target.value.trim();renderProgress();});
+$("#q").addEventListener("input",e=>{if(!recordUsage())return;keyword=e.target.value.trim();renderPend();});
+$("#q2").addEventListener("input",e=>{if(!recordUsage())return;keyword2=e.target.value.trim();renderProgress();});
 $("#refresh").onclick=()=>{ if(activeTab==="pend") loadAll(); else loadProgressRealtime(); };
 
 // 布局切换事件
@@ -1210,6 +1280,7 @@ document.querySelectorAll("#refreshMobile,#refreshMobile2").forEach(btn=>{
   if(btn) btn.onclick=()=>{ if(activeTab==="pend") loadAll(); else loadProgressRealtime(); };
 });
 $("#progChips").querySelectorAll(".chip").forEach(ch=>ch.onclick=()=>{
+  if(!recordUsage())return;
   PROG_FILTER=ch.dataset.f;
   $("#progChips").querySelectorAll(".chip").forEach(x=>x.classList.remove("active"));
   ch.classList.add("active");
@@ -1268,13 +1339,15 @@ function emojiAvatar(name){
 }
 
 function renderUserArea(){
-  const ua=$("#userArea");
+  const ua=$("#userArea"); // PC端 hero-right 内
+  const um=$("#userAreaMobile"); // 手机端 hero-right 内（圆钮）
   if(currentUser){
     const em=emojiAvatar(currentUser.username);
     const syncReady=isGistReady();
     const syncDot=syncReady
       ? '<span class="sync-dot on" title="云端同步已开启">☁️</span>'
-      : '<span class="sync-dot off" title="未开启云端同步（手机/电脑不互通）">☁️</span>';
+      : '<span class="sync-dot off" title="未开启云端同步">☁️</span>';
+    // PC端：完整用户信息条
     ua.innerHTML='<span class="user-info"><span class="avatar">'+em+'</span><span class="uname">'+currentUser.username+'</span>'+syncDot+'</span><button class="btn-logout" id="btnLogout">退出</button>';
     $("#btnLogout").onclick=()=>{
       currentUser=null;saveToken(null);
@@ -1282,13 +1355,19 @@ function renderUserArea(){
       if(activeTab==="fav"){activeTab="pend";$("#tab-pend").click();}
       toast("已退出登录");
     };
-    // 云同步图标点击
     const sd=ua.querySelector(".sync-dot");
     if(sd) sd.onclick=(e)=>{e.stopPropagation();showGistSettings();};
-    $("#tab-fav").style.display="block";
+    // 手机端：仅显示头像圆钮（点击弹登录/用户菜单）
+    um.innerHTML='<span class="avatar-btn logged-in" id="avatarBtn" title="'+currentUser.username+'">'+em+'</span>'+syncDot;
+    $("#avatarBtn").onclick=(e)=>{e.stopPropagation();showAuthModal(true);};
+    const sdm=um.querySelector(".sync-dot");
+    if(sdm) sdm.onclick=(e)=>{e.stopPropagation();showGistSettings();};
+    $("#tab-fav").style.display="";
   }else{
     ua.innerHTML='<button class="btn-login" id="btnLogin">登录 / 注册</button>';
     $("#btnLogin").onclick=()=>showAuthModal(true);
+    um.innerHTML='<span class="avatar-btn" id="avatarBtn" title="点击登录">👤</span>';
+    $("#avatarBtn").onclick=(e)=>{e.stopPropagation();showAuthModal(true);};
     $("#tab-fav").style.display="none";
   }
   updateFavTab();
@@ -1314,9 +1393,45 @@ function showAuthModal(show){
 function setAuthMode(mode){
   authMode=mode;
   document.querySelectorAll(".auth-tab").forEach(t=>t.classList.toggle("active",t.dataset.mode===mode));
-  $("#authTitle").textContent=mode==="login"?"欢迎登录":"创建账号";
-  $("#authSub").textContent=mode==="login"?"登录后可关注转债，多设备同步保存":"注册账号后即可关注喜欢的转债";
-  $("#authSubmit").textContent=mode==="login"?"登录":"注册";
+  const secField=$("#authSecField");
+  const newPassField=$("#authNewPassField");
+  const passField=$("#authPassField");
+  const forgotLink=$("#forgotLink");
+  const backToLogin=$("#backToLogin");
+  const tabs=$(".auth-tabs");
+  // 重置所有字段可见性
+  secField.style.display="none";
+  newPassField.style.display="none";
+  passField.style.display="";
+  $("#authUserField").style.display="";
+  forgotLink.style.display="none";
+  backToLogin.style.display="none";
+  tabs.style.display="";
+
+  if(mode==="login"){
+    $("#authTitle").textContent="欢迎登录";
+    $("#authSub").textContent="登录后可自选转债，数据多端同步保存";
+    $("#authSubmit").textContent="登录";
+    forgotLink.style.display="inline";
+    $("#authPass").placeholder="至少4位";
+  }else if(mode==="register"){
+    $("#authTitle").textContent="创建账号";
+    $("#authSub").textContent="注册账号后即可自选喜欢的转债";
+    $("#authSubmit").textContent="注册";
+    secField.style.display="";
+    $("#authPass").placeholder="至少4位";
+  }else if(mode==="forgot"){
+    // 忘记密码模式：隐藏tab切换，显示安全码+新密码
+    $("#authTitle").textContent="重置密码";
+    $("#authSub").textContent="输入用户名和安全码，即可设置新密码";
+    $("#authSubmit").textContent="确认重置";
+    tabs.style.display="none";
+    passField.style.display="none"; // 不需要旧密码
+    secField.style.display="";     // 需要安全码
+    newPassField.style.display=""; // 需要新密码
+    backToLogin.style.display="inline";
+    forgotLink.style.display="none";
+  }
 }
 function showAuthError(msg){
   const e=$("#authError");e.textContent=msg;e.classList.add("show");
@@ -1326,57 +1441,81 @@ async function doAuth(){
   const p=$("#authPass").value;
   if(u.length<3){showAuthError("用户名至少3位");return;}
   if(u.length>20){showAuthError("用户名最多20位");return;}
-  if(p.length<4){showAuthError("密码至少4位");return;}
   $("#authSubmit").disabled=true;
   showAuthError("");
   try{
     let users=loadUsers();
     if(authMode==="login"){
+      if(p.length<4){showAuthError("密码至少4位");return;}
       // 登录：先查本地
       if(users[u]&&users[u].password===p){
         // 本地验证通过
       }else if(isGistReady()){
-        // 本地没有/密码不对，尝试云端账号库（跨设备登录）
         const cloud=await syncPullFromGist();
         if(cloud&&cloud.users&&cloud.users[u]&&cloud.users[u].password===p){
-          users[u]=cloud.users[u]; // 从云端导入账号到本地
-          saveUsers(users);
-        }else{
-          showAuthError("用户名或密码错误");return;
-        }
-      }else{
-        showAuthError("用户名或密码错误");return;
-      }
-    }else{
-      // 注册：检查是否已存在（本地或云端）
+          users[u]=cloud.users[u];saveUsers(users);
+        }else{showAuthError("用户名或密码错误");return;}
+      }else{showAuthError("用户名或密码错误");return;}
+      finishAuth(u,users,"登录成功，欢迎回来 "+u);
+    }else if(authMode==="register"){
+      if(p.length<4){showAuthError("密码至少4位");return;}
+      const sec=$("#authSec").value.trim();
+      if(!sec||sec.length<4){showAuthError("安全码至少4位");return;}
+      if(sec.length>6){showAuthError("安全码最多6位");return;}
       if(users[u]){showAuthError("该用户名已被注册");return;}
       if(isGistReady()){
         const cloud=await syncPullFromGist();
         if(cloud&&cloud.users&&cloud.users[u]){showAuthError("该用户名已被注册");return;}
       }
-      users[u]={password:p,favorites:[]};
+      users[u]={password:p,securityCode:sec,favorites:[]};
       saveUsers(users);
-    }
-    // 设置当前登录用户
-    saveCur(u);
-    currentUser=fetchCurrentUser();
-    showAuthModal(false);renderUserArea();
-    if(activeTab==="pend")renderPend();
-    if(activeTab==="progress")renderProgress();
-    if(activeTab==="fav")renderFav();
-    // 登录后从云端拉取关注 + 注册后推送本地账号到云端
-    if(isGistReady()){
-      if(authMode==="login") tryPullGist();
-      else scheduleSyncPush();
-    }
-    toast("✅ "+(authMode==="login"?"登录成功，欢迎回来 "+u:"注册成功，已自动登录"));
-    if(!isGistReady()){
-      setTimeout(()=>toast("💡 点右上角灰色 ☁️ 开启云端同步，手机/电脑关注才能互通"), 1300);
+      finishAuth(u,users,"注册成功，已自动登录（请牢记安全码）");
+    }else if(authMode==="forgot"){
+      // 忘记密码：验证用户名+安全码 → 设新密码
+      if(!users[u]){showAuthError("用户名不存在");return;}
+      const sec=$("#authSec").value.trim();
+      if(!sec){showAuthError("请输入安全码");return;}
+      if(users[u].securityCode!==sec){
+        // 尝试云端安全码
+        let matched=false;
+        if(isGistReady()){
+          const cloud=await syncPullFromGist();
+          if(cloud&&cloud.users&&cloud.users[u]&&cloud.users[u].securityCode===sec){
+            matched=true;
+          }
+        }
+        if(!matched){showAuthError("安全码不正确");return;}
+      }
+      const np=$("#authNewPass").value;
+      if(np.length<4){showAuthError("新密码至少4位");return;}
+      users[u].password=np;
+      saveUsers(users);
+      if(isGistReady())scheduleSyncPush();
+      showAuthModal(false);
+      setAuthMode("login");
+      $("#authUser").value=u;
+      toast("✅ 密码重置成功，请用新密码登录");
     }
   }catch(e){
     showAuthError(e.message);
   }finally{
     $("#authSubmit").disabled=false;
+  }
+}
+function finishAuth(u,users,msg){
+  saveCur(u);
+  currentUser=fetchCurrentUser();
+  showAuthModal(false);renderUserArea();
+  if(activeTab==="pend")renderPend();
+  if(activeTab==="progress")renderProgress();
+  if(activeTab==="fav")renderFav();
+  if(isGistReady()){
+    if(authMode==="login") tryPullGist();
+    else scheduleSyncPush();
+  }
+  toast("✅ "+msg);
+  if(!isGistReady()){
+    setTimeout(()=>toast("💡 点头像旁 ☁️ 开启云端同步"), 1300);
   }
 }
 
@@ -1827,18 +1966,22 @@ function openProgSheet(){
 }
 function closeProgSheet(){$("#progSheetMask").classList.remove("show");}
 $("#sheetProgChips").querySelectorAll(".schip").forEach(c=>c.onclick=()=>{
+  if(!recordUsage())return;
   $("#sheetProgChips").querySelectorAll(".schip").forEach(x=>x.classList.remove("active"));
   c.classList.add("active");
 });
 $("#sheetSortBtns").querySelectorAll(".ssort").forEach(s=>s.onclick=()=>{
+  if(!recordUsage())return;
   $("#sheetSortBtns").querySelectorAll(".ssort").forEach(x=>x.classList.remove("active"));
   s.classList.add("active");
 });
 $("#sheetDirBtn").onclick=()=>{
+  if(!recordUsage())return;
   const asc=$("#sheetDirBtn").textContent.indexOf("升序")>=0;
   $("#sheetDirBtn").textContent=(asc?"↓ 降序":"↑ 升序");
 };
 $("#sheetApply").onclick=()=>{
+  if(!recordUsage())return;
   const f=$("#sheetProgChips").querySelector(".schip.active").dataset.f;
   const sf=$("#sheetSortBtns").querySelector(".ssort.active").dataset.f;
   const dir=$("#sheetDirBtn").textContent.indexOf("降序")>=0?-1:1;
@@ -1858,6 +2001,148 @@ document.querySelectorAll(".auth-tab").forEach(t=>t.onclick=()=>setAuthMode(t.da
 $("#authSubmit").onclick=doAuth;
 $("#authPass").addEventListener("keydown",e=>{if(e.key==="Enter")doAuth();});
 $("#authUser").addEventListener("keydown",e=>{if(e.key==="Enter")$("#authPass").focus();});
+// 忘记密码 / 返回登录
+$("#forgotLink").onclick=()=>{setAuthMode("forgot");showAuthError("");};
+$("#backToLogin").onclick=()=>{setAuthMode("login");showAuthError("");};
+// 安全码/新密码回车提交
+$("#authSec").addEventListener("keydown",e=>{if(e.key==="Enter"){const np=$("#authNewPass");if(np&&np.offsetParent!==null)np.focus();else doAuth();}});
+$("#authNewPass").addEventListener("keydown",e=>{if(e.key==="Enter")doAuth();});
+
+// ===== 使用次数限制 + 邀请码系统 =====
+const USAGE_KEY="cb_ration_usage";
+const INVITE_KEY="cb_ration_invites";
+const USAGE_LIMIT=10;
+const ADMIN_PASS="admin2026"; // 管理页密码（可改）
+const DEFAULT_INVITES=["WELCOME2026","CBRATION","FAVSORT"]; // 预设邀请码
+
+function getUsage(){
+  try{return JSON.parse(localStorage.getItem(USAGE_KEY)||"{}");}catch(e){return{};}
+}
+function saveUsage(u){localStorage.setItem(USAGE_KEY,JSON.stringify(u));}
+function getInvites(){
+  try{const d=JSON.parse(localStorage.getItem(INVITE_KEY)||"null");if(d&&d.codes)return d;}catch(e){}
+  // 初始化默认邀请码
+  const d={codes:[...DEFAULT_INVITES],adminPass:ADMIN_PASS};
+  localStorage.setItem(INVITE_KEY,JSON.stringify(d));
+  return d;
+}
+function saveInvites(d){localStorage.setItem(INVITE_KEY,JSON.stringify(d));}
+
+// 检查是否需要验证邀请码（返回 true 表示需要拦截）
+function checkUsageLimit(){
+  const u=getUsage();
+  if(u.unlocked) return false; // 已永久解锁
+  if(!u.count||u.count<USAGE_LIMIT) return false; // 未超限
+  return true; // 超限且未解锁
+}
+
+// 记录一次使用
+function recordUsage(){
+  const u=getUsage();
+  if(u.unlocked) return true; // 已解锁不计数
+  u.count=(u.count||0)+1;
+  saveUsage(u);
+  // 检查是否刚到限制
+  if(u.count>=USAGE_LIMIT&&!u.unlocked){
+    setTimeout(()=>showInviteModal(),300);
+    return false;
+  }
+  return true;
+}
+
+// 显示邀请码弹窗
+function showInviteModal(){
+  $("#inviteMask").classList.add("show");
+  $("#inviteCodeInput").value="";
+  $("#inviteError").classList.remove("show");
+  setTimeout(()=>$("#inviteCodeInput").focus(),100);
+}
+function hideInviteModal(){$("#inviteMask").classList.remove("show");}
+
+// 验证邀请码
+function verifyInviteCode(){
+  const code=$("#inviteCodeInput").value.trim().toUpperCase();
+  if(!code){showInviteError("请输入邀请码");return;}
+  const inv=getInvites();
+  if(inv.codes.includes(code)){
+    // 验证通过，永久解锁
+    const u=getUsage();u.unlocked=true;u.inviteCode=code;saveUsage(u);
+    hideInviteModal();
+    toast("✅ 邀请码验证成功！已永久解锁所有功能");
+  }else{
+    showInviteError("❌ 邀请码无效，请联系管理员获取");
+  }
+}
+function showInviteError(msg){
+  const e=$("#inviteError");e.textContent=msg;e.classList.add("show");
+}
+
+// ===== 邀请码管理页 =====
+let adminAuthed=false;
+function showAdminLogin(){
+  adminAuthed=false;
+  renderAdminBody();
+  $("#adminMask").classList.add("show");
+}
+function hideAdmin(){$("#adminMask").classList.remove("show");}
+function renderAdminBody(){
+  const ab=$("#adminBody");
+  if(!adminAuthed){
+    ab.innerHTML='<div class="auth-field"><label>管理员密码</label><input type="password" id="adminPassInput" placeholder="输入管理密码"></div><button class="auth-submit" id="adminLoginBtn" style="background:linear-gradient(135deg,#059669,#047857)">登录管理</button>';
+    $("#adminPassInput").addEventListener("keydown",e=>{if(e.key==="Enter")doAdminLogin();});
+    $("#adminLoginBtn").onclick=doAdminLogin;
+  }else{
+    const inv=getInvites();
+    const u=getUsage();
+    let h='<p style="margin-bottom:12px;font-size:12px;color:#6b7280">总使用次数：<b>'+(u.count||0)+'</b> · 解锁状态：'+(u.unlocked?'<span style="color:#059669">已解锁</span>':'<span style="#ef4444">未解锁</span>')+'</p>';
+    h+='<div style="margin-bottom:14px"><div class="auth-field" style="margin-bottom:8px"><label>添加新邀请码</label><input type="text" id="newInviteInput" placeholder="输入新邀请码（大写）"></div><button class="auth-submit" id="addInviteBtn" style="background:linear-gradient(135deg,#059669,#047857);padding:10px;font-size:13px">+ 添加</button></div>';
+    h+='<div style="font-size:12px;font-weight:700;margin-bottom:6px;color:#374151">当前邀请码 ('+inv.codes.length+' 个)</div>';
+    h+='<div style="max-height:200px;overflow-y:auto">';
+    inv.codes.forEach((c,i)=>{
+      h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#f9fafb;border-radius:8px;margin-bottom:4px"><span style="font-family:monospace;font-weight:700;font-size:14px;letter-spacing:1px">'+c+'</span><button onclick="removeInviteCode('+i+')" style="border:none;background:#fef2f2;color:#ef4444;padding:4px 10px;border-radius:14px;font-size:11px;font-weight:700;cursor:pointer">删除</button></div>';
+    });
+    if(!inv.codes.length)h+='<p style="color:#9ca3af;text-align:center;padding:16px">暂无邀请码</p>';
+    h+='</div><button onclick="adminAuthed=false;renderAdminBody()" style="margin-top:14px;border:none;background:transparent;color:#9ca3af;font-size:12px;cursor:pointer;text-decoration:underline">退出管理</button>';
+    ab.innerHTML=h;
+    const ni=$("#newInviteInput");
+    if(ni) ni.addEventListener("keydown",e=>{if(e.key==="Enter")addInviteCode();});
+    const ai=$("#addInviteBtn");
+    if(ai) ai.onclick=addInviteCode;
+  }
+}
+function doAdminLogin(){
+  const p=$("#adminPassInput").value;
+  const inv=getInvites();
+  if(p===inv.adminPass||p===ADMIN_PASS){
+    adminAuthed=true;renderAdminBody();toast("✅ 管理员登录成功");
+  }else{$("#inviteError").textContent="密码错误";/* 复用样式 */alert("密码错误");}
+}
+function addInviteCode(){
+  const c=$("#newInviteInput").value.trim().toUpperCase();
+  if(!c){toast("请输入邀请码");return;}
+  if(c.length<4){toast("邀请码至少4位");return;}
+  const inv=getInvites();
+  if(inv.codes.includes(c)){toast("该邀请码已存在");return;}
+  inv.codes.push(c);saveInvites(inv);renderAdminBody();toast("✅ 已添加："+c);
+}
+function removeInviteCode(i){
+  const inv=getInvites();inv.codes.splice(i,1);saveInvites(inv);renderAdminBody();toast("已删除");
+}
+
+// 邀请码弹窗事件
+$("#inviteSubmit").onclick=verifyInviteCode;
+$("#inviteCodeInput").addEventListener("keydown",e=>{if(e.key==="Enter")verifyInviteCode();});
+// 管理页事件
+$("#adminClose").onclick=hideAdmin;
+
+// 特殊手势进入管理页：连续点击标题5次
+let _titleTapCount=0,_titleTapTimer=null;
+document.querySelector("h1")?.addEventListener("click",()=>{
+  _titleTapCount++;
+  clearTimeout(_titleTapTimer);
+  _titleTapTimer=setTimeout(()=>{_titleTapCount=0;},2000);
+  if(_titleTapCount>=5){_titleTapCount=0;showAdminLogin();}
+});
 $("#qfav").addEventListener("input",e=>{favKeyword=e.target.value.trim();renderFav();});
 
 // 初始化：从 localStorage 加载已登录用户
