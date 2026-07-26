@@ -106,10 +106,9 @@ async function getLockRatio(stockCode) {
     } else o._c = null;
   });
 
-  // 数据源层面剔除：已上市(99) + 已排期申购(90含"申购") + 25年以前发债(长期停滞预案)
+  // 数据源层面剔除：仅剔除已上市(99) + 25年以前发债(长期停滞预案)，申购阶段(90)保留显示
   const filtered = arr.filter(o => {
     if (o.progress === '99') return false;
-    if (o.progress === '90' && o.progress_nm && o.progress_nm.indexOf('申购') >= 0) return false;
     if (o.progress_dt && o.progress_dt < '2025-01-01') return false;
     return true;
   });
