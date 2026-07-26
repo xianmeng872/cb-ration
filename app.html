@@ -433,7 +433,7 @@
 
   <div class="foot">
     数据源：东方财富 + 腾讯行情 + 集思录 · 每日自动更新(9:00/18:00) · 仅供参考，非投资建议
-    <div style="margin-top:6px;font-size:11px;color:#bbb">版本 v20260727-0316 (512dbd8)</div>
+    <div id="verStamp" style="margin-top:6px;font-size:11px;color:#bbb">版本 v20260727-0316 (512dbd8)</div>
   </div>
 </div>
 <div class="mask" id="mask"><div class="modal">
@@ -2268,6 +2268,13 @@ async function initApp(){
 }
 initApp();
 setInterval(()=>setTime("数据更新"), 30000);
+// 把版本号同步到浏览器标签标题，方便一眼判断是否加载了最新页
+(function(){
+  try{
+    var v=document.getElementById('verStamp');
+    if(v){ var m=v.textContent.match(/v[\d-]+ \(([a-f0-9]+)\)/); if(m){ document.title='cb-ration '+m[1]; } }
+  }catch(e){}
+})();
 </script>
 </body>
 </html>
