@@ -27,6 +27,8 @@
   .tabs{display:flex;gap:8px;padding:12px 0 8px}
   .tab{flex:1;cursor:pointer;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:10px;text-align:center;font-size:13.5px;font-weight:700;color:var(--muted)}
   .tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+  .tab-sub{font-size:10.5px;font-weight:600;opacity:.7;margin-left:1px}
+  .tab.active .tab-sub{opacity:.85}
   .search{padding:4px 0 10px;display:flex;gap:6px;align-items:center}
   .search input{width:100%;border:1px solid var(--line);border-radius:12px;padding:11px 14px;font-size:14px;background:var(--card);outline:none;flex:1;min-width:0}
   .search input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(249,115,22,.16)}
@@ -160,17 +162,19 @@
   @media(max-width:720px){
     body{font-size:15px;-webkit-text-size-adjust:100%;background:#f5f5f7}
     .hero{padding:14px 12px 10px}
-    .hero h1{font-size:17px;text-align:center}
+    /* 手机端Hero：大标题居中 + 副标题 + 时间刷新行 */
+    .hero h1{font-size:22px;text-align:center;font-weight:900;letter-spacing:.8px;margin-bottom:2px}
+    .hero-badge{display:none}/* 手机端h1不含·实时badge */
     .hero-top{justify-content:center;gap:4px;flex-wrap:wrap}
     .hero-right{order:2;margin-left:auto;display:flex;align-items:center;gap:6px;width:auto;justify-content:flex-end;margin-top:0;padding-top:0;border-top:none}
     .hero-right #refresh{display:none} /* 手机端隐藏PC刷新（已移到bar行） */
     .hero-right #userArea{display:none} /* 手机端隐藏PC用户区 */
     .hero-right #userAreaMobile{display:inline-flex} /* 手机端头像圆钮 */
-    .btn-refresh-bar{display:inline-flex !important} /* 手机端bar行显示刷新实时按钮 */
-    .sub{text-align:center;font-size:11.5px}
-  .hero-desc{text-align:center;font-size:11px;color:#9ca3af;margin-top:2px}
-    .bar{justify-content:space-between;padding:2px 0}
-    .time{font-size:10.5px;padding:4px 8px}
+    .sub{display:none}/* 手机端隐藏域名行 */
+    .hero-desc{text-align:center;font-size:12px;color:#9ca3af;margin-top:4px;margin-bottom:0;font-weight:600}
+    .bar{justify-content:space-between;padding:8px 0 4px;border-bottom:1px solid #f0f0f0;margin-bottom:2px}
+    .time{font-size:11px;padding:4px 10px;background:transparent;color:#6b7280;font-weight:600;border-radius:18px}
+    .btn-refresh-bar{display:inline-flex !important;border:1.5px solid var(--primary);border-radius:20px;padding:6px 16px;font-size:12px;font-weight:700;background:#fff;color:var(--primary)}
     .wrap{padding:0 10px 72px}
     .tabs{padding:10px 0 6px}
     .tab{padding:12px 8px;font-size:14px}
@@ -380,8 +384,8 @@
 </div>
 <div class="wrap">
   <div class="tabs">
-    <div class="tab active" id="tab-pend" data-tab="pend">待发债</div>
-    <div class="tab" id="tab-progress" data-tab="progress">审核进度</div>
+    <div class="tab active" id="tab-pend" data-tab="pend">待发债<span class="tab-sub">（实时）</span></div>
+    <div class="tab" id="tab-progress" data-tab="progress">审核进度<span class="tab-sub">（自动）</span></div>
     <div class="tab" id="tab-fav" data-tab="fav">我的关注 <span id="favCount" style="font-size:11px;background:rgba(255,255,255,.3);color:inherit;padding:1px 6px;border-radius:10px;margin-left:3px">0</span></div>
   </div>
 
@@ -897,7 +901,7 @@ function renderPend(){
       const stageTag=r.stage==="申购"?'<span class="tag tag-sbuy">申购</span>':(r.stage==="待发行"?'<span class="tag tag-slist">待发行</span>':'');
       const dStr=(r.publicStart||r.progress_dt||"");
       const shortD=dStr?dStr.slice(5,10):"-";
-      h+='<div class="cb-name"><span class="n">'+(r.name||"-")+'</span><span class="c">'+(r.code||"")+'</span></div>';
+      h+='<div class="cb-name"><span class="n">'+(r.name||"-")+'</span><span class="c">'+(r.code||"")+'</span>'+favBtnHtml(getRowId(r,"pend"),"pend")+'</div>';
       // 第二行：日期（左）+ 进度标签（右），单开一行，在公司名称下面
       h+='<div class="cb-sub"><span class="cb-d">📅 '+shortD+'</span><span class="cb-tag">'+stageTag+'</span></div>';
       // 一行四列：配售 | 规模 | 所需资金 | 流通
@@ -1002,7 +1006,7 @@ function renderProgress(){
         const mkt=c.market||"";
         const mktTag=mkt?'<span class="mkt-tag">'+mkt+'</span>':"";
         h+='<div class="cb-item" data-i="'+i+'" data-kind="progress">';
-        h+='<div class="cb-header"><div class="cb-name"><span class="n">'+(r.stockName||"-")+'</span>'+mktTag+'</div><span class="tag '+tagCls+'">'+pl+'</span></div>';
+        h+='<div class="cb-header"><div class="cb-name"><span class="n">'+(r.stockName||"-")+'</span>'+mktTag+favBtnHtml(getRowId(r,"progress"),"progress")+'</div><span class="tag '+tagCls+'">'+pl+'</span></div>';
         h+='<div class="cb-sub"><span class="cb-code">'+(r.stockCode||"")+(r.name?(" · "+r.name):"")+'</span><span class="cb-d">📅 '+(r.progress_dt?r.progress_dt.slice(5,10):"-")+'</span></div>';
         h+='<div class="cb-row"><span class="cb-stat"><span class="cb-stat-label">转股价值</span><span class="cb-stat-val">'+(c.cv!=null?fmt(c.cv):"…")+'</span></span>';
         h+='<span class="cb-stat"><span class="cb-stat-label">百元含权</span><span class="cb-stat-val">'+(c.baiyuan!=null?fmt(c.baiyuan):"…")+'</span></span>';
