@@ -348,6 +348,7 @@ const LABEL={code:"转债代码",name:"转债名称",stockCode:"正股代码",st
   progress_nm:"当前进度",rating_cd:"评级",apply10:"配售10张所需股数"};
 let PEND=[], PROGRESS=[], keyword="", keyword2="", activeTab="pend", PROG_FILTER="all";
 let pendSort={field:"publicStart",dir:1}, progSort={field:"progress",dir:-1};
+let favSort={field:"progress",dir:-1}, FAV_FILTER="all";
 const SNAPSHOT_PEND=[
 {"code":"118074","name":"特宝转债","stockCode":"688278","stockName":"特宝生物","convertPrice":58.56,"perPre":3.857,"scale":15.33,"publicStart":"2026-07-28 00:00:00","listDate":"","stage":"申购","_c":{"cv":100.8879781420765,"needShares":260,"needMoney":15360.8,"baiyuan":6.528436018957347,"price":59.08,"estFloat":6.47},"apply10":260,"rating_cd":"AA+"},
 {"code":"127115","name":"炬申转债","stockCode":"001202","stockName":"炬申股份","convertPrice":13.76,"perPre":2.2911,"scale":3.8,"publicStart":"2026-07-24 00:00:00","listDate":"","stage":"申购","_c":{"cv":111.33720930232558,"needShares":437,"needMoney":6694.84,"baiyuan":14.954960835509139,"price":15.32,"estFloat":1.32},"apply10":437,"rating_cd":"AA-"},
@@ -366,7 +367,7 @@ const SNAPSHOT_PROGRESS=[
 {"stockCode":"002913","stockName":"奥士康","code":"","name":"","progress":"90","progress_nm":"同意注册","scale":10,"convertPrice":51.3,"price":45.08,"perPre":null,"apply10":318,"ration_rt":null,"rating_cd":null,"progress_full":"2025-08-01 董事会预案\n2025-08-19 股东大会通过\n2025-10-11 交易所受理\n2026-02-11 上市委通过\n2026-04-02 同意注册","accept_date":"2025-10-11","progress_dt":"2026-04-02","_c":{"cv":87.87524366471735,"needShares":318,"needMoney":14335.439999999999,"baiyuan":6.975718917591648,"price":45.08,"estFloat":3.64}},
 {"stockCode":"603125","stockName":"常青科技","code":"","name":"","progress":"80","progress_nm":"上市委通过","scale":8,"convertPrice":26.59,"price":20.66,"perPre":null,"apply10":507,"ration_rt":null,"rating_cd":null,"progress_full":"2025-09-04 董事会预案\n2025-09-20 股东大会通过\n2025-10-30 交易所受理\n2026-07-24 上市委通过","accept_date":"2025-10-30","progress_dt":"2026-07-24","_c":{"cv":77.69838285069575,"needShares":507,"needMoney":10474.62,"baiyuan":9.546885710412406,"price":20.66,"estFloat":2.18}},
 {"stockCode":"001380","stockName":"华纬科技","code":"","name":"","progress":"80","progress_nm":"上市委通过","scale":5.75,"convertPrice":16.01,"price":15.04,"perPre":null,"apply10":471,"ration_rt":null,"rating_cd":null,"progress_full":"2025-04-22 董事会预案\n2025-05-08 股东大会通过\n2025-12-04 交易所受理\n2026-07-13 上市委通过","accept_date":"2025-12-04","progress_dt":"2026-07-13","_c":{"cv":93.9412866958151,"needShares":471,"needMoney":7083.839999999999,"baiyuan":14.116637304061076,"price":15.04,"estFloat":2.15}},
-{"stockCode":"600368","stockName":"五洲交通","code":"","name":"","progress":"80","progress_nm":"上市委通过","scale":30,"convertPrice":3.69,"price":3.75,"perPre":null,"apply10":537,"ration_rt":null,"rating_cd":null,"progress_full":"2025-01-11 董事会预案\n2025-05-09 股东大会通过\n2026-05-23 交易所受理\n2026-07-11 上市委通过","accept_date":"2026-05-23","progress_dt":"2026-07-11","_c":{"cv":101.62601626016261,"needShares":537,"needMoney":2013.75,"baiyuan":49.65859714463067,"price":3.75,"estFloat":14.32}},
+{"stockCode":"600368","stockName":"五洲交通","code":"","name":"","progress":"80","progress_nm":"上市委通过","scale":30,"convertPrice":3.69,"price":3.75,"perPre":null,"apply10":537,"ration_rt":null,"rating_cd":null,"progress_full":"2025-01-11 董事会预案\n2025-05-09 股东大会���过\n2026-05-23 交易所受理\n2026-07-11 上市委通过","accept_date":"2026-05-23","progress_dt":"2026-07-11","_c":{"cv":101.62601626016261,"needShares":537,"needMoney":2013.75,"baiyuan":49.65859714463067,"price":3.75,"estFloat":14.32}},
 {"stockCode":"300727","stockName":"润禾材料","code":"","name":"","progress":"80","progress_nm":"上市委通过","scale":3.7,"convertPrice":34.62,"price":26.18,"perPre":null,"apply10":487,"ration_rt":null,"rating_cd":null,"progress_full":"2025-08-28 董事会预案\n2026-01-14 股东大会通过\n2026-02-09 交易所受理\n2026-07-02 上市委通过","accept_date":"2026-02-09","progress_dt":"2026-07-02","_c":{"cv":75.6210283073368,"needShares":487,"needMoney":12749.66,"baiyuan":7.843346410806248,"price":26.18,"estFloat":1.91}},
 {"stockCode":"300909","stockName":"汇创达","code":"","name":"","progress":"80","progress_nm":"上市委通过","scale":6.5,"convertPrice":51.79,"price":40.86,"perPre":null,"apply10":267,"ration_rt":null,"rating_cd":null,"progress_full":"2025-09-16 董事会预案\n2025-10-10 股东大会通过\n2025-10-27 交易所受理\n2026-06-26 上市委通过","accept_date":"2025-10-27","progress_dt":"2026-06-26","_c":{"cv":78.89553967947481,"needShares":267,"needMoney":10909.619999999999,"baiyuan":9.166222104894578,"price":40.86,"estFloat":3.62}},
 {"stockCode":"000887","stockName":"中鼎股份","code":"","name":"","progress":"80","progress_nm":"上市委通过","scale":19.2,"convertPrice":18.51,"price":16.2,"perPre":null,"apply10":686,"ration_rt":null,"rating_cd":null,"progress_full":"2025-12-03 董事会预案\n2025-12-25 股东大会通过\n2026-04-27 交易所受理\n2026-06-23 上市委通过","accept_date":"2026-04-27","progress_dt":"2026-06-23","_c":{"cv":87.52025931928686,"needShares":686,"needMoney":11113.199999999999,"baiyuan":8.99830831803621,"price":16.2,"estFloat":11.43}},
@@ -1060,85 +1061,83 @@ function renderFav(){
       h+='</div>';
     }
   }else{
-    // PC端用表格
-    if(pendRows.length){
-      h+='<div class="card" style="margin-top:12px"><div style="padding:10px 14px;background:#fff4ea;color:#ea580c;font-weight:800;font-size:13px;border-bottom:1px solid #ececef">📌 待发债 ('+pendRows.length+')</div><table><thead><tr>';
-      h+='<th>转债 / 正股</th>';
-      h+='<th>转股价值</th>';
-      h+='<th>一手党</th>';
-      h+='<th>所需资金</th>';
-      h+='<th>申购日</th><th>阶段</th>';
-      h+='<th>规模(亿)</th>';
-      h+='<th>百元含权</th>';
-      h+='<th>预估流通(亿)</th>';
-      h+='<th>操作</th>';
-      h+='</tr></thead><tbody>';
-      pendRows.forEach((r,i)=>{
-        const c=r._c||{};
-        const id=getRowId(r,"pend");
-        h+='<tr class="clickable" data-i="'+i+'" data-kind="pend" style="position:relative">';
-        h+='<td data-label="转债/正股"><div class="name">'+(r.name||"-")+'</div><div class="code">'+(r.code||"")+' · '+(r.stockName||"")+'</div></td>';
-        h+='<td data-label="转股价值"><span class="num">'+(c.cv!=null?fmt(c.cv):"…")+'</span></td>';
-        const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
-        h+='<td data-label="一手党">'+(c.needShares!=null?('<span class="num">'+shLabel+'</span>'+(c.isSH&&c.needSharesSafe!=null?'<br><span class="muted" style="font-size:11px">稳配'+c.needSharesSafe+'股</span>':'')):'<span class="muted">-</span>')+'</td>';
-        h+='<td data-label="所需资金">'+(c.needMoney!=null?('<span class="hl-fund num">'+fmt(c.needMoney,0)+'元</span>'+(c.isSH&&c.needMoneySafe!=null?'<br><span class="muted" style="font-size:11px">稳'+fmt(c.needMoneySafe,0)+'元</span>':'')):'<span class="muted">-</span>')+'</td>';
-        h+='<td data-label="申购日"><span class="muted">'+(r.publicStart||"-")+'</span></td>';
-        h+='<td data-label="阶段"><span class="tag '+(r.stage==="申购"?"tag-sbuy":"tag-slist")+'">'+r.stage+'</span></td>';
-        h+='<td data-label="规模"><span class="num">'+fmt(r.scale)+'</span></td>';
-        h+='<td data-label="百元含权"><span class="num">'+(c.baiyuan!=null?fmt(c.baiyuan):"…")+'</span></td>';
-        h+='<td data-label="预估流通"><span class="num">'+(c.estFloat!=null?c.estFloat:'-')+'<span class="muted" style="font-size:10px;font-weight:400"> 预</span></span></td>';
-        h+='<td style="text-align:right">'+favBtnHtml(id,"pend")+'</td>';
-        h+='</tr>';
-      });
-      h+='</tbody></table></div>';
+    // PC端：统一可筛选/可排序表格（与审核进度表头一致）
+    const STAGE_LABEL={all:"全部阶段","90":"同意注册","80":"上市委通过","50":"交易所受理","20":"股东大会通过","10":"董事会预案"};
+    if(FAV_FILTER!=="all"){
+      rows=rows.filter(r=> r._kind==="progress" && String(r.progress)===FAV_FILTER);
     }
-    if(progRows.length){
-      h+='<div class="card" style="margin-top:12px"><div style="padding:10px 14px;background:#fff4ea;color:#ea580c;font-weight:800;font-size:13px;border-bottom:1px solid #ececef">📋 审核中 ('+progRows.length+')</div><table><thead><tr>';
-      h+='<th>正股 / 转债</th>';
-      h+='<th>进度</th>';
-      h+='<th>转股价值</th>';
-      h+='<th>一手党</th>';
-      h+='<th>所需资金</th>';
-      h+='<th>百元含权</th>';
-      h+='<th>规模(亿)</th>';
-      h+='<th>预估流通(亿)</th>';
-      h+='<th>操作</th>';
-      h+='</tr></thead><tbody>';
-      progRows.forEach((r,i)=>{
-        const c=r._c||{};
-        const id=getRowId(r,"progress");
-        const tagCls="tag-s"+r.progress;
-        h+='<tr class="clickable" data-i="'+i+'" data-kind="progress" style="position:relative">';
-        h+='<td data-label="正股/转债"><div class="name">'+(r.stockName||"-")+'</div><div class="code">'+(r.stockCode||"")+(r.name?(" · "+r.name):"")+'</div></td>';
-        h+='<td data-label="进度"><span class="tag '+tagCls+'">'+progressLabel(r)+'</span></td>';
-        h+='<td data-label="转股价值"><span class="num">'+(c.cv!=null?fmt(c.cv):"…")+'</span></td>';
-        const shLabel2=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
-        h+='<td data-label="一手党">'+(c.needShares!=null?('<span class="num">'+shLabel2+'</span>'+(c.isSH&&c.needSharesSafe!=null?'<br><span class="muted" style="font-size:11px">稳配'+c.needSharesSafe+'股</span>':'')):'<span class="muted">-</span>')+'</td>';
-        h+='<td data-label="所需资金">'+(c.needMoney!=null?('<span class="hl-fund num">'+fmt(c.needMoney,0)+'元</span>'+(c.isSH&&c.needMoneySafe!=null?'<br><span class="muted" style="font-size:11px">稳'+fmt(c.needMoneySafe,0)+'元</span>':'')):'<span class="muted">-</span>')+'</td>';
-        h+='<td data-label="百元含权"><span class="num">'+(c.baiyuan!=null?fmt(c.baiyuan):"…")+'</span></td>';
-        h+='<td data-label="规模"><span class="num">'+fmt(r.scale)+'</span></td>';
-        h+='<td data-label="预估流通"><span class="num">'+(c.estFloat!=null?c.estFloat:'-')+'<span class="muted" style="font-size:10px;font-weight:400"> 预</span></span></td>';
-        h+='<td style="text-align:right">'+favBtnHtml(id,"progress")+'</td>';
-        h+='</tr>';
-      });
-      h+='</tbody></table></div>';
+    if(!rows.length){
+      p.innerHTML='<div class="card"><div class="empty">'+(favKeyword||(FAV_FILTER!=="all")?"无匹配":"还没有关注的转债，点击卡片右上角的 ☆ 加入关注")+'</div></div>';
+      return;
     }
+    rows=doSort(rows,favSort);
+    const fs=favSort;
+    let h='<div class="sort-bar" style="margin:2px 0 8px">';
+    h+='<span class="chip'+(FAV_FILTER==="all"?" active":"")+'" data-f="all">全部阶段</span>';
+    ["90","80","50","20","10"].forEach(v=>{ h+='<span class="chip'+(FAV_FILTER===v?" active":"")+'" data-f="'+v+'">'+STAGE_LABEL[v]+'</span>'; });
+    h+='</div>';
+    h+='<div class="card"><table><thead><tr>';
+    h+='<th>正股 / 转债</th>';
+    h+='<th data-sf="progress">进度 '+(fs.field==="progress"?arrow(fs.dir):'')+'</th>';
+    h+='<th data-sf="cv">转股价值 '+(fs.field==="cv"?arrow(fs.dir):'')+'</th>';
+    h+='<th>一手党</th>';
+    h+='<th data-sf="needMoney">所需资金 '+(fs.field==="needMoney"?arrow(fs.dir):'')+'</th>';
+    h+='<th data-sf="baiyuan">百元含权 '+(fs.field==="baiyuan"?arrow(fs.dir):'')+'</th>';
+    h+='<th data-sf="scale">规模(亿) '+(fs.field==="scale"?arrow(fs.dir):'')+'</th>';
+    h+='<th data-sf="estFloat">预估流通(亿) '+(fs.field==="estFloat"?arrow(fs.dir):'')+'</th>';
+    h+='<th>操作</th>';
+    h+='</tr></thead><tbody>';
+    rows.forEach((r,i)=>{
+      const c=r._c||{};
+      const mkt=c.market||"";
+      const mktTag=mkt?'<span style="font-size:10px;background:'+(mkt==="沪"?"#fff4ea;color:#ea580c":"#f3f4f6;color:#6b7280")+';padding:1px 6px;border-radius:8px;font-weight:700;margin-left:4px">'+mkt+'</span>':"";
+      const id=getRowId(r,r._kind);
+      h+='<tr class="clickable" data-i="'+i+'" data-kind="'+r._kind+'">';
+      h+='<td data-label="正股/转债"><div class="name">'+(r.stockName||r.name||"-")+mktTag+'</div><div class="code">'+(r.stockCode||r.code||"")+(r.name&&r._kind==="progress"?(" · "+r.name):(r._kind==="pend"&&r.stockName?(" · "+r.stockName):""))+'</div></td>';
+      if(r._kind==="progress"){
+        h+='<td data-label="进度"><span class="tag tag-s'+r.progress+'">'+progressLabel(r)+'</span></td>';
+      }else{
+        const st=r.stage==="申购"?"tag-sbuy":"tag-slist";
+        h+='<td data-label="进度"><span class="tag '+st+'">'+(r.stage||"待发")+'</span></td>';
+      }
+      h+='<td data-label="转股价值"><span class="num">'+(c.cv!=null?fmt(c.cv):"…")+'</span></td>';
+      const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
+      h+='<td data-label="一手党">'+(c.needShares!=null?('<span class="num">'+shLabel+'</span>'+(c.isSH&&c.needSharesSafe!=null?'<br><span class="muted" style="font-size:11px">稳配'+c.needSharesSafe+'股</span>':'')):'<span class="muted">-</span>')+'</td>';
+      h+='<td data-label="所需资金">'+(c.needMoney!=null?('<span class="hl-fund num">'+fmt(c.needMoney,0)+'元</span>'+(c.isSH&&c.needMoneySafe!=null?'<br><span class="muted" style="font-size:11px">稳'+fmt(c.needMoneySafe,0)+'元</span>':'')):'<span class="muted">-</span>')+'</td>';
+      h+='<td data-label="百元含权"><span class="num">'+(c.baiyuan!=null?fmt(c.baiyuan):"…")+'</span></td>';
+      h+='<td data-label="规模"><span class="num">'+fmt(r.scale)+'</span></td>';
+      h+='<td data-label="预估流通"><span class="num">'+(c.estFloat!=null?c.estFloat:'-')+'<span class="muted" style="font-size:10px;font-weight:400"> 预</span></span></td>';
+      h+='<td style="text-align:right">'+favBtnHtml(id,r._kind)+'</td>';
+      h+='</tr>';
+    });
+    h+='</tbody></table></div>';
+    p.innerHTML=h;
+    p.querySelectorAll("tr.clickable").forEach(tr=>tr.onclick=(e)=>{
+      if(e.target.classList.contains("fav-btn"))return;
+      openDetail(rows[+tr.dataset.i],tr.dataset.kind);
+    });
+    p.querySelectorAll("thead th[data-sf]").forEach(th=>th.onclick=()=>{
+      const f=th.dataset.sf;
+      favSort={field:f, dir:favSort.field===f?-favSort.dir:1};
+      renderFav();
+    });
+    p.querySelectorAll(".chip").forEach(ch=>ch.onclick=()=>{
+      FAV_FILTER=ch.dataset.f;
+      renderFav();
+    });
+    bindFavBtns(p);
+    return;
   }
   p.innerHTML=h;
-  // 绑定点击事件
+  // 绑定点击事件（手机端）
   p.querySelectorAll(".cb-item").forEach(el=>el.onclick=(e)=>{
     if(e.target.classList.contains("fav-btn"))return;
     const kind=el.dataset.kind;
     const rows=kind==="pend"?pendRows:progRows;
     openDetail(rows[+el.dataset.i],kind);
   });
-  p.querySelectorAll("tr.clickable").forEach(tr=>tr.onclick=(e)=>{
-    if(e.target.classList.contains("fav-btn"))return;
-    const kind=tr.dataset.kind;
-    const rows=kind==="pend"?pendRows:progRows;
-    openDetail(rows[+tr.dataset.i],kind);
-  });
   bindFavBtns(p);
+
 }
 
 // 修改卡片渲染，注入关注按钮
