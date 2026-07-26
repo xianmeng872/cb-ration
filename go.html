@@ -33,11 +33,11 @@
   .tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
   .tab-sub{font-size:10.5px;font-weight:600;opacity:.7;margin-left:1px}
   .tab.active .tab-sub{opacity:.85}
-  .search{padding:0 0 6px;display:flex;gap:6px;align-items:center}
-  .search input{width:100%;max-width:220px;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13px;background:var(--card);outline:none;flex:1;min-width:0}
+  .search{padding:0 0 6px;display:flex;gap:6px;align-items:center;justify-content:flex-end}
+  .search input{width:100%;max-width:180px;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13px;background:var(--card);outline:none;flex:1;min-width:0}
   .search input:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(249,115,22,.14)}
-  /* 搜索框内刷新按钮（手机端显示），描边无底色不抢眼 */
-  .btn-refresh-sm{flex-shrink:0;width:46px;height:46px;border-radius:13px;border:1.5px solid var(--line);background:#fff;color:var(--muted);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;touch-action:manipulation}
+  /* 搜索框内刷新按钮（手机端显示），低调不抢眼 */
+  .btn-refresh-sm{flex-shrink:0;width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:#fff;color:#9ca3af;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;touch-action:manipulation}
   .btn-refresh-sm:active{background:var(--primary-light);color:var(--primary);transform:scale(.93);border-color:var(--primary)}
   @media(min-width:721px){.btn-refresh-sm{display:none}} /* PC端隐藏 */
   .chips{display:flex;gap:7px;padding:4px 0 10px;flex-wrap:wrap}
@@ -133,15 +133,17 @@
   .user-menu-item.danger:hover{background:#fef2f2}
   .user-menu-divider{height:1px;background:#f3f4f6;margin:4px 0}
 
-  /* ===== 卡片关注按钮 ===== */
-  .fav-btn{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;border:none;background:#fff;color:#d1d5db;font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.08);transition:.15s;z-index:5}
-  .fav-btn:active{transform:scale(.9)}
-  .fav-btn.active{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#fff;box-shadow:0 2px 6px rgba(245,158,11,.4)}
-  /* 取消关注按钮：已关注时显示更明显的样式；必须覆盖 .fav-btn 的 position:absolute */
-  .unfav-btn{position:relative !important;top:auto !important;right:auto !important;width:auto;padding:4px 10px;border-radius:14px;font-size:12px;font-weight:700;gap:4px;background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;box-shadow:0 2px 8px rgba(239,68,68,.35)}
-  .unfav-btn:active{transform:scale(.92)}
-  .unfav-text{font-size:11px;font-weight:600;margin-left:2px;opacity:.9}
+  /* ===== 卡片关注按钮（爱心图标：空心♡未关注 / 实心♥已关注） ===== */
+  .fav-btn{position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;border:none;background:#fff;font-size:17px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.08);transition:.2s;z-index:5;color:#d1d5db}
+  .fav-btn:active{transform:scale(.85)}
+  /* 已关注：实心红心 */
+  .fav-btn.active{background:none;color:#ef4444;box-shadow:none}
+  .fav-btn.active:hover{color:#dc2626;transform:scale(1.1)}
   .cb-item{position:relative}
+  /* PC端表格"操作"列内的爱心按钮：内联显示，非absolute */
+  td .fav-btn{position:relative;top:auto;right:auto;width:auto;height:auto;border:none;background:none;font-size:18px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:2px 4px;color:#d1d5db;box-shadow:none}
+  td .fav-btn.active{color:#ef4444}
+  td .fav-btn:hover{transform:scale(1.2)}
 
   /* ===== 登录弹窗 ===== */
   .auth-mask{position:fixed;inset:0;background:rgba(31,41,55,.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:80;padding:18px}
@@ -204,16 +206,12 @@
     .cb-list{display:flex;flex-direction:column;gap:10px}
     .cb-item{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:12px 13px 10px;box-shadow:0 1px 3px rgba(0,0,0,.04);cursor:pointer;transition:.15s;-webkit-tap-highlight-color:rgba(249,115,22,.08)}
     .cb-item:active{transform:scale(.985);box-shadow:0 1px 6px rgba(0,0,0,.1)}
-    .fav-btn{top:8px;right:8px;width:28px;height:28px;font-size:14px}
-    /* 审核进度/待发债卡片：星号放右上角圆形（手机端通用惯例，不打断名称阅读） */
-    #progressPanel .cb-item .fav-btn,#panel .cb-item .fav-btn{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;border:1px solid #e5e7eb;background:#fff;color:#ef4444;font-size:15px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.08);transition:.2s;z-index:5}
-    #progressPanel .cb-item .fav-btn:hover,#panel .cb-item .fav-btn:hover{transform:scale(1.08)}
-    #progressPanel .cb-item .fav-btn.active,#panel .cb-item .fav-btn.active{background:#fef2f2;border-color:#fecaca;color:#ef4444;box-shadow:0 1px 6px rgba(239,68,68,.25)}
-    #progressPanel .cb-item .unfav-btn,#panel .cb-item .unfav-btn{position:absolute;top:8px;right:8px;width:auto;height:28px;padding:0 10px;font-size:13px;margin:0}
+    .fav-btn{top:8px;right:8px;width:30px;height:30px;font-size:17px}
+    /* 审核进度/待发债/关注卡片：爱心图标放右上角 */
+    #progressPanel .cb-item .fav-btn,#panel .cb-item .fav-btn,#view-fav .cb-item .fav-btn{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;border:none;background:none;font-size:17px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:none;transition:.2s;z-index:5;color:#d1d5db}
+    #progressPanel .cb-item .fav-btn:hover,#panel .cb-item .fav-btn:hover,#view-fav .cb-item .fav-btn:hover{transform:scale(1.1)}
+    #progressPanel .cb-item .fav-btn.active,#panel .cb-item .fav-btn.active,#view-fav .cb-item .fav-btn.active{color:#ef4444}
     #view-fav .cb-item{padding-right:10px}
-    #view-fav .cb-item .fav-btn{position:relative;top:auto;right:auto;width:auto;height:auto;padding:2px 6px;border-radius:10px;font-size:16px;margin-left:6px;flex-shrink:0;display:inline-flex;align-items:center;box-shadow:none;border:1.5px solid #e5e7eb;background:#f9fafb}
-    #view-fav .cb-item .fav-btn.active{background:linear-gradient(135deg,#fbbf24,#f59e0b);border-color:#f59e0b}
-    #view-fav .cb-item .unfav-btn{position:relative;top:auto;right:auto;padding:3px 10px;font-size:13px;margin-left:6px}
     /* 第一行：名称+代码（左） */
     .cb-name{display:flex;align-items:baseline;justify-content:flex-start;margin-bottom:2px;padding-right:34px}
     .cb-name .n{font-size:16px;font-weight:800;color:#2563eb;line-height:1.2}
@@ -260,17 +258,17 @@
     .cb-stats .s .v.f{color:#1f2937}
     /* 市场标记(沪/深)紧跟代码后面 */
     .cb-mkt{font-size:10.5px;font-weight:800;padding:1px 6px;border-radius:8px;margin-left:4px;flex-shrink:0}
-    /* ===== 审批进度条（卡片底部，6阶段约17%每档） ===== */
+    /* ===== 审批进度条（卡片底部，6阶段约17%每档，柔和色彩） ===== */
     .cb-progress{margin-top:6px;height:5px;background:#f3f4f6;border-radius:3px;overflow:hidden}
     .cb-progress>span{display:block;height:100%;border-radius:3px;transition:width .3s}
-    .cb-progress>span.p10{width:17%;background:#9ca3af}      /* 董事会预案 */
-    .cb-progress>span.p20{width:33%;background:#60a5fa}      /* 股东大会通过 */
-    .cb-progress>span.p50{width:50%;background:#fbbf24}      /* 交易所受理 */
-    .cb-progress>span.p80{width:75%;background:#fb923c}      /* 上市委通过 */
-    .cb-progress>span.p90{width:92%;background:#f97316}      /* 同意注册 */
-    .cb-progress>span.p99{width:100%;background:#22c55e}     /* 已上市/申购 */
-    .cb-progress>span.psbuy{width:100%;background:#22c55e}   /* 申购中 */
-    .cb-progress>span.plist{width:40%;background:#a78bfa}    /* 待发行(待申购) */
+    .cb-progress>span.p10{width:17%;background:#d4d4d8}      /* 董事会预案：浅灰 */
+    .cb-progress>span.p20{width:33%;background:#93c5fd}      /* 股东大会通过：柔蓝 */
+    .cb-progress>span.p50{width:50%;background:#fde68a}      /* 交易所受理：柔黄 */
+    .cb-progress>span.p80{width:75%;background:#fdba74}      /* 上市委通过：柔橙 */
+    .cb-progress>span.p90{width:92%;background:#fdba74}      /* 同意注册：柔橙 */
+    .cb-progress>span.p99{width:100%;background:#86efac}     /* 已上市/申购：柔绿 */
+    .cb-progress>span.psbuy{width:100%;background:#86efac}   /* 申购中：柔绿 */
+    .cb-progress>span.plist{width:40%;background:#c4b5fd}    /* 待发行(待申购)：柔紫 */
     /* 第二行：正股信息 */
     .cb-stock{font-size:12px;color:#9ca3af;margin-bottom:6px}
     /* 数据行：两列网格 */
@@ -430,7 +428,7 @@
   </div>
 
   <div id="view-pend">
-    <div class="search"><input id="q" placeholder="🔍 搜索转债 / 正股 / 代码"><button class="btn-refresh-sm" id="refreshMobile" title="刷新数据">🔄</button></div>
+    <div class="search"><input id="q" placeholder="🔍 搜索转债 / 正股 / 代码"><button class="btn-refresh-sm" id="refreshMobile" title="刷新数据">↻</button></div>
     <div id="panel"></div>
   </div>
 
@@ -443,13 +441,13 @@
       <span class="chip" data-f="20">股东大会通过</span>
       <span class="chip" data-f="10">董事会预案</span>
     </div>
-    <div class="search"><input id="q2" placeholder="🔍 搜索正股 / 转债 / 代码"><button class="btn-refresh-sm" id="refreshMobile2" title="刷新数据">🔄</button></div>
+    <div class="search"><input id="q2" placeholder="🔍 搜索正股 / 转债 / 代码"><button class="btn-refresh-sm" id="refreshMobile2" title="刷新数据">↻</button></div>
     <div id="progressPanel"></div>
   </div>
 
   <div class="foot">
     数据源：东方财富 + 腾讯行情 + 集思录 · 每日自动更新(9:00/18:00) · 仅供参考，非投资建议
-    <div id="verStamp" style="margin-top:6px;font-size:11px;color:#bbb">版本 v20260727-0435 (fix-round6)</div>
+    <div id="verStamp" style="margin-top:6px;font-size:11px;color:#bbb">版本 v20260727-0450 (fix-round7)</div>
   </div>
 </div>
 <div class="mask" id="mask"><div class="modal">
@@ -1262,7 +1260,10 @@ function renderProgress(){
     renderProgress();
   });
 }
+// 记录打开详情前的来源Tab（用于返回时恢复）
+var _detailSourceTab=null;
 function openDetail(r,kind){
+  _detailSourceTab=activeTab; // 记录来源
   const title=(kind==="progress"?(r.stockName||r.name||""):(kind==="pend"?(r.name||""):(r.stockName||"")))+"（"+(r.code||r.stockCode||"")+"）";
   $("#mtitle").textContent=title;
   const c=r._c||{};
@@ -1364,8 +1365,13 @@ $("#mx").onclick=()=>{closeDetailMask();};
 $("#mask").onclick=e=>{if(e.target.id==="mask"){closeDetailMask();}};
 function closeDetailMask(){
   document.getElementById("mask").classList.remove("show");
+  // 恢复到打开详情前的来源Tab
+  if(_detailSourceTab && _detailSourceTab!==activeTab){
+    activeTab=_detailSourceTab;
+  }
+  _detailSourceTab=null;
   ensureViewsVisible();
-  // 确保对应的Tab按钮高亮
+  // 确保对��的Tab按钮高亮
   document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
   var activeBtn=document.getElementById("tab-"+activeTab);
   if(activeBtn) activeBtn.classList.add("active");
@@ -1873,12 +1879,11 @@ async function checkProgress(){
   }
 }
 
-// 给卡片渲染插入关注按钮的HTML
+// 给卡片渲染插入关注按钮的HTML（爱心图标）
 function favBtnHtml(id,kind){
   const active=isFav(id);
   if(active){
-    // 已关注：显示明确的取消按钮（PC端文字+手机端心形）
-    return '<button class="fav-btn active unfav-btn" data-fav="'+id+'" data-kind="'+kind+'">♥<span class="unfav-text">取消</span></button>';
+    return '<button class="fav-btn active" data-fav="'+id+'" data-kind="'+kind+'">♥</button>';
   }
   return '<button class="fav-btn" data-fav="'+id+'" data-kind="'+kind+'">♡</button>';
 }
@@ -1921,7 +1926,7 @@ function renderFav(){
   let h="";
   if(isMobile()){
     if(pendRows.length){
-      h+='<div class="sort-bar"><span class="sort-label" style="color:#ea580c">📌 待发债 ('+pendRows.length+')</span></div><div class="cb-list">';
+      h+='<div class="cb-list">';
       pendRows.forEach((r,i)=>{
         const c=r._c||{};
         const stageTag=r.stage==="申购"?'<span class="tag tag-sbuy">申购</span>':'';
@@ -1946,7 +1951,7 @@ function renderFav(){
       h+='</div>';
     }
     if(progRows.length){
-      h+='<div class="sort-bar" style="margin-top:14px"><span class="sort-label" style="color:#ea580c">📋 审核中 ('+progRows.length+')</span></div><div class="cb-list">';
+      h+='<div class="cb-list">';
       progRows.forEach((r,i)=>{
         const c=r._c||{};
         const stageTag='<span class="tag tag-s'+r.progress+'">'+r.progress_nm+'</span>';
