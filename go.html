@@ -1,0 +1,2284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- 强制防缓存 -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>可转债抢权配售 · 实时</title>
+<style>
+  :root{
+    --ink:#1f2937; --muted:#9ca3af; --line:#ececef; --bg:#ffffff; --card:#ffffff;
+    --primary:#f97316; --primary2:#fb923c; --primary-light:#fff4ea;
+    --red:#ea580c; --green:#9ca3af; --yellow:#f59e0b;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.5}
+  .hero{background:#ffffff;color:var(--ink);padding:18px 16px 14px;border-bottom:3px solid var(--primary)}
+  .hero h1{margin:0 0 3px;font-size:19px;font-weight:800;letter-spacing:.5px;color:var(--ink)}
+  .hero .hero-badge{color:var(--primary);font-weight:800;font-size:16px;margin-left:2px}
+  .hero .sub{color:var(--muted);font-size:12px}
+  .hero .bar{display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:8px;flex-wrap:wrap}
+  .hero .time{font-size:11.5px;background:#f5f5f7;color:var(--muted);padding:5px 10px;border-radius:18px}
+  .btn-refresh-bar{flex-shrink:0;border:1.5px solid var(--primary);border-radius:18px;padding:5px 14px;font-size:11.5px;font-weight:700;background:#fff;color:var(--primary);cursor:pointer;transition:.15s;white-space:nowrap}
+  .btn-refresh-bar:active{transform:scale(.96)}
+  .btn{cursor:pointer;border:1px solid var(--primary);border-radius:20px;padding:7px 16px;font-size:13px;font-weight:700;background:#fff;color:var(--primary);transition:.15s}
+  .btn:active{transform:scale(.96)}
+  .btn[disabled]{opacity:.6;cursor:default}
+  .wrap{max-width:960px;margin:0 auto;padding:0 12px 60px}
+  .tabs{display:flex;gap:8px;padding:12px 0 8px}
+  .tab{flex:1;cursor:pointer;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:10px;text-align:center;font-size:13.5px;font-weight:700;color:var(--muted)}
+  .tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+  .tab-sub{font-size:10.5px;font-weight:600;opacity:.7;margin-left:1px}
+  .tab.active .tab-sub{opacity:.85}
+  .search{padding:0 0 6px;display:flex;gap:6px;align-items:center}
+  .search input{width:100%;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13px;background:var(--card);outline:none;flex:1;min-width:0}
+  .search input:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(249,115,22,.14)}
+  /* 搜索框内刷新按钮（手机端显示），放大并改为橙色醒目 */
+  .btn-refresh-sm{flex-shrink:0;width:46px;height:46px;border-radius:13px;border:1.5px solid var(--primary);background:#fff;color:var(--primary);font-size:19px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;touch-action:manipulation}
+  .btn-refresh-sm:active{background:var(--primary-light);color:var(--primary);transform:scale(.93)}
+  @media(min-width:721px){.btn-refresh-sm{display:none}} /* PC端隐藏 */
+  .chips{display:flex;gap:7px;padding:4px 0 10px;flex-wrap:wrap}
+  .chip{cursor:pointer;font-size:12.5px;font-weight:700;padding:6px 13px;border-radius:18px;background:var(--card);border:1px solid var(--line);color:var(--muted)}
+  .chip.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:14px}
+  table{width:100%;border-collapse:collapse}
+  thead th{background:#f8f9fb;color:#6b7280;font-size:12px;font-weight:700;text-align:left;padding:11px 10px;border-bottom:1px solid var(--line);white-space:nowrap;cursor:pointer;user-select:none;transition:.15s}
+  thead th:hover{background:#f3f4f6;color:var(--primary)}
+  thead th .sort-arrow{margin-left:4px;font-size:10px;opacity:.4}
+  thead th .sort-arrow.active{opacity:1;color:var(--primary)}
+  tbody td{padding:10px;vertical-align:middle;border-bottom:1px solid var(--line)}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr.clickable{cursor:pointer}
+  @media(hover:hover){ tbody tr.clickable:hover{background:var(--primary-light)} }
+  .name{font-weight:800}
+  .code{color:var(--muted);font-size:12px;margin-top:2px}
+  .num{font-variant-numeric:tabular-nums;font-weight:700}
+  .hl{color:var(--primary);font-weight:800}
+  .hl-fund{color:var(--primary);font-weight:800}
+  .muted{color:var(--muted)}
+  .tag{display:inline-block;line-height:1.15;padding:3px 8px;white-space:nowrap;letter-spacing:.3px}
+  /* 同意注册：实橙白字，最大最粗——离申购最近，最关键 */
+  .tag-s90{background:var(--primary);color:#fff;font-weight:800;font-size:12.5px;box-shadow:0 1px 3px rgba(249,115,22,.28)}
+  /* 已排期申购：深橙实底白字，最强 */
+  .tag-sbuy{background:#ea580c;color:#fff;font-weight:800;font-size:12.5px}
+  /* 上市委通过：橙描边橙字，加粗 */
+  .tag-s80{background:#fff;color:var(--primary);font-weight:700;font-size:12px;border:1.5px solid var(--primary)}
+  /* 交易所受理：浅橙底橙字，中等 */
+  .tag-s50{background:var(--primary-light);color:#ea580c;font-weight:600;font-size:11.5px}
+  /* 股东大会通过：灰底灰字 */
+  .tag-s20{background:#f3f4f6;color:#6b7280;font-weight:600;font-size:11.5px}
+  /* 董事会预案：灰描边浅字，最弱 */
+  .tag-s10{background:#fff;color:#a1a1aa;font-weight:500;font-size:11px;border:1px solid #e5e7eb}
+  /* 待发行（待发债Tab，未到申购日） */
+  .tag-slist{background:#fff;color:var(--primary);font-weight:700;font-size:12px;border:1.5px solid var(--primary)}
+  .empty{text-align:center;color:var(--muted);padding:36px 0}
+  .foot{text-align:center;color:var(--muted);font-size:11px;line-height:1.7;padding:16px 8px}
+  .foot b{color:var(--ink)}
+  .mask{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:18px}
+  .mask.show{display:flex}
+  .modal{background:#fff;border-radius:16px;max-width:440px;width:100%;max-height:82vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+  .modal .mh{position:sticky;top:0;background:var(--primary);color:#fff;padding:15px 18px;display:flex;justify-content:space-between;align-items:center}
+  .modal .mh h3{margin:0;font-size:16px}
+  .modal .mh .x{cursor:pointer;font-size:22px;line-height:1;opacity:.9}
+  .modal .mb{padding:8px 18px 18px}
+  .mrow{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .mrow:last-child{border-bottom:none}
+  .mrow .k{color:var(--muted);flex:0 0 40%}
+  .mrow .v{color:var(--ink);text-align:right;font-weight:700;word-break:break-all}
+  .toast{position:fixed;left:50%;bottom:40px;transform:translateX(-50%) translateY(20px);background:#9a3412;color:#fff;padding:11px 20px;border-radius:24px;font-size:13px;opacity:0;transition:.25s;z-index:99;max-width:360px;text-align:center;line-height:1.4}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* ===== 用户/登录区（标题右侧同行） ===== */
+  .hero-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .hero-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+  /* PC端：显示完整用户区，隐藏手机端圆钮 */
+  #userAreaMobile{display:none}
+  .user-info{display:flex;align-items:center;gap:6px;background:#f8f9fb;color:#374151;padding:4px 12px 4px 6px;border-radius:20px;font-size:12.5px;font-weight:600;border:1px solid #e5e7eb;transition:.15s}
+  .user-info:hover{border-color:#d1d5db;background:#f3f4f6}
+  .user-info .avatar{width:26px;height:26px;border-radius:50%;background:#fff4ea;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:1;border:1.5px solid #ffd6b3;overflow:hidden}
+  .btn-sm{cursor:pointer;border:1px solid var(--primary);border-radius:16px;padding:5px 11px;font-size:11.5px;font-weight:700;background:#fff;color:var(--primary);transition:.15s;white-space:nowrap}
+  .btn-sm:active{transform:scale(.96)}
+  .btn-login{cursor:pointer;border:1px solid var(--primary);border-radius:16px;padding:5px 12px;font-size:11.5px;font-weight:700;background:#fff;color:var(--primary);transition:.15s;white-space:nowrap}
+  .btn-login:active{transform:scale(.96)}
+  .btn-logout{cursor:pointer;border:none;background:transparent;color:#9ca3af;font-size:11px;padding:4px 8px;border-radius:14px;transition:.15s;font-weight:600}
+  .btn-logout:hover{color:#ef4444;background:#fef2f2}
+  .sync-dot{cursor:pointer;font-size:14px;margin-left:2px;transition:.15s;line-height:1;filter:grayscale(1);opacity:.5}
+  .sync-dot.on{filter:none;opacity:1}
+  .sync-dot.off{filter:grayscale(1);opacity:.45}
+  .sync-dot:hover{transform:scale(1.2)}
+
+  /* ===== 手机端用户头像（角落小圆钮） ===== */
+  .avatar-btn{width:32px;height:32px;border-radius:50%;border:1.5px solid #e5e7eb;background:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;transition:.15s;box-shadow:0 1px 3px rgba(0,0,0,.08);flex-shrink:0;line-height:1}
+  .avatar-btn:active{transform:scale(.9)}
+  .avatar-btn.logged-in{border-color:var(--primary);background:var(--primary-light)}
+
+  /* ===== 手机端用户菜单（头像点击弹出） ===== */
+  .user-menu-mask{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.25);z-index:999;display:flex;justify-content:flex-end;align-items:flex-start;padding-top:50px}
+  .user-menu{background:#fff;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.15);min-width:180px;overflow:hidden;margin-right:12px;animation:menuSlideIn .2s ease}
+  @keyframes menuSlideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+  .user-menu-header{padding:14px 16px 8px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;gap:8px}
+  .user-menu-header .um-avatar{width:32px;height:32px;border-radius:50%;background:#fff4ea;display:flex;align-items:center;justify-content:center;font-size:17px;line-height:1;border:1.5px solid #ffd6b3}
+  .user-menu-header .um-name{font-size:14px;font-weight:700;color:#1f2937}
+  .user-menu-body{padding:6px}
+  .user-menu-item{display:flex;align-items:center;gap:8px;width:100%;padding:10px 12px;border:none;background:none;font-size:13.5px;color:#374151;border-radius:10px;cursor:pointer;transition:.15s;text-align:left;font-weight:500}
+  .user-menu-item:hover{background:#f3f4f6}
+  .user-menu-item.danger{color:#ef4444}
+  .user-menu-item.danger:hover{background:#fef2f2}
+  .user-menu-divider{height:1px;background:#f3f4f6;margin:4px 0}
+
+  /* ===== 卡片关注按钮 ===== */
+  .fav-btn{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;border:none;background:#fff;color:#d1d5db;font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.08);transition:.15s;z-index:5}
+  .fav-btn:active{transform:scale(.9)}
+  .fav-btn.active{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#fff;box-shadow:0 2px 6px rgba(245,158,11,.4)}
+  /* 取消关注按钮：已关注时显示更明显的样式 */
+  .unfav-btn{width:auto;padding:4px 10px;border-radius:14px;font-size:12px;font-weight:700;gap:4px;background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;box-shadow:0 2px 8px rgba(239,68,68,.35)}
+  .unfav-btn:active{transform:scale(.92)}
+  .unfav-text{font-size:11px;font-weight:600;margin-left:2px;opacity:.9}
+  .cb-item{position:relative}
+
+  /* ===== 登录弹窗 ===== */
+  .auth-mask{position:fixed;inset:0;background:rgba(31,41,55,.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:80;padding:18px}
+  .auth-mask.show{display:flex}
+  .auth-modal{background:#fff;border-radius:18px;max-width:380px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden;animation:authIn .25s ease-out}
+  @keyframes authIn{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+  .auth-head{background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;padding:22px 24px 18px}
+  .auth-head h3{margin:0;font-size:18px;font-weight:800}
+  .auth-head p{margin:4px 0 0;font-size:12px;opacity:.9}
+  .auth-body{padding:20px 24px 24px}
+  .auth-tabs{display:flex;gap:6px;background:#f5f5f7;border-radius:12px;padding:4px;margin-bottom:18px}
+  .auth-tab{flex:1;text-align:center;padding:8px;border-radius:9px;font-size:13px;font-weight:700;color:#9ca3af;cursor:pointer;transition:.15s}
+  .auth-tab.active{background:#fff;color:#ea580c;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+  .auth-field{margin-bottom:14px}
+  .auth-field label{display:block;font-size:12px;color:#6b7280;margin-bottom:6px;font-weight:600}
+  .auth-field input{width:100%;border:1.5px solid #ececef;border-radius:11px;padding:11px 14px;font-size:14px;outline:none;transition:.15s;background:#fff}
+  .auth-field input:focus{border-color:#f97316;box-shadow:0 0 0 3px rgba(249,115,22,.15)}
+  .auth-error{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:10px;padding:9px 12px;font-size:12.5px;margin-bottom:12px;display:none}
+  .auth-error.show{display:block}
+  .auth-submit{width:100%;background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;transition:.15s;box-shadow:0 4px 12px rgba(249,115,22,.25)}
+  .auth-submit:active{transform:scale(.98)}
+  .auth-submit:disabled{opacity:.6;cursor:default}
+  .auth-close{position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.2);color:#fff;border:none;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+  .auth-close:hover{background:rgba(255,255,255,.35)}
+  /* ===== 手机适配：≤720px 卡片式列表（参考"小鱼的钱钱助手"风格） ===== */
+  @media(max-width:720px){
+    body{font-size:15px;-webkit-text-size-adjust:100%;background:#f5f5f7}
+    /* 手机端：隐藏审核进度Tab下的审核阶段chips(飞哥要求只显示排序chips) */
+    /* 必须 !important：第192行 .chips{display:flex !important} 会覆盖普通隐藏规则 */
+    #progChips{display:none !important}
+    /* 手机端：隐藏排序触发器(filter-trigger)，排序由顶部排序chips完成 */
+    .filter-trigger{display:none}
+    .hero{padding:14px 12px 10px}
+    /* 手机端Hero：大标题居中 + 副标题 + 时间刷新行 */
+    .hero h1{font-size:22px;text-align:center;font-weight:900;letter-spacing:.8px;margin-bottom:2px}
+    .hero-badge{display:none}/* 手机端h1不含·实时badge */
+    .hero-top{justify-content:center;gap:4px;flex-wrap:wrap}
+    .hero-right{order:2;margin-left:auto;display:flex;align-items:center;gap:6px;width:auto;justify-content:flex-end;margin-top:0;padding-top:0;border-top:none}
+    .hero-right #refresh{display:none} /* 手机端隐藏PC刷新（已移到bar行） */
+    .hero-right #userArea{display:none} /* 手机端隐藏PC用户区 */
+    .hero-right #userAreaMobile{display:inline-flex} /* 手机端头像圆钮 */
+    .sub{display:none}/* 手机端隐藏域名行 */
+    .hero-desc{text-align:left;font-size:12px;color:#9ca3af;margin-top:4px;margin-bottom:0;font-weight:600}
+    .hero .bar{display:none}
+    .time{font-size:11px;padding:4px 10px;background:transparent;color:#6b7280;font-weight:600;border-radius:18px}
+    .btn-refresh-bar{display:inline-flex !important;border:1.5px solid var(--primary);border-radius:20px;padding:6px 16px;font-size:12px;font-weight:700;background:#fff;color:var(--primary)}
+    .wrap{padding:0 10px 72px}
+    .tabs{padding:10px 0 6px}
+    .tab{padding:12px 8px;font-size:14px}
+    .search input{padding:13px 14px;font-size:16px}
+    .chip{padding:8px 14px;font-size:13px}
+    /* 手机端：阶段筛选chips内联横滑（标准做法，不再单靠底部Sheet） */
+    .chips{display:flex !important;flex-wrap:nowrap;overflow-x:auto;gap:8px;padding:4px 0 10px;-webkit-overflow-scrolling:touch;-ms-overflow-style:none;scrollbar-width:none}
+    .chips::-webkit-scrollbar{display:none}
+    .chips .chip{white-space:nowrap;flex-shrink:0}
+    /* 隐藏表格，改用卡片 */
+    .card{border-radius:14px;margin-bottom:12px;overflow:visible;border:1px solid #e5e7eb;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+    .card table,.card thead,.card tbody,.card tr,.card th,.card td{display:none !important}
+    /* 卡片列表容器 */
+    .cb-list{display:flex;flex-direction:column;gap:10px}
+    .cb-item{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:12px 13px 10px;box-shadow:0 1px 3px rgba(0,0,0,.04);cursor:pointer;transition:.15s;-webkit-tap-highlight-color:rgba(249,115,22,.08)}
+    .cb-item:active{transform:scale(.985);box-shadow:0 1px 6px rgba(0,0,0,.1)}
+    .fav-btn{top:8px;right:8px;width:28px;height:28px;font-size:14px}
+    /* 审核进度/待发债卡片：星号放右上角圆形（手机端通用惯例，不打断名称阅读） */
+    #progressPanel .cb-item .fav-btn,#panel .cb-item .fav-btn{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;border:1px solid #e5e7eb;background:#fff;color:#ef4444;font-size:15px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.08);transition:.2s;z-index:5}
+    #progressPanel .cb-item .fav-btn:hover,#panel .cb-item .fav-btn:hover{transform:scale(1.08)}
+    #progressPanel .cb-item .fav-btn.active,#panel .cb-item .fav-btn.active{background:#fef2f2;border-color:#fecaca;color:#ef4444;box-shadow:0 1px 6px rgba(239,68,68,.25)}
+    #progressPanel .cb-item .unfav-btn,#panel .cb-item .unfav-btn{position:absolute;top:8px;right:8px;width:auto;height:28px;padding:0 10px;font-size:13px;margin:0}
+    #view-fav .cb-item{padding-right:10px}
+    #view-fav .cb-item .fav-btn{position:relative;top:auto;right:auto;width:auto;height:auto;padding:2px 6px;border-radius:10px;font-size:16px;margin-left:6px;flex-shrink:0;display:inline-flex;align-items:center;box-shadow:none;border:1.5px solid #e5e7eb;background:#f9fafb}
+    #view-fav .cb-item .fav-btn.active{background:linear-gradient(135deg,#fbbf24,#f59e0b);border-color:#f59e0b}
+    #view-fav .cb-item .unfav-btn{position:relative;top:auto;right:auto;padding:3px 10px;font-size:13px;margin-left:6px}
+    /* 第一行：名称+代码（左） */
+    .cb-name{display:flex;align-items:baseline;justify-content:flex-start;margin-bottom:2px;padding-right:34px}
+    .cb-name .n{font-size:16px;font-weight:800;color:#2563eb;line-height:1.2}
+    .cb-name .c{font-size:12px;color:#6b7280;font-weight:600;flex-shrink:0;margin-left:6px}
+    .cb-name .cb-tag{flex-shrink:0;margin-left:8px}
+    /* 公司名下方单列一行：日期（左） + 进度标签（右） */
+    .cb-sub{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+    .cb-d{font-size:11px;color:#9ca3af;font-weight:500;white-space:nowrap}
+    .cb-code{font-size:12px;color:#6b7280;font-weight:600;white-space:nowrap}
+    /* 审核进度专用：头部（名称+市场标签+阶段标签） */
+    .cb-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
+    .mkt-tag{font-size:10px;font-weight:800;padding:1px 6px;border-radius:8px;margin-left:4px;flex-shrink:0;background:#fff4ea;color:#ea580c}
+    /* 数据行：3列等宽 */
+    .cb-row{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid #f3f4f6}
+    .cb-row:last-child{border-bottom:none}
+    .cb-stat{flex:1;display:flex;flex-direction:column;gap:1px;min-width:0;text-align:center}
+    .cb-stat-label{font-size:10px;color:#9ca3af;font-weight:500;white-space:nowrap}
+    .cb-stat-val{font-size:12px;font-weight:800;color:#1f2937;font-variant-numeric:tabular-nums;line-height:1.2;white-space:nowrap}
+    .cb-stat-val.hl{color:#ea580c}
+    .cb-stat-val.f{color:#6b7280}
+    /* 稳配信息行 */
+    .cb-safe{display:flex;gap:12px;padding-top:6px;font-size:11px;color:#9ca3af;font-weight:500}
+    .cb-safe span{background:#f3f4f6;padding:3px 8px;border-radius:6px}
+    /* 2×2 网格：配售 | 规模 / 所需资金 | 流通（待发债用） */
+    .cb-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;padding:7px 0}
+    /* 审核进度：3列×2行网格，列间距0让横线连成一条 */
+    #progressPanel .cb-stats{grid-template-columns:1fr 1fr 1fr;column-gap:0;align-items:start}
+    #progressPanel .cb-stats .s{padding-left:12px;padding-right:12px}
+    /* 每行第一格去左内边距（3列grid：第1/4/7...个子元素 = 每行第一列） */
+    #progressPanel .cb-stats .s:nth-child(3n+1){padding-left:0}
+    #progressPanel .cb-stats .s:nth-child(3n){padding-right:0}
+    /* 第2行整行加顶部分隔线（列间距0→边框相接成一条连续线） */
+    #progressPanel .cb-stats .s:nth-child(n+4){border-top:1px solid #eee;padding-top:7px;margin-top:3px}
+    /* 标签区与值区全部锁死固定高度 → 六格严格等高 → 三列值绝对对齐同一水平线 */
+    #progressPanel .cb-stats .s .l{height:15px;line-height:15px;display:block}
+    #progressPanel .cb-stats .s .v{display:flex;align-items:center;height:16px;line-height:16px}
+    #progressPanel .cb-stats .s .cb-d{display:flex;align-items:center;height:16px;line-height:16px;font-size:12.5px;font-weight:800;color:#1f2937}
+    #progressPanel .cb-stats .s .tag{display:inline-flex;align-items:center;height:16px;padding:0 8px;line-height:16px;box-sizing:border-box}
+    /* 第一列(配售/所需资金)字略小 */
+    #progressPanel .cb-stats .s:nth-child(3n+1) .l{font-size:9px}
+    #progressPanel .cb-stats .s:nth-child(3n+1) .v{font-size:11px}
+    .cb-stats .s{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
+    .cb-stats .s .l{font-size:10px;color:#9ca3af;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .cb-stats .s .v{font-size:12.5px;font-weight:800;color:#1f2937;font-variant-numeric:tabular-nums;line-height:1.15;white-space:nowrap}
+    .cb-stats .s .v.hl{color:#1f2937}
+    .cb-stats .s .v.f{color:#1f2937}
+    /* 市场标记(沪/深)紧跟代码后面 */
+    .cb-mkt{font-size:10.5px;font-weight:800;padding:1px 6px;border-radius:8px;margin-left:4px;flex-shrink:0}
+    /* 第二行：正股信息 */
+    .cb-stock{font-size:12px;color:#9ca3af;margin-bottom:6px}
+    /* 数据行：两列网格 */
+    .cb-row{display:flex;flex-wrap:wrap;gap:2px 16px;padding:5px 0;border-bottom:1px solid #f3f4f6;font-size:13px;align-items:baseline}
+    .cb-row:last-child{border-bottom:none;padding-bottom:0}
+    .cb-cell{display:inline-flex;align-items:baseline;gap:3px;min-width:42%}
+    .cb-lbl{color:#9ca3af;font-size:12px;font-weight:500;white-space:nowrap}
+    .cb-val{color:#1f2937;font-weight:700;font-variant-numeric:tabular-nums}
+    .cb-val.hl{color:#ea580c;font-weight:800;font-size:14.5px}/* 橙色高亮：配售/资金 */
+    .cb-v2{color:#374151;font-weight:700;font-size:13.5px;font-variant-numeric:tabular-nums}
+    .cb-date2{color:#374151;font-weight:700;font-size:13px;font-variant-numeric:tabular-nums}
+    .cb-val.blue{color:#2563eb;font-weight:700}/* 蓝色：名称类 */
+    /* 底部辅助行：每个数据带清晰标签，一眼看清 */
+    .cb-meta{color:#9ca3af;font-size:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-top:9px;line-height:1.4}
+    .cb-meta .cb-date{color:#374151;font-weight:700;background:#f3f4f6;padding:3px 8px;border-radius:6px;font-size:12px;flex-shrink:0}
+    .cb-meta .cb-item2{display:flex;align-items:baseline;gap:3px}
+    .cb-meta .cb-k{color:#9ca3af;font-size:11px}
+    .cb-meta .cb-v{color:#374151;font-weight:700;font-size:12px}
+    .cb-meta .cb-float{color:#ea580c}
+    /* 状态标签内联 */
+    .cb-tag{display:inline-flex;align-items:center;margin-left:4px;vertical-align:middle}
+    /* 详情弹窗全屏化 */
+    .mask{padding:0}
+    .modal{max-width:none;width:100%;max-height:100vh;height:100%;border-radius:0}
+    .modal .mh{padding:18px 16px}
+    .modal .mh h3{font-size:17px}
+    .modal .mb{padding:8px 14px 28px}
+    .mrow{font-size:14px;padding:12px 0}
+    .foot{display:none}
+    /* 排序提示条（手机端卡片模式） */
+    .sort-bar{display:flex;gap:4px;padding:6px 8px;margin:2px 0 8px;flex-wrap:nowrap;background:var(--primary-light);border-radius:10px;align-items:center;overflow-x:auto}
+    .sort-label{font-size:11px;color:var(--primary);font-weight:800;flex-shrink:0;margin-right:2px}
+    .sort-btn{font-size:11px;font-weight:700;padding:4px 7px;border-radius:14px;background:#fff;color:#6b7280;border:1px solid #e5e7eb;white-space:nowrap;cursor:pointer:transition:.15s;flex-shrink:0}
+    .sort-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+    .foot{padding:20px 8px 30px}
+  }
+  /* 超小屏(≤380px)再收紧一点 */
+  @media(max-width:380px){
+    .tab{font-size:13px;padding:11px 6px}
+    .chip{padding:7px 11px;font-size:12px}
+    .cb-name .n{font-size:15px}
+    .cb-val.hl{font-size:13.5px}
+    .cb-row{font-size:12.5px}
+  }
+
+  /* ===== 手机端底部筛选排序Sheet（审核进度Tab） ===== */
+  .sheet-mask{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:90;align-items:flex-end;justify-content:center}
+  .sheet-mask.show{display:flex;animation:maskIn .2s ease}
+  @keyframes maskIn{from{opacity:0}to{opacity:1}}
+  .sheet{background:#fff;width:100%;max-width:560px;border-radius:18px 18px 0 0;padding:8px 18px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -8px 30px rgba(0,0,0,.18);animation:sheetUp .28s cubic-bezier(.2,.8,.2,1);max-height:88vh;overflow:auto;touch-action:pan-y;-webkit-overflow-scrolling:touch}
+  @keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  .sheet-handle{width:38px;height:4px;border-radius:3px;background:#e5e7eb;margin:6px auto 12px}
+  .sheet-title{font-size:16px;font-weight:800;color:#1f2937;margin-bottom:14px;text-align:center}
+  .sheet-sec{margin-bottom:16px}
+  .sheet-sec-label{font-size:12px;font-weight:700;color:#6b7280;margin-bottom:9px}
+  .sheet-chips{display:flex;flex-wrap:wrap;gap:9px}
+  .schip{cursor:pointer;font-size:13.5px;font-weight:700;padding:8px 15px;border-radius:18px;background:#f5f5f7;color:#6b7280;border:1px solid #ececef;transition:.15s;white-space:nowrap;touch-action:manipulation;-webkit-tap-highlight-color:rgba(249,115,22,.15);user-select:none}
+  .schip.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+  .sheet-sorts{display:flex;flex-wrap:wrap;gap:9px}
+  .ssort{cursor:pointer;font-size:13.5px;font-weight:700;padding:8px 15px;border-radius:18px;background:#f5f5f7;color:#6b7280;border:1px solid #ececef;transition:.15s;white-space:nowrap;touch-action:manipulation;-webkit-tap-highlight-color:rgba(249,115,22,.15);user-select:none}
+  .ssort.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+  .sheet-dir{display:flex;align-items:center;gap:10px;margin-top:12px}
+  .sheet-dir span{font-size:12px;font-weight:700;color:#6b7280}
+  .sheet-dir button{cursor:pointer;border:1px solid var(--primary);background:#fff;color:var(--primary);font-weight:700;font-size:13px;padding:7px 16px;border-radius:18px;transition:.15s;touch-action:manipulation}
+  .sheet-dir button:active{transform:scale(.96)}
+  .sheet-apply{width:100%;background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;border:none;border-radius:14px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;margin-top:6px;box-shadow:0 4px 14px rgba(249,115,22,.3);touch-action:manipulation}
+  .sheet-apply:active{transform:scale(.98)}
+  /* filter-trigger 仅PC端显示（通过JS openProgSheet 触发），手机端已由全局 @media 隐藏 */
+
+
+  /* ===== 布局切换器 ===== */
+  .layout-switcher{display:flex;gap:4px}
+  .layout-btn{width:28px;height:28px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s}
+  .layout-btn.active{background:#f97316;color:#fff;border-color:#f97316}
+  @media(max-width:720px){
+    #layoutSwitcher{display:flex !important}
+  }
+
+  /* ===== 布局B：列表式样式 ===== */
+  .cb-item-list{display:flex;align-items:center;gap:10px;padding:10px 12px}
+  .cb-list-left{flex-shrink:0;width:36px;height:36px;border-radius:10px;background:#f5f5f7;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#6b7280}
+  .cb-list-body{flex:1;min-width:0}
+  .cb-list-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
+  .cb-list-name{font-size:15px;font-weight:800;color:#1f2937}
+  .cb-list-mid{font-size:12px;color:#9ca3af;margin-bottom:3px}
+  .cb-list-bot{display:flex;justify-content:space-between;align-items:center}
+  .cb-list-info{font-size:12px;color:#6b7280}
+  .cb-list-date{font-size:11px;color:#9ca3af}
+  .cb-list-right{flex-shrink:0;text-align:right}
+  .cb-list-cv{font-size:14px;font-weight:800;color:#f97316;font-variant-numeric:tabular-nums}
+  
+  /* ===== 布局C：数据条式样式 ===== */
+  .cb-item-bar{padding:10px 12px}
+  .cb-bar-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .cb-bar-name{font-size:16px;font-weight:800;color:#1f2937}
+  .cb-bar-data{margin-bottom:8px}
+  .cb-bar-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+  .cb-bar-row:last-child{margin-bottom:0}
+  .cb-bar-row-highlight{background:#fff4ea;padding:6px;border-radius:8px}
+  .cb-bar-chip{font-size:12px;color:#6b7280;background:#f3f4f6;padding:4px 8px;border-radius:6px}
+  .cb-bar-chip strong{color:#1f2937;margin-left:2px}
+  .cb-bar-chip-hl{background:#f97316;color:#fff}
+  .cb-bar-chip-hl strong{color:#fff}
+  .cb-bar-footer{display:flex;justify-content:space-between;align-items:center;padding-top:6px;border-top:1px solid #f3f4f6}
+  .cb-bar-code{font-size:11px;color:#9ca3af}
+  .cb-bar-date{font-size:11px;color:#9ca3af}
+  
+  /* ===== 布局D：折叠式样式 ===== */
+  .cb-item-fold{padding:0;border-radius:12px;overflow:hidden}
+  .cb-fold-header{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#fff;border-bottom:1px solid #f3f4f6;cursor:pointer}
+  .cb-fold-header:active{background:#f9fafb}
+  .cb-fold-left{flex:1;min-width:0}
+  .cb-fold-name{font-size:15px;font-weight:800;color:#1f2937;display:block}
+  .cb-fold-code{font-size:12px;color:#9ca3af;margin-top:1px}
+  .cb-fold-right{display:flex;align-items:center;gap:8px}
+  .cb-fold-arrow{font-size:18px;color:#9ca3af;transition:.2s}
+  .cb-fold-detail{padding:10px 12px;background:#fafafa;border-bottom:1px solid #f3f4f6}
+  .cb-fold-row{display:flex;justify-content:space-between;margin-bottom:6px}
+  .cb-fold-row:last-child{margin-bottom:0}
+  .cb-fold-stat{flex:1;text-align:center}
+  .cb-fold-label{font-size:10px;color:#9ca3af;display:block}
+  .cb-fold-val{font-size:12px;font-weight:800;color:#1f2937}
+  .cb-fold-val.hl{color:#f97316}
+  .cb-fold-safe{display:flex;gap:10px;padding-top:6px;margin-top:6px;border-top:1px solid #f3f4f6;font-size:11px;color:#9ca3af}
+  .cb-fold-safe span{background:#f3f4f6;padding:3px 8px;border-radius:6px}
+  .cb-fold-date{font-size:11px;color:#9ca3af;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="hero">
+  <div class="hero-top">
+    <h1>可转债抢权配售<span class="hero-badge">· 实时</span></h1>
+    <div class="hero-right" id="heroRight">
+      <!-- PC端用户区（登录/注册/头像） -->
+      <span id="userArea"></span>
+      <!-- 手机端用户头像圆钮 -->
+      <span id="userAreaMobile"></span>
+      <button class="btn btn-sm" id="refresh">↻ 刷新</button>
+    </div>
+  </div>
+  <div class="sub">xianmeng872.github.io</div>
+  <div class="hero-desc">配债潜伏 · 待发实时 · 审核进度自动更新</div>
+  <div class="bar">
+    <span class="time" id="time">加载中…</span>
+    <button class="btn btn-sm btn-refresh-bar" id="refreshBar" style="display:none">↻ 刷新实时</button>
+  </div>
+</div>
+<div class="wrap">
+  <div class="tabs">
+    <div class="tab active" id="tab-pend" data-tab="pend">待发债</div>
+    <div class="tab" id="tab-progress" data-tab="progress">审核进度</div>
+    <div class="tab" id="tab-fav" data-tab="fav">我的关注 <span id="favCount" style="font-size:11px;background:rgba(255,255,255,.3);color:inherit;padding:1px 6px;border-radius:10px;margin-left:3px">0</span></div>
+  </div>
+
+  <div id="view-fav" style="display:none">
+    <div class="search"><input id="qfav" placeholder="🔍 在关注列表中搜索"></div>
+    <div id="favPanel"></div>
+  </div>
+
+  <div id="view-pend">
+    <div class="search"><input id="q" placeholder="🔍 搜索转债 / 正股 / 代码，如：炬申、特宝、110103"><button class="btn-refresh-sm" id="refreshMobile" title="刷新数据">↻</button></div>
+    <div id="panel"></div>
+  </div>
+
+  <div id="view-progress" style="display:none">
+    <div class="chips" id="progChips">
+      <span class="chip active" data-f="all">全部</span>
+      <span class="chip" data-f="90">同意注册</span>
+      <span class="chip" data-f="80">上市委通过</span>
+      <span class="chip" data-f="50">交易所受理</span>
+      <span class="chip" data-f="20">股东大会通过</span>
+      <span class="chip" data-f="10">董事会预案</span>
+    </div>
+    <div class="search"><input id="q2" placeholder="🔍 搜索正股 / 转债 / 代码，如：炬申、千红"><button class="btn-refresh-sm" id="refreshMobile2" title="刷新数据">↻</button></div>
+    <div id="progressPanel"></div>
+  </div>
+
+  <div class="foot">
+    数据源：东方财富 + 腾讯行情 + 集思录 · 每日自动更新(9:00/18:00) · 仅供参考，非投资建议
+    <div id="verStamp" style="margin-top:6px;font-size:11px;color:#bbb">版本 v20260727-0402 (99961c0)</div>
+  </div>
+</div>
+<div class="mask" id="mask"><div class="modal">
+  <div class="mh"><h3 id="mtitle">详情</h3><span class="x" id="mx">×</span></div>
+  <div class="mb" id="mbody"></div>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<!-- 登录/注册弹窗 -->
+<div class="auth-mask" id="authMask">
+  <div class="auth-modal" style="position:relative">
+    <div class="auth-head">
+      <button class="auth-close" id="authClose">×</button>
+      <h3 id="authTitle">欢迎登录</h3>
+      <p id="authSub">登录后可自选转债，数据多端同步保存</p>
+    </div>
+    <div class="auth-body">
+      <div class="auth-tabs">
+        <div class="auth-tab active" data-mode="login">登录</div>
+        <div class="auth-tab" data-mode="register">注册</div>
+      </div>
+      <div class="auth-error" id="authError"></div>
+      <div class="auth-field" id="authUserField">
+        <label>用户名</label>
+        <input type="text" id="authUser" placeholder="3-20位字符" autocomplete="off">
+      </div>
+      <!-- 登录/注册共用密码 -->
+      <div class="auth-field" id="authPassField">
+        <label>密码</label>
+        <input type="password" id="authPass" placeholder="至少4位" autocomplete="off">
+      </div>
+      <!-- 注册时显示：安全码 -->
+      <div class="auth-field" id="authSecField" style="display:none">
+        <label>安全码 <span style="color:#9ca3af;font-weight:400;font-size:11px">（忘密时用于重置密码，请牢记）</span></label>
+        <input type="password" id="authSec" placeholder="4-6位数字或字母" autocomplete="off" maxlength="6">
+      </div>
+      <!-- 忘记密码模式 -->
+      <div class="auth-field" id="authNewPassField" style="display:none">
+        <label>新密码</label>
+        <input type="password" id="authNewPass" placeholder="输入新密码（至少4位）" autocomplete="off">
+      </div>
+      <div style="text-align:right;margin-bottom:12px">
+        <a href="javascript:void(0)" id="forgotLink" style="color:var(--primary);font-size:12px;font-weight:600;text-decoration:none;display:none">忘记密码？用安全码重置 →</a>
+        <a href="javascript:void(0)" id="backToLogin" style="color:#9ca3af;font-size:12px;text-decoration:none;display:none">← 返回登录</a>
+      </div>
+      <button class="auth-submit" id="authSubmit">登录</button>
+    </div>
+  </div>
+</div>
+
+<!-- 手机端用户菜单（点击头像弹出） -->
+<div class="user-menu-mask" id="userMenuMask" style="display:none" onclick="document.getElementById('userMenuMask').style.display='none'">
+  <div class="user-menu" id="userMenu" onclick="event.stopPropagation()">
+    <div class="user-menu-header" id="userMenuHeader"></div>
+    <div class="user-menu-body" id="userMenuBody"></div>
+  </div>
+</div>
+
+<!-- 邀请码验证弹窗 -->
+<div class="auth-mask" id="inviteMask">
+  <div class="auth-modal" style="position:relative">
+    <div class="auth-head" style="background:linear-gradient(135deg,#6366f1,#4f46e5)">
+      <h3 style="margin:0;font-size:18px;font-weight:800">🔐 使用次数已达上限</h3>
+      <p style="margin:4px 0 0;font-size:12px;opacity:.9">搜索/筛选已使用 10 次，请输入邀请码继续使用</p>
+    </div>
+    <div class="auth-body">
+      <div class="auth-error" id="inviteError"></div>
+      <div class="auth-field">
+        <label>邀请码</label>
+        <input type="text" id="inviteCodeInput" placeholder="请输入邀请码" autocomplete="off" style="letter-spacing:2px;text-transform:uppercase">
+      </div>
+      <button class="auth-submit" id="inviteSubmit" style="background:linear-gradient(135deg,#6366f1,#4f46e5)">验证并继续</button>
+      <p style="text-align:center;margin-top:12px;font-size:11px;color:#9ca3af">没有邀请码？联系管理员获取</p>
+    </div>
+  </div>
+</div>
+
+<!-- 邀请码管理页（隐藏，通过特殊方式进入） -->
+<div class="auth-mask" id="adminMask">
+  <div class="auth-modal" style="max-width:480px;position:relative">
+    <div class="auth-head" style="background:linear-gradient(135deg,#059669,#047857)">
+      <button class="auth-close" id="adminClose">×</button>
+      <h3 style="margin:0;font-size:17px;font-weight:800">🔧 邀请码管理</h3>
+      <p style="margin:4px 0 0;font-size:11.5px;opacity:.9">增删邀请码 · 查看使用统计</p>
+    </div>
+    <div class="auth-body" id="adminBody">
+      <!-- 动态渲染 -->
+    </div>
+  </div>
+</div>
+
+<!-- 手机端底部筛选排序Sheet（审核进度Tab） -->
+<div class="sheet-mask" id="progSheetMask">
+  <div class="sheet" id="progSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">筛选 / 排序</div>
+    <div class="sheet-sec">
+      <div class="sheet-sec-label">排序方式</div>
+      <div class="sheet-sorts" id="sheetSortBtns">
+        <span class="ssort active" data-f="progress">进度</span>
+        <span class="ssort" data-f="needMoney">所需资金</span>
+        <span class="ssort" data-f="baiyuan">百元含权</span>
+        <span class="ssort" data-f="scale">规模</span>
+        <span class="ssort" data-f="estFloat">预估流通</span>
+      </div>
+      <div class="sheet-dir">
+        <span>排序方向</span>
+        <button id="sheetDirBtn" type="button">↓ 降序</button>
+      </div>
+    </div>
+    <div class="sheet-sec">
+      <div class="sheet-sec-label">审核阶段（不选=全部阶段）</div>
+      <div class="sheet-chips" id="sheetProgChips">
+        <span class="schip active" data-f="all">全部阶段</span>
+        <span class="schip" data-f="90">同意注册</span>
+        <span class="schip" data-f="80">上市委通过</span>
+        <span class="schip" data-f="50">交易所受理</span>
+        <span class="schip" data-f="20">股东大会通过</span>
+        <span class="schip" data-f="10">董事会预案</span>
+      </div>
+    </div>
+    <button class="sheet-apply" id="sheetApply" type="button">确定</button>
+  </div>
+</div>
+
+<script>
+const EM_URL="https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPT_BOND_CB_LIST&pageSize=1000&columns=ALL&sortColumns=PUBLIC_START_DATE&sortDirection=desc&source=WEB&client=WEB";
+const LABEL={code:"转债代码",name:"转债名称",stockCode:"正股代码",stockName:"正股名称",convertPrice:"转股价",price:"正股实时价",
+  cv:"转股价值",perPre:"每股配售(元)",needShares:"配10张所需股数",needMoney:"所需资金",
+  scale:"发行规模(亿)",publicStart:"申购日",stage:"进展阶段",baiyuan:"百元含权",listDate:"上市日",
+  progress_nm:"当前进度",rating_cd:"评级",apply10:"配售10张所需股数"};
+let PEND=[], PROGRESS=[], keyword="", keyword2="", activeTab="pend", PROG_FILTER="all";
+let pendSort={field:"publicStart",dir:1}, progSort={field:"progress",dir:-1};
+let favSort={field:"progress",dir:-1}, FAV_FILTER="all";
+const SNAPSHOT_PEND=[
+{"code":"118074","name":"特宝转债","stockCode":"688278","stockName":"特宝生物","convertPrice":58.56,"perPre":3.857,"scale":15.33,"publicStart":"2026-07-28 00:00:00","listDate":"","stage":"申购","_c":{"cv":100.8879781420765,"needShares":260,"needMoney":15360.8,"baiyuan":6.528436018957347,"price":59.08,"estFloat":6.47},"apply10":260,"rating_cd":"AA+"},
+{"code":"127115","name":"炬申转债","stockCode":"001202","stockName":"炬申股份","convertPrice":13.76,"perPre":2.2911,"scale":3.8,"publicStart":"2026-07-24 00:00:00","listDate":"","stage":"申购","_c":{"cv":111.33720930232558,"needShares":437,"needMoney":6694.84,"baiyuan":14.954960835509139,"price":15.32,"estFloat":1.32},"apply10":437,"rating_cd":"AA-"},
+{"code":"110103","name":"申能转债","stockCode":"600642","stockName":"申能股份","convertPrice":8.74,"perPre":0.408,"scale":20,"publicStart":"2026-07-24 00:00:00","listDate":"","stage":"申购","_c":{"cv":103.20366132723112,"needShares":2451,"needMoney":22108.02,"baiyuan":4.523281596452328,"price":9.02,"estFloat":7.39},"apply10":2451,"rating_cd":"AAA"}
+];
+const SNAPSHOT_PROGRESS=[
+{"stockCode":"002550","stockName":"千红制药","code":"","name":"","progress":"90","progress_nm":"同意注册","scale":10,"convertPrice":6.77,"price":6.48,"perPre":null,"apply10":1280,"ration_rt":null,"rating_cd":null,"progress_full":"2024-11-22 董事会预案\n2024-12-11 股东大会通过\n2026-01-23 交易所受理\n2026-06-05 上市委通过\n2026-07-16 同意注册","accept_date":"2026-01-23","progress_dt":"2026-07-16","_c":{"cv":95.71639586410636,"needShares":1280,"needMoney":8294.400000000001,"baiyuan":12.056327160493826,"price":6.48,"estFloat":7.34}},
+{"stockCode":"301565","stockName":"中仑新材","code":"","name":"","progress":"90","progress_nm":"同意注册","scale":10.68,"convertPrice":20.96,"price":18.11,"perPre":null,"apply10":375,"ration_rt":null,"rating_cd":null,"progress_full":"2025-09-12 董事会预案\n2025-09-29 股东大会通过\n2025-10-30 交易所受理\n2026-06-05 上市委通过\n2026-07-16 同意注册","accept_date":"2025-10-30","progress_dt":"2026-07-16","_c":{"cv":86.40267175572518,"needShares":375,"needMoney":6791.25,"baiyuan":14.724829744156082,"price":18.11,"estFloat":3.6}},
+{"stockCode":"300697","stockName":"电工合金","code":"","name":"","progress":"90","progress_nm":"同意注册","scale":5.45,"convertPrice":14.09,"price":12.79,"perPre":null,"apply10":794,"ration_rt":null,"rating_cd":null,"progress_full":"2025-08-29 董事会预案\n2025-12-05 股东大会通过\n2025-12-31 交易所受理\n2026-05-13 上市委通过\n2026-07-03 同意注册","accept_date":"2025-12-31","progress_dt":"2026-07-03","_c":{"cv":90.77359829666429,"needShares":794,"needMoney":10155.26,"baiyuan":9.847113712499729,"price":12.79,"estFloat":2.11}},
+{"stockCode":"603067","stockName":"振华股份","code":"","name":"","progress":"90","progress_nm":"同意注册","scale":8.78,"convertPrice":40.78,"price":29.32,"perPre":null,"apply10":862,"ration_rt":null,"rating_cd":null,"progress_full":"2026-01-05 董事会预案\n2026-01-21 股东大会通过\n2026-04-08 交易所受理\n2026-06-02 上市委通过\n2026-06-30 同意注册","accept_date":"2026-04-08","progress_dt":"2026-06-30","_c":{"cv":71.89798921039726,"needShares":862,"needMoney":25273.84,"baiyuan":3.9566603254590516,"price":29.32,"estFloat":5.07}},
+{"stockCode":"301626","stockName":"苏州天脉","code":"","name":"","progress":"90","progress_nm":"同意注册","scale":7.86,"convertPrice":295.75,"price":212.4,"perPre":null,"apply10":148,"ration_rt":null,"rating_cd":null,"progress_full":"2025-10-29 董事会预案\n2025-11-13 股东大会通过\n2025-12-11 交易所受理\n2026-04-24 上市委通过\n2026-06-26 同意注册","accept_date":"2025-12-11","progress_dt":"2026-06-26","_c":{"cv":71.81741335587489,"needShares":148,"needMoney":31435.2,"baiyuan":3.1811472489438595,"price":212.4,"estFloat":3.72}},
+{"stockCode":"300453","stockName":"三鑫医疗","code":"","name":"","progress":"90","progress_nm":"同意注册","scale":5.3,"convertPrice":9.39,"price":9.18,"perPre":null,"apply10":985,"ration_rt":null,"rating_cd":null,"progress_full":"2025-08-09 董事会预案\n2025-08-27 股东大会通过\n2025-10-29 交易所受理\n2026-04-24 上市委通过\n2026-06-05 同意注册","accept_date":"2025-10-29","progress_dt":"2026-06-05","_c":{"cv":97.76357827476038,"needShares":985,"needMoney":9042.3,"baiyuan":11.059133185140949,"price":9.18,"estFloat":3.71}},
+{"stockCode":"603339","stockName":"四方科技","code":"","name":"","progress":"90","progress_nm":"同意注册","scale":10.23,"convertPrice":13.9,"price":11.36,"perPre":null,"apply10":303,"ration_rt":null,"rating_cd":null,"progress_full":"2024-01-30 董事会预案\n2026-01-01 股东大会通过\n2026-01-21 交易所受理\n2026-04-02 上市委通过\n2026-05-21 同意注册","accept_date":"2026-01-21","progress_dt":"2026-05-21","_c":{"cv":81.72661870503597,"needShares":303,"needMoney":3442.08,"baiyuan":29.052200994747366,"price":11.36,"estFloat":6.11}},
+{"stockCode":"002913","stockName":"奥士康","code":"","name":"","progress":"90","progress_nm":"同意注册","scale":10,"convertPrice":51.3,"price":45.08,"perPre":null,"apply10":318,"ration_rt":null,"rating_cd":null,"progress_full":"2025-08-01 董事会预案\n2025-08-19 股东大会通过\n2025-10-11 交易所受理\n2026-02-11 上市委通过\n2026-04-02 同意注册","accept_date":"2025-10-11","progress_dt":"2026-04-02","_c":{"cv":87.87524366471735,"needShares":318,"needMoney":14335.439999999999,"baiyuan":6.975718917591648,"price":45.08,"estFloat":3.64}},
+{"stockCode":"603125","stockName":"常青科技","code":"","name":"","progress":"80","progress_nm":"上市委通过","scale":8,"convertPrice":26.59,"price":20.66,"perPre":null,"apply10":507,"ration_rt":null,"rating_cd":null,"progress_full":"2025-09-04 董事会预案\n2025-09-20 股东大会通过\n2025-10-30 交易所受理\n2026-07-24 上市委通过","accept_date":"2025-10-30","progress_dt":"2026-07-24","_c":{"cv":77.69838285069575,"needShares":507,"needMoney":10474.62,"baiyuan":9.546885710412406,"price":20.66,"estFloat":2.18}},
+{"stockCode":"001380","stockName":"华纬科技","code":"","name":"","progress":"80","progress_nm":"上市委通过","scale":5.75,"convertPrice":16.01,"price":15.04,"perPre":null,"apply10":471,"ration_rt":null,"rating_cd":null,"progress_full":"2025-04-22 董事会预案\n2025-05-08 股东大会通过\n2025-12-04 交易所受理\n2026-07-13 上市委通过","accept_date":"2025-12-04","progress_dt":"2026-07-13","_c":{"cv":93.9412866958151,"needShares":471,"needMoney":7083.839999999999,"baiyuan":14.116637304061076,"price":15.04,"estFloat":2.15}},
+{"stockCode":"600368","stockName":"五洲交通","code":"","name":"","progress":"80","progress_nm":"上市委通过","scale":30,"convertPrice":3.69,"price":3.75,"perPre":null,"apply10":537,"ration_rt":null,"rating_cd":null,"progress_full":"2025-01-11 董事会预案\n2025-05-09 股东大会通过\n2026-05-23 交易所受理\n2026-07-11 上市委通过","accept_date":"2026-05-23","progress_dt":"2026-07-11","_c":{"cv":101.62601626016261,"needShares":537,"needMoney":2013.75,"baiyuan":49.65859714463067,"price":3.75,"estFloat":14.32}},
+{"stockCode":"300727","stockName":"润禾材料","code":"","name":"","progress":"80","progress_nm":"上市委通过","scale":3.7,"convertPrice":34.62,"price":26.18,"perPre":null,"apply10":487,"ration_rt":null,"rating_cd":null,"progress_full":"2025-08-28 董事会预案\n2026-01-14 股东大会通过\n2026-02-09 交易所受理\n2026-07-02 上市委通过","accept_date":"2026-02-09","progress_dt":"2026-07-02","_c":{"cv":75.6210283073368,"needShares":487,"needMoney":12749.66,"baiyuan":7.843346410806248,"price":26.18,"estFloat":1.91}},
+{"stockCode":"300909","stockName":"汇创达","code":"","name":"","progress":"80","progress_nm":"上市委通过","scale":6.5,"convertPrice":51.79,"price":40.86,"perPre":null,"apply10":267,"ration_rt":null,"rating_cd":null,"progress_full":"2025-09-16 董事会预案\n2025-10-10 股东大会通过\n2025-10-27 交易所受理\n2026-06-26 上市委通过","accept_date":"2025-10-27","progress_dt":"2026-06-26","_c":{"cv":78.89553967947481,"needShares":267,"needMoney":10909.619999999999,"baiyuan":9.166222104894578,"price":40.86,"estFloat":3.62}},
+{"stockCode":"000887","stockName":"中鼎股份","code":"","name":"","progress":"80","progress_nm":"上市委通过","scale":19.2,"convertPrice":18.51,"price":16.2,"perPre":null,"apply10":686,"ration_rt":null,"rating_cd":null,"progress_full":"2025-12-03 董事会预案\n2025-12-25 股东大会通过\n2026-04-27 交易所受理\n2026-06-23 上市委通过","accept_date":"2026-04-27","progress_dt":"2026-06-23","_c":{"cv":87.52025931928686,"needShares":686,"needMoney":11113.199999999999,"baiyuan":8.99830831803621,"price":16.2,"estFloat":11.43}},
+{"stockCode":"002997","stockName":"瑞鹄模具","code":"","name":"","progress":"80","progress_nm":"上市委通过","scale":6.86,"convertPrice":28.07,"price":25.16,"perPre":null,"apply10":306,"ration_rt":null,"rating_cd":null,"progress_full":"2025-03-25 董事会预案\n2025-04-15 股东大会通过\n2025-12-19 交易所受理\n2026-06-23 上市委通过","accept_date":"2025-12-19","progress_dt":"2026-06-23","_c":{"cv":89.6330602066263,"needShares":306,"needMoney":7698.96,"baiyuan":12.988767314026829,"price":25.16,"estFloat":4.02}},
+{"stockCode":"300953","stockName":"震裕科技","code":"","name":"","progress":"80","progress_nm":"上市委通过","scale":18.8,"convertPrice":123.14,"price":90.6,"perPre":null,"apply10":130,"ration_rt":null,"rating_cd":null,"progress_full":"2025-12-24 董事会预案\n2026-01-23 股东大会通过\n2026-02-26 交易所受理\n2026-06-23 上市委通过","accept_date":"2026-02-26","progress_dt":"2026-06-23","_c":{"cv":73.5747929186292,"needShares":130,"needMoney":11778,"baiyuan":8.49040584139922,"price":90.6,"estFloat":11.76}},
+{"stockCode":"603163","stockName":"圣晖集成","code":"","name":"","progress":"80","progress_nm":"上市委通过","scale":5.5,"convertPrice":113.01,"price":73.18,"perPre":null,"apply10":182,"ration_rt":null,"rating_cd":null,"progress_full":"2026-01-31 董事会预案\n2026-02-28 股东大会通过\n2026-04-29 交易所受理\n2026-06-17 上市委通过","accept_date":"2026-04-29","progress_dt":"2026-06-17","_c":{"cv":64.75533138660296,"needShares":182,"needMoney":13318.760000000002,"baiyuan":7.50820646967135,"price":73.18,"estFloat":1.53}},
+{"stockCode":"301132","stockName":"满坤科技","code":"","name":"","progress":"80","progress_nm":"上市委通过","scale":7.6,"convertPrice":40.58,"price":27.8,"perPre":null,"apply10":195,"ration_rt":null,"rating_cd":null,"progress_full":"2025-10-16 董事会预案\n2025-10-31 股东大会通过\n2025-12-31 交易所受理\n2026-06-12 上市委通过","accept_date":"2025-12-31","progress_dt":"2026-06-12","_c":{"cv":68.50665352390341,"needShares":195,"needMoney":5421,"baiyuan":18.446781036709094,"price":27.8,"estFloat":3.24}},
+{"stockCode":"605123","stockName":"派克新材","code":"","name":"","progress":"80","progress_nm":"上市委通过","scale":15.8,"convertPrice":88.39,"price":72.32,"perPre":null,"apply10":77,"ration_rt":null,"rating_cd":null,"progress_full":"2026-01-31 董事会预案\n2026-03-03 股东大会通过\n2026-04-29 交易所受理\n2026-06-12 上市委通过","accept_date":"2026-04-29","progress_dt":"2026-06-12","_c":{"cv":81.81921031790925,"needShares":77,"needMoney":5568.639999999999,"baiyuan":17.957706010803356,"price":72.32,"estFloat":7.36}},
+{"stockCode":"301628","stockName":"强达电路","code":"","name":"","progress":"80","progress_nm":"上市委通过","scale":5.5,"convertPrice":87.53,"price":72,"perPre":null,"apply10":138,"ration_rt":null,"rating_cd":null,"progress_full":"2025-12-27 董事会预案\n2026-01-13 股东大会通过\n2026-02-12 交易所受理\n2026-06-12 上市委通过","accept_date":"2026-02-12","progress_dt":"2026-06-12","_c":{"cv":82.25751171027076,"needShares":138,"needMoney":9936,"baiyuan":10.064412238325282,"price":72,"estFloat":2.14}},
+{"stockCode":"301459","stockName":"丰茂股份","code":"","name":"","progress":"80","progress_nm":"上市委通过","scale":6.08,"convertPrice":33.27,"price":29.67,"perPre":null,"apply10":172,"ration_rt":null,"rating_cd":null,"progress_full":"2025-11-05 董事会预案\n2025-11-20 股东大会通过\n2026-01-05 交易所受理\n2026-06-11 上市委通过","accept_date":"2026-01-05","progress_dt":"2026-06-11","_c":{"cv":89.17944093778178,"needShares":172,"needMoney":5103.240000000001,"baiyuan":19.59539429852407,"price":29.67,"estFloat":1.75}},
+{"stockCode":"688605","stockName":"先锋精科","code":"","name":"","progress":"80","progress_nm":"上市委通过","scale":7.5,"convertPrice":95.55,"price":70.8,"perPre":null,"apply10":271,"ration_rt":null,"rating_cd":null,"progress_full":"2026-03-04 董事会预案\n2026-03-20 股东大会通过\n2026-05-01 交易所受理\n2026-06-04 上市委通过","accept_date":"2026-05-01","progress_dt":"2026-06-04","_c":{"cv":74.09733124018838,"needShares":271,"needMoney":19186.8,"baiyuan":5.211916525944921,"price":70.8,"estFloat":3.84}},
+{"stockCode":"603565","stockName":"中谷物流","code":"","name":"","progress":"50","progress_nm":"交易所受理","scale":30,"convertPrice":10.17,"price":10.43,"perPre":null,"apply10":700,"ration_rt":null,"rating_cd":null,"progress_full":"2026-06-03 董事会预案\n2026-06-19 股东大会通过\n2026-07-03 交易所受理","accept_date":"2026-07-03","progress_dt":"2026-07-03","_c":{"cv":102.55653883972468,"needShares":700,"needMoney":7301,"baiyuan":13.69675386933297,"price":10.43,"estFloat":12.76}},
+{"stockCode":"688510","stockName":"航亚科技","code":"","name":"","progress":"50","progress_nm":"交易所受理","scale":6,"convertPrice":23.33,"price":19.93,"perPre":null,"apply10":434,"ration_rt":null,"rating_cd":null,"progress_full":"2026-02-13 董事会预案\n2026-05-12 股东大会通过\n2026-06-23 交易所受理","accept_date":"2026-06-23","progress_dt":"2026-06-23","_c":{"cv":85.42648949849979,"needShares":434,"needMoney":8649.619999999999,"baiyuan":11.561201532552875,"price":19.93,"estFloat":5.13}},
+{"stockCode":"601717","stockName":"中创智领","code":"","name":"","progress":"50","progress_nm":"交易所受理","scale":43.5,"convertPrice":14.83,"price":15.34,"perPre":null,"apply10":355,"ration_rt":null,"rating_cd":null,"progress_full":"2026-01-16 董事会预案\n2026-03-25 股东大会通过\n2026-06-22 交易所受理","accept_date":"2026-06-22","progress_dt":"2026-06-22","_c":{"cv":103.43897505057316,"needShares":355,"needMoney":5445.7,"baiyuan":18.36311218025231,"price":15.34,"estFloat":26.8}},
+{"stockCode":"300893","stockName":"松原安全","code":"","name":"","progress":"50","progress_nm":"交易所受理","scale":10.55,"convertPrice":15.92,"price":14.39,"perPre":null,"apply10":449,"ration_rt":null,"rating_cd":null,"progress_full":"2024-12-04 董事会预案\n2025-11-27 股东大会通过\n2026-06-12 交易所受理","accept_date":"2026-06-12","progress_dt":"2026-06-12","_c":{"cv":90.38944723618091,"needShares":449,"needMoney":6461.110000000001,"baiyuan":15.47721676306393,"price":14.39,"estFloat":3.27}},
+{"stockCode":"301631","stockName":"壹连科技","code":"","name":"","progress":"50","progress_nm":"交易所受理","scale":11.8,"convertPrice":67.26,"price":57.28,"perPre":null,"apply10":109,"ration_rt":null,"rating_cd":null,"progress_full":"2026-01-06 董事会预案\n2026-01-21 股东大会通过\n2026-06-11 交易所受理","accept_date":"2026-06-11","progress_dt":"2026-06-11","_c":{"cv":85.16205768658935,"needShares":109,"needMoney":6243.52,"baiyuan":16.016606017118548,"price":57.28,"estFloat":5.51}},
+{"stockCode":"001221","stockName":"悍高集团","code":"","name":"","progress":"50","progress_nm":"交易所受理","scale":12,"convertPrice":38.05,"price":36.7,"perPre":null,"apply10":334,"ration_rt":null,"rating_cd":null,"progress_full":"2026-02-10 董事会预案\n2026-05-19 股东大会通过\n2026-06-08 交易所受理","accept_date":"2026-06-08","progress_dt":"2026-06-08","_c":{"cv":96.45203679369251,"needShares":334,"needMoney":12257.800000000001,"baiyuan":8.158070779422081,"price":36.7,"estFloat":3.27}},
+{"stockCode":"688600","stockName":"皖仪科技","code":"","name":"","progress":"50","progress_nm":"交易所受理","scale":3.2,"convertPrice":28.38,"price":22.31,"perPre":null,"apply10":421,"ration_rt":null,"rating_cd":null,"progress_full":"2026-04-10 董事会预案\n2026-04-28 股东大会通过\n2026-06-05 交易所受理","accept_date":"2026-06-05","progress_dt":"2026-06-05","_c":{"cv":78.61169837914024,"needShares":421,"needMoney":9392.51,"baiyuan":10.646781318305758,"price":22.31,"estFloat":1.77}},
+{"stockCode":"002468","stockName":"申通快递","code":"","name":"","progress":"50","progress_nm":"交易所受理","scale":30,"convertPrice":15.42,"price":13.19,"perPre":null,"apply10":511,"ration_rt":null,"rating_cd":null,"progress_full":"2026-03-17 董事会预案\n2026-04-02 股东大会通过\n2026-06-03 交易所受理","accept_date":"2026-06-03","progress_dt":"2026-06-03","_c":{"cv":85.53826199740597,"needShares":511,"needMoney":6740.09,"baiyuan":14.836597137426947,"price":13.19,"estFloat":15.34}},
+{"stockCode":"301279","stockName":"金道科技","code":"","name":"","progress":"50","progress_nm":"交易所受理","scale":3.06,"convertPrice":21.91,"price":16.07,"perPre":null,"apply10":551,"ration_rt":null,"rating_cd":null,"progress_full":"2026-01-16 董事会预案\n2026-02-02 股东大会通过\n2026-06-02 交易所受理","accept_date":"2026-06-02","progress_dt":"2026-06-02","_c":{"cv":73.34550433591967,"needShares":551,"needMoney":8854.57,"baiyuan":11.293603190217029,"price":16.07,"estFloat":0.94}},
+{"stockCode":"605016","stockName":"百龙创园","code":"","name":"","progress":"50","progress_nm":"交易所受理","scale":7.48,"convertPrice":23.86,"price":21.55,"perPre":null,"apply10":562,"ration_rt":null,"rating_cd":null,"progress_full":"2024-09-21 董事会预案\n2024-10-12 股东大会通过\n2026-05-06 交易所受理","accept_date":"2026-05-06","progress_dt":"2026-05-06","_c":{"cv":90.31852472757754,"needShares":562,"needMoney":12111.1,"baiyuan":8.256888309071844,"price":21.55,"estFloat":3.94}},
+{"stockCode":"300634","stockName":"彩讯股份","code":"","name":"","progress":"50","progress_nm":"交易所受理","scale":12.7,"convertPrice":19.01,"price":17.45,"perPre":null,"apply10":356,"ration_rt":null,"rating_cd":null,"progress_full":"2026-01-15 董事会预案\n2026-01-30 股东大会通过\n2026-04-29 交易所受理","accept_date":"2026-04-29","progress_dt":"2026-04-29","_c":{"cv":91.7937927406628,"needShares":356,"needMoney":6212.2,"baiyuan":16.09735681401114,"price":17.45,"estFloat":8.24}},
+{"stockCode":"300813","stockName":"泰林生物","code":"","name":"","progress":"50","progress_nm":"交易所受理","scale":2.3,"convertPrice":20.23,"price":17.08,"perPre":null,"apply10":527,"ration_rt":null,"rating_cd":null,"progress_full":"2026-03-27 董事会预案\n2026-04-16 股东大会通过\n2026-04-28 交易所受理","accept_date":"2026-04-28","progress_dt":"2026-04-28","_c":{"cv":84.42906574394463,"needShares":527,"needMoney":9001.16,"baiyuan":11.109679196903512,"price":17.08,"estFloat":1.08}},
+{"stockCode":"001316","stockName":"润贝航科","code":"","name":"","progress":"50","progress_nm":"交易所受理","scale":4.3,"convertPrice":28.89,"price":24.53,"perPre":null,"apply10":375,"ration_rt":null,"rating_cd":null,"progress_full":"2026-03-04 董事会预案\n2026-03-20 股东大会通过\n2026-04-25 交易所受理","accept_date":"2026-04-25","progress_dt":"2026-04-25","_c":{"cv":84.90827275874005,"needShares":375,"needMoney":9198.75,"baiyuan":10.871042261176788,"price":24.53,"estFloat":1.74}},
+{"stockCode":"688150","stockName":"莱特光电","code":"","name":"","progress":"50","progress_nm":"交易所受理","scale":5.25,"convertPrice":54.69,"price":39.17,"perPre":null,"apply10":767,"ration_rt":null,"rating_cd":null,"progress_full":"2025-11-15 董事会预案\n2025-12-02 股东大会通过\n2026-04-25 交易所受理","accept_date":"2026-04-25","progress_dt":"2026-04-25","_c":{"cv":71.62186871457305,"needShares":767,"needMoney":30043.390000000003,"baiyuan":3.328519185085305,"price":39.17,"estFloat":2.65}},
+{"stockCode":"002981","stockName":"朝阳科技","code":"","name":"","progress":"50","progress_nm":"交易所受理","scale":5.2,"convertPrice":20.75,"price":22.03,"perPre":null,"apply10":263,"ration_rt":null,"rating_cd":null,"progress_full":"2026-04-02 董事会预案\n2026-04-18 股东大会通过\n2026-04-24 交易所受理","accept_date":"2026-04-24","progress_dt":"2026-04-24","_c":{"cv":106.16867469879519,"needShares":263,"needMoney":5793.89,"baiyuan":17.259561365507455,"price":22.03,"estFloat":1.86}},
+{"stockCode":"300447","stockName":"全信股份","code":"","name":"","progress":"50","progress_nm":"交易所受理","scale":2.45,"convertPrice":13.68,"price":12.47,"perPre":null,"apply10":1275,"ration_rt":null,"rating_cd":null,"progress_full":"2026-01-09 董事会预案\n2026-01-26 股东大会通过\n2026-04-20 交易所受理","accept_date":"2026-04-20","progress_dt":"2026-04-20","_c":{"cv":91.15497076023392,"needShares":1275,"needMoney":15899.25,"baiyuan":6.289604855574948,"price":12.47,"estFloat":1.29}},
+{"stockCode":"301175","stockName":"中科环保","code":"","name":"","progress":"50","progress_nm":"交易所受理","scale":10,"convertPrice":5.06,"price":5.12,"perPre":null,"apply10":1472,"ration_rt":null,"rating_cd":null,"progress_full":"2026-03-14 董事会预案\n2026-04-02 股东大会通过\n2026-04-15 交易所受理","accept_date":"2026-04-15","progress_dt":"2026-04-15","_c":{"cv":101.18577075098815,"needShares":1472,"needMoney":7536.64,"baiyuan":13.26851222826087,"price":5.12,"estFloat":4.22}},
+{"stockCode":"301018","stockName":"申菱环境","code":"","name":"","progress":"50","progress_nm":"交易所受理","scale":10,"convertPrice":108.43,"price":85.4,"perPre":null,"apply10":375,"ration_rt":null,"rating_cd":null,"progress_full":"2025-11-25 董事会预案\n2026-02-25 股东大会通过\n2026-04-10 交易所受理","accept_date":"2026-04-10","progress_dt":"2026-04-10","_c":{"cv":78.76049063912201,"needShares":375,"needMoney":32025.000000000004,"baiyuan":3.1225604996096794,"price":85.4,"estFloat":5.13}},
+{"stockCode":"001282","stockName":"三联锻造","code":"","name":"","progress":"50","progress_nm":"交易所受理","scale":6.2,"convertPrice":17.89,"price":14.19,"perPre":null,"apply10":359,"ration_rt":null,"rating_cd":null,"progress_full":"2025-08-28 董事会预案\n2025-09-13 股东大会通过\n2026-04-02 交易所受理","accept_date":"2026-04-02","progress_dt":"2026-04-02","_c":{"cv":79.31805477920626,"needShares":359,"needMoney":5094.21,"baiyuan":19.630129107359142,"price":14.19,"estFloat":1.86}},
+{"stockCode":"301149","stockName":"隆华新材","code":"","name":"","progress":"50","progress_nm":"交易所受理","scale":9.6,"convertPrice":7.99,"price":6.92,"perPre":null,"apply10":583,"ration_rt":null,"rating_cd":null,"progress_full":"2025-08-23 董事会预案\n2025-09-10 股东大会通过\n2026-03-26 交易所受理","accept_date":"2026-03-26","progress_dt":"2026-03-26","_c":{"cv":86.60826032540676,"needShares":583,"needMoney":4034.36,"baiyuan":24.78707899146333,"price":6.92,"estFloat":4.68}},
+{"stockCode":"301379","stockName":"天山电子","code":"","name":"","progress":"50","progress_nm":"交易所受理","scale":6.97,"convertPrice":31.52,"price":22.67,"perPre":null,"apply10":399,"ration_rt":null,"rating_cd":null,"progress_full":"2025-12-16 董事会预案\n2026-01-12 股东大会通过\n2026-03-11 交易所受理","accept_date":"2026-03-11","progress_dt":"2026-03-11","_c":{"cv":71.9225888324873,"needShares":399,"needMoney":9045.33,"baiyuan":11.05542860238377,"price":22.67,"estFloat":4.81}},
+{"stockCode":"300181","stockName":"佐力药业","code":"","name":"","progress":"50","progress_nm":"交易所受理","scale":13.71,"convertPrice":14.28,"price":13.65,"perPre":null,"apply10":512,"ration_rt":null,"rating_cd":null,"progress_full":"2025-12-03 董事会预案\n2025-12-19 股东大会通过\n2026-02-27 交易所受理","accept_date":"2026-02-27","progress_dt":"2026-02-27","_c":{"cv":95.58823529411765,"needShares":512,"needMoney":6988.8,"baiyuan":14.308608058608058,"price":13.65,"estFloat":11.17}},
+{"stockCode":"300975","stockName":"商络电子","code":"","name":"","progress":"50","progress_nm":"交易所受理","scale":10,"convertPrice":37.11,"price":25.85,"perPre":null,"apply10":688,"ration_rt":null,"rating_cd":null,"progress_full":"2025-09-16 董事会预案\n2025-10-09 股东大会通过\n2026-01-09 交易所受理","accept_date":"2026-01-09","progress_dt":"2026-01-09","_c":{"cv":69.65777418485584,"needShares":688,"needMoney":17784.8,"baiyuan":5.622779002294092,"price":25.85,"estFloat":5.77}},
+{"stockCode":"300660","stockName":"江苏雷利","code":"","name":"","progress":"50","progress_nm":"交易所受理","scale":12.86,"convertPrice":28.92,"price":24.56,"perPre":null,"apply10":452,"ration_rt":null,"rating_cd":null,"progress_full":"2025-06-24 董事会预案\n2025-09-17 股东大会通过\n2025-12-09 交易所受理","accept_date":"2025-12-09","progress_dt":"2025-12-09","_c":{"cv":84.92392807745503,"needShares":452,"needMoney":11101.119999999999,"baiyuan":9.008100083595169,"price":24.56,"estFloat":5.07}},
+{"stockCode":"600089","stockName":"特变电工","code":"","name":"","progress":"50","progress_nm":"交易所受理","scale":80,"convertPrice":20.41,"price":20.39,"perPre":null,"apply10":633,"ration_rt":null,"rating_cd":null,"progress_full":"2025-08-19 董事会预案\n2025-09-04 股东大会通过\n2025-09-27 交易所受理","accept_date":"2025-09-27","progress_dt":"2025-09-27","_c":{"cv":99.90200881920627,"needShares":633,"needMoney":12906.87,"baiyuan":7.747811824245536,"price":20.39,"estFloat":65.57}},
+{"stockCode":"301571","stockName":"国科天成","code":"","name":"","progress":"50","progress_nm":"交易所受理","scale":8.49,"convertPrice":62.62,"price":62.27,"perPre":null,"apply10":212,"ration_rt":null,"rating_cd":null,"progress_full":"2025-04-29 董事会预案\n2025-05-15 股东大会通过\n2025-07-25 交易所受理","accept_date":"2025-07-25","progress_dt":"2025-07-25","_c":{"cv":99.44107313957204,"needShares":212,"needMoney":13201.24,"baiyuan":7.575045980529102,"price":62.27,"estFloat":6.21}},
+{"stockCode":"600577","stockName":"精达股份","code":"","name":"","progress":"50","progress_nm":"交易所受理","scale":9.56,"convertPrice":8.45,"price":7.1,"perPre":null,"apply10":2261,"ration_rt":null,"rating_cd":null,"progress_full":"2023-06-21 董事会预案\n2023-07-07 股东大会通过\n2025-06-26 交易所受理","accept_date":"2025-06-26","progress_dt":"2025-06-26","_c":{"cv":84.02366863905326,"needShares":2261,"needMoney":16053.099999999999,"baiyuan":6.229326422933888,"price":7.1,"estFloat":8.72}},
+{"stockCode":"688261","stockName":"东微半导","code":"","name":"","progress":"20","progress_nm":"股东大会通过","scale":14.36,"convertPrice":88.33,"price":70.2,"perPre":null,"apply10":86,"ration_rt":null,"rating_cd":null,"progress_full":"2026-07-03 董事会预案\n2026-07-21 股东大会通过","accept_date":null,"progress_dt":"2026-07-21","_c":{"cv":79.47469715838335,"needShares":86,"needMoney":6037.2,"baiyuan":16.563970052342142,"price":70.2,"estFloat":8.79}},
+{"stockCode":"300428","stockName":"立中集团","code":"","name":"","progress":"20","progress_nm":"股东大会通过","scale":11.8,"convertPrice":18.01,"price":18.08,"perPre":null,"apply10":581,"ration_rt":null,"rating_cd":null,"progress_full":"2026-07-04 董事会预案\n2026-07-20 股东大会通过","accept_date":null,"progress_dt":"2026-07-20","_c":{"cv":100.38867295946694,"needShares":581,"needMoney":10504.48,"baiyuan":9.519747764763226,"price":18.08,"estFloat":7.88}},
+{"stockCode":"603043","stockName":"广州酒家","code":"","name":"","progress":"20","progress_nm":"股东大会通过","scale":10,"convertPrice":13.28,"price":12.89,"perPre":null,"apply10":568,"ration_rt":null,"rating_cd":null,"progress_full":"2026-05-19 董事会预案\n2026-07-11 股东大会通过","accept_date":null,"progress_dt":"2026-07-11","_c":{"cv":97.06325301204821,"needShares":568,"needMoney":7321.52,"baiyuan":13.658366022356013,"price":12.89,"estFloat":3.27}},
+{"stockCode":"300739","stockName":"明阳电路","code":"","name":"","progress":"20","progress_nm":"股东大会通过","scale":12,"convertPrice":28.65,"price":20.88,"perPre":null,"apply10":312,"ration_rt":null,"rating_cd":null,"progress_full":"2026-06-06 董事会预案\n2026-06-23 股东大会通过","accept_date":null,"progress_dt":"2026-06-23","_c":{"cv":72.87958115183247,"needShares":312,"needMoney":6514.5599999999995,"baiyuan":15.35023086747225,"price":20.88,"estFloat":6.73}},
+{"stockCode":"002978","stockName":"安宁股份","code":"","name":"","progress":"20","progress_nm":"股东大会通过","scale":25,"convertPrice":25.9,"price":25.62,"perPre":null,"apply10":189,"ration_rt":null,"rating_cd":null,"progress_full":"2026-05-26 董事会预案\n2026-06-17 股东大会通过","accept_date":null,"progress_dt":"2026-06-17","_c":{"cv":98.91891891891893,"needShares":189,"needMoney":4842.18,"baiyuan":20.651855156148677,"price":25.62,"estFloat":7.42}},
+{"stockCode":"603499","stockName":"翔港科技","code":"","name":"","progress":"20","progress_nm":"股东大会通过","scale":4.78,"convertPrice":12.39,"price":10.47,"perPre":null,"apply10":887,"ration_rt":null,"rating_cd":null,"progress_full":"2026-05-30 董事会预案\n2026-06-16 股东大会通过","accept_date":null,"progress_dt":"2026-06-16","_c":{"cv":84.50363196125909,"needShares":887,"needMoney":9286.890000000001,"baiyuan":10.767867391559498,"price":10.47,"estFloat":1.94}},
+{"stockCode":"001203","stockName":"大中矿业","code":"","name":"","progress":"20","progress_nm":"股东大会通过","scale":25,"convertPrice":29.04,"price":26.31,"perPre":null,"apply10":614,"ration_rt":null,"rating_cd":null,"progress_full":"2026-05-16 董事会预案\n2026-06-02 股东大会通过","accept_date":null,"progress_dt":"2026-06-02","_c":{"cv":90.599173553719,"needShares":614,"needMoney":16154.339999999998,"baiyuan":6.190286944561028,"price":26.31,"estFloat":9.98}},
+{"stockCode":"301585","stockName":"蓝宇股份","code":"","name":"","progress":"20","progress_nm":"股东大会通过","scale":4.73,"convertPrice":25.58,"price":23.9,"perPre":null,"apply10":220,"ration_rt":null,"rating_cd":null,"progress_full":"2026-04-29 董事会预案\n2026-05-27 股东大会通过","accept_date":null,"progress_dt":"2026-05-27","_c":{"cv":93.43236903831118,"needShares":220,"needMoney":5258,"baiyuan":19.018638265500194,"price":23.9,"estFloat":3.13}},
+{"stockCode":"688372","stockName":"伟测科技","code":"","name":"","progress":"20","progress_nm":"股东大会通过","scale":20,"convertPrice":162.36,"price":118.9,"perPre":null,"apply10":85,"ration_rt":null,"rating_cd":null,"progress_full":"2026-05-09 董事会预案\n2026-05-23 股东大会通过","accept_date":null,"progress_dt":"2026-05-23","_c":{"cv":73.23232323232322,"needShares":85,"needMoney":10106.5,"baiyuan":9.894622272794736,"price":118.9,"estFloat":14.55}},
+{"stockCode":"603061","stockName":"金海通","code":"","name":"","progress":"20","progress_nm":"股东大会通过","scale":8.5,"convertPrice":397.65,"price":294.6,"perPre":null,"apply10":103,"ration_rt":null,"rating_cd":null,"progress_full":"2026-05-06 董事会预案\n2026-05-22 股东大会通过","accept_date":null,"progress_dt":"2026-05-22","_c":{"cv":74.08525084873634,"needShares":103,"needMoney":30343.800000000003,"baiyuan":3.295566145308102,"price":294.6,"estFloat":4.78}},
+{"stockCode":"688390","stockName":"固德威","code":"","name":"","progress":"20","progress_nm":"股东大会通过","scale":14.8,"convertPrice":81.94,"price":63.9,"perPre":null,"apply10":165,"ration_rt":null,"rating_cd":null,"progress_full":"2026-04-29 董事会预案\n2026-05-21 股东大会通过","accept_date":null,"progress_dt":"2026-05-21","_c":{"cv":77.98389065169637,"needShares":165,"needMoney":10543.5,"baiyuan":9.484516526770047,"price":63.9,"estFloat":10.25}},
+{"stockCode":"301522","stockName":"上大股份","code":"","name":"","progress":"20","progress_nm":"股东大会通过","scale":8,"convertPrice":24.28,"price":21.09,"perPre":null,"apply10":465,"ration_rt":null,"rating_cd":null,"progress_full":"2026-04-30 董事会预案\n2026-05-20 股东大会通过","accept_date":null,"progress_dt":"2026-05-20","_c":{"cv":86.86161449752883,"needShares":465,"needMoney":9806.85,"baiyuan":10.196954169789484,"price":21.09,"estFloat":4.41}},
+{"stockCode":"301263","stockName":"泰恩康","code":"","name":"","progress":"20","progress_nm":"股东大会通过","scale":8.01,"convertPrice":20.53,"price":18.5,"perPre":null,"apply10":638,"ration_rt":null,"rating_cd":null,"progress_full":"2026-05-08 董事会预案\n2026-05-20 股东大会通过","accept_date":null,"progress_dt":"2026-05-20","_c":{"cv":90.11203117389186,"needShares":638,"needMoney":11803,"baiyuan":8.472422265525713,"price":18.5,"estFloat":5.1}},
+{"stockCode":"301603","stockName":"乔锋智能","code":"","name":"","progress":"20","progress_nm":"股东大会通过","scale":11.5,"convertPrice":134.93,"price":104.85,"perPre":null,"apply10":106,"ration_rt":null,"rating_cd":null,"progress_full":"2026-04-27 董事会预案\n2026-05-19 股东大会通过","accept_date":null,"progress_dt":"2026-05-19","_c":{"cv":77.70695916401095,"needShares":106,"needMoney":11114.099999999999,"baiyuan":8.997579651073861,"price":104.85,"estFloat":3.88}},
+{"stockCode":"301092","stockName":"争光股份","code":"","name":"","progress":"20","progress_nm":"股东大会通过","scale":6.17,"convertPrice":52.32,"price":43.7,"perPre":null,"apply10":219,"ration_rt":null,"rating_cd":null,"progress_full":"2026-04-29 董事会预案\n2026-05-19 股东大会通过","accept_date":null,"progress_dt":"2026-05-19","_c":{"cv":83.5244648318043,"needShares":219,"needMoney":9570.300000000001,"baiyuan":10.448993239501373,"price":43.7,"estFloat":1.76}},
+{"stockCode":"301305","stockName":"朗坤科技","code":"","name":"","progress":"20","progress_nm":"股东大会通过","scale":5.9,"convertPrice":24.81,"price":20.77,"perPre":null,"apply10":411,"ration_rt":null,"rating_cd":null,"progress_full":"2026-03-23 董事会预案\n2026-05-18 股东大会通过","accept_date":null,"progress_dt":"2026-05-18","_c":{"cv":83.71624345022168,"needShares":411,"needMoney":8536.47,"baiyuan":11.714444026629275,"price":20.77,"estFloat":3.74}},
+{"stockCode":"688720","stockName":"艾森股份","code":"","name":"","progress":"20","progress_nm":"股东大会通过","scale":5.24,"convertPrice":87.28,"price":65.23,"perPre":null,"apply10":235,"ration_rt":null,"rating_cd":null,"progress_full":"2026-04-25 董事会预案\n2026-05-16 股东大会通过","accept_date":null,"progress_dt":"2026-05-16","_c":{"cv":74.73648029330889,"needShares":235,"needMoney":15329.050000000001,"baiyuan":6.523561473150651,"price":65.23,"estFloat":3.35}},
+{"stockCode":"603166","stockName":"福达股份","code":"","name":"","progress":"20","progress_nm":"股东大会通过","scale":10,"convertPrice":12.17,"price":9.59,"perPre":null,"apply10":646,"ration_rt":null,"rating_cd":null,"progress_full":"2026-04-30 董事会预案\n2026-05-16 股东大会通过","accept_date":null,"progress_dt":"2026-05-16","_c":{"cv":78.80032867707477,"needShares":646,"needMoney":6195.14,"baiyuan":16.14168525650752,"price":9.59,"estFloat":4.69}},
+{"stockCode":"300389","stockName":"艾比森","code":"","name":"","progress":"20","progress_nm":"股东大会通过","scale":8.2,"convertPrice":12.42,"price":11.63,"perPre":null,"apply10":451,"ration_rt":null,"rating_cd":null,"progress_full":"2026-04-23 董事会预案\n2026-05-15 股东大会通过","accept_date":null,"progress_dt":"2026-05-15","_c":{"cv":93.63929146537842,"needShares":451,"needMoney":5245.13,"baiyuan":19.06530438711719,"price":11.63,"estFloat":2.9}},
+{"stockCode":"603409","stockName":"汇通控股","code":"","name":"","progress":"20","progress_nm":"股东大会通过","scale":5,"convertPrice":17.77,"price":16.01,"perPre":null,"apply10":376,"ration_rt":null,"rating_cd":null,"progress_full":"2026-04-18 董事会预案\n2026-05-09 股东大会通过","accept_date":null,"progress_dt":"2026-05-09","_c":{"cv":90.09566685424875,"needShares":376,"needMoney":6019.76,"baiyuan":16.61195795181203,"price":16.01,"estFloat":1.76}},
+{"stockCode":"605020","stockName":"永和股份","code":"","name":"","progress":"20","progress_nm":"股东大会通过","scale":22,"convertPrice":39.61,"price":32.75,"perPre":null,"apply10":233,"ration_rt":null,"rating_cd":null,"progress_full":"2026-04-21 董事会预案\n2026-05-09 股东大会通过","accept_date":null,"progress_dt":"2026-05-09","_c":{"cv":82.68114112597829,"needShares":233,"needMoney":7630.75,"baiyuan":13.104871736067883,"price":32.75,"estFloat":13.98}},
+{"stockCode":"603693","stockName":"江苏新能","code":"","name":"","progress":"20","progress_nm":"股东大会通过","scale":12.4,"convertPrice":12.13,"price":11.69,"perPre":null,"apply10":719,"ration_rt":null,"rating_cd":null,"progress_full":"2026-02-11 董事会预案\n2026-03-25 股东大会通过","accept_date":null,"progress_dt":"2026-03-25","_c":{"cv":96.37262984336355,"needShares":719,"needMoney":8405.109999999999,"baiyuan":11.89752424418003,"price":11.69,"estFloat":2.7}},
+{"stockCode":"603219","stockName":"富佳股份","code":"","name":"","progress":"20","progress_nm":"股东大会通过","scale":5,"convertPrice":14.54,"price":12.74,"perPre":null,"apply10":1123,"ration_rt":null,"rating_cd":null,"progress_full":"2026-01-08 董事会预案\n2026-01-24 股东大会通过","accept_date":null,"progress_dt":"2026-01-24","_c":{"cv":87.62035763411279,"needShares":1123,"needMoney":14307.02,"baiyuan":6.989575746731325,"price":12.74,"estFloat":1.26}},
+{"stockCode":"605196","stockName":"华通线缆","code":"","name":"","progress":"20","progress_nm":"股东大会通过","scale":8,"convertPrice":25.94,"price":29.62,"perPre":null,"apply10":639,"ration_rt":null,"rating_cd":null,"progress_full":"2025-10-14 董事会预案\n2025-11-07 股东大会通过","accept_date":null,"progress_dt":"2025-11-07","_c":{"cv":114.18658442559753,"needShares":639,"needMoney":18927.18,"baiyuan":5.283407248200735,"price":29.62,"estFloat":5.51}},
+{"stockCode":"300709","stockName":"精研科技","code":"","name":"","progress":"20","progress_nm":"股东大会通过","scale":5.78,"convertPrice":45.28,"price":34.46,"perPre":null,"apply10":323,"ration_rt":null,"rating_cd":null,"progress_full":"2025-08-02 董事会预案\n2025-08-19 股东大会通过","accept_date":null,"progress_dt":"2025-08-19","_c":{"cv":76.10424028268551,"needShares":323,"needMoney":11130.58,"baiyuan":8.984257783511731,"price":34.46,"estFloat":4.66}},
+{"stockCode":"300751","stockName":"迈为股份","code":"","name":"","progress":"20","progress_nm":"股东大会通过","scale":19.67,"convertPrice":243.47,"price":181.3,"perPre":null,"apply10":142,"ration_rt":null,"rating_cd":null,"progress_full":"2025-05-31 董事会预案\n2025-06-16 股东大会通过","accept_date":null,"progress_dt":"2025-06-16","_c":{"cv":74.46502649197026,"needShares":142,"needMoney":25744.600000000002,"baiyuan":3.8843097193197798,"price":181.3,"estFloat":11.34}},
+{"stockCode":"600928","stockName":"西安银行","code":"","name":"","progress":"20","progress_nm":"股东大会通过","scale":80,"convertPrice":3.45,"price":3.53,"perPre":null,"apply10":556,"ration_rt":null,"rating_cd":null,"progress_full":"2023-03-24 董事会预案\n2025-05-31 股东大会通过","accept_date":null,"progress_dt":"2025-05-31","_c":{"cv":102.31884057971013,"needShares":556,"needMoney":1962.6799999999998,"baiyuan":50.95074082377158,"price":3.53,"estFloat":31.31}},
+{"stockCode":"301479","stockName":"弘景光电","code":"","name":"","progress":"10","progress_nm":"董事会预案","scale":6.3,"convertPrice":56.36,"price":45.13,"perPre":null,"apply10":198,"ration_rt":null,"rating_cd":null,"progress_full":"2026-07-24 董事会预案","accept_date":null,"progress_dt":"2026-07-24","_c":{"cv":80.07452093683463,"needShares":198,"needMoney":8935.74,"baiyuan":11.19101495791059,"price":45.13,"estFloat":3.41}},
+{"stockCode":"001335","stockName":"信凯科技","code":"","name":"","progress":"10","progress_nm":"董事会预案","scale":4.5,"convertPrice":37.8,"price":28.58,"perPre":null,"apply10":209,"ration_rt":null,"rating_cd":null,"progress_full":"2026-07-08 董事会预案","accept_date":null,"progress_dt":"2026-07-08","_c":{"cv":75.60846560846561,"needShares":209,"needMoney":5973.219999999999,"baiyuan":16.74138906653363,"price":28.58,"estFloat":1.38}},
+{"stockCode":"300695","stockName":"兆丰股份","code":"","name":"","progress":"10","progress_nm":"董事会预案","scale":14,"convertPrice":56.3,"price":42.21,"perPre":null,"apply10":74,"ration_rt":null,"rating_cd":null,"progress_full":"2026-06-23 董事会预案","accept_date":null,"progress_dt":"2026-06-23","_c":{"cv":74.9733570159858,"needShares":74,"needMoney":3123.54,"baiyuan":32.014957388091716,"price":42.21,"estFloat":4.07}},
+{"stockCode":"001389","stockName":"广合科技","code":"","name":"","progress":"10","progress_nm":"董事会预案","scale":36,"convertPrice":190.66,"price":160.5,"perPre":null,"apply10":119,"ration_rt":null,"rating_cd":null,"progress_full":"2026-06-23 董事会预案","accept_date":null,"progress_dt":"2026-06-23","_c":{"cv":84.18126507919858,"needShares":119,"needMoney":19099.5,"baiyuan":5.235739155475275,"price":160.5,"estFloat":11.77}},
+{"stockCode":"002948","stockName":"青岛银行","code":"","name":"","progress":"10","progress_nm":"董事会预案","scale":48,"convertPrice":5.48,"price":5.71,"perPre":null,"apply10":736,"ration_rt":null,"rating_cd":null,"progress_full":"2025-08-29 董事会预案","accept_date":null,"progress_dt":"2025-08-29","_c":{"cv":104.19708029197079,"needShares":736,"needMoney":4202.56,"baiyuan":23.79502017817711,"price":5.71,"estFloat":19.86}}
+];
+
+// ============ Supabase 云端同步（可选，配置即启用） ============
+// 反查某关注id当前所处的审核进度 / 名称（用于进度提醒对比）
+function progressOfId(id){
+  for(const r of PEND){ if(getRowId(r,"pend")===id) return r.stage||"待发"; }
+  for(const r of PROGRESS){ if(getRowId(r,"progress")===id) return String(r.progress); }
+  return "";
+}
+function nameOfId(id){
+  for(const r of PEND){ if(getRowId(r,"pend")===id) return (r.name||r.stockName||id); }
+  for(const r of PROGRESS){ if(getRowId(r,"progress")===id) return (r.stockName||r.name||id); }
+  return id;
+}
+const PROG_LABEL={ "90":"同意注册","80":"上市委通过","50":"交易所受理","20":"股东大会通过","10":"董事会预案" };
+
+const $=s=>document.querySelector(s);
+function toast(m,d=2200){const t=$("#toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),d);}
+function setTime(msg){
+  const d=new Date();
+  const p=n=>String(n).padStart(2,"0");
+  // 根据当前Tab加前缀：待发债实时 / 审核进度 / 我的关注
+  const tabLabel = activeTab==="pend"?"待发债实时":activeTab==="progress"?"审核进度":"我的关注";
+  $("#time").textContent=tabLabel+" "+d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+" "+p(d.getHours())+":"+p(d.getMinutes())+":"+p(d.getSeconds());
+}
+
+// 东财列表 -> 待发(空上市日) 且 申购日>=今天
+function todayStr(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+async function fetchList(){
+  const j=await (await fetch(EM_URL)).json();
+  const all=(j.result&&j.result.data)||[];
+  const t=todayStr();
+  return all.filter(o=>!o.LISTING_DATE && (!o.PUBLIC_START_DATE || o.PUBLIC_START_DATE.slice(0,10)>=t)).map(o=>({
+    code:o.SECURITY_CODE, name:o.SECURITY_NAME_ABBR,
+    stockCode:o.CONVERT_STOCK_CODE, stockName:o.CONVERT_STOCK_NAME_ABBR||"",
+    convertPrice:o.INITIAL_TRANSFER_PRICE, perPre:o.FIRST_PER_PREPLACING,
+    scale:o.ACTUAL_ISSUE_SCALE, publicStart:o.PUBLIC_START_DATE||"", listDate:o.LISTING_DATE||"",
+    stage:o.PUBLIC_START_DATE?"申购":"待发行"
+  }));
+}
+// 腾讯实时价：用 <script> 注入方式(返回 v_xxxx="..." 全局变量)，绕过 file:// 跨域限制，本地双击也能刷新
+function fetchPrice(stockCode){
+  return new Promise((resolve)=>{
+    const pre=stockCode[0]==="6"?"sh":"sz";
+    const key="v_"+pre+stockCode;
+    const s=document.createElement("script");
+    let done=false;
+    const finish=(raw)=>{
+      if(done)return; done=true;
+      try{s.remove();}catch(e){}
+      if(raw){
+        const f=raw.split("~");
+        resolve({price:parseFloat(f[3]), name:f[1]||""});
+      } else resolve(null);
+    };
+    s.onload=()=>finish(window[key]);
+    s.onerror=()=>finish(null);
+    s.src="https://qt.gtimg.cn/q="+pre+stockCode;
+    document.body.appendChild(s);
+    setTimeout(()=>finish(null), 6000);
+  });
+}
+
+// ===== 正股K线数据获取（东方财富历史K线接口） =====
+async function fetchKLine(stockCode, months=3){
+  if(!stockCode) return [];
+  const mkt=stockCode[0]==="6"?"1":"0"; // 1=沪,0=深
+  const url="https://push2his.eastmoney.com/api/qt/stock/kline/get?secid="+mkt+"."+stockCode+"&fields1=f1,f2,f3&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=101&fqt=1&beg=0&end=20500101&lmt="+Math.ceil(months*22);
+  try{
+    const resp=await fetch(url,{cache:"no-store"});
+    const json=await resp.json();
+    if(json.data&&json.data.klines){
+      return json.data.klines.map(line=>{
+        const p=line.split(",");
+        return{date:p[0],open:+p[1],close:+p[2],high:+p[3],low:+p[4],vol:+p[5],amt:+p[6]||0};
+      });
+    }
+  }catch(e){ console.warn("K线获取失败:",stockCode,e.message); }
+  return [];
+}
+// 根据K线数据生成AI风格点评
+function generateStockComment(klines, stockName){
+  if(!klines||klines.length<10) return null;
+  const first=klines[0].close, last=klines[klines.length-1].close;
+  const chgPct=((last-first)/first*100).toFixed(1);
+  const highs=klines.map(k=>k.high), lows=klines.map(k=>k.low);
+  const highMax=Math.max(...highs), lowMin=Math.min(...lows);
+  // 最大回撤
+  let maxDrawdown=0, peak=first;
+  klines.forEach(k=>{
+    if(k.close>peak) peak=k.close;
+    const dd=(peak-k.close)/peak*100;
+    if(dd>maxDrawdown) maxDrawdown=dd;
+  });
+  // 近期趋势（最近5日 vs 前5日）
+  const recent5=klines.slice(-5).map(k=>k.close);
+  const prev5=klines.slice(-10,-5).map(k=>k.close);
+  const avgRecent=recent5.reduce((a,b)=>a+b,0)/5;
+  const avgPrev=prev5.reduce((a,b)=>a+b,0)/5;
+  const trendDir=avgRecent>avgPrev?"上行":avgRecent<avgPrev?"下行":"横盘";
+  const trendStr={"上行":"近期有走强迹象","下行":"短期偏弱需注意","横盘":"区间震荡等待方向"}[trendDir];
+  // 波动率
+  const returns=[];
+  for(let i=1;i<klines.length;i++) returns.push((klines[i].close-klines[i-1].close)/klines[i-1].close);
+  const avgRet=returns.reduce((a,b)=>a+b,0)/returns.length;
+  const volatility=Math.sqrt(returns.map(r=>(r-avgRet)**2).reduce((a,b)=>a+b,0)/returns.length)*100;
+  // 支撑位/压力位
+  const support=lowMin.toFixed(2);
+  const resistance=highMax.toFixed(2);
+  let comment="📊 "+(stockName||"正股")+"近"+Math.round(klines.length/22)+"个月走势点评\n";
+  comment+="• 累计涨跌："+(chgPct>=0?"+":"")+chgPct+"%\n";
+  comment+="• 趋势判断："+trendDir+"（"+trendStr+"）\n";
+  comment+="• 区间范围："+support+" ~ "+resistance+"\n";
+  comment+="• 最大回撤："+maxDrawdown.toFixed(1)+"%\n";
+  comment+="• 波动率："+volatility.toFixed(1)+"%（"+(volatility>4?"高波动":volatility>2.5?"中等波动":"低波动")+"）\n";
+  if(chgPct<-15) comment+="⚠️ 跌幅较大，注意风险；";
+  else if(chgPct>20) comment+="🔥 涨势较强，追高需谨慎；";
+  else if(trendDir==="上行"&&maxDrawdown<8) comment+="✅ 走势稳健，可关注；";
+  return comment;
+}
+// Canvas迷你走势图
+function renderMiniChart(canvasId,klines,w,h){
+  const cv=document.getElementById(canvasId);
+  if(!cv||!klines||klines.length<3){ if(cv){cv.style.display="none";} return; }
+  const ctx=cv.getContext("2d");
+  const dpr=window.devicePixelRatio||1;
+  cv.width=w*dpr; cv.height=h*dpr;
+  ctx.scale(dpr,dpr);
+  const closes=klines.map(k=>k.close);
+  const lo=Math.min(...closes,...klines.map(k=>k.low)), hi=Math.max(...closes,...klines.map(k=>k.high));
+  const pad=(hi-lo)*0.12, range=hi-lo+2*pad;
+  // 网格
+  ctx.strokeStyle="#f0f0f0"; ctx.lineWidth=0.5;
+  for(let i=0;i<=4;i++){const y=i*h/4; ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+  // 收盘价折线（渐变填充）
+  ctx.beginPath();
+  klines.forEach((k,i)=>{
+    const x=i/(klines.length-1)*w, y=h-(k.close-lo+pad)/range*h;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.lineTo(w,h); ctx.lineTo(0,h); ctx.closePath();
+  const grad=ctx.createLinearGradient(0,0,0,h);
+  grad.addColorStop(0,"rgba(249,115,22,0.25)"); grad.addColorStop(1,"rgba(249,115,22,0.02)");
+  ctx.fillStyle=grad; ctx.fill();
+  // 折线
+  ctx.beginPath();
+  klines.forEach((k,i)=>{
+    const x=i/(klines.length-1)*w, y=h-(k.close-lo+pad)/range*h;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.strokeStyle="#f97316"; ctx.lineWidth=2; ctx.stroke();
+  // 最新价格标记
+  const lastX=w, lastY=h-(closes[closes.length-1]-lo+pad)/range*h;
+  ctx.beginPath(); ctx.arc(lastX,lastY,3.5,0,Math.PI*2);
+  ctx.fillStyle="#ea580c"; ctx.fill();
+  // 价格标签
+  ctx.fillStyle="#ea580c"; ctx.font="bold 11px -apple-system,sans-serif";
+  ctx.textAlign="right"; ctx.fillText(closes[closes.length-1].toFixed(2),w-6,lastY-6);
+  ctx.fillStyle="#9ca3af"; ctx.font="10px -apple-system,sans-serif";
+  ctx.textAlign="left"; ctx.fillText(lo.toFixed(2),2,h-3);
+  ctx.textAlign="right"; ctx.fillText(hi.toFixed(2),w-2,12);
+}
+function compute(r,price){
+  const cv=(price&&r.convertPrice)?price/r.convertPrice*100:null;
+  const code=(r.stockCode||"");
+  const isSH=code[0]==="6";  // 沪市(60/688开头)
+  // 每股配售额：优先用真实值，否则用 apply10 反推(apply10=配售10张所需股数≈1000/每股配售)
+  const perPre=(r.perPre&&r.perPre>0)?r.perPre:(r.apply10?1000/r.apply10:null);
+  const baiyuan=(price&&perPre)?perPre*100/price:null;
+  let needShares=null, needSharesSafe=null;
+  if(r.apply10&&r.apply10>0) needSharesSafe=r.apply10;
+  else if(perPre) needSharesSafe=Math.ceil(1000/perPre);
+  if(perPre&&perPre>0){
+    if(isSH){
+      // 沪市一手党(搏1手)：获配额≥500元即大概率进位到1手(精确算法捡漏)，持股取整到100股
+      let s=Math.ceil(500/perPre);
+      s=Math.ceil(s/100)*100;
+      needShares=s;
+    } else {
+      // 深市按张精确配售、无进位捡漏，1手=10张=1000元=needSharesSafe
+      needShares=needSharesSafe;
+    }
+  } else if(r.apply10&&r.apply10>0){
+    needShares=r.apply10;
+  }
+  const needMoney=(needShares&&price)?needShares*price:null;
+  const needMoneySafe=(needSharesSafe&&price)?needSharesSafe*price:null;
+  // estFloat 由服务端按"总规模×(1−受限主体锁定比例)"算好，存于 r._c.estFloat；此处直接读取，不再用固定比例估算
+  const estFloat=(r._c&&r._c.estFloat!=null)?r._c.estFloat:null;
+  return {cv,needShares,needSharesSafe,needMoney,needMoneySafe,baiyuan,price,market:isSH?"沪":"深",isSH,estFloat};
+}
+function fmt(v,d=2){return v==null?"待公告":(typeof v==="number"?v.toFixed(d):v);}
+function arrow(dir){return '<span class="sort-arrow'+(dir?' active':'')+'">'+(dir===1?'▲':(dir===-1?'↓':'⇅'))+'</span>';}
+function getVal(r,f){
+  const c=r._c||{};
+  if(f==="publicStart") return r.publicStart||"";
+  if(f==="cv") return c.cv!=null?c.cv:-999;
+  if(f==="baiyuan") return c.baiyuan!=null?c.baiyuan:-999;
+  if(f==="scale") return r.scale||0;
+  if(f==="progress_dt") return r.progress_dt||"0000-00-00";
+  if(f==="estFloat") { const c=r._c||{}; return c.estFloat!=null?c.estFloat:-999; }
+  if(f==="needMoney") return c.needMoney!=null?c.needMoney:999999;
+  if(f==="progress") return Number(r.progress)||0;
+  if(f==="name") return (r.name||r.stockName||"");
+  if(f==="stockName") return r.stockName||"";
+  return "";
+}
+// 审核阶段优先级（用于百元含权等字段的二级排序）：数值越大越靠前
+const PROG_PRIORITY={90:5,80:4,50:3,20:2,10:1};
+function progPriorityVal(r){
+  const p=r.progress;
+  return p!=null?(PROG_PRIORITY[p]||0):0;
+}
+function doSort(rows,sort){
+  if(!sort.field) return rows;
+  // 百元含权排序时，强化阶段权重：低进度项目显著靠后（不仅作为同值排位）
+  const needSecondary=sort.field==="baiyuan";
+  // 百元含权的典型范围约5~50，用权重10让阶段优先级(1-5)产生±50的影响
+  const PROG_WEIGHT=needSecondary?10:0;
+  return rows.slice().sort((a,b)=>{
+    let va=getVal(a,sort.field), vb=getVal(b,sort.field);
+    // 百元含权：复合分数=含权值+阶段优先级×权重（高进度加分）
+    if(needSecondary && typeof va==="number" && typeof vb==="number"){
+      va=va+progPriorityVal(a)*PROG_WEIGHT;
+      vb=vb+progPriorityVal(b)*PROG_WEIGHT;
+    }
+    let cmp=0;
+    if(typeof va==="string"&&typeof vb==="string"){cmp=va.localeCompare(vb);}
+    else if(typeof va==="number"&&typeof vb==="number"){cmp=va-vb;}
+    if(cmp!==0) return sort.dir*cmp;
+    // 完全相等时再按阶段排
+    if(needSecondary){
+      const pa=progPriorityVal(a), pb=progPriorityVal(b);
+      if(pa!==pb) return sort.dir*(pb-pa);
+    }
+    return 0;
+  });
+}
+
+function isMobile(){return window.matchMedia("(max-width:720px)").matches;}
+
+function renderPend(){
+  const p=$("#panel");
+  let rows=PEND;
+  // 剔除已过申购日的
+  const t=todayStr();
+  rows=rows.filter(r=>!r.publicStart || r.publicStart.slice(0,10)>=t);
+  if(keyword){const q=keyword.toLowerCase();rows=rows.filter(r=>(r.name||"").toLowerCase().includes(q)||(r.code||"").includes(q)||(r.stockName||"").toLowerCase().includes(q)||(r.stockCode||"").includes(q));}
+  if(!rows.length){p.innerHTML='<div class="card"><div class="empty">'+(keyword?"无匹配":"加载失败或暂无待发")+'</div></div>';return;}
+  rows=doSort(rows,pendSort);
+  const ps=pendSort;
+
+  // ===== 手机端：卡片列表 =====
+  if(isMobile()){
+    let h='<div class="sort-bar">';
+    const sfs=[{f:"publicStart",l:"申购日"},{f:"needMoney",l:"所需资金"},{f:"baiyuan",l:"百元含权"},{f:"scale",l:"规模"},{f:"estFloat",l:"预估流通"}];
+    sfs.forEach(s=>{const ac=(ps.field===s.f);h+='<span class="sort-btn'+(ac?' active':'')+'" data-sf="'+s.f+'">'+s.l+(ac?arrow(ps.dir):'')+'</span>'});
+    h+='</div><div class="cb-list">';
+    rows.forEach((r,i)=>{
+      const c=r._c||{};
+      const mkt=c.market||"";
+      h+='<div class="cb-item" data-i="'+i+'" data-kind="pend">';
+      // 第一行：名称+代码
+      const stageTag=r.stage==="申购"?'<span class="tag tag-sbuy">申购</span>':(r.stage==="待发行"?'<span class="tag tag-slist">待发行</span>':'');
+      const dStr=(r.publicStart||r.progress_dt||"");
+      const shortD=dStr?dStr.slice(5,10):"-";
+      h+='<div class="cb-name"><span class="n">'+(r.name||"-")+'</span><span class="c">'+(r.code||"")+'</span>'+favBtnHtml(getRowId(r,"pend"),"pend")+'</div>';
+      // 第二行：日期（左）+ 进度标签（右），单开一行，在公司名称下面
+      h+='<div class="cb-sub"><span class="cb-d">📅 '+shortD+'</span><span class="cb-tag">'+stageTag+'</span></div>';
+      // 一行四列：配售 | 规模 | 所需资金 | 流通
+      const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
+      h+='<div class="cb-stats">';
+      h+='<span class="s"><span class="l">配售</span><span class="v hl">'+(c.needShares!=null?shLabel:'-')+'</span></span>';
+      h+='<span class="s"><span class="l">规模</span><span class="v">'+(r.scale!=null?fmt(r.scale)+'亿':'-')+'</span></span>';
+      h+='<span class="s"><span class="l">所需资金</span><span class="v hl">'+(c.needMoney!=null?fmt(c.needMoney,0)+'元':'-')+'</span></span>';
+      h+='<span class="s"><span class="l">流通</span><span class="v f">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span>';
+      h+='</div>';
+      h+='</div>';
+    });
+    h+='</div>';
+    p.innerHTML=h;
+    p.querySelectorAll(".cb-item").forEach(el=>el.onclick=()=>openDetail(rows[+el.dataset.i],"pend"));
+    p.querySelectorAll(".sort-btn").forEach(btn=>btn.onclick=()=>{
+      if(!recordUsage())return;
+      const f=btn.dataset.sf;
+      pendSort={field:f, dir:pendSort.field===f?-pendSort.dir:1};
+      renderPend();
+    });
+    return;
+  }
+
+  // ===== PC端：表格 =====
+  let h='<div class="card"><table><thead><tr>';
+  h+='<th>转债 / 正股</th>';
+  h+='<th data-sf="cv">转股价值 '+(ps.field==="cv"?arrow(ps.dir):'')+'</th>';
+  h+='<th>一手党</th>';
+  h+='<th data-sf="needMoney">所需资金 '+(ps.field==="needMoney"?arrow(ps.dir):'')+'</th>';
+  h+='<th>申购日</th><th>阶段</th>';
+  h+='<th data-sf="scale">规模(亿) '+(ps.field==="scale"?arrow(ps.dir):'')+'</th>';
+  h+='<th data-sf="baiyuan">百元含权 '+(ps.field==="baiyuan"?arrow(ps.dir):'')+'</th>';
+  h+='<th data-sf="estFloat">预估流通(亿) '+(ps.field==="estFloat"?arrow(ps.dir):'')+'</th>';
+  h+='</tr></thead><tbody>';
+  rows.forEach((r,i)=>{
+    const c=r._c||{};
+    const mkt=c.market||"";
+    const mktTag=mkt?'<span style="font-size:10px;background:'+(mkt==="沪"?"#fff4ea;color:#ea580c":"#f3f4f6;color:#6b7280")+';padding:1px 6px;border-radius:8px;font-weight:700;margin-left:4px">'+mkt+'</span>':"";
+    h+='<tr class="clickable" data-i="'+i+'" data-kind="pend">';
+    h+='<td data-label="转债/正股"><div class="name">'+(r.name||"-")+mktTag+'</div><div class="code">'+(r.code||"")+' · '+(r.stockName||"")+'('+(r.stockCode||"")+')</div></td>';
+    h+='<td data-label="转股价值"><span class="num">'+(c.cv!=null?fmt(c.cv):"…")+'</span></td>';
+    const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
+    h+='<td data-label="一手党">'+(c.needShares!=null?('<span class="num">'+shLabel+'</span>'+(c.isSH&&c.needSharesSafe!=null?'<br><span class="muted" style="font-size:11px">稳配'+c.needSharesSafe+'股</span>':'')):'<span class="muted">-</span>')+'</td>';
+    h+='<td data-label="所需资金">'+(c.needMoney!=null?('<span class="hl-fund num">'+fmt(c.needMoney,0)+'元</span>'+(c.isSH&&c.needMoneySafe!=null?'<br><span class="muted" style="font-size:11px">稳'+fmt(c.needMoneySafe,0)+'元</span>':'')):'<span class="muted">-</span>')+'</td>';
+    h+='<td data-label="申购日"><span class="muted">'+(r.publicStart||"-")+'</span></td>';
+    h+='<td data-label="阶段"><span class="tag '+(r.stage==="申购"?"tag-sbuy":"tag-slist")+'">'+r.stage+'</span></td>';
+    h+='<td data-label="规模"><span class="num">'+fmt(r.scale)+'</span></td>';
+    h+='<td data-label="百元含权"><span class="num">'+(c.baiyuan!=null?fmt(c.baiyuan):"…")+'</span></td>';
+    h+='<td data-label="预估流通"><span class="num">'+(c.estFloat!=null?c.estFloat:'-')+'<span class="muted" style="font-size:10px;font-weight:400"> 预</span></span></td>';
+    h+='</tr>';
+  });
+  h+='</tbody></table></div>';
+  p.innerHTML=h;
+  p.querySelectorAll("tr.clickable").forEach(tr=>tr.onclick=()=>openDetail(rows[+tr.dataset.i],"pend"));
+  p.querySelectorAll("thead th[data-sf]").forEach(th=>th.onclick=()=>{
+    const f=th.dataset.sf;
+    pendSort={field:f, dir:pendSort.field===f?-pendSort.dir:1};
+    renderPend();
+  });
+}
+function progressLabel(r){
+  if(r.progress==="90") return (r.progress_nm&&r.progress_nm.indexOf("申购")>=0)?"已排期申购":"同意注册";
+  if(r.progress==="80") return "上市委通过";
+  if(r.progress==="50") return "交易所受理";
+  if(r.progress==="20") return "股东大会通过";
+  if(r.progress==="10") return "董事会预案";
+  return (r.progress_nm||"其他").replace(/<br>/g," ");
+}
+// 审核进度只显示「还在审批中」的：排除已上市(99)和已排期申购(90含"申购")
+function filterProgressRaw(arr){
+  return arr.filter(r=>{
+    if(r.progress==="99") return false;
+    if(r.progress==="90"&&r.progress_nm&&r.progress_nm.indexOf("申购")>=0) return false;
+    return true;
+  });
+}
+function renderProgress(){
+  const p=$("#progressPanel");
+  let rows=filterProgressRaw(PROGRESS);
+  if(PROG_FILTER!=="all") rows=rows.filter(r=>String(r.progress)===PROG_FILTER);
+  if(keyword2){const q=keyword2.toLowerCase();rows=rows.filter(r=>(r.name||"").toLowerCase().includes(q)||(r.stockName||"").toLowerCase().includes(q)||(r.stockCode||"").includes(q)||(r.code||"").includes(q));}
+  if(!rows.length){p.innerHTML='<div class="card"><div class="empty">'+(keyword2||(PROG_FILTER!=="all")?"无匹配":"加载中 / 暂无数据")+'</div></div>';return;}
+  rows=doSort(rows,progSort);
+  const ps=progSort;
+
+  // ===== 手机端：多种布局模式 =====
+  if(isMobile()){
+    // 布局A：卡片式（完整信息）
+    if(MOBILE_LAYOUT==='card'){
+      let h='<div class="sort-bar">';
+      const progSfs=[{f:"progress",l:"进度"},{f:"needMoney",l:"所需资金"},{f:"baiyuan",l:"百元含权"},{f:"scale",l:"规模"},{f:"estFloat",l:"预估流通"}];
+      progSfs.forEach(s=>{const ac=(ps.field===s.f);h+='<span class="sort-btn'+(ac?' active':'')+'" data-sf="'+s.f+'" data-kind="progress">'+s.l+(ac?arrow(ps.dir):'')+'</span>'});
+      h+='</div><div class="cb-list">';
+      rows.forEach((r,i)=>{
+        const c=r._c||{};
+        const tagCls="tag-s"+r.progress;
+        const pl=progressLabel(r);
+        const mkt=c.market||"";
+        const mktTag=mkt?'<span class="mkt-tag">'+mkt+'</span>':"";
+        h+='<div class="cb-item" data-i="'+i+'" data-kind="progress">';
+        // 第一行：名称+代码+市场标签+★（和待发债cb-name结构一致）
+        h+='<div class="cb-name"><span class="n">'+(r.stockName||"-")+'</span><span class="c">'+(r.stockCode||"")+'</span>'+mktTag+favBtnHtml(getRowId(r,"progress"),"progress")+'</div>';
+        // 数据区：3列×2行网格（和待发债一致，所有格子标签在上值在下面），中间横线贯穿
+        const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
+        h+='<div class="cb-stats">';
+        // 第1行：配售 | 规模 | (状态标签：标签文字隐藏，值位置不变)
+        h+='<span class="s"><span class="l">配售</span><span class="v hl">'+(c.needShares!=null?shLabel:'-')+'</span></span>';
+        h+='<span class="s"><span class="l">规模</span><span class="v">'+(r.scale!=null?fmt(r.scale)+'亿':'-')+'</span></span>';
+        h+='<span class="s"><span class="l" style="visibility:hidden">状态</span><span class="v"><span class="tag '+tagCls+'">'+pl+'</span></span></span>';
+        // 第2行：所需资金 | 预估流通 | 日期(标签文字隐藏，值位置不变)
+        h+='<span class="s"><span class="l">所需资金</span><span class="v hl">'+(c.needMoney!=null?fmt(c.needMoney,0)+'元':'-')+'</span></span>';
+        h+='<span class="s"><span class="l">预估流通</span><span class="v f">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span>';
+        h+='<span class="s"><span class="l" style="visibility:hidden">日期</span><span class="v"><span class="cb-d">🗓️ '+(r.progress_dt?r.progress_dt.slice(0,10):"-")+'</span></span></span>';
+        h+='</div>';
+        if(c.isSH && (c.needSharesSafe!=null || c.needMoneySafe!=null)){
+          h+='<div class="cb-safe">';
+          if(c.needSharesSafe!=null)h+='<span>稳配'+c.needSharesSafe+'股</span>';
+          if(c.needMoneySafe!=null)h+='<span>稳'+fmt(c.needMoneySafe,0)+'元</span>';
+          h+='</div>';
+        }
+        h+='</div>';
+      });
+      h+='</div>';
+      p.innerHTML=h;
+      p.querySelectorAll(".cb-item").forEach(el=>el.onclick=()=>openDetail(rows[+el.dataset.i],"progress"));
+      p.querySelectorAll(".sort-btn").forEach(btn=>btn.onclick=()=>{
+        if(!recordUsage())return;
+        const f=btn.dataset.sf;
+        progSort={field:f, dir:progSort.field===f?-progSort.dir:1};
+        renderProgress();
+      });
+      return;
+    }
+    
+    // 布局B：列表式（紧凑，类似微信聊天列表）
+    if(MOBILE_LAYOUT==='list'){
+      let h='<div class="cb-list">';
+      rows.forEach((r,i)=>{
+        const c=r._c||{};
+        const tagCls="tag-s"+r.progress;
+        const pl=progressLabel(r);
+        const mkt=c.market||"";
+        const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
+        h+='<div class="cb-item cb-item-list" data-i="'+i+'" data-kind="progress">';
+        h+='<div class="cb-list-left">';
+        h+='<div class="cb-list-icon">'+(mkt==="沪"?"沪":"深")+'</div>';
+        h+='</div>';
+        h+='<div class="cb-list-body">';
+        h+='<div class="cb-list-top"><span class="cb-list-name">'+(r.stockName||"-")+'</span><span class="tag '+tagCls+'">'+pl+'</span></div>';
+        h+='<div class="cb-list-mid">'+(r.stockCode||"")+(r.name?(" · "+r.name):"")+'</div>';
+        h+='<div class="cb-list-bot">';
+        h+='<span class="cb-list-info">'+(c.needShares!=null?shLabel:'-')+' | '+((c.needMoney!=null?fmt(c.needMoney,0)+'元':'-'))+'</span>';
+        h+='<span class="cb-list-date">'+(r.progress_dt?r.progress_dt.slice(5,10):"-")+'</span>';
+        h+='</div>';
+        h+='</div>';
+        h+='<div class="cb-list-right">';
+        h+='<span class="cb-list-cv">'+(c.cv!=null?fmt(c.cv):"…")+'</span>';
+        h+='</div>';
+        h+='</div>';
+      });
+      h+='</div>';
+      p.innerHTML=h;
+      p.querySelectorAll(".cb-item").forEach(el=>el.onclick=()=>openDetail(rows[+el.dataset.i],"progress"));
+      return;
+    }
+    
+    // 布局C：数据条式（极简，关键数据一目了然）
+    if(MOBILE_LAYOUT==='bar'){
+      let h='<div class="cb-list">';
+      rows.forEach((r,i)=>{
+        const c=r._c||{};
+        const tagCls="tag-s"+r.progress;
+        const pl=progressLabel(r);
+        const mkt=c.market||"";
+        const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
+        h+='<div class="cb-item cb-item-bar" data-i="'+i+'" data-kind="progress">';
+        h+='<div class="cb-bar-header">';
+        h+='<span class="cb-bar-name">'+(r.stockName||"-")+'</span>';
+        h+='<span class="tag '+tagCls+'">'+pl+'</span>';
+        h+='</div>';
+        h+='<div class="cb-bar-data">';
+        h+='<div class="cb-bar-row">';
+        h+='<span class="cb-bar-chip">转股价值 <strong>'+(c.cv!=null?fmt(c.cv):"…")+'</strong></span>';
+        h+='<span class="cb-bar-chip">百元含权 <strong>'+(c.baiyuan!=null?fmt(c.baiyuan):"…")+'</strong></span>';
+        h+='<span class="cb-bar-chip">规模 <strong>'+(r.scale!=null?fmt(r.scale)+'亿':'-')+'</strong></span>';
+        h+='</div>';
+        h+='<div class="cb-bar-row cb-bar-row-highlight">';
+        h+='<span class="cb-bar-chip cb-bar-chip-hl">配售 <strong>'+(c.needShares!=null?shLabel:'-')+'</strong></span>';
+        h+='<span class="cb-bar-chip cb-bar-chip-hl">所需资金 <strong>'+(c.needMoney!=null?fmt(c.needMoney,0)+'元':'-')+'</strong></span>';
+        h+='<span class="cb-bar-chip">预估流通 <strong>'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</strong></span>';
+        h+='</div>';
+        h+='</div>';
+        h+='<div class="cb-bar-footer">';
+        h+='<span class="cb-bar-code">'+(r.stockCode||"")+(r.name?(" · "+r.name):"")+'</span>';
+        h+='<span class="cb-bar-date">📅 '+(r.progress_dt?r.progress_dt.slice(5,10):"-")+'</span>';
+        h+='</div>';
+        h+='</div>';
+      });
+      h+='</div>';
+      p.innerHTML=h;
+      p.querySelectorAll(".cb-item").forEach(el=>el.onclick=()=>openDetail(rows[+el.dataset.i],"progress"));
+      return;
+    }
+    
+    // 布局D：折叠式（默认只显示关键信息，点击展开）
+    if(MOBILE_LAYOUT==='fold'){
+      let h='<div class="cb-list">';
+      rows.forEach((r,i)=>{
+        const c=r._c||{};
+        const tagCls="tag-s"+r.progress;
+        const pl=progressLabel(r);
+        const mkt=c.market||"";
+        const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
+        h+='<div class="cb-item cb-item-fold" data-i="'+i+'" data-kind="progress">';
+        h+='<div class="cb-fold-header" data-fold-i="'+i+'">';
+        h+='<div class="cb-fold-left">';
+        h+='<span class="cb-fold-name">'+(r.stockName||"-")+'</span>';
+        h+='<span class="cb-fold-code">'+(r.stockCode||"")+(r.name?(" · "+r.name):"")+'</span>';
+        h+='</div>';
+        h+='<div class="cb-fold-right">';
+        h+='<span class="tag '+tagCls+'">'+pl+'</span>';
+        h+='<span class="cb-fold-arrow">›</span>';
+        h+='</div>';
+        h+='</div>';
+        h+='<div class="cb-fold-detail" id="fold-detail-'+i+'" style="display:none;">';
+        h+='<div class="cb-fold-row">';
+        h+='<span class="cb-fold-stat"><span class="cb-fold-label">转股价值</span><span class="cb-fold-val">'+(c.cv!=null?fmt(c.cv):"…")+'</span></span>';
+        h+='<span class="cb-fold-stat"><span class="cb-fold-label">百元含权</span><span class="cb-fold-val">'+(c.baiyuan!=null?fmt(c.baiyuan):"…")+'</span></span>';
+        h+='<span class="cb-fold-stat"><span class="cb-fold-label">规模</span><span class="cb-fold-val">'+(r.scale!=null?fmt(r.scale)+'亿':'-')+'</span></span>';
+        h+='</div>';
+        h+='<div class="cb-fold-row">';
+        h+='<span class="cb-fold-stat"><span class="cb-fold-label">配售</span><span class="cb-fold-val hl">'+(c.needShares!=null?shLabel:'-')+'</span></span>';
+        h+='<span class="cb-fold-stat"><span class="cb-fold-label">所需资金</span><span class="cb-fold-val hl">'+(c.needMoney!=null?fmt(c.needMoney,0)+'元':'-')+'</span></span>';
+        h+='<span class="cb-fold-stat"><span class="cb-fold-label">预估流通</span><span class="cb-fold-val">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span>';
+        h+='</div>';
+        if(c.isSH && (c.needSharesSafe!=null || c.needMoneySafe!=null)){
+          h+='<div class="cb-fold-safe">';
+          if(c.needSharesSafe!=null)h+='<span>稳配'+c.needSharesSafe+'股</span>';
+          if(c.needMoneySafe!=null)h+='<span>稳'+fmt(c.needMoneySafe,0)+'元</span>';
+          h+='</div>';
+        }
+        h+='<div class="cb-fold-date">📅 '+(r.progress_dt?r.progress_dt.slice(5,10):"-")+'</div>';
+        h+='</div>';
+        h+='</div>';
+      });
+      h+='</div>';
+      p.innerHTML=h;
+      p.querySelectorAll(".cb-item").forEach(el=>el.onclick=()=>openDetail(rows[+el.dataset.i],"progress"));
+      // 折叠展开事件
+      p.querySelectorAll(".cb-fold-header").forEach(el=>{
+        el.onclick=(e)=>{
+          e.stopPropagation();
+          const idx=el.dataset.foldI;
+          const detail=$("#fold-detail-"+idx);
+          const arrow=el.querySelector(".cb-fold-arrow");
+          if(detail.style.display==="none"){
+            detail.style.display="block";
+            arrow.style.transform="rotate(90deg)";
+          }else{
+            detail.style.display="none";
+            arrow.style.transform="rotate(0deg)";
+          }
+        };
+      });
+      return;
+    }
+  }// ===== PC端：表格 =====
+  let h='<div class="card"><table><thead><tr>';
+  h+='<th>正股 / 转债</th>';
+  h+='<th data-sf="progress">进度 '+(ps.field==="progress"?arrow(ps.dir):'')+'</th>';
+  h+='<th data-sf="cv">转股价值 '+(ps.field==="cv"?arrow(ps.dir):'')+'</th>';
+  h+='<th>一手党</th>';
+  h+='<th data-sf="needMoney">所需资金 '+(ps.field==="needMoney"?arrow(ps.dir):'')+'</th>';
+  h+='<th data-sf="baiyuan">百元含权 '+(ps.field==="baiyuan"?arrow(ps.dir):'')+'</th>';
+  h+='<th data-sf="scale">规模(亿) '+(ps.field==="scale"?arrow(ps.dir):'')+'</th>';
+  h+='<th data-sf="estFloat">预估流通(亿) '+(ps.field==="estFloat"?arrow(ps.dir):'')+'</th>';
+  h+='</tr></thead><tbody>';
+  rows.forEach((r,i)=>{
+    const c=r._c||{};
+    const mkt=c.market||"";
+    const mktTag=mkt?'<span style="font-size:10px;background:'+(mkt==="沪"?"#fff4ea;color:#ea580c":"#f3f4f6;color:#6b7280")+';padding:1px 6px;border-radius:8px;font-weight:700;margin-left:4px">'+mkt+'</span>':"";
+    const tagCls="tag-s"+r.progress;
+    h+='<tr class="clickable" data-i="'+i+'" data-kind="progress">';
+    h+='<td data-label="正股/转债"><div class="name">'+(r.stockName||"-")+mktTag+'</div><div class="code">'+(r.stockCode||"")+(r.name?(" · "+r.name):"")+'</div></td>';
+    h+='<td data-label="进度"><span class="tag '+tagCls+'">'+progressLabel(r)+'</span></td>';
+    h+='<td data-label="转股价值"><span class="num">'+(c.cv!=null?fmt(c.cv):"…")+'</span></td>';
+    const shLabel2=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
+    h+='<td data-label="一手党">'+(c.needShares!=null?('<span class="num">'+shLabel2+'</span>'+(c.isSH&&c.needSharesSafe!=null?'<br><span class="muted" style="font-size:11px">稳配'+c.needSharesSafe+'股</span>':'')):'<span class="muted">-</span>')+'</td>';
+    h+='<td data-label="所需资金">'+(c.needMoney!=null?('<span class="hl-fund num">'+fmt(c.needMoney,0)+'元</span>'+(c.isSH&&c.needMoneySafe!=null?'<br><span class="muted" style="font-size:11px">稳'+fmt(c.needMoneySafe,0)+'元</span>':'')):'<span class="muted">-</span>')+'</td>';
+    h+='<td data-label="百元含权"><span class="num">'+(c.baiyuan!=null?fmt(c.baiyuan):"…")+'</span></td>';
+    h+='<td data-label="规模"><span class="num">'+fmt(r.scale)+'</span></td>';
+    h+='<td data-label="预估流通"><span class="num">'+(c.estFloat!=null?c.estFloat:'-')+'<span class="muted" style="font-size:10px;font-weight:400"> 预</span></span></td>';
+    h+='</tr>';
+  });
+  h+='</tbody></table></div>';
+  p.innerHTML=h;
+  p.querySelectorAll("tr.clickable").forEach(tr=>tr.onclick=()=>openDetail(rows[+tr.dataset.i],"progress"));
+  p.querySelectorAll("thead th[data-sf]").forEach(th=>th.onclick=()=>{
+    const f=th.dataset.sf;
+    progSort={field:f, dir:progSort.field===f?-progSort.dir:1};
+    renderProgress();
+  });
+}
+function openDetail(r,kind){
+  const title=(kind==="progress"?(r.stockName||r.name||""):(kind==="pend"?(r.name||""):(r.stockName||"")))+"（"+(r.code||r.stockCode||"")+"）";
+  $("#mtitle").textContent=title;
+  const c=r._c||{};
+  let rows=[];
+  if(kind==="progress"){
+    rows=[["stockCode",r.stockCode],["stockName",r.stockName],["name",r.name],["code",r.code],
+      ["progress_nm",progressLabel(r)],["convertPrice",r.convertPrice],["price",c.price],
+      ["cv",c.cv],["perPre",r.perPre],["一手党(搏)",c.needShares!=null?c.needShares+"股":"-"],
+      ["稳配1手",(c.isSH&&c.needSharesSafe!=null)?c.needSharesSafe+"股":"-"],
+      ["所需资金(搏)",c.needMoney!=null?fmt(c.needMoney,0)+"元":"-"],
+      ["所需资金(稳)",(c.isSH&&c.needMoneySafe!=null)?fmt(c.needMoneySafe,0)+"元":"-"],
+      ["scale",r.scale],["baiyuan",c.baiyuan],["progress_full",r.progress_full]];
+  } else {
+    rows=[["code",r.code],["name",r.name],["stockCode",r.stockCode],["stockName",r.stockName],
+      ["convertPrice",r.convertPrice],["price",c.price],["cv",c.cv],["perPre",r.perPre],
+      ["一手党(搏)",c.needShares!=null?c.needShares+"股":"-"],
+      ["稳配1手",(c.isSH&&c.needSharesSafe!=null)?c.needSharesSafe+"股":"-"],
+      ["所需资金(搏)",c.needMoney!=null?fmt(c.needMoney,0)+"元":"-"],
+      ["所需资金(稳)",(c.isSH&&c.needMoneySafe!=null)?fmt(c.needMoneySafe,0)+"元":"-"],
+      ["scale",r.scale],["publicStart",r.publicStart],["stage",r.stage],["baiyuan",c.baiyuan],["listDate",r.listDate]];
+  }
+  let h="";
+  rows.forEach(([k,v])=>{if(v==null||v==="")return;let val=v;
+    if(k==="cv"||k==="baiyuan"||k==="price")val=fmt(v);
+    if(k==="needMoney"&&v!=null)val=fmt(v,0);
+    if(k==="scale"&&v!=null)val=fmt(v)+"亿";
+    if(k==="perPre"&&v!=null)val=fmt(v)+"元";
+    if(k==="apply10"&&v!=null)val=fmt(v)+"股";
+    if(k==="progress_full"){h+='<div class="mrow"><div class="k">审批流程</div><div class="v" style="white-space:pre-line;text-align:left;font-weight:600">'+val+'</div></div>';return;}
+    h+='<div class="mrow"><div class="k">'+(LABEL[k]||k)+'</div><div class="v">'+val+'</div></div>';
+  });
+  $("#mbody").innerHTML=h||'<div class="empty">无字段</div>';
+  $("#mask").classList.add("show");
+  // 异步加载正股近3个月K线走势（所有有stockCode的转债）
+  const sc=(r.stockCode||"").replace(/^\s+|\s+$/g,"");
+  if(sc){
+    loadStockChart(sc, (r.stockName||r.name||""));
+  }
+}
+
+// 异步加载正股走势图并追加到详情弹窗
+async function loadStockChart(stockCode, stockName){
+  const mb=$("#mbody");
+  // 显示加载占位
+  let chartId="chart_"+stockCode;
+  mb.innerHTML+=`<div style="margin-top:14px;padding-top:14px;border-top:2px solid #f3f4f6"><div style="font-size:13px;font-weight:800;color:#ea580c;margin-bottom:10px">📈 正股近3个月走势</div><div id=${chartId}_wrap" style="text-align:center"><span style="color:#9ca3af;font-size:12px">加载走势数捦…</span></div></div>`;
+  try{
+    const klines=await fetchKLine(stockCode,3);
+    const wrap=document.getElementById(chartId+"_wrap");
+    if(!wrap) return;
+    if(klines.length<5){
+      wrap.innerHTML='<span style="color:#9ca3af;font-size:12px">暂无足够走势数据</span>';
+      return;
+    }
+    // 渲染图表 + 点评
+    const comment=generateStockComment(klines,stockName);
+    wrap.innerHTML='<canvas id="'+chartId+'" style="width:100%;max-width:360px;height:130px;display:block;margin:0 auto 8px;border-radius:8px;background:#fafbfc"></canvas>'
+      +(comment?'<pre style="font-size:11.5px;line-height:1.7;color:#4b5563;background:#f9fafb;padding:10px 12px;border-radius:8px;margin-top:6px;white-space:pre-wrap;font-family:-apple-system,sans-serif;word-break:break-all">'+comment+"</pre>":"");
+    // 等待DOM渲染后画图
+    requestAnimationFrame(()=>{ renderMiniChart(chartId,klines,Math.min(wrap.clientWidth-16,360),120); });
+  }catch(e){
+    const wrap=document.getElementById(chartId+"_wrap");
+    if(wrap) wrap.innerHTML='<span style="color:#ef4444;font-size:12px">走势加载失败</span>';
+  }
+}
+async function loadAll(){
+  const btn=$("#refresh");btn.disabled=true;btn.textContent="刷新中…";
+  try{
+    let emList=[];
+    try{ emList=await fetchList(); }catch(e){ console.warn("东财列表拉取失败(用快照):",e.message); }
+    const emMap={}; emList.forEach(o=>emMap[o.code]=o);
+    let merged=SNAPSHOT_PEND.map(base=>{ const e=emMap[base.code]; const bf=(base._c&&base._c.estFloat!=null)?base._c.estFloat:null; return e?{...base,...e,_c:null,_estFloat:bf}:{...base,_estFloat:bf}; });
+    emList.forEach(o=>{ if(!SNAPSHOT_PEND.find(b=>b.code===o.code)) merged.push(o); });
+    PEND=merged;
+    // 价格刷新(腾讯<script>注入，file:// 可用)；东财列表失败也不影响实时价
+    await Promise.all(PEND.map(async r=>{try{const q=await fetchPrice(r.stockCode);if(q){if(!r.stockName)r.stockName=q.name;const oldF=r._estFloat!=null?r._estFloat:(r._c&&r._c.estFloat!=null?r._c.estFloat:null);r._c=compute(r,q.price);if(oldF!=null)r._c.estFloat=oldF;}}catch(e){r._c=r._c||{};}}));
+    renderPend();
+    setTime("待发债实时");
+    const hit=PEND.filter(r=>r._c&&r._c.cv!=null).length;
+    toast(hit>0?("✅ 待发债 "+PEND.length+" 只（"+hit+"/"+PEND.length+" 已刷新实时价）"):"⚠️ 实时价拉取失败，已用快照价");
+  }catch(e){console.error("刷新失败(非致命)，使用快照数据:",e.message);}
+  finally{btn.disabled=false;btn.textContent="↻ 刷新实时";}
+}
+async function loadProgressRealtime(){
+  if(!PROGRESS.length){renderProgress();return;}
+  const btn=$("#refresh");btn.disabled=true;btn.textContent="刷新中…";
+  try{
+    await Promise.all(PROGRESS.map(async r=>{try{const q=await fetchPrice(r.stockCode);if(q){if(!r.stockName&&q.name)r.stockName=q.name;if(q.price!=null&&r.convertPrice){r.price=q.price;r._c=compute(r,q.price);}}}catch(e){}}));
+    renderProgress();
+    setTime("审核进度实时");
+    const shown=filterProgressRaw(PROGRESS);
+    toast("✅ 审核进度 "+shown.length+" 只（已过滤上市/申购中，"+(shown.filter(r=>r._c&&r._c.cv!=null).length)+"/"+shown.length+" 命中实时价）");
+  }catch(e){console.error("审核进度实时价刷新失败(非致命):",e.message);}
+  finally{btn.disabled=false;btn.textContent="↻ 刷新实时";}
+}
+
+// 事件
+$("#mx").onclick=()=>$("#mask").classList.remove("show");
+$("#mask").onclick=e=>{if(e.target.id==="mask")$("#mask").classList.remove("show");};
+$("#q").addEventListener("input",e=>{if(!recordUsage())return;keyword=e.target.value.trim();renderPend();});
+$("#q2").addEventListener("input",e=>{if(!recordUsage())return;keyword2=e.target.value.trim();renderProgress();});
+$("#refresh").onclick=()=>{ if(activeTab==="pend") loadAll(); else loadProgressRealtime(); };
+
+// 布局切换事件
+document.querySelectorAll("#layoutSwitcher .layout-btn").forEach(btn=>{
+  btn.onclick=()=>{
+    document.querySelectorAll("#layoutSwitcher .layout-btn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    MOBILE_LAYOUT=btn.dataset.layout;
+    if(activeTab==="progress")renderProgress();
+    if(activeTab==="pend")renderPend();
+    if(activeTab==="fav")renderFav();
+  };
+});
+// 手机端搜索框旁的刷新按钮（待发债/审核进度各一个）
+document.querySelectorAll("#refreshMobile,#refreshMobile2").forEach(btn=>{
+  if(btn) btn.onclick=()=>{ if(activeTab==="pend") loadAll(); else loadProgressRealtime(); };
+});
+$("#progChips").querySelectorAll(".chip").forEach(ch=>ch.onclick=()=>{
+  if(!recordUsage())return;
+  PROG_FILTER=ch.dataset.f;
+  $("#progChips").querySelectorAll(".chip").forEach(x=>x.classList.remove("active"));
+  ch.classList.add("active");
+  renderProgress();
+});
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
+  activeTab=t.dataset.tab;
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+  t.classList.add("active");
+  $("#view-pend").style.display=activeTab==="pend"?"block":"none";
+  $("#view-progress").style.display=activeTab==="progress"?"block":"none";
+  $("#view-fav").style.display=activeTab==="fav"?"block":"none";
+  if(activeTab==="progress") loadProgressRealtime();
+  if(activeTab==="fav") renderFav();
+});
+
+// ==================== 用户认证 & 关注功能（后端版） ====================
+const TOKEN_KEY="cb_ration_token";
+let currentUser=null; // { username, favorites: [] }
+let MOBILE_LAYOUT = 'card'; // card, list, bar, fold
+let favKeyword="";
+let authMode="login";
+
+// 存/取 token
+function getToken(){return localStorage.getItem(TOKEN_KEY)||"";}
+function saveToken(t){t?localStorage.setItem(TOKEN_KEY,t):localStorage.removeItem(TOKEN_KEY);}
+
+// 封装 API 请求
+async function api(path,options={}){
+  const headers={"Content-Type":"application/json",...(options.headers||{})};
+  const token=getToken();
+  if(token)headers["Authorization"]="Bearer "+token;
+  const res=await fetch(path,{...options,headers});
+  const data=await res.json();
+  if(!res.ok)throw new Error(data.error||"请求失败");
+  return data;
+}
+
+// 获取当前用户（从 localStorage 读取，不再依赖后端）
+function fetchCurrentUser(){
+  const u=getCur();
+  if(!u)return null;
+  const users=loadUsers();
+  const user=users[u];
+  if(!user){saveCur(null);return null;}
+  return {username:u,favorites:(user.favorites||[]).map(f=>typeof f==="string"?{id:f,seen:""}:f)};
+}
+
+// Emoji头像池：根据用户名稳定分配，每次登录同一用户显示相同表情
+const EMOJI_POOL=['🐱','🦊','🐼','🦁','🐸','🦄','🐯','🐷','🐰','🦋','🐬','🐲','🦅','🐺','🦩','🌟','⚡','🔥','💎','🎯','🐝','🦀','🐋','🪼'];
+function emojiAvatar(name){
+  if(!name) return '👤';
+  let h=0;
+  for(let i=0;i<name.length;i++) h=((h<<5)-h)+name.charCodeAt(i);
+  return EMOJI_POOL[Math.abs(h)%EMOJI_POOL.length];
+}
+
+function renderUserArea(){
+  const ua=$("#userArea"); // PC端 hero-right 内
+  const um=$("#userAreaMobile"); // 手机端 hero-right 内（圆钮）
+  if(currentUser){
+    const em=emojiAvatar(currentUser.username);
+    const syncReady=isGistReady();
+    const syncDot=syncReady
+      ? '<span class="sync-dot on" title="云端同步已开启">☁️</span>'
+      : '<span class="sync-dot off" title="未开启云端同步">☁️</span>';
+    // PC端：完整用户信息条
+    ua.innerHTML='<span class="user-info"><span class="avatar">'+em+'</span><span class="uname">'+currentUser.username+'</span>'+syncDot+'</span><button class="btn-logout" id="btnLogout">退出</button>';
+    $("#btnLogout").onclick=()=>{
+      currentUser=null;saveToken(null);
+      renderUserArea();updateFavTab();
+      if(activeTab==="fav"){activeTab="pend";$("#tab-pend").click();}
+      toast("已退出登录");
+    };
+    const sd=ua.querySelector(".sync-dot");
+    if(sd) sd.onclick=(e)=>{e.stopPropagation();showGistSettings();};
+    // 手机端：仅显示头像圆钮（点击弹用户菜单）
+    um.innerHTML='<span class="avatar-btn logged-in" id="avatarBtn" title="'+currentUser.username+'">'+em+'</span>'+syncDot;
+    $("#avatarBtn").onclick=(e)=>{e.stopPropagation();showUserMenu();};
+    const sdm=um.querySelector(".sync-dot");
+    if(sdm) sdm.onclick=(e)=>{e.stopPropagation();showGistSettings();};
+    $("#tab-fav").style.display="";
+  }else{
+    ua.innerHTML='<button class="btn-login" id="btnLogin">登录 / 注册</button>';
+    $("#btnLogin").onclick=()=>showAuthModal(true);
+    um.innerHTML='<span class="avatar-btn" id="avatarBtn" title="点击登录">👤</span>';
+    $("#avatarBtn").onclick=(e)=>{e.stopPropagation();showUserMenu();};
+    $("#tab-fav").style.display="none";
+  }
+  updateFavTab();
+}
+
+function updateFavTab(){
+  const count=currentUser?currentUser.favorites.length:0;
+  $("#favCount").textContent=count;
+}
+
+// 手机端用户菜单（头像点击弹出）
+function showUserMenu(){
+  const mask=$("#userMenuMask");
+  const header=$("#userMenuHeader");
+  const body=$("#userMenuBody");
+  if(currentUser){
+    // 已登录：显示头像+用户名 + 菜单项
+    const em=emojiAvatar(currentUser.username);
+    header.innerHTML='<span class="um-avatar">'+em+'</span><span class="um-name">'+currentUser.username+'</span>';
+    body.innerHTML='<button class="user-menu-item" onclick="document.getElementById(\'userMenuMask\').style.display=\'none\';showGistSettings();">☁️ 云端同步设置</button>'
+      +'<div class="user-menu-divider"></div>'
+      +'<button class="user-menu-item danger" id="menuLogout">🚪 退出登录</button>';
+    $("#menuLogout").onclick=()=>{
+      document.getElementById('userMenuMask').style.display='none';
+      currentUser=null;saveCur(null);
+      renderUserArea();updateFavTab();
+      if(activeTab==="fav"){activeTab="pend";$("#tab-pend").click();}
+      toast("已退出登录");
+    };
+  }else{
+    // 未登录：显示登录/注册入口
+    header.innerHTML='<span class="um-avatar">👤</span><span class="um-name" style="color:#9ca3af">未登录</span>';
+    body.innerHTML='<button class="user-menu-item" onclick="document.getElementById(\'userMenuMask\').style.display=\'none\';showAuthModal(true);">🔑 登录 / 注册</button>';
+  }
+  mask.style.display='flex';
+}
+
+function showAuthModal(show){
+  const m=$("#authMask");
+  if(show){
+    m.classList.add("show");
+    $("#authUser").value="";$("#authPass").value="";
+    $("#authError").classList.remove("show");
+    setAuthMode("login");
+    setTimeout(()=>$("#authUser").focus(),100);
+  }else{
+    m.classList.remove("show");
+  }
+}
+function setAuthMode(mode){
+  authMode=mode;
+  document.querySelectorAll(".auth-tab").forEach(t=>t.classList.toggle("active",t.dataset.mode===mode));
+  const secField=$("#authSecField");
+  const newPassField=$("#authNewPassField");
+  const passField=$("#authPassField");
+  const forgotLink=$("#forgotLink");
+  const backToLogin=$("#backToLogin");
+  const tabs=$(".auth-tabs");
+  // 重置所有字段可见性
+  secField.style.display="none";
+  newPassField.style.display="none";
+  passField.style.display="";
+  $("#authUserField").style.display="";
+  forgotLink.style.display="none";
+  backToLogin.style.display="none";
+  tabs.style.display="";
+
+  if(mode==="login"){
+    $("#authTitle").textContent="欢迎登录";
+    $("#authSub").textContent="登录后可自选转债，数据多端同步保存";
+    $("#authSubmit").textContent="登录";
+    forgotLink.style.display="inline";
+    $("#authPass").placeholder="至少4位";
+  }else if(mode==="register"){
+    $("#authTitle").textContent="创建账号";
+    $("#authSub").textContent="注册账号后即可自选喜欢的转债";
+    $("#authSubmit").textContent="注册";
+    secField.style.display="";
+    $("#authPass").placeholder="至少4位";
+  }else if(mode==="forgot"){
+    // 忘记密码模式：隐藏tab切换，显示安全码+新密码
+    $("#authTitle").textContent="重置密码";
+    $("#authSub").textContent="输入用户名和安全码，即可设置新密码";
+    $("#authSubmit").textContent="确认重置";
+    tabs.style.display="none";
+    passField.style.display="none"; // 不需要旧密码
+    secField.style.display="";     // 需要安全码
+    newPassField.style.display=""; // 需要新密码
+    backToLogin.style.display="inline";
+    forgotLink.style.display="none";
+  }
+}
+function showAuthError(msg){
+  const e=$("#authError");e.textContent=msg;e.classList.add("show");
+}
+async function doAuth(){
+  const u=$("#authUser").value.trim();
+  const p=$("#authPass").value;
+  if(u.length<3){showAuthError("用户名至少3位");return;}
+  if(u.length>20){showAuthError("用户名最多20位");return;}
+  $("#authSubmit").disabled=true;
+  showAuthError("");
+  try{
+    let users=loadUsers();
+    if(authMode==="login"){
+      if(p.length<4){showAuthError("密码至少4位");return;}
+      // 登录：先查本地
+      if(users[u]&&users[u].password===p){
+        // 本地验证通过
+      }else if(isGistReady()){
+        const cloud=await syncPullFromGist();
+        if(cloud&&cloud.users&&cloud.users[u]&&cloud.users[u].password===p){
+          users[u]=cloud.users[u];saveUsers(users);
+        }else{showAuthError("用户名或密码错误");return;}
+      }else{showAuthError("用户名或密码错误");return;}
+      finishAuth(u,users,"登录成功，欢迎回来 "+u);
+    }else if(authMode==="register"){
+      if(p.length<4){showAuthError("密码至少4位");return;}
+      const sec=$("#authSec").value.trim();
+      if(!sec||sec.length<4){showAuthError("安全码至少4位");return;}
+      if(sec.length>6){showAuthError("安全码最多6位");return;}
+      if(users[u]){showAuthError("该用户名已被注册");return;}
+      if(isGistReady()){
+        const cloud=await syncPullFromGist();
+        if(cloud&&cloud.users&&cloud.users[u]){showAuthError("该用户名已被注册");return;}
+      }
+      users[u]={password:p,securityCode:sec,favorites:[]};
+      saveUsers(users);
+      finishAuth(u,users,"注册成功，已自动登录（请牢记安全码）");
+    }else if(authMode==="forgot"){
+      // 忘记密码：验证用户名+安全码 → 设新密码
+      if(!users[u]){showAuthError("用户名不存在");return;}
+      const sec=$("#authSec").value.trim();
+      if(!sec){showAuthError("请输入安全码");return;}
+      if(users[u].securityCode!==sec){
+        // 尝试云端安全码
+        let matched=false;
+        if(isGistReady()){
+          const cloud=await syncPullFromGist();
+          if(cloud&&cloud.users&&cloud.users[u]&&cloud.users[u].securityCode===sec){
+            matched=true;
+          }
+        }
+        if(!matched){showAuthError("安全码不正确");return;}
+      }
+      const np=$("#authNewPass").value;
+      if(np.length<4){showAuthError("新密码至少4位");return;}
+      users[u].password=np;
+      saveUsers(users);
+      if(isGistReady())scheduleSyncPush();
+      showAuthModal(false);
+      setAuthMode("login");
+      $("#authUser").value=u;
+      toast("✅ 密码重置成功，请用新密码登录");
+    }
+  }catch(e){
+    showAuthError(e.message);
+  }finally{
+    $("#authSubmit").disabled=false;
+  }
+}
+function finishAuth(u,users,msg){
+  saveCur(u);
+  currentUser=fetchCurrentUser();
+  showAuthModal(false);renderUserArea();
+  if(activeTab==="pend")renderPend();
+  if(activeTab==="progress")renderProgress();
+  if(activeTab==="fav")renderFav();
+  if(isGistReady()){
+    if(authMode==="login") tryPullGist();
+    else scheduleSyncPush();
+  }
+  toast("✅ "+msg);
+  if(!isGistReady()){
+    setTimeout(()=>toast("💡 点头像旁 ☁️ 开启云端同步"), 1300);
+  }
+}
+
+// ==================== localStorage 用户系统 ====================
+const USERS_KEY="cb_ration_users", CUR_KEY="cb_ration_cur";
+function loadUsers(){try{return JSON.parse(localStorage.getItem(USERS_KEY)||"{}");}catch(e){return{};}}
+function saveUsers(o){localStorage.setItem(USERS_KEY,JSON.stringify(o));}
+function saveCur(u){u?localStorage.setItem(CUR_KEY,u):localStorage.removeItem(CUR_KEY);}
+function getCur(){return localStorage.getItem(CUR_KEY)||"";}
+function syncSeen(updates){
+  const u=getCur();if(!u)return;
+  const users=loadUsers();if(!users[u])return;
+  updates.forEach(up=>{const f=(users[u].favorites||[]).find(x=>x.id===up.id);if(f)f.seen=up.seen;});
+  saveUsers(users);
+}
+
+// ==================== GitHub Gist 云端同步 ====================
+const GIST_TOKEN_KEY="cb_ration_gist_token", GIST_ID_KEY="cb_ration_gist_id";
+let _syncTimer=null; // 防抖推送定时器
+function getGistToken(){return localStorage.getItem(GIST_TOKEN_KEY)||"";}
+function saveGistToken(t){t?localStorage.setItem(GIST_TOKEN_KEY,t):localStorage.removeItem(GIST_TOKEN_KEY);}
+function getGistId(){return localStorage.getItem(GIST_ID_KEY)||"";}
+function saveGistId(id){id?localStorage.setItem(GIST_ID_KEY,id):localStorage.removeItem(GIST_ID_KEY);}
+function gistHeaders(){
+  const t=getGistToken();
+  return{"Authorization":"Bearer "+t,"Accept":"application/vnd.github.v3+json","Content-Type":"application/json"};
+}
+function isGistReady(){return!!getGistToken();}
+// 合并关注列表（云端优先，保留本地新关注的）
+function mergeFavorites(local, remote){
+  if(!remote||!remote.length) return local;
+  const map=new Map(local.map(f=>[f.id,f]));
+  remote.forEach(r=>{if(!map.has(r.id)) map.set(r.id,r); else{const existing=map.get(r.id);if(r.seen&&(!existing.seen||r.seen>existing.seen)) existing.seen=r.seen;}});
+  return Array.from(map.values());
+}
+// 推送完整账号库到 Gist（含账号+关注，实现跨设备登录）
+async function syncPushToGist(){
+  if(!isGistReady()) return false;
+  const users=loadUsers(); // {username:{password,favorites}}
+  const payload={version:2,lastSync:new Date().toISOString(),users};
+  const gistId=getGistId();
+  const body={description:"cb-ration 可转债账号与关注数据（自动同步）",public:false,
+    files:{"data.json":{content:JSON.stringify(payload,null,2)}}};
+  try{
+    let res;
+    if(gistId){
+      res=await fetch("https://api.github.com/gists/"+gistId,{method:"PATCH",headers:gistHeaders(),body:JSON.stringify(body)});
+    }else{
+      res=await fetch("https://api.github.com/gists",{method:"POST",headers:gistHeaders(),body:JSON.stringify(body)});
+    }
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    const data=await res.json();
+    if(data.id&&!gistId) saveGistId(data.id);
+    return true;
+  }catch(e){ console.warn("Gist推送失败:",e.message); return false; }
+}
+// 从 Gist 拉取完整账号库
+async function syncPullFromGist(){
+  if(!isGistReady()) return null;
+  const gistId=getGistId();
+  if(!gistId) return null;
+  try{
+    const res=await fetch("https://api.github.com/gists/"+gistId,{headers:gistHeaders()});
+    if(res.status===404){saveGistId("");return null;}
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    const data=await res.json();
+    const f=data.files["data.json"];
+    if(!f) return null;
+    const payload=JSON.parse(f.content);
+    return payload; // {version,lastSync,users}
+  }catch(e){ console.warn("Gist拉取失败:",e.message); return null; }
+}
+// 登录后尝试从云端拉取当前用户的关注（跨设备同步）
+async function tryPullGist(){
+  if(!isGistReady()||!currentUser) return;
+  const cloud=await syncPullFromGist();
+  if(cloud&&cloud.users){
+    const cu=cloud.users[currentUser.username];
+    if(cu&&cu.favorites){
+      const merged=mergeFavorites(currentUser.favorites||[],cu.favorites);
+      if(merged.length!==(currentUser.favorites||[]).length){
+        currentUser.favorites=merged;
+        const users=loadUsers();const u=getCur();
+        if(users[u]) users[u].favorites=merged;
+        saveUsers(users);
+        renderFav();
+        toast("☁️ 已从云端同步 "+merged.length+" 条关注");
+      }
+    }
+  }
+}
+// 操作后防抖推送
+function scheduleSyncPush(){
+  if(_syncTimer) clearTimeout(_syncTimer);
+  _syncTimer=setTimeout(async()=>{
+    if(await syncPushToGist()){
+      // 静默成功，不打扰用户
+    }
+  },2500); // 2.5秒防抖
+}
+// 显示 Gist 设置弹窗
+function showGistSettings(){
+  const token=getGistToken();
+  const m=$("#gistMask")||createGistMask();
+  $("#gistTokenInput").value=token;
+  $("#gistStatusTxt").textContent=token?"已配置 Token（"+token.slice(0,6)+"…）":"未配置";
+  m.classList.add("show");
+}
+function createGistMask(){
+  const d=document.createElement("div");
+  d.className="auth-mask";d.id="gistMask";
+  d.innerHTML='<div class="auth-modal" style="position:relative"><div class="auth-head"><button class="auth-close" id="gistClose">×</button><h3>☁️ 云端同步设置</h3><p>绑定 GitHub 后，关注列表自动跨设备同步</p></div><div class="auth-body"><div class="auth-error" id="gistError"></div><div class="auth-field"><label>GitHub Personal Access Token</label><input type="password" id="gistTokenInput" placeholder="ghp_xxxx（仅需 gist 权限）" autocomplete="off"><div style="font-size:11px;color:#9ca3af;margin-top:5px">→ <a href="https://github.com/settings/tokens/new?scopes=gist&description=cb-ration-sync" target="_blank" style="color:#f97316">点此创建 Token</a>（勾选 gist 权限即可）</div></div><div id="gistStatusTxt" style="font-size:12px;color:#6b7280;padding:8px 0"></div><button class="auth-submit" id="gistSaveBtn" style="margin-top:8px">保存并测试连接</button><button id="gistSyncNowBtn" style="width:100%;background:#f3f4f6;color:#374151;border:none;border-radius:10px;padding:10px;font-size:13px;font-weight:700;margin-top:8px;cursor:pointer">🔄 立即同步</button></div></div>';
+  document.body.appendChild(d);
+  // 绑定事件
+  $("#gistClose").onclick=()=>d.classList.remove("show");
+  d.onclick=e=>{if(e.target.id==="gistMask")d.classList.remove("show");};
+  $("#gistSaveBtn").onclick=async()=>{
+    const t=$("#gistTokenInput").value.trim();
+    if(!t){$("#gistError").textContent="请输入 Token";$("#gistError").classList.add("show");return;}
+    $("#gistError").classList.remove("show");
+    saveGistToken(t);
+    // 测试：列出用户的 gist
+    try{
+      const res=await fetch("https://api.github.com/gists?per_page=1",{headers:{Authorization:"Bearer "+t,"Accept":"application/vnd.github.v3+json"}});
+      if(res.ok){
+        $("#gistStatusTxt").innerHTML='<span style="color:#16a34a">✅ 连接成功！</span>';
+        toast("✅ Token 已保存，正在同步...");
+        // 如果有本地数据立即推送
+        if(currentUser&&currentUser.favorites.length) scheduleSyncPush();
+        // 尝试拉取
+  await tryPullGist();
+        if(activeTab==="fav") renderFav();
+      }else{
+        throw new Error("HTTP "+res.status);
+      }
+    }catch(e){
+      saveGistToken("");
+      $("#gistError").textContent="Token 无效："+e.message;$("#gistError").classList.add("show");
+      $("#gistStatusTxt").textContent="连接失败";
+    }
+  };
+  $("#gistSyncNowBtn").onclick=async()=>{
+    if(!isGistToken()){toast("请先配置 Token");return;}
+    $("#gistSyncNowBtn").textContent="⏳ 同步中...";$("#gistSyncNowBtn").disabled=true;
+    try{
+      const pushed=await syncPushToGist();
+      const pulled=await tryPullGist();
+      toast(pushed?"☁️ 同步完成":"⚠️ 推送失败，检查网络");
+      if(activeTab==="fav") renderFav();
+    }catch(e){toast("同步失败："+e.message);}
+    finally{$("#gistSyncNowBtn").textContent="🔄 立即同步";$("#gistSyncNowBtn").disabled=false;}
+  };
+  return d;
+}
+
+// 唯一ID：待发债用code，审核进度用stockCode
+function getRowId(r,kind){return kind==="pend"?(r.code||"pend_"+r.stockCode):(r.stockCode||"prog_"+(r.code||""));}
+function isFav(id){return currentUser&&currentUser.favorites.some(f=>f.id===id);}
+async function toggleFav(id,kind){
+  if(!currentUser){toast("请先登录后再关注");showAuthModal(true);return;}
+  try{
+    const users=loadUsers();
+    const u=getCur();
+    if(!u||!users[u])return;
+    let favs=users[u].favorites||[];
+    const idx=favs.findIndex(f=>f.id===id);
+    let added=false;
+    if(idx>=0){favs.splice(idx,1);added=false;}
+    else{favs.push({id,seen:""});added=true;}
+    users[u].favorites=favs;
+    saveUsers(users);
+    // 更新内存中的 currentUser
+    currentUser=fetchCurrentUser();
+    toast(added?"⭐ 已加入关注":"已取消关注");
+    updateFavTab();
+    if(activeTab==="pend")renderPend();
+    if(activeTab==="progress")renderProgress();
+    if(activeTab==="fav")renderFav();
+    // 触发云端同步（如果配置了Token）
+    scheduleSyncPush();
+  }catch(e){
+    toast("操作失败: "+e.message);
+  }
+}
+
+// 进度变化提醒：对比关注转债当前进度与上次记录，有推进则提示（打开App/进入关注Tab时触发）
+async function checkProgress(){
+  if(!currentUser || !currentUser.favorites || !currentUser.favorites.length) return;
+  const updates=[], msgs=[];
+  currentUser.favorites.forEach(f=>{
+    const now=progressOfId(f.id);
+    if(f.seen && f.seen!==now && now){
+      msgs.push("「"+nameOfId(f.id)+"」已更新为【"+(PROG_LABEL[now]||now)+"】");
+      updates.push({id:f.id, seen:now});
+    }
+    f.seen=now;
+  });
+  if(updates.length){
+    try{ await syncSeen(updates); }catch(e){}
+    toast("📌 进度更新："+msgs.join("；"),4200);
+  }
+}
+
+// 给卡片渲染插入关注按钮的HTML
+function favBtnHtml(id,kind){
+  const active=isFav(id);
+  if(active){
+    // 已关注：显示明确的取消按钮（PC端文字+手机端心形）
+    return '<button class="fav-btn active unfav-btn" data-fav="'+id+'" data-kind="'+kind+'">♥<span class="unfav-text">取消</span></button>';
+  }
+  return '<button class="fav-btn" data-fav="'+id+'" data-kind="'+kind+'">♡</button>';
+}
+// 绑定关注按钮事件
+function bindFavBtns(container){
+  container.querySelectorAll(".fav-btn").forEach(btn=>{
+    btn.onclick=(e)=>{
+      e.stopPropagation();
+      toggleFav(btn.dataset.fav,btn.dataset.kind);
+    };
+  });
+}
+
+// 渲染"我的关注"
+function renderFav(){
+  checkProgress();
+  const p=$("#favPanel");
+  if(!currentUser){
+    p.innerHTML='<div class="card"><div class="empty">请先登录后查看关注列表</div></div>';
+    return;
+  }
+  // 合并所有数据
+  const all=[
+    ...PEND.map(r=>({...r,_kind:"pend"})),
+    ...PROGRESS.map(r=>({...r,_kind:"progress"}))
+  ];
+  let rows=all.filter(r=>currentUser.favorites.some(f=>f.id===getRowId(r,r._kind)));
+  if(favKeyword){
+    const q=favKeyword.toLowerCase();
+    rows=rows.filter(r=>(r.name||"").toLowerCase().includes(q)||(r.code||"").includes(q)||(r.stockName||"").toLowerCase().includes(q)||(r.stockCode||"").includes(q));
+  }
+  if(!rows.length){
+    p.innerHTML='<div class="card"><div class="empty">'+(favKeyword?"无匹配":"还没有关注的转债，点击卡片右上角的 ☆ 加入关注")+'</div></div>';
+    return;
+  }
+  // 按类型分组：待发/审核中
+  const pendRows=rows.filter(r=>r._kind==="pend");
+  const progRows=rows.filter(r=>r._kind==="progress");
+
+  let h="";
+  if(isMobile()){
+    if(pendRows.length){
+      h+='<div class="sort-bar"><span class="sort-label" style="color:#ea580c">📌 待发债 ('+pendRows.length+')</span></div><div class="cb-list">';
+      pendRows.forEach((r,i)=>{
+        const c=r._c||{};
+        const stageTag=r.stage==="申购"?'<span class="tag tag-sbuy">申购</span>':'';
+        const dStr=(r.publicStart||r.progress_dt||"");
+        const shortD=dStr?dStr.slice(5,10):"-";
+        const id=getRowId(r,"pend");
+        h+='<div class="cb-item" data-i="'+i+'" data-kind="pend">';
+        h+='<div class="cb-name"><span class="n">'+(r.name||"-")+'</span><span class="c">'+(r.code||"")+'</span>'+favBtnHtml(id,"pend")+'</div>';
+        h+='<div class="cb-sub"><span class="cb-d">📅 '+shortD+'</span><span class="cb-tag">'+stageTag+'</span></div>';
+        const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
+        h+='<div class="cb-stats">';
+        h+='<span class="s"><span class="l">配售</span><span class="v hl">'+(c.needShares!=null?shLabel:'-')+'</span></span>';
+        h+='<span class="s"><span class="l">规模</span><span class="v">'+(r.scale!=null?fmt(r.scale)+'亿':'-')+'</span></span>';
+        h+='<span class="s"><span class="l">所需资金</span><span class="v hl">'+(c.needMoney!=null?fmt(c.needMoney,0)+'元':'-')+'</span></span>';
+        h+='<span class="s"><span class="l">流通</span><span class="v f">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span>';
+        h+='</div></div>';
+      });
+      h+='</div>';
+    }
+    if(progRows.length){
+      h+='<div class="sort-bar" style="margin-top:14px"><span class="sort-label" style="color:#ea580c">📋 审核中 ('+progRows.length+')</span></div><div class="cb-list">';
+      progRows.forEach((r,i)=>{
+        const c=r._c||{};
+        const stageTag='<span class="tag tag-s'+r.progress+'">'+r.progress_nm+'</span>';
+        const dStr=(r.progress_dt||"");
+        const shortD=dStr?dStr.slice(5,10):"-";
+        const id=getRowId(r,"progress");
+        h+='<div class="cb-item" data-i="'+i+'" data-kind="progress">';
+        h+='<div class="cb-name"><span class="n">'+(r.stockName||r.name||"-")+'</span><span class="c">'+(r.code||r.stockCode||"")+'</span>'+favBtnHtml(id,"progress")+'</div>';
+        h+='<div class="cb-sub"><span class="cb-d">📅 '+shortD+'</span><span class="cb-tag">'+stageTag+'</span></div>';
+        const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
+        h+='<div class="cb-stats">';
+        h+='<span class="s"><span class="l">配售</span><span class="v hl">'+(c.needShares!=null?shLabel:'-')+'</span></span>';
+        h+='<span class="s"><span class="l">规模</span><span class="v">'+(r.scale!=null?fmt(r.scale)+'亿':'-')+'</span></span>';
+        h+='<span class="s"><span class="l">所需资金</span><span class="v hl">'+(c.needMoney!=null?fmt(c.needMoney,0)+'元':'-')+'</span></span>';
+        h+='<span class="s"><span class="l">流通</span><span class="v f">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span>';
+        h+='</div></div>';
+      });
+      h+='</div>';
+    }
+  }else{
+    // PC端：统一可筛选/可排序表格（与审核进度表头一致）
+    const STAGE_LABEL={all:"全部阶段","90":"同意注册","80":"上市委通过","50":"交易所受理","20":"股东大会通过","10":"董事会预案"};
+    if(FAV_FILTER!=="all"){
+      rows=rows.filter(r=> r._kind==="progress" && String(r.progress)===FAV_FILTER);
+    }
+    if(!rows.length){
+      p.innerHTML='<div class="card"><div class="empty">'+(favKeyword||(FAV_FILTER!=="all")?"无匹配":"还没有关注的转债，点击卡片右上角的 ☆ 加入关注")+'</div></div>';
+      return;
+    }
+    rows=doSort(rows,favSort);
+    const fs=favSort;
+    let h='<div class="sort-bar" style="margin:2px 0 8px">';
+    h+='<span class="chip'+(FAV_FILTER==="all"?" active":"")+'" data-f="all">全部阶段</span>';
+    ["90","80","50","20","10"].forEach(v=>{ h+='<span class="chip'+(FAV_FILTER===v?" active":"")+'" data-f="'+v+'">'+STAGE_LABEL[v]+'</span>'; });
+    h+='</div>';
+    h+='<div class="card"><table><thead><tr>';
+    h+='<th>正股 / 转债</th>';
+    h+='<th data-sf="progress">进度 '+(fs.field==="progress"?arrow(fs.dir):'')+'</th>';
+    h+='<th data-sf="cv">转股价值 '+(fs.field==="cv"?arrow(fs.dir):'')+'</th>';
+    h+='<th>一手党</th>';
+    h+='<th data-sf="needMoney">所需资金 '+(fs.field==="needMoney"?arrow(fs.dir):'')+'</th>';
+    h+='<th data-sf="baiyuan">百元含权 '+(fs.field==="baiyuan"?arrow(fs.dir):'')+'</th>';
+    h+='<th data-sf="scale">规模(亿) '+(fs.field==="scale"?arrow(fs.dir):'')+'</th>';
+    h+='<th data-sf="estFloat">预估流通(亿) '+(fs.field==="estFloat"?arrow(fs.dir):'')+'</th>';
+    h+='<th>操作</th>';
+    h+='</tr></thead><tbody>';
+    rows.forEach((r,i)=>{
+      const c=r._c||{};
+      const mkt=c.market||"";
+      const mktTag=mkt?'<span style="font-size:10px;background:'+(mkt==="沪"?"#fff4ea;color:#ea580c":"#f3f4f6;color:#6b7280")+';padding:1px 6px;border-radius:8px;font-weight:700;margin-left:4px">'+mkt+'</span>':"";
+      const id=getRowId(r,r._kind);
+      h+='<tr class="clickable" data-i="'+i+'" data-kind="'+r._kind+'">';
+      h+='<td data-label="正股/转债"><div class="name">'+(r.stockName||r.name||"-")+mktTag+'</div><div class="code">'+(r.stockCode||r.code||"")+(r.name&&r._kind==="progress"?(" · "+r.name):(r._kind==="pend"&&r.stockName?(" · "+r.stockName):""))+'</div></td>';
+      if(r._kind==="progress"){
+        h+='<td data-label="进度"><span class="tag tag-s'+r.progress+'">'+progressLabel(r)+'</span></td>';
+      }else{
+        const st=r.stage==="申购"?"tag-sbuy":"tag-slist";
+        h+='<td data-label="进度"><span class="tag '+st+'">'+(r.stage||"待发")+'</span></td>';
+      }
+      h+='<td data-label="转股价值"><span class="num">'+(c.cv!=null?fmt(c.cv):"…")+'</span></td>';
+      const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
+      h+='<td data-label="一手党">'+(c.needShares!=null?('<span class="num">'+shLabel+'</span>'+(c.isSH&&c.needSharesSafe!=null?'<br><span class="muted" style="font-size:11px">稳配'+c.needSharesSafe+'股</span>':'')):'<span class="muted">-</span>')+'</td>';
+      h+='<td data-label="所需资金">'+(c.needMoney!=null?('<span class="hl-fund num">'+fmt(c.needMoney,0)+'元</span>'+(c.isSH&&c.needMoneySafe!=null?'<br><span class="muted" style="font-size:11px">稳'+fmt(c.needMoneySafe,0)+'元</span>':'')):'<span class="muted">-</span>')+'</td>';
+      h+='<td data-label="百元含权"><span class="num">'+(c.baiyuan!=null?fmt(c.baiyuan):"…")+'</span></td>';
+      h+='<td data-label="规模"><span class="num">'+fmt(r.scale)+'</span></td>';
+      h+='<td data-label="预估流通"><span class="num">'+(c.estFloat!=null?c.estFloat:'-')+'<span class="muted" style="font-size:10px;font-weight:400"> 预</span></span></td>';
+      h+='<td style="text-align:right">'+favBtnHtml(id,r._kind)+'</td>';
+      h+='</tr>';
+    });
+    h+='</tbody></table></div>';
+    p.innerHTML=h;
+    p.querySelectorAll("tr.clickable").forEach(tr=>tr.onclick=(e)=>{
+      if(e.target.classList.contains("fav-btn"))return;
+      openDetail(rows[+tr.dataset.i],tr.dataset.kind);
+    });
+    p.querySelectorAll("thead th[data-sf]").forEach(th=>th.onclick=()=>{
+      const f=th.dataset.sf;
+      favSort={field:f, dir:favSort.field===f?-favSort.dir:1};
+      renderFav();
+    });
+    p.querySelectorAll(".chip").forEach(ch=>ch.onclick=()=>{
+      FAV_FILTER=ch.dataset.f;
+      renderFav();
+    });
+    bindFavBtns(p);
+    return;
+  }
+  p.innerHTML=h;
+  // 绑定点击事件（手机端）
+  p.querySelectorAll(".cb-item").forEach(el=>el.onclick=(e)=>{
+    if(e.target.classList.contains("fav-btn"))return;
+    const kind=el.dataset.kind;
+    const rows=kind==="pend"?pendRows:progRows;
+    openDetail(rows[+el.dataset.i],kind);
+  });
+  bindFavBtns(p);
+
+}
+
+// 修改卡片渲染，注入关注按钮
+const _origRenderPend=renderPend;
+renderPend=function(){
+  _origRenderPend.apply(this,arguments);
+  // 在每个 cb-item 和 tr.clickable 中插入关注按钮
+  const p=$("#panel");
+  p.querySelectorAll(".cb-item").forEach(el=>{
+    if(el.querySelector(".fav-btn"))return;
+    const i=+el.dataset.i;
+    const kind=el.dataset.kind||"pend";
+    const rows=doSort(PEND.filter(r=>!r.publicStart||r.publicStart.slice(0,10)>=todayStr()).filter(r=>!keyword||(r.name||"").toLowerCase().includes(keyword.toLowerCase())||(r.code||"").includes(keyword.toLowerCase())||(r.stockName||"").toLowerCase().includes(keyword.toLowerCase())||(r.stockCode||"").includes(keyword.toLowerCase())),pendSort);
+    const r=rows[i];
+    if(r){
+      const id=getRowId(r,kind);
+      el.insertAdjacentHTML("afterbegin",favBtnHtml(id,kind));
+    }
+  });
+  p.querySelectorAll("tr.clickable").forEach(tr=>{
+    if(tr.querySelector(".fav-btn"))return;
+    const i=+tr.dataset.i;
+    const kind=tr.dataset.kind||"pend";
+    const rows=doSort(PEND.filter(r=>!r.publicStart||r.publicStart.slice(0,10)>=todayStr()).filter(r=>!keyword||(r.name||"").toLowerCase().includes(keyword.toLowerCase())||(r.code||"").includes(keyword.toLowerCase())||(r.stockName||"").toLowerCase().includes(keyword.toLowerCase())||(r.stockCode||"").includes(keyword.toLowerCase())),pendSort);
+    const r=rows[i];
+    if(r){
+      const id=getRowId(r,kind);
+      const lastTd=tr.querySelector("td:last-child");
+      if(lastTd){
+        lastTd.style.position="relative";
+        lastTd.insertAdjacentHTML("beforeend",favBtnHtml(id,kind));
+      }
+    }
+  });
+  bindFavBtns(p);
+};
+
+const _origRenderProgress=renderProgress;
+renderProgress=function(){
+  _origRenderProgress.apply(this,arguments);
+  const p=$("#progressPanel");
+  p.querySelectorAll(".cb-item").forEach(el=>{
+    if(el.querySelector(".fav-btn"))return;
+    const i=+el.dataset.i;
+    const kind=el.dataset.kind||"progress";
+    const rows=filterProgressRaw(PROGRESS);
+    const r=rows[i];
+    if(r){
+      const id=getRowId(r,kind);
+      // 找到标题行元素（card用.cb-name，bar用.cb-bar-name，fold用.cb-fold-name，list用.cb-list-name）
+      // 如果都找不到，回退到.cb-header或卡片本身
+      const nameEl=el.querySelector('.cb-name,.cb-bar-name,.cb-fold-name,.cb-list-name')
+        ||el.querySelector('.cb-header,.cb-bar-header,.cb-fold-header,.cb-list-top')
+        ||el;
+      // 注入到标题行末尾（相对定位，不悬浮）
+      nameEl.insertAdjacentHTML("beforeend",favBtnHtml(id,kind));
+    }
+  });
+  p.querySelectorAll("tr.clickable").forEach(tr=>{
+    if(tr.querySelector(".fav-btn"))return;
+    const i=+tr.dataset.i;
+    const kind=tr.dataset.kind||"progress";
+    const rows=filterProgressRaw(PROGRESS);
+    const r=rows[i];
+    if(r){
+      const id=getRowId(r,kind);
+      const lastTd=tr.querySelector("td:last-child");
+      if(lastTd){
+        lastTd.style.position="relative";
+        lastTd.insertAdjacentHTML("beforeend",favBtnHtml(id,kind));
+      }
+    }
+  });
+  bindFavBtns(p);
+};
+
+// ==================== 手机端底部筛选排序Sheet（审核进度Tab） ====================
+function openProgSheet(){
+  const curF=PROG_FILTER||"all";
+  $("#sheetProgChips").querySelectorAll(".schip").forEach(c=>c.classList.toggle("active",(c.dataset.f||"all")===curF));
+  $("#sheetSortBtns").querySelectorAll(".ssort").forEach(s=>s.classList.toggle("active",s.dataset.f===progSort.field));
+  $("#sheetDirBtn").textContent=(progSort.dir===1?"↑ 升序":"↓ 降序");
+  $("#progSheetMask").classList.add("show");
+}
+function closeProgSheet(){$("#progSheetMask").classList.remove("show");}
+$("#sheetProgChips").querySelectorAll(".schip").forEach(c=>c.onclick=()=>{
+  if(!recordUsage())return;
+  $("#sheetProgChips").querySelectorAll(".schip").forEach(x=>x.classList.remove("active"));
+  c.classList.add("active");
+});
+$("#sheetSortBtns").querySelectorAll(".ssort").forEach(s=>s.onclick=()=>{
+  if(!recordUsage())return;
+  $("#sheetSortBtns").querySelectorAll(".ssort").forEach(x=>x.classList.remove("active"));
+  s.classList.add("active");
+});
+$("#sheetDirBtn").onclick=()=>{
+  if(!recordUsage())return;
+  const asc=$("#sheetDirBtn").textContent.indexOf("升序")>=0;
+  $("#sheetDirBtn").textContent=(asc?"↓ 降序":"↑ 升序");
+};
+$("#sheetApply").onclick=()=>{
+  if(!recordUsage())return;
+  const f=$("#sheetProgChips").querySelector(".schip.active").dataset.f;
+  const sf=$("#sheetSortBtns").querySelector(".ssort.active").dataset.f;
+  const dir=$("#sheetDirBtn").textContent.indexOf("降序")>=0?-1:1;
+  PROG_FILTER=f;
+  progSort={field:sf,dir};
+  // 同步PC端chips高亮
+  $("#progChips").querySelectorAll(".chip").forEach(x=>x.classList.toggle("active",(x.dataset.f||"all")===f));
+  closeProgSheet();
+  renderProgress();
+};
+$("#progSheetMask").onclick=e=>{if(e.target.id==="progSheetMask")closeProgSheet();};
+
+// 登录弹窗事件
+$("#authClose").onclick=()=>showAuthModal(false);
+$("#authMask").onclick=e=>{if(e.target.id==="authMask")showAuthModal(false);};
+document.querySelectorAll(".auth-tab").forEach(t=>t.onclick=()=>setAuthMode(t.dataset.mode));
+$("#authSubmit").onclick=doAuth;
+$("#authPass").addEventListener("keydown",e=>{if(e.key==="Enter")doAuth();});
+$("#authUser").addEventListener("keydown",e=>{if(e.key==="Enter")$("#authPass").focus();});
+// 忘记密码 / 返回登录
+$("#forgotLink").onclick=()=>{setAuthMode("forgot");showAuthError("");};
+$("#backToLogin").onclick=()=>{setAuthMode("login");showAuthError("");};
+// 安全码/新密码回车提交
+$("#authSec").addEventListener("keydown",e=>{if(e.key==="Enter"){const np=$("#authNewPass");if(np&&np.offsetParent!==null)np.focus();else doAuth();}});
+$("#authNewPass").addEventListener("keydown",e=>{if(e.key==="Enter")doAuth();});
+
+// ===== 使用次数限制 + 邀请码系统 =====
+const USAGE_KEY="cb_ration_usage";
+const INVITE_KEY="cb_ration_invites";
+const USAGE_LIMIT=10;
+const ADMIN_PASS="admin2026"; // 管理页密码（可改）
+const DEFAULT_INVITES=["WELCOME2026","CBRATION","FAVSORT"]; // 预设邀请码
+
+function getUsage(){
+  try{return JSON.parse(localStorage.getItem(USAGE_KEY)||"{}");}catch(e){return{};}
+}
+function saveUsage(u){localStorage.setItem(USAGE_KEY,JSON.stringify(u));}
+function getInvites(){
+  try{const d=JSON.parse(localStorage.getItem(INVITE_KEY)||"null");if(d&&d.codes)return d;}catch(e){}
+  // 初始化默认邀请码
+  const d={codes:[...DEFAULT_INVITES],adminPass:ADMIN_PASS};
+  localStorage.setItem(INVITE_KEY,JSON.stringify(d));
+  return d;
+}
+function saveInvites(d){localStorage.setItem(INVITE_KEY,JSON.stringify(d));}
+
+// 检查是否需要验证邀请码（返回 true 表示需要拦截）
+function checkUsageLimit(){
+  const u=getUsage();
+  if(u.unlocked) return false; // 已永久解锁
+  if(!u.count||u.count<USAGE_LIMIT) return false; // 未超限
+  return true; // 超限且未解锁
+}
+
+// 记录一次使用
+function recordUsage(){
+  const u=getUsage();
+  if(u.unlocked) return true; // 已解锁不计数
+  u.count=(u.count||0)+1;
+  saveUsage(u);
+  // 检查是否刚到限制
+  if(u.count>=USAGE_LIMIT&&!u.unlocked){
+    setTimeout(()=>showInviteModal(),300);
+    return false;
+  }
+  return true;
+}
+
+// 显示邀请码弹窗
+function showInviteModal(){
+  $("#inviteMask").classList.add("show");
+  $("#inviteCodeInput").value="";
+  $("#inviteError").classList.remove("show");
+  setTimeout(()=>$("#inviteCodeInput").focus(),100);
+}
+function hideInviteModal(){$("#inviteMask").classList.remove("show");}
+
+// 验证邀请码
+function verifyInviteCode(){
+  const code=$("#inviteCodeInput").value.trim().toUpperCase();
+  if(!code){showInviteError("请输入邀请码");return;}
+  const inv=getInvites();
+  if(inv.codes.includes(code)){
+    // 验证通过，永久解锁
+    const u=getUsage();u.unlocked=true;u.inviteCode=code;saveUsage(u);
+    hideInviteModal();
+    toast("✅ 邀请码验证成功！已永久解锁所有功能");
+  }else{
+    showInviteError("❌ 邀请码无效，请联系管理员获取");
+  }
+}
+function showInviteError(msg){
+  const e=$("#inviteError");e.textContent=msg;e.classList.add("show");
+}
+
+// ===== 邀请码管理页 =====
+let adminAuthed=false;
+function showAdminLogin(){
+  adminAuthed=false;
+  renderAdminBody();
+  $("#adminMask").classList.add("show");
+}
+function hideAdmin(){$("#adminMask").classList.remove("show");}
+function renderAdminBody(){
+  const ab=$("#adminBody");
+  if(!adminAuthed){
+    ab.innerHTML='<div class="auth-field"><label>管理员密码</label><input type="password" id="adminPassInput" placeholder="输入管理密码"></div><button class="auth-submit" id="adminLoginBtn" style="background:linear-gradient(135deg,#059669,#047857)">登录管理</button>';
+    $("#adminPassInput").addEventListener("keydown",e=>{if(e.key==="Enter")doAdminLogin();});
+    $("#adminLoginBtn").onclick=doAdminLogin;
+  }else{
+    const inv=getInvites();
+    const u=getUsage();
+    let h='<p style="margin-bottom:12px;font-size:12px;color:#6b7280">总使用次数：<b>'+(u.count||0)+'</b> · 解锁状态：'+(u.unlocked?'<span style="color:#059669">已解锁</span>':'<span style="#ef4444">未解锁</span>')+'</p>';
+    h+='<div style="margin-bottom:14px"><div class="auth-field" style="margin-bottom:8px"><label>添加新邀请码</label><input type="text" id="newInviteInput" placeholder="输入新邀请码（大写）"></div><button class="auth-submit" id="addInviteBtn" style="background:linear-gradient(135deg,#059669,#047857);padding:10px;font-size:13px">+ 添加</button></div>';
+    h+='<div style="font-size:12px;font-weight:700;margin-bottom:6px;color:#374151">当前邀请码 ('+inv.codes.length+' 个)</div>';
+    h+='<div style="max-height:200px;overflow-y:auto">';
+    inv.codes.forEach((c,i)=>{
+      h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#f9fafb;border-radius:8px;margin-bottom:4px"><span style="font-family:monospace;font-weight:700;font-size:14px;letter-spacing:1px">'+c+'</span><button onclick="removeInviteCode('+i+')" style="border:none;background:#fef2f2;color:#ef4444;padding:4px 10px;border-radius:14px;font-size:11px;font-weight:700;cursor:pointer">删除</button></div>';
+    });
+    if(!inv.codes.length)h+='<p style="color:#9ca3af;text-align:center;padding:16px">暂无邀请码</p>';
+    h+='</div><button onclick="adminAuthed=false;renderAdminBody()" style="margin-top:14px;border:none;background:transparent;color:#9ca3af;font-size:12px;cursor:pointer;text-decoration:underline">退出管理</button>';
+    ab.innerHTML=h;
+    const ni=$("#newInviteInput");
+    if(ni) ni.addEventListener("keydown",e=>{if(e.key==="Enter")addInviteCode();});
+    const ai=$("#addInviteBtn");
+    if(ai) ai.onclick=addInviteCode;
+  }
+}
+function doAdminLogin(){
+  const p=$("#adminPassInput").value;
+  const inv=getInvites();
+  if(p===inv.adminPass||p===ADMIN_PASS){
+    adminAuthed=true;renderAdminBody();toast("✅ 管理员登录成功");
+  }else{$("#inviteError").textContent="密码错误";/* 复用样式 */alert("密码错误");}
+}
+function addInviteCode(){
+  const c=$("#newInviteInput").value.trim().toUpperCase();
+  if(!c){toast("请输入邀请码");return;}
+  if(c.length<4){toast("邀请码至少4位");return;}
+  const inv=getInvites();
+  if(inv.codes.includes(c)){toast("该邀请码已存在");return;}
+  inv.codes.push(c);saveInvites(inv);renderAdminBody();toast("✅ 已添加："+c);
+}
+function removeInviteCode(i){
+  const inv=getInvites();inv.codes.splice(i,1);saveInvites(inv);renderAdminBody();toast("已删除");
+}
+
+// 邀请码弹窗事件
+$("#inviteSubmit").onclick=verifyInviteCode;
+$("#inviteCodeInput").addEventListener("keydown",e=>{if(e.key==="Enter")verifyInviteCode();});
+// 管理页事件
+$("#adminClose").onclick=hideAdmin;
+
+// 特殊手势进入管理页：连续点击标题5次
+let _titleTapCount=0,_titleTapTimer=null;
+document.querySelector("h1")?.addEventListener("click",()=>{
+  _titleTapCount++;
+  clearTimeout(_titleTapTimer);
+  _titleTapTimer=setTimeout(()=>{_titleTapCount=0;},2000);
+  if(_titleTapCount>=5){_titleTapCount=0;showAdminLogin();}
+});
+$("#qfav").addEventListener("input",e=>{favKeyword=e.target.value.trim();renderFav();});
+
+// 初始化：从 localStorage 加载已登录用户
+async function initApp(){
+  setTime("加载中");
+  // 先渲染数据（不依赖登录状态）
+  PEND=SNAPSHOT_PEND.map(r=>{ const cc=r._c; return {...r, _c: cc&&cc.price!=null?compute(r,cc.price):(cc||null)}; });
+  renderPend();
+  PROGRESS=SNAPSHOT_PROGRESS.map(r=>{ const cc=r._c; return {...r, _c: cc&&cc.price!=null?compute(r,cc.price):(cc||null)}; });
+  renderProgress();
+
+  // 从 localStorage 读取登录状态（同步，即时完成）
+  currentUser=fetchCurrentUser();
+  renderUserArea();
+  if(activeTab==="pend")renderPend();
+  if(activeTab==="progress")renderProgress();
+
+  // 延迟加载实时数据（给页面渲染留时间）
+  setTimeout(()=>{
+    loadAll();
+    loadProgressRealtime();
+    checkProgress();
+  }, 500);
+}
+initApp();
+setInterval(()=>setTime("数据更新"), 30000);
+// 把版本号同步到浏览器标签标题，方便一眼判断是否加载了最新页
+(function(){
+  try{
+    var v=document.getElementById('verStamp');
+    if(v){ var m=v.textContent.match(/v[\d-]+ \(([a-f0-9]+)\)/); if(m){ document.title='cb-ration '+m[1]; } }
+  }catch(e){}
+})();
+</script>
+</body>
+</html>
