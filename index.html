@@ -235,12 +235,12 @@
     .cb-safe span{background:#f3f4f6;padding:3px 8px;border-radius:6px}
     /* 2×2 网格：配售 | 规模 / 所需资金 | 流通（待发债用） */
     .cb-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;padding:7px 0}
-    /* 审核进度：3列网格，标签在右列第1行 */
-    #progressPanel .cb-stats{grid-template-columns:1fr 1fr auto}
-    #progressPanel .cb-stats .s-tag{display:flex;align-items:center;justify-content:center}
-    /* 日期独立底行（卡片最底部） */
-    #progressPanel .cb-date-row{margin-top:8px;padding-top:8px;border-top:1px dashed #eee;display:flex;align-items:center}
-    #progressPanel .cb-date-row .cb-d{font-size:12.5px;font-weight:600;color:#6b7280}
+    /* 审核进度：3列×2行网格，和待发债一致 */
+    #progressPanel .cb-stats{grid-template-columns:1fr 1fr 1fr}
+    /* 第4个元素(第2行第1个)加顶部分隔线 */
+    #progressPanel .cb-stats .s:nth-child(4){border-top:1px solid #eee;padding-top:6px;margin-top:4px}
+    #progressPanel .cb-stats .s-tag,#progressPanel .cb-stats .s-date{display:flex;align-items:center;justify-content:center}
+    #progressPanel .cb-stats .s-date .cb-d{font-size:12px;font-weight:600;color:#6b7280}
     .cb-stats .s{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
     .cb-stats .s .l{font-size:10px;color:#9ca3af;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .cb-stats .s .v{font-size:12.5px;font-weight:800;color:#1f2937;font-variant-numeric:tabular-nums;line-height:1.15;white-space:nowrap}
@@ -1019,14 +1019,17 @@ function renderProgress(){
         h+='<div class="cb-item" data-i="'+i+'" data-kind="progress">';
         // 第一行：名称+代码+市场标签+★（和待发债cb-name结构一致）
         h+='<div class="cb-name"><span class="n">'+(r.stockName||"-")+'</span><span class="c">'+(r.stockCode||"")+'</span>'+mktTag+favBtnHtml(getRowId(r,"progress"),"progress")+'</div>';
-        // 数据区：配售|规模|标签(第1行) / 所需资金|流通(第2行) —— 标签在右列，日期独立放卡片最底行
+        // 数据区：3列×2行网格（和待发债一致），中间横线分隔
         const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
         h+='<div class="cb-stats">';
+        // 第1行：配售 | 规模 | 状态标签
         h+='<span class="s"><span class="l">配售</span><span class="v hl">'+(c.needShares!=null?shLabel:'-')+'</span></span>';
         h+='<span class="s"><span class="l">规模</span><span class="v">'+(r.scale!=null?fmt(r.scale)+'亿':'-')+'</span></span>';
         h+='<span class="s s-tag"><span class="tag '+tagCls+'">'+pl+'</span></span>';
+        // 第2行：所需资金 | 流通 | 日期
         h+='<span class="s"><span class="l">所需资金</span><span class="v hl">'+(c.needMoney!=null?fmt(c.needMoney,0)+'元':'-')+'</span></span>';
-        h+='<span class="s"><span class="l">流通</span><span class="v f">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span>';
+        h+='<span class="s"><span class="l">预估流通</span><span class="v f">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span>';
+        h+='<span class="s s-date"><span class="cb-d">🗓️ '+(r.progress_dt?r.progress_dt.slice(0,10):"-")+'</span></span>';
         h+='</div>';
         if(c.isSH && (c.needSharesSafe!=null || c.needMoneySafe!=null)){
           h+='<div class="cb-safe">';
@@ -1034,8 +1037,6 @@ function renderProgress(){
           if(c.needMoneySafe!=null)h+='<span>稳'+fmt(c.needMoneySafe,0)+'元</span>';
           h+='</div>';
         }
-        // 底行：日期（独立一行，卡片最底部）
-        h+='<div class="cb-date-row"><span class="cb-d">🗓️ '+(r.progress_dt?r.progress_dt.slice(0,10):"-")+'</span></div>';
         h+='</div>';
       });
       h+='</div>';
