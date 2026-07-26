@@ -34,10 +34,10 @@
   .tab-sub{font-size:10.5px;font-weight:600;opacity:.7;margin-left:1px}
   .tab.active .tab-sub{opacity:.85}
   .search{padding:0 0 6px;display:flex;gap:6px;align-items:center}
-  .search input{width:100%;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13px;background:var(--card);outline:none;flex:1;min-width:0}
+  .search input{width:100%;max-width:280px;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13px;background:var(--card);outline:none;flex:1;min-width:0}
   .search input:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(249,115,22,.14)}
   /* 搜索框内刷新按钮（手机端显示），放大并改为橙色醒目 */
-  .btn-refresh-sm{flex-shrink:0;width:46px;height:46px;border-radius:13px;border:1.5px solid var(--primary);background:#fff;color:var(--primary);font-size:19px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;touch-action:manipulation}
+  .btn-refresh-sm{flex-shrink:0;width:46px;height:46px;border-radius:13px;border:1.5px solid var(--primary);background:var(--primary);color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;touch-action:manipulation}
   .btn-refresh-sm:active{background:var(--primary-light);color:var(--primary);transform:scale(.93)}
   @media(min-width:721px){.btn-refresh-sm{display:none}} /* PC端隐藏 */
   .chips{display:flex;gap:7px;padding:4px 0 10px;flex-wrap:wrap}
@@ -96,9 +96,13 @@
   .hero-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
   /* PC端：显示完整用户区，隐藏手机端圆钮 */
   #userAreaMobile{display:none}
-  .user-info{display:flex;align-items:center;gap:6px;background:#f8f9fb;color:#374151;padding:4px 12px 4px 6px;border-radius:20px;font-size:12.5px;font-weight:600;border:1px solid #e5e7eb;transition:.15s}
+  .user-info{display:flex;align-items:center;gap:6px;background:#f8f9fb;color:#374151;padding:4px 12px 4px 6px;border-radius:20px;font-size:12.5px;font-weight:600;border:1px solid #e5e7eb;transition:.15s;cursor:pointer;position:relative}
   .user-info:hover{border-color:#d1d5db;background:#f3f4f6}
   .user-info .avatar{width:26px;height:26px;border-radius:50%;background:#fff4ea;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:1;border:1.5px solid #ffd6b3;overflow:hidden}
+  .user-info .u-dropdown{display:none;position:absolute;top:calc(100% + 6px);right:0;background:#fff;border:1px solid #e5e7eb;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:140px;overflow:hidden;z-index:40}
+  .user-info .u-dropdown.show{display:block}
+  .user-info .u-dropdown button{width:100%;padding:8px 12px;border:none;background:none;font-size:13px;color:#374151;cursor:pointer;text-align:left;display:flex;align-items:center;gap:6px;font-weight:500}
+  .user-info .u-dropdown button:hover{background:#fef2f2;color:#ef4444}
   .btn-sm{cursor:pointer;border:1px solid var(--primary);border-radius:16px;padding:5px 11px;font-size:11.5px;font-weight:700;background:#fff;color:var(--primary);transition:.15s;white-space:nowrap}
   .btn-sm:active{transform:scale(.96)}
   .btn-login{cursor:pointer;border:1px solid var(--primary);border-radius:16px;padding:5px 12px;font-size:11.5px;font-weight:700;background:#fff;color:var(--primary);transition:.15s;white-space:nowrap}
@@ -233,24 +237,22 @@
     /* 稳配信息行 */
     .cb-safe{display:flex;gap:12px;padding-top:6px;font-size:11px;color:#9ca3af;font-weight:500}
     .cb-safe span{background:#f3f4f6;padding:3px 8px;border-radius:6px}
-    /* 2×2 网格：配售 | 规模 / 所需资金 | 流通（待发债用） */
-    .cb-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;padding:7px 0}
-    /* 审核进度：3列×2行网格，列间距0让横线连成一条 */
-    #progressPanel .cb-stats{grid-template-columns:1fr 1fr 1fr;column-gap:0;align-items:start}
-    #progressPanel .cb-stats .s{padding-left:12px;padding-right:12px}
+    /* ===== 三Tab统一3列×2���网格（审核进度/待发债/关注共用） ===== */
+    .cb-stats{display:grid;grid-template-columns:1fr 1fr 1fr;column-gap:0;align-items:start;padding:7px 0}
+    .cb-stats .s{padding-left:12px;padding-right:12px}
     /* 每行第一格去左内边距（3列grid：第1/4/7...个子元素 = 每行第一列） */
-    #progressPanel .cb-stats .s:nth-child(3n+1){padding-left:0}
-    #progressPanel .cb-stats .s:nth-child(3n){padding-right:0}
+    .cb-stats .s:nth-child(3n+1){padding-left:0}
+    .cb-stats .s:nth-child(3n){padding-right:0}
     /* 第2行整行加顶部分隔线（列间距0→边框相接成一条连续线） */
-    #progressPanel .cb-stats .s:nth-child(n+4){border-top:1px solid #eee;padding-top:7px;margin-top:3px}
+    .cb-stats .s:nth-child(n+4){border-top:1px solid #eee;padding-top:7px;margin-top:3px}
     /* 标签区与值区全部锁死固定高度 → 六格严格等高 → 三列值绝对对齐同一水平线 */
-    #progressPanel .cb-stats .s .l{height:15px;line-height:15px;display:block}
-    #progressPanel .cb-stats .s .v{display:flex;align-items:center;height:16px;line-height:16px}
-    #progressPanel .cb-stats .s .cb-d{display:flex;align-items:center;height:16px;line-height:16px;font-size:12.5px;font-weight:800;color:#1f2937}
-    #progressPanel .cb-stats .s .tag{display:inline-flex;align-items:center;height:16px;padding:0 8px;line-height:16px;box-sizing:border-box}
+    .cb-stats .s .l{height:15px;line-height:15px;display:block}
+    .cb-stats .s .v{display:flex;align-items:center;height:16px;line-height:16px}
+    .cb-stats .s .cb-d{display:flex;align-items:center;height:16px;line-height:16px;font-size:12.5px;font-weight:800;color:#1f2937}
+    .cb-stats .s .tag{display:inline-flex;align-items:center;height:16px;padding:0 8px;line-height:16px;box-sizing:border-box}
     /* 第一列(配售/所需资金)字略小 */
-    #progressPanel .cb-stats .s:nth-child(3n+1) .l{font-size:9px}
-    #progressPanel .cb-stats .s:nth-child(3n+1) .v{font-size:11px}
+    .cb-stats .s:nth-child(3n+1) .l{font-size:9px}
+    .cb-stats .s:nth-child(3n+1) .v{font-size:11px}
     .cb-stats .s{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
     .cb-stats .s .l{font-size:10px;color:#9ca3af;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .cb-stats .s .v{font-size:12.5px;font-weight:800;color:#1f2937;font-variant-numeric:tabular-nums;line-height:1.15;white-space:nowrap}
@@ -398,7 +400,6 @@
       <button class="btn btn-sm" id="refresh">↻ 刷新</button>
     </div>
   </div>
-  <div class="sub">xianmeng872.github.io</div>
   <div class="hero-desc">配债潜伏 · 待发实时 · 审核进度自动更新</div>
   <div class="bar">
     <span class="time" id="time">加载中…</span>
@@ -418,7 +419,7 @@
   </div>
 
   <div id="view-pend">
-    <div class="search"><input id="q" placeholder="🔍 搜索转债 / 正股 / 代码，如：炬申、特宝、110103"><button class="btn-refresh-sm" id="refreshMobile" title="刷新数据">↻</button></div>
+    <div class="search"><input id="q" placeholder="🔍 搜索转债 / 正股 / 代码"><button class="btn-refresh-sm" id="refreshMobile" title="刷新数据">🔄</button></div>
     <div id="panel"></div>
   </div>
 
@@ -431,13 +432,13 @@
       <span class="chip" data-f="20">股东大会通过</span>
       <span class="chip" data-f="10">董事会预案</span>
     </div>
-    <div class="search"><input id="q2" placeholder="🔍 搜索正股 / 转债 / 代码，如：炬申、千红"><button class="btn-refresh-sm" id="refreshMobile2" title="刷新数据">↻</button></div>
+    <div class="search"><input id="q2" placeholder="🔍 搜索正股 / 转债 / 代码"><button class="btn-refresh-sm" id="refreshMobile2" title="刷新数据">🔄</button></div>
     <div id="progressPanel"></div>
   </div>
 
   <div class="foot">
     数据源：东方财富 + 腾讯行情 + 集思录 · 每日自动更新(9:00/18:00) · 仅供参考，非投资建议
-    <div id="verStamp" style="margin-top:6px;font-size:11px;color:#bbb">版本 v20260727-0402 (99961c0)</div>
+    <div id="verStamp" style="margin-top:6px;font-size:11px;color:#bbb">版本 v20260727-0411 (8b22912)</div>
   </div>
 </div>
 <div class="mask" id="mask"><div class="modal">
@@ -926,15 +927,17 @@ function renderPend(){
       const dStr=(r.publicStart||r.progress_dt||"");
       const shortD=dStr?dStr.slice(5,10):"-";
       h+='<div class="cb-name"><span class="n">'+(r.name||"-")+'</span><span class="c">'+(r.code||"")+'</span>'+favBtnHtml(getRowId(r,"pend"),"pend")+'</div>';
-      // 第二行：日期（左）+ 进度标签（右），单开一行，在公司名称下面
-      h+='<div class="cb-sub"><span class="cb-d">📅 '+shortD+'</span><span class="cb-tag">'+stageTag+'</span></div>';
-      // 一行四列：配售 | 规模 | 所需资金 | 流通
+      // 3列×2行网格（与审核进度统一）：配售 | 规模 | 阶段 / 所需资金 | 流通 | 日期
       const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
       h+='<div class="cb-stats">';
+      // 第1行：配售 | 规模 | 阶段
       h+='<span class="s"><span class="l">配售</span><span class="v hl">'+(c.needShares!=null?shLabel:'-')+'</span></span>';
       h+='<span class="s"><span class="l">规模</span><span class="v">'+(r.scale!=null?fmt(r.scale)+'亿':'-')+'</span></span>';
+      h+='<span class="s"><span class="v"><span class="tag '+stageTag?'tag-sbuy':''+'">'+(stageTag?stageTag:'待发行')+'</span></span></span>';
+      // 第2行：所需资金 | 流通 | 日期
       h+='<span class="s"><span class="l">所需资金</span><span class="v hl">'+(c.needMoney!=null?fmt(c.needMoney,0)+'元':'-')+'</span></span>';
       h+='<span class="s"><span class="l">流通</span><span class="v f">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span>';
+      h+='<span class="s"><span class="v"><span class="cb-d">🗓️ '+shortD+'</span></span></span>';
       h+='</div>';
       h+='</div>';
     });
@@ -1327,9 +1330,14 @@ async function loadProgressRealtime(){
   finally{btn.disabled=false;btn.textContent="↻ 刷新实时";}
 }
 
-// 事件
-$("#mx").onclick=()=>$("#mask").classList.remove("show");
-$("#mask").onclick=e=>{if(e.target.id==="mask")$("#mask").classList.remove("show");};
+// 事件：关闭详情弹窗时确保页面状态正常
+$("#mx").onclick=()=>{document.getElementById("mask").classList.remove("show");ensureViewsVisible();};
+$("#mask").onclick=e=>{if(e.target.id==="mask"){document.getElementById("mask").classList.remove("show");ensureViewsVisible();}};
+function ensureViewsVisible(){
+  // 确保当前激活的Tab视图可见（防止某些情况下返回后白屏）
+  var pv=document.getElementById("view-"+activeTab);
+  if(pv)pv.style.display="block";
+}
 $("#q").addEventListener("input",e=>{if(!recordUsage())return;keyword=e.target.value.trim();renderPend();});
 $("#q2").addEventListener("input",e=>{if(!recordUsage())return;keyword2=e.target.value.trim();renderProgress();});
 $("#refresh").onclick=()=>{ if(activeTab==="pend") loadAll(); else loadProgressRealtime(); };
@@ -1417,9 +1425,10 @@ function renderUserArea(){
     const syncDot=syncReady
       ? '<span class="sync-dot on" title="云端同步已开启">☁️</span>'
       : '<span class="sync-dot off" title="未开启云端同步">☁️</span>';
-    // PC端：完整用户信息条
-    ua.innerHTML='<span class="user-info"><span class="avatar">'+em+'</span><span class="uname">'+currentUser.username+'</span>'+syncDot+'</span><button class="btn-logout" id="btnLogout">退出</button>';
-    $("#btnLogout").onclick=()=>{
+    // PC端：头像+用户名，点击弹出下拉菜单（含退出）
+    ua.innerHTML='<span class="user-info" id="pcUserInfo"><span class="avatar">'+em+'</span><span class="uname">'+currentUser.username+'</span>'+syncDot+'<div class="u-dropdown" id="pcUDrop"><button id="btnLogout">🚪 退出登录</button></div></span>';
+    $("#pcUserInfo").onclick=(e)=>{e.stopPropagation();const d=document.getElementById("pcUDrop");d.classList.toggle("show");};
+    $("#btnLogout").onclick=(e)=>{e.stopPropagation();document.getElementById("pcUDrop").classList.remove("show");
       currentUser=null;saveToken(null);
       renderUserArea();updateFavTab();
       if(activeTab==="fav"){activeTab="pend";$("#tab-pend").click();}
@@ -1873,13 +1882,15 @@ function renderFav(){
         const id=getRowId(r,"pend");
         h+='<div class="cb-item" data-i="'+i+'" data-kind="pend">';
         h+='<div class="cb-name"><span class="n">'+(r.name||"-")+'</span><span class="c">'+(r.code||"")+'</span>'+favBtnHtml(id,"pend")+'</div>';
-        h+='<div class="cb-sub"><span class="cb-d">📅 '+shortD+'</span><span class="cb-tag">'+stageTag+'</span></div>';
+        // 3列×2行（与审核进度统一）
         const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
         h+='<div class="cb-stats">';
         h+='<span class="s"><span class="l">配售</span><span class="v hl">'+(c.needShares!=null?shLabel:'-')+'</span></span>';
         h+='<span class="s"><span class="l">规模</span><span class="v">'+(r.scale!=null?fmt(r.scale)+'亿':'-')+'</span></span>';
+        h+='<span class="s"><span class="v"><span class="tag '+(stageTag?'tag-sbuy':'')+'">'+(stageTag?stageTag:'待发行')+'</span></span></span>';
         h+='<span class="s"><span class="l">所需资金</span><span class="v hl">'+(c.needMoney!=null?fmt(c.needMoney,0)+'元':'-')+'</span></span>';
         h+='<span class="s"><span class="l">流通</span><span class="v f">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span>';
+        h+='<span class="s"><span class="v"><span class="cb-d">🗓️ '+shortD+'</span></span></span>';
         h+='</div></div>';
       });
       h+='</div>';
@@ -1894,13 +1905,15 @@ function renderFav(){
         const id=getRowId(r,"progress");
         h+='<div class="cb-item" data-i="'+i+'" data-kind="progress">';
         h+='<div class="cb-name"><span class="n">'+(r.stockName||r.name||"-")+'</span><span class="c">'+(r.code||r.stockCode||"")+'</span>'+favBtnHtml(id,"progress")+'</div>';
-        h+='<div class="cb-sub"><span class="cb-d">📅 '+shortD+'</span><span class="cb-tag">'+stageTag+'</span></div>';
+        // 3列×2行（与审核进度Tab统一）
         const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
         h+='<div class="cb-stats">';
         h+='<span class="s"><span class="l">配售</span><span class="v hl">'+(c.needShares!=null?shLabel:'-')+'</span></span>';
         h+='<span class="s"><span class="l">规模</span><span class="v">'+(r.scale!=null?fmt(r.scale)+'亿':'-')+'</span></span>';
+        h+='<span class="s"><span class="v"><span class="tag tag-s'+r.progress+'">'+r.progress_nm+'</span></span></span>';
         h+='<span class="s"><span class="l">所需资金</span><span class="v hl">'+(c.needMoney!=null?fmt(c.needMoney,0)+'元':'-')+'</span></span>';
         h+='<span class="s"><span class="l">流通</span><span class="v f">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span>';
+        h+='<span class="s"><span class="v"><span class="cb-d">🗓️ '+shortD+'</span></span></span>';
         h+='</div></div>';
       });
       h+='</div>';
@@ -2270,6 +2283,8 @@ async function initApp(){
     checkProgress();
   }, 500);
 }
+// PC端：点击页面其他区域关闭用户下拉菜单
+document.addEventListener("click",function(){var d=document.getElementById("pcUDrop");if(d)d.classList.remove("show");});
 initApp();
 setInterval(()=>setTime("数据更新"), 30000);
 // 把版本号同步到浏览器标签标题，方便一眼判断是否加载了最新页
