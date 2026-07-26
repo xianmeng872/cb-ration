@@ -237,6 +237,7 @@
     /* 审核进度：3列（配售|规模|标签 / 所需资金|流通） */
     #progressPanel .cb-stats{grid-template-columns:1fr 1fr auto}
     #progressPanel .cb-stats .s-tag{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+    #progressPanel .cb-stats .s-tag .cb-d{font-size:13px;font-weight:600;color:#6b7280}
     .cb-stats .s{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
     .cb-stats .s .l{font-size:10px;color:#9ca3af;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .cb-stats .s .v{font-size:12.5px;font-weight:800;color:#1f2937;font-variant-numeric:tabular-nums;line-height:1.15;white-space:nowrap}
@@ -1020,7 +1021,7 @@ function renderProgress(){
         h+='<div class="cb-stats">';
         h+='<span class="s"><span class="l">配售</span><span class="v hl">'+(c.needShares!=null?shLabel:'-')+'</span></span>';
         h+='<span class="s"><span class="l">规模</span><span class="v">'+(r.scale!=null?fmt(r.scale)+'亿':'-')+'</span></span>';
-        h+='<span class="s s-tag"><span class="cb-d">📅 '+(r.progress_dt?r.progress_dt.slice(5,10):"-")+'</span><span class="tag '+tagCls+'">'+pl+'</span></span>';
+        h+='<span class="s s-tag"><span class="tag '+tagCls+'">'+pl+'</span><span class="cb-d">📅 '+(r.progress_dt?r.progress_dt.slice(0,10):"-")+'</span></span>';
         h+='<span class="s"><span class="l">所需资金</span><span class="v hl">'+(c.needMoney!=null?fmt(c.needMoney,0)+'元':'-')+'</span></span>';
         h+='<span class="s"><span class="l">流通</span><span class="v f">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span>';
         h+='</div>';
