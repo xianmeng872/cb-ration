@@ -998,15 +998,9 @@ function renderProgress(){
 
   // ===== 手机端：多种布局模式 =====
   if(isMobile()){
-    const PROG_STAGE_LABEL={all:"全部阶段","90":"同意注册","80":"上市委通过","50":"交易所受理","20":"股东大会通过","10":"董事会预案"};
-    const SORT_LABEL={progress:"进度",needMoney:"所需资金",baiyuan:"百元含权",scale:"规模",estFloat:"预估流通"};
-    const stageTxt=PROG_STAGE_LABEL[PROG_FILTER]||"全部阶段";
-    const sortTxt=SORT_LABEL[progSort.field]||"进度";
-    const dirTxt=progSort.dir===1?"升序↑":"降序↓";
-    
     // 布局A：卡片式（完整信息）
     if(MOBILE_LAYOUT==='card'){
-      let h='<button class="filter-trigger" id="progFilterBtn" type="button"><span>当前：'+stageTxt+' · '+sortTxt+dirTxt+'</span><span class="ft-arrow">↕ 排序 ▾</span></button><div class="cb-list">';
+      let h='<div class="cb-list">';
       rows.forEach((r,i)=>{
         const c=r._c||{};
         const tagCls="tag-s"+r.progress;
@@ -1031,13 +1025,12 @@ function renderProgress(){
       h+='</div>';
       p.innerHTML=h;
       p.querySelectorAll(".cb-item").forEach(el=>el.onclick=()=>openDetail(rows[+el.dataset.i],"progress"));
-      const fb=$("#progFilterBtn"); if(fb) fb.onclick=openProgSheet;
       return;
     }
     
     // 布局B：列表式（紧凑，类似微信聊天列表）
     if(MOBILE_LAYOUT==='list'){
-      let h='<button class="filter-trigger" id="progFilterBtn" type="button"><span>当前：'+stageTxt+' · '+sortTxt+dirTxt+'</span><span class="ft-arrow">↕ 排序 ▾</span></button><div class="cb-list">';
+      let h='<div class="cb-list">';
       rows.forEach((r,i)=>{
         const c=r._c||{};
         const tagCls="tag-s"+r.progress;
@@ -1064,13 +1057,12 @@ function renderProgress(){
       h+='</div>';
       p.innerHTML=h;
       p.querySelectorAll(".cb-item").forEach(el=>el.onclick=()=>openDetail(rows[+el.dataset.i],"progress"));
-      const fb=$("#progFilterBtn"); if(fb) fb.onclick=openProgSheet;
       return;
     }
     
     // 布局C：数据条式（极简，关键数据一目了然）
     if(MOBILE_LAYOUT==='bar'){
-      let h='<button class="filter-trigger" id="progFilterBtn" type="button"><span>当前：'+stageTxt+' · '+sortTxt+dirTxt+'</span><span class="ft-arrow">↕ 排序 ▾</span></button><div class="cb-list">';
+      let h='<div class="cb-list">';
       rows.forEach((r,i)=>{
         const c=r._c||{};
         const tagCls="tag-s"+r.progress;
@@ -1103,13 +1095,12 @@ function renderProgress(){
       h+='</div>';
       p.innerHTML=h;
       p.querySelectorAll(".cb-item").forEach(el=>el.onclick=()=>openDetail(rows[+el.dataset.i],"progress"));
-      const fb=$("#progFilterBtn"); if(fb) fb.onclick=openProgSheet;
       return;
     }
     
     // 布局D：折叠式（默认只显示关键信息，点击展开）
     if(MOBILE_LAYOUT==='fold'){
-      let h='<button class="filter-trigger" id="progFilterBtn" type="button"><span>当前：'+stageTxt+' · '+sortTxt+dirTxt+'</span><span class="ft-arrow">↕ 排序 ▾</span></button><div class="cb-list">';
+      let h='<div class="cb-list">';
       rows.forEach((r,i)=>{
         const c=r._c||{};
         const tagCls="tag-s"+r.progress;
@@ -1167,7 +1158,6 @@ function renderProgress(){
           }
         };
       });
-      const fb=$("#progFilterBtn"); if(fb) fb.onclick=openProgSheet;
       return;
     }
   }// ===== PC端：表格 =====
