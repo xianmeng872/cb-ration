@@ -919,6 +919,13 @@ function compute(r,price){
   return {cv,needShares,needSharesSafe,needMoney,needMoneySafe,baiyuan,price,market:isSH?"沪":"深",isSH,estFloat};
 }
 function fmt(v,d=2){return v==null?"待公告":(typeof v==="number"?v.toFixed(d):v);}
+function fmtShortDate(s){
+  if(!s) return '-';
+  const m=String(s).match(/\d{4}-\d{2}-\d{2}/);
+  if(!m) return s;
+  const p=m[0].split('-');
+  return p[0].slice(2)+'-'+p[1]+'-'+p[2];
+}
 function arrow(dir){return '<span class="sort-arrow'+(dir?' active':'')+'">'+(dir===1?'▲':(dir===-1?'↓':'⇅'))+'</span>';}
 function getVal(r,f){
   const c=r._c||{};
@@ -2150,11 +2157,11 @@ function renderFav(){
       h+='<td data-label="正股/转债"><div class="name">'+(r.stockName||r.name||"-")+mktTag+'</div><div class="code">'+(r.stockCode||r.code||"")+(r.name&&r._kind==="progress"?(" · "+r.name):(r._kind==="pend"&&r.stockName?(" · "+r.stockName):""))+'</div></td>';
       if(r._kind==="progress"){
         h+='<td data-label="进度"><span class="tag tag-s'+r.progress+'">'+progressLabel(r)+'</span></td>';
-        h+='<td data-label="进展日期"><span class="num">'+(r.progress_dt||'-')+'</span></td>';
+        h+='<td data-label="进展日期"><span class="num">'+fmtShortDate(r.progress_dt)+'</span></td>';
       }else{
         const st=r.stage==="申购"?"tag-sbuy":"tag-slist";
         h+='<td data-label="进度"><span class="tag '+st+'">'+(r.stage||"待发")+'</span></td>';
-        h+='<td data-label="进展日期"><span class="num">'+(r.publicStart||r.progress_dt||'-')+'</span></td>';
+        h+='<td data-label="进展日期"><span class="num">'+fmtShortDate(r.publicStart||r.progress_dt)+'</span></td>';
       }
       h+='<td data-label="转股价值"><span class="num">'+(c.cv!=null?fmt(c.cv):"…")+'</span></td>';
       const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
