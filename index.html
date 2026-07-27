@@ -77,7 +77,7 @@
   .empty{text-align:center;color:var(--muted);padding:36px 0}
   .foot{text-align:center;color:var(--muted);font-size:11px;line-height:1.7;padding:16px 8px}
   .foot b{color:var(--ink)}
-  .mask{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:18px}
+  .mask{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:18px;overscroll-behavior:contain;touch-action:pan-y}
   .mask.show{display:flex}
   .modal{background:#fff;border-radius:16px;max-width:440px;width:100%;max-height:82vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
   .modal .mh{position:sticky;top:0;background:var(--primary);color:#fff;padding:15px 18px;display:flex;justify-content:space-between;align-items:center}
@@ -449,7 +449,7 @@
 
   <div class="foot">
     数据源：东方财富 + 腾讯行情 + 集思录 · 每日自动更新(9:00/18:00) · 仅供参考，非投资建议
-    <div id="verStamp" style="margin-top:6px;font-size:11px;color:#bbb">版本 v20260727-2358</div>
+    <div id="verStamp" style="margin-top:6px;font-size:11px;color:#bbb">版本 v20260728-0112</div>
   </div>
 </div>
 <div class="mask" id="mask"><div class="modal">
@@ -1255,6 +1255,7 @@ function renderProgress(){
   let h='<div class="card"><table><thead><tr>';
   h+='<th>正股 / 转债</th>';
   h+='<th data-sf="progress">进度 '+(ps.field==="progress"?arrow(ps.dir):'')+'</th>';
+  h+='<th data-sf="progress_dt">进展日期 '+(ps.field==="progress_dt"?arrow(ps.dir):'')+'</th>';
   h+='<th data-sf="cv">转股价值 '+(ps.field==="cv"?arrow(ps.dir):'')+'</th>';
   h+='<th>一手党</th>';
   h+='<th data-sf="needMoney">所需资金 '+(ps.field==="needMoney"?arrow(ps.dir):'')+'</th>';
@@ -1272,6 +1273,7 @@ function renderProgress(){
     h+='<tr class="clickable" data-i="'+i+'" data-kind="progress">';
     h+='<td data-label="正股/转债"><div class="name">'+(r.stockName||"-")+mktTag+'</div><div class="code">'+(r.stockCode||"")+(r.name?(" · "+r.name):"")+'</div></td>';
     h+='<td data-label="进度"><span class="tag '+tagCls+'">'+progressLabel(r)+'</span></td>';
+    h+='<td data-label="进展日期"><span class="muted">'+((r.progress_dt||"").slice(0,10)||"-")+'</span></td>';
     h+='<td data-label="转股价值"><span class="num">'+(c.cv!=null?fmt(c.cv):"…")+'</span></td>';
     const shLabel2=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
     h+='<td data-label="一手党">'+(c.needShares!=null?('<span class="num">'+shLabel2+'</span>'+(c.isSH&&c.needSharesSafe!=null?'<br><span class="muted" style="font-size:11px">稳配'+c.needSharesSafe+'股</span>':'')):'<span class="muted">-</span>')+'</td>';
@@ -1305,7 +1307,7 @@ function openDetail(r,kind){
   let rows=[];
   if(kind==="progress"){
     rows=[["stockCode",r.stockCode],["stockName",r.stockName],["name",r.name],["code",r.code],
-      ["progress_nm",progressLabel(r)],["convertPrice",r.convertPrice],["price",c.price],
+      ["progress_nm",progressLabel(r)],["进展日期",r.progress_dt],["convertPrice",r.convertPrice],["price",c.price],
       ["cv",c.cv],["perPre",r.perPre],["一手党(搏)",c.needShares!=null?c.needShares+"股":"-"],
       ["稳配1手",(c.isSH&&c.needSharesSafe!=null)?c.needSharesSafe+"股":"-"],
       ["所需资金(搏)",c.needMoney!=null?fmt(c.needMoney,0)+"元":"-"],
@@ -1323,6 +1325,7 @@ function openDetail(r,kind){
   let h="";
   rows.forEach(([k,v])=>{if(v==null||v==="")return;let val=v;
     if(k==="cv"||k==="baiyuan"||k==="price")val=fmt(v);
+    if(k==="进展日期"&&v)val=String(v).slice(0,10);
     if(k==="needMoney"&&v!=null)val=fmt(v,0);
     if(k==="scale"&&v!=null)val=fmt(v)+"亿";
     if(k==="perPre"&&v!=null)val=fmt(v)+"元";
@@ -1432,6 +1435,29 @@ window.addEventListener("popstate",function(){
     if(activeBtn) activeBtn.classList.add("active");
   }
 });
+// 手机端自定义滑动返回：左滑/右滑只关详情、回到点击卡片前的列表，不触发系统返回退出整页
+(function(){
+  const maskEl=document.getElementById("mask");
+  if(!maskEl) return;
+  let sx=0, sy=0, active=false;
+  maskEl.addEventListener("touchstart",e=>{
+    if(!isMobile() || !maskEl.classList.contains("show")) return;
+    const t=e.touches[0]; sx=t.clientX; sy=t.clientY; active=true;
+  },{passive:true});
+  maskEl.addEventListener("touchmove",e=>{
+    if(!active) return;
+    const t=e.touches[0]; const dx=t.clientX-sx, dy=t.clientY-sy;
+    // 明显的横向滑动 → 阻止 iOS 原生左滑/右滑返回手势（避免退出整页）
+    if(Math.abs(dx)>Math.abs(dy) && Math.abs(dx)>8){ e.preventDefault(); }
+  },{passive:false});
+  maskEl.addEventListener("touchend",e=>{
+    if(!active) return; active=false;
+    const t=(e.changedTouches&&e.changedTouches[0])||e.touches[0]; if(!t) return;
+    const dx=t.clientX-sx, dy=t.clientY-sy;
+    // 横滑超过阈值 → 关闭详情，回到列表（即“点击卡片详情之前的页面”）
+    if(Math.abs(dx)>60 && Math.abs(dx)>Math.abs(dy)*1.2){ closeDetailMask(); }
+  },{passive:true});
+})();
 function ensureViewsVisible(){
   // 确保只有来源Tab视图可见，其余全部隐藏（防止返回后多视图叠加）
   ["pend","progress","fav"].forEach(k=>{
