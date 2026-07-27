@@ -1323,7 +1323,7 @@ function renderProgress(){
     h+='<tr class="clickable" data-i="'+i+'" data-kind="progress">';
     h+='<td data-label="正股/转债"><div class="name">'+(r.stockName||"-")+mktTag+'</div><div class="code">'+(r.stockCode||"")+(r.name?(" · "+r.name):"")+'</div></td>';
     h+='<td data-label="进度"><span class="tag '+tagCls+'">'+progressLabel(r)+'</span></td>';
-    h+='<td data-label="进展日期"><span class="muted">'+((r.progress_dt||"").slice(0,10)||"-")+'</span></td>';
+    h+='<td data-label="进展日期"><span class="muted">'+fmtShortDate(r.progress_dt)+'</span></td>';
     h+='<td data-label="转股价值"><span class="num">'+(c.cv!=null?fmt(c.cv):"…")+'</span></td>';
     const shLabel2=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
     h+='<td data-label="一手党">'+(c.needShares!=null?('<span class="num">'+shLabel2+'</span>'+(c.isSH&&c.needSharesSafe!=null?'<br><span class="muted" style="font-size:11px">稳配'+c.needSharesSafe+'股</span>':'')):'<span class="muted">-</span>')+'</td>';
@@ -2714,7 +2714,7 @@ async function cbkLoadReview(el,code,name,opts){
     const rev=cbkBuildReview(data,name);
     const dir3m=rev.chg3m>=0?'up':'down';
     const head=document.createElement('div');head.className='kline-head';
-    head.innerHTML='<div class="kline-h-title"><span class="name">'+cbkEsc(name)+'</span><span class="dot '+(dir3m==='up'?'up':'down')+'"></span><span>正股近3月走势</span><span class="kline-h-pct '+(dir3m==='up'?'up':'down')+'">'+(rev.chg3m>=0?'+':'')+rev.chg3m.toFixed(1)+'%</span></div><div class="kline-h-toggle">▾</div>';
+    head.innerHTML='<div class="kline-h-title"><span class="name">'+cbkEsc(name)+'</span><span class="dot '+(dir3m==='up'?'up':'down')+'"></span><span>正股近3月走势·前复权</span><span class="kline-h-pct '+(dir3m==='up'?'up':'down')+'">'+(rev.chg3m>=0?'+':'')+rev.chg3m.toFixed(1)+'%</span></div><div class="kline-h-toggle">▾</div>';
     const body=document.createElement('div');body.className='kline-body';
     const chartBox=document.createElement('div');chartBox.className='kline-chart';
     const review=document.createElement('div');review.className='kline-review';
