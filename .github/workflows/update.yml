@@ -21,6 +21,8 @@ jobs:
         with:
           node-version: '20'
       - run: node update.mjs
+      - name: 同步到各入口文件
+        run: cp index.html app.html && cp index.html go.html && cp index.html go28.html
       - name: 提交更新
         run: |
           git config user.name "github-actions[bot]"
