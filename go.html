@@ -399,17 +399,19 @@
   .cb-fold-date{font-size:11px;color:#9ca3af;margin-top:6px}
 /* ===== 我的关注·正股近3月走势：手机端可折叠面板 ===== */
 .cb-kline{margin-top:8px;padding-top:8px;border-top:1px dashed #e6e8ef;}
-.cb-kline .kline-head{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;padding:5px 4px;border-radius:8px;transition:background .15s;}
-.cb-kline .kline-head:active{background:#f1f2f7;}
+.cb-kline .kline-head{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;padding:6px 8px;border-radius:10px;transition:background .15s,box-shadow .15s;background:#f8f9fc;border:1px solid #e6e8ef;box-shadow:0 1px 2px rgba(20,30,60,.04);}
+.cb-kline .kline-head:active{background:#f1f2f7;box-shadow:inset 0 1px 2px rgba(20,30,60,.06);}
 .cb-kline .kline-h-title{display:flex;align-items:center;gap:6px;flex:1;min-width:0;font-size:12px;font-weight:600;color:#3a3f4e;}
+.cb-kline .kline-h-title .name{color:#111;font-weight:700;margin-right:2px;}
 .cb-kline .kline-h-title .dot{width:7px;height:7px;border-radius:50%;flex:none;}
 .cb-kline .kline-h-title .dot.up{background:#e34d4d;}
 .cb-kline .kline-h-title .dot.down{background:#2ba471;}
 .cb-kline .kline-h-pct{font-weight:700;font-size:12px;}
 .cb-kline .kline-h-pct.up{color:#e34d4d;}
 .cb-kline .kline-h-pct.down{color:#2ba471;}
-.cb-kline .kline-h-toggle{font-size:10px;color:#b3b8c4;transition:transform .2s ease;flex:none;}
-.cb-kline.kline-collapsed .kline-h-toggle{transform:rotate(-90deg);}
+.cb-kline .kline-h-toggle{width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#fff;border:1px solid #e0e3eb;font-size:12px;color:#6366f1;transition:transform .2s ease,background .15s;flex:none;}
+.cb-kline .kline-head:hover .kline-h-toggle{background:#eef0ff;}
+.cb-kline.kline-collapsed .kline-h-toggle{transform:rotate(-180deg);}
 .cb-kline .kline-body{overflow:hidden;}
 .cb-kline.kline-collapsed .kline-body{display:none;}
 .cb-kline .kline-chart{width:100%;height:150px;}
@@ -2135,7 +2137,7 @@ function renderFav(){
     h+='<th data-sf="baiyuan">百元含权 '+(fs.field==="baiyuan"?arrow(fs.dir):'')+'</th>';
     h+='<th data-sf="scale">规模(亿) '+(fs.field==="scale"?arrow(fs.dir):'')+'</th>';
     h+='<th data-sf="estFloat">预估流通(亿) '+(fs.field==="estFloat"?arrow(fs.dir):'')+'</th>';
-    h+='<th style="width:160px">正股走势</th>';
+    h+='<th style="width:160px">正股近3月走势</th>';
     h+='<th>操作</th>';
     h+='</tr></thead><tbody>';
     rows.forEach((r,i)=>{
@@ -2594,14 +2596,14 @@ function cbkRenderEcharts(el,data){
   if(clean.length<2){cbkRenderSVG(el,data);return;}
   const chart=echarts.init(el);
   const dates=clean.map(d=>d.date),closes=clean.map(d=>d.close);
-  const up=closes[closes.length-1]>=closes[0],color=up?'#e34d4d':'#2ba471';
+  const color='#6366f1';
   chart.setOption({
     grid:{left:8,right:12,top:10,bottom:18,containLabel:true},
     tooltip:{trigger:'axis',formatter:function(p){const v=p&&p[0]&&p[0].data;return p[0].axisValue+'<br/>收盘 ¥'+(isFinite(v)?(+v).toFixed(2):'--');}},
     xAxis:{type:'category',data:dates,boundaryGap:false,axisLabel:{fontSize:9,color:'#9aa0b0',formatter:function(v){return v.slice(5);}},axisLine:{lineStyle:{color:'#e4e7f0'}},axisTick:{show:false}},
     yAxis:{type:'value',scale:true,axisLabel:{fontSize:9,color:'#9aa0b0'},splitLine:{lineStyle:{color:'#f0f2f7'}}},
-    series:[{type:'line',data:closes,smooth:true,showSymbol:false,lineStyle:{width:2,color:color},
-      areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:up?'rgba(227,77,77,.22)':'rgba(43,164,113,.22)'},{offset:1,color:'rgba(255,255,255,0)'}])},
+    series:[{type:'line',data:closes,smooth:true,showSymbol:false,lineStyle:{width:2.5,color:color},
+      areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(99,102,241,.22)'},{offset:1,color:'rgba(255,255,255,0)'}])},
       markPoint:{symbolSize:6,data:[{type:'max'},{type:'min'}],label:{fontSize:9},itemStyle:{color:color}}}]
   });
 }
@@ -2609,7 +2611,7 @@ function cbkRenderSVG(el,data){
   const clean=data.filter(d=>isFinite(d.close));
   if(clean.length<2){el.innerHTML='<div class="kline-err">数据不足，无法绘图</div>';return;}
   const closes=clean.map(d=>d.close),dates=clean.map(d=>d.date);
-  const n=closes.length,up=closes[n-1]>=closes[0],color=up?'#e34d4d':'#2ba471';
+  const n=closes.length,color='#6366f1';
   const W=320,H=150,pl=6,pr=6,pt=10,pb=16,iw=W-pl-pr,ih=H-pt-pb;
   let mn=Math.min.apply(null,closes),mx=Math.max.apply(null,closes);if(mx===mn){mx=mn+1;}
   const X=function(i){return pl+(n===1?iw/2:i/(n-1)*iw);};
@@ -2635,7 +2637,7 @@ function cbkRenderMiniSVG(el,data){
   const clean=data.filter(d=>isFinite(d.close));
   if(clean.length<2){el.innerHTML='<div class="kline-err">—</div>';return;}
   const closes=clean.map(d=>d.close);
-  const n=closes.length,up=closes[n-1]>=closes[0],color=up?'#e34d4d':'#2ba471';
+  const n=closes.length,color='#6366f1';
   const W=140,H=40,pl=3,pr=3,pt=4,pb=4,iw=W-pl-pr,ih=H-pt-pb;
   let mn=Math.min.apply(null,closes),mx=Math.max.apply(null,closes);if(mx===mn){mx=mn+1;}
   const X=function(i){return pl+(n===1?iw/2:i/(n-1)*iw);};
@@ -2699,7 +2701,7 @@ async function cbkLoadReview(el,code,name,opts){
     const rev=cbkBuildReview(data,name);
     const dir3m=rev.chg3m>=0?'up':'down';
     const head=document.createElement('div');head.className='kline-head';
-    head.innerHTML='<div class="kline-h-title"><span class="dot '+(dir3m==='up'?'up':'down')+'"></span>正股近3月走势<span class="kline-h-pct '+(dir3m==='up'?'up':'down')+'">'+(rev.chg3m>=0?'+':'')+rev.chg3m.toFixed(1)+'%</span></div><div class="kline-h-toggle">▾</div>';
+    head.innerHTML='<div class="kline-h-title"><span class="name">'+cbkEsc(name)+'</span><span class="dot '+(dir3m==='up'?'up':'down')+'"></span><span>正股近3月走势</span><span class="kline-h-pct '+(dir3m==='up'?'up':'down')+'">'+(rev.chg3m>=0?'+':'')+rev.chg3m.toFixed(1)+'%</span></div><div class="kline-h-toggle">▾</div>';
     const body=document.createElement('div');body.className='kline-body';
     const chartBox=document.createElement('div');chartBox.className='kline-chart';
     const review=document.createElement('div');review.className='kline-review';
