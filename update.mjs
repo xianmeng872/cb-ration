@@ -2,6 +2,7 @@ import fs from 'fs';
 
 const HTML = './index.html';
 const JSON_OUT = './审核进度快照.json';
+const KLINE_OUT = './KLINE_DATA.json';
 const CACHE = './流通盘缓存.json';
 const JSL = 'https://www.jisilu.cn/webapi/cb/pre/';
 // emweb 网页版股东接口（稳定不限流，返回十大股东+持股比例）
@@ -72,6 +73,33 @@ async function getLockRatio(stockCode) {
     }
   }
   return null;
+}
+
+/**
+ * 拉新浪日K（真实成交价，不复权）
+ * scale=240 即日线，datalen=90 约 4 个月交易日，返回后过滤最近 3 个自然月
+ */
+async function fetchSinaKline(stockCode) {
+  if (!stockCode || !/^\d{6}$/.test(stockCode)) return null;
+  const prefix = (stockCode[0] === '6' || stockCode[0] === '9') ? 'sh' : 'sz';
+  const symbol = prefix + stockCode;
+  const url = 'https://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=' + symbol + '&scale=240&ma=5&datalen=90';
+  try {
+    const r = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': 'https://finance.sina.com.cn/' } });
+    const buf = await r.arrayBuffer();
+    const text = new TextDecoder('gbk').decode(buf);
+    const arr = JSON.parse(text);
+    if (!arr || !arr.length) return null;
+    const end = new Date(), start = new Date();
+    start.setMonth(start.getMonth() - 3);
+    const pad = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    const startStr = pad(start);
+    const filtered = arr.filter(x => x.day && x.day >= startStr).map(x => ({ date: x.day, close: +(x.close) }));
+    return filtered.length >= 5 ? filtered : null;
+  } catch (e) {
+    console.error('  K线 ' + stockCode + ' 失败: ' + e.message);
+    return null;
+  }
 }
 
 (async () => {
@@ -149,6 +177,27 @@ async function getLockRatio(stockCode) {
     const pendLit = '[\n' + pend.map(o => JSON.stringify(o)).join(',\n') + '\n]';
     html = html.replace(/const SNAPSHOT_PEND=\[[\s\S]*?\];/, 'const SNAPSHOT_PEND=' + pendLit + ';');
   }
+
+  // ===== 3. 抓取近3个月不复权日K（供正股走势使用，与行情软件真实成交价口径一致） =====
+  const klineCodes = new Set();
+  filtered.forEach(o => { if (o.stockCode) klineCodes.add(o.stockCode); });
+  if (pendMatch) {
+    const pend = JSON.parse(pendMatch[1]);
+    pend.forEach(b => { if (b.stockCode) klineCodes.add(b.stockCode); });
+  }
+  console.log('拉取 ' + klineCodes.size + ' 只正股日K（新浪不复权）...');
+  const klineData = {};
+  let klineOk = 0, klineFail = 0;
+  for (const sc of klineCodes) {
+    const d = await fetchSinaKline(sc);
+    if (d && d.length >= 5) { klineData[sc] = d; klineOk++; }
+    else { klineFail++; }
+    await sleep(150);
+  }
+  const klineLit = JSON.stringify(klineData);
+  html = html.replace(/const KLINE_SNAPSHOT=\{[\s\S]*?\};/, 'const KLINE_SNAPSHOT=' + klineLit + ';');
+  fs.writeFileSync(KLINE_OUT, JSON.stringify(klineData, null, 1));
+  console.log('日K抓取完成：成功 ' + klineOk + ' 只，失败 ' + klineFail + ' 只');
 
   fs.writeFileSync(HTML, html);
   fs.writeFileSync(JSON_OUT, JSON.stringify(filtered, null, 1));
