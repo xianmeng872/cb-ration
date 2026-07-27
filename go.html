@@ -397,6 +397,26 @@
   .cb-fold-safe{display:flex;gap:10px;padding-top:6px;margin-top:6px;border-top:1px solid #f3f4f6;font-size:11px;color:#9ca3af}
   .cb-fold-safe span{background:#f3f4f6;padding:3px 8px;border-radius:6px}
   .cb-fold-date{font-size:11px;color:#9ca3af;margin-top:6px}
+/* ===== 我的关注·正股近3月走势简评（仅手机端 cb-kline 容器内生效，不影响其他页面） ===== */
+.cb-kline{margin-top:8px;padding-top:8px;border-top:1px dashed #e6e8ef;}
+.cb-kline .kline-chart{width:100%;height:150px;}
+.cb-kline .kline-review{font-size:11.5px;line-height:1.7;color:#3a3f4e;background:#f7f8fc;border-radius:8px;padding:7px 9px;margin-top:4px;}
+.cb-kline .kline-review .line{margin:1px 0;}
+.cb-kline .kline-review .sum{font-weight:700;font-size:12px;margin-bottom:3px;}
+.cb-kline .kline-review .up{color:#e34d4d;}
+.cb-kline .kline-review .down{color:#2ba471;}
+.cb-kline .kline-review .up-bg{background:#fdecec;color:#e34d4d;padding:1px 6px;border-radius:6px;font-weight:600;font-size:11px;}
+.cb-kline .kline-review .down-bg{background:#e9f7f0;color:#2ba471;padding:1px 6px;border-radius:6px;font-weight:600;font-size:11px;}
+.cb-kline .kline-review .flat-bg{background:#eef0f5;color:#6b7180;padding:1px 6px;border-radius:6px;font-weight:600;font-size:11px;}
+.cb-kline .kline-loading,.cb-kline .kline-err{padding:14px 0;text-align:center;font-size:11.5px;color:#9aa0b0;}
+.cb-kline .kline-err{color:#e34d4d;}
+.cb-kline-pc{margin:0;padding:0;border:0;}
+.cb-kline-pc .kline-chart{width:150px;height:42px;}
+.cb-kline-pc .kline-loading,.cb-kline-pc .kline-err{padding:6px 0;font-size:11px;}
+.cb-kline-pc .kline-mini-tag{font-size:11px;font-weight:700;margin-top:3px;line-height:1.1;}
+.cb-kline-pc .kline-mini-tag.up{color:#e34d4d;}
+.cb-kline-pc .kline-mini-tag.down{color:#2ba471;}
+
 </style>
 </head>
 <body>
@@ -2036,6 +2056,7 @@ function renderFav(){
         h+='</div>';
         h+=progressBarHtml("pend",r);
         h+='</div>';
+        h+='<div class="cb-kline" data-sc="'+cbkNormCode(r.stockCode||r.code||"")+'" data-sn="'+cbkEsc(r.stockName||r.name||"")+'"></div>';
       });
       h+='</div>';
     }
@@ -2061,6 +2082,7 @@ function renderFav(){
         h+='</div>';
         h+=progressBarHtml("progress",r);
         h+='</div>';
+        h+='<div class="cb-kline" data-sc="'+cbkNormCode(r.stockCode||r.code||"")+'" data-sn="'+cbkEsc(r.stockName||r.name||"")+'"></div>';
       });
       h+='</div>';
     }
@@ -2089,6 +2111,7 @@ function renderFav(){
     h+='<th data-sf="baiyuan">百元含权 '+(fs.field==="baiyuan"?arrow(fs.dir):'')+'</th>';
     h+='<th data-sf="scale">规模(亿) '+(fs.field==="scale"?arrow(fs.dir):'')+'</th>';
     h+='<th data-sf="estFloat">预估流通(亿) '+(fs.field==="estFloat"?arrow(fs.dir):'')+'</th>';
+    h+='<th style="width:160px">正股走势</th>';
     h+='<th>操作</th>';
     h+='</tr></thead><tbody>';
     rows.forEach((r,i)=>{
@@ -2111,6 +2134,7 @@ function renderFav(){
       h+='<td data-label="百元含权"><span class="num">'+(c.baiyuan!=null?fmt(c.baiyuan):"…")+'</span></td>';
       h+='<td data-label="规模"><span class="num">'+fmt(r.scale)+'</span></td>';
       h+='<td data-label="预估流通"><span class="num">'+(c.estFloat!=null?c.estFloat:'-')+'<span class="muted" style="font-size:10px;font-weight:400"> 预</span></span></td>';
+      h+='<td data-label="正股走势"><div class="cb-kline cb-kline-pc" data-sc="'+cbkNormCode(r.stockCode||r.code||"")+'" data-sn="'+cbkEsc(r.stockName||r.name||"")+'"></div></td>';
       h+='<td style="text-align:right">'+favBtnHtml(id,r._kind)+'</td>';
       h+='</tr>';
     });
@@ -2129,10 +2153,12 @@ function renderFav(){
       FAV_FILTER=ch.dataset.f;
       renderFav();
     });
+    p.querySelectorAll(".cb-kline-pc").forEach(el=>cbkLoadReview(el, el.getAttribute("data-sc"), el.getAttribute("data-sn"), {mini:true}));
     bindFavBtns(p);
     return;
   }
   p.innerHTML=h;
+  p.querySelectorAll(".cb-kline").forEach(el=>cbkLoadReview(el, el.getAttribute("data-sc"), el.getAttribute("data-sn")));
   // 绑定点击事件（手机端）
   p.querySelectorAll(".cb-item").forEach(el=>el.onclick=(e)=>{
     if(e.target.classList.contains("fav-btn"))return;
@@ -2463,6 +2489,178 @@ setInterval(()=>setTime("数据更新"), 30000);
     if(v){ var m=v.textContent.match(/v[\d-]+ \(([a-f0-9]+)\)/); if(m){ document.title='cb-ration '+m[1]; } }
   }catch(e){}
 })();
+
+function cbkNormCode(c){
+  c=(c||'').trim();
+  if(/^(sh|sz)\d{6}$/i.test(c)) return c.toLowerCase();
+  if(/^\d{6}$/.test(c)){
+    const p=c.slice(0,2);
+    if(p==='60'||p==='68'||p==='90') return 'sh'+c;
+    if(p==='00'||p==='30'||p==='20') return 'sz'+c;
+    return c;
+  }
+  return c;
+}
+function cbkEsc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function cbkSma(c,n){const o=[];for(let i=0;i<c.length;i++){if(i<n-1){o.push(null);continue;}let s=0,ok=true;for(let k=i-n+1;k<=i;k++){if(!isFinite(c[k])){ok=false;break;}s+=c[k];}o.push(ok?s/n:null);}return o;}
+function cbkPct(a,b){if(!isFinite(a)||!isFinite(b)||b===0)return NaN;return (a/b-1)*100;}
+function cbkFmtPct(x){return isFinite(x)?(x>=0?'+':'')+x.toFixed(2)+'%':'--';}
+function cbkFmtPrice(x){return isFinite(x)?x.toFixed(2):'--';}
+async function cbkFetchKline(code){
+  const end=new Date(),start=new Date();start.setDate(start.getDate()-110);
+  const pad=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  const url='https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param='+code+',day,'+pad(start)+','+pad(end)+',90,qfq';
+  const r=await fetch(url);const j=await r.json();
+  const node=Object.values(j.data)[0];
+  const arr=node.qfqday||node.day||node.hfqday;
+  if(!arr||!arr.length) throw new Error('无数据');
+  return arr.map(x=>({date:x[0],close:+x[2]}));
+}
+function cbkBuildReview(data,name){
+  const clean=data.map(d=>({date:d.date||d.d,close:isFinite(d.close!==undefined?d.close:d.c)?+(d.close!==undefined?d.close:d.c):NaN})).filter(d=>d.date&&isFinite(d.close));
+  if(clean.length<5) throw new Error('有效数据不足（仅'+clean.length+'条）');
+  const closes=clean.map(d=>d.close),dates=clean.map(d=>d.date);
+  const last=closes[closes.length-1],first=closes[0];
+  const chg3m=cbkPct(last,first);
+  const max=Math.max.apply(null,closes),min=Math.min.apply(null,closes);
+  const maxDate=dates[closes.indexOf(max)],minDate=dates[closes.indexOf(min)];
+  const ma20=cbkSma(closes,20),ma60=cbkSma(closes,60);
+  const ma20v=ma20[ma20.length-1],ma60v=ma60[ma60.length-1];
+  const i20=Math.max(0,closes.length-20),i5=Math.max(0,closes.length-5);
+  const chg20=cbkPct(last,closes[i20]),chg5=cbkPct(last,closes[i5]);
+  let trendWord,trendCls;
+  if(chg20>5){trendWord='震荡上行';trendCls='up';}else if(chg20<-5){trendWord='震荡下行';trendCls='down';}else{trendWord='区间震荡';trendCls='flat';}
+  let posWord,posCls;
+  if(ma20v==null){posWord='样本不足';posCls='flat';}
+  else if(last>ma20v*1.005){posWord='站上20日线';posCls='up';}
+  else if(last<ma20v*0.995){posWord='跌破20日线';posCls='down';}
+  else{posWord='贴近20日线';posCls='flat';}
+  let maRel,maCls;
+  if(ma20v==null||ma60v==null){maRel='均线样本不足';maCls='flat';}
+  else if(ma20v>ma60v){maRel='20日线在60日线上方(多头)';maCls='up';}
+  else{maRel='20日线在60日线下方(空头)';maCls='down';}
+  const dir3m=isFinite(chg3m)?(chg3m>=0?'up':'down'):'flat';
+  const sum='<span class="tag '+(dir3m==='up'?'up-bg':dir3m==='down'?'down-bg':'flat-bg')+'">近3月'+cbkFmtPct(chg3m)+'</span>'+cbkEsc(name)+trendWord+'，当前'+posWord+'，整体'+(maCls==='up'?'偏强':maCls==='down'?'偏弱':'中性')+'。';
+  const lines=[
+    '<div class="line">区间最高 <b class="up">¥'+cbkFmtPrice(max)+'</b>('+maxDate+') ｜ 最低 <b class="down">¥'+cbkFmtPrice(min)+'</b>('+minDate+')</div>',
+    '<div class="line">最新收盘 <b class="'+(dir3m==='up'?'up':(dir3m==='down'?'down':'flat'))+'">¥'+cbkFmtPrice(last)+'</b>，相对20日线 '+posWord+'</div>',
+    '<div class="line">20日均线 <b>¥'+(ma20v!=null?cbkFmtPrice(ma20v):'--')+'</b> ｜ 60日均线 <b>¥'+(ma60v!=null?cbkFmtPrice(ma60v):'--')+'</b>：'+maRel+'</div>',
+    '<div class="line">近20日 <span class="'+(isFinite(chg20)?(chg20>=0?'up':'down'):'flat')+'">'+cbkFmtPct(chg20)+'</span> ｜ 近5日 <span class="'+(isFinite(chg5)?(chg5>=0?'up':'down'):'flat')+'">'+cbkFmtPct(chg5)+'</span></div>',
+  ];
+  return {sum,lines,chg3m:isFinite(chg3m)?chg3m:0};
+}
+function cbkEnsureEcharts(cb){
+  if(window.echarts){cb(true);return;}
+  const s=document.createElement('script');
+  s.src='https://lib.baomitu.com/echarts/5.5.0/echarts.min.js';
+  let done=false;
+  const t=setTimeout(function(){if(!done){done=true;cb(false);}},4000);
+  s.onload=function(){if(!done){done=true;clearTimeout(t);cb(true);}};
+  s.onerror=function(){if(!done){done=true;clearTimeout(t);cb(false);}};
+  document.head.appendChild(s);
+}
+function cbkRenderChart(el,data,name){
+  cbkEnsureEcharts(function(ok){
+    if(ok&&window.echarts){try{cbkRenderEcharts(el,data);return;}catch(e){console.warn('echarts失败转SVG',e);}}
+    cbkRenderSVG(el,data);
+  });
+}
+function cbkRenderEcharts(el,data){
+  const clean=data.filter(d=>isFinite(d.close));
+  if(clean.length<2){cbkRenderSVG(el,data);return;}
+  const chart=echarts.init(el);
+  const dates=clean.map(d=>d.date),closes=clean.map(d=>d.close);
+  const up=closes[closes.length-1]>=closes[0],color=up?'#e34d4d':'#2ba471';
+  chart.setOption({
+    grid:{left:8,right:12,top:10,bottom:18,containLabel:true},
+    tooltip:{trigger:'axis',formatter:function(p){const v=p&&p[0]&&p[0].data;return p[0].axisValue+'<br/>收盘 ¥'+(isFinite(v)?(+v).toFixed(2):'--');}},
+    xAxis:{type:'category',data:dates,boundaryGap:false,axisLabel:{fontSize:9,color:'#9aa0b0',formatter:function(v){return v.slice(5);}},axisLine:{lineStyle:{color:'#e4e7f0'}},axisTick:{show:false}},
+    yAxis:{type:'value',scale:true,axisLabel:{fontSize:9,color:'#9aa0b0'},splitLine:{lineStyle:{color:'#f0f2f7'}}},
+    series:[{type:'line',data:closes,smooth:true,showSymbol:false,lineStyle:{width:2,color:color},
+      areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:up?'rgba(227,77,77,.22)':'rgba(43,164,113,.22)'},{offset:1,color:'rgba(255,255,255,0)'}])},
+      markPoint:{symbolSize:6,data:[{type:'max'},{type:'min'}],label:{fontSize:9},itemStyle:{color:color}}}]
+  });
+}
+function cbkRenderSVG(el,data){
+  const clean=data.filter(d=>isFinite(d.close));
+  if(clean.length<2){el.innerHTML='<div class="kline-err">数据不足，无法绘图</div>';return;}
+  const closes=clean.map(d=>d.close),dates=clean.map(d=>d.date);
+  const n=closes.length,up=closes[n-1]>=closes[0],color=up?'#e34d4d':'#2ba471';
+  const W=320,H=150,pl=6,pr=6,pt=10,pb=16,iw=W-pl-pr,ih=H-pt-pb;
+  let mn=Math.min.apply(null,closes),mx=Math.max.apply(null,closes);if(mx===mn){mx=mn+1;}
+  const X=function(i){return pl+(n===1?iw/2:i/(n-1)*iw);};
+  const Y=function(v){return pt+(1-(v-mn)/(mx-mn))*ih;};
+  let pts='',area='M '+X(0)+' '+Y(closes[0]);
+  for(let i=0;i<n;i++){pts+=X(i).toFixed(1)+','+Y(closes[i]).toFixed(1)+' ';area+=' L '+X(i).toFixed(1)+' '+Y(closes[i]).toFixed(1);}
+  area+=' L '+X(n-1).toFixed(1)+' '+(pt+ih)+' L '+X(0).toFixed(1)+' '+(pt+ih)+' Z';
+  const gid='g'+Math.random().toString(36).slice(2,8);
+  el.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" width="100%" height="'+H+'" preserveAspectRatio="none">'+
+    '<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1">'+
+      '<stop offset="0" stop-color="'+color+'" stop-opacity="0.22"/><stop offset="1" stop-color="'+color+'" stop-opacity="0"/></linearGradient></defs>'+
+    '<path d="'+area+'" fill="url(#'+gid+')"/>'+
+    '<polyline points="'+pts.trim()+'" fill="none" stroke="'+color+'" stroke-width="2" stroke-linejoin="round"/>'+
+    '<circle cx="'+X(0)+'" cy="'+Y(closes[0])+'" r="2.5" fill="'+color+'"/>'+
+    '<circle cx="'+X(n-1)+'" cy="'+Y(closes[n-1])+'" r="3" fill="'+color+'"/>'+
+    '<text x="'+(pl+2)+'" y="'+(pt+9)+'" font-size="9" fill="#9aa0b0">'+dates[0].slice(5)+'</text>'+
+    '<text x="'+(W-pr-30)+'" y="'+(pt+9)+'" font-size="9" fill="#9aa0b0">'+dates[n-1].slice(5)+'</text>'+
+    '<text x="'+(pl+2)+'" y="'+(pt+ih-3)+'" font-size="9" fill="'+color+'">¥'+mn.toFixed(2)+'</text>'+
+    '<text x="'+(W-pr-44)+'" y="'+(pt+11)+'" font-size="9" fill="'+color+'">¥'+mx.toFixed(2)+'</text>'+
+    '</svg>';
+}
+function cbkRenderMiniSVG(el,data){
+  const clean=data.filter(d=>isFinite(d.close));
+  if(clean.length<2){el.innerHTML='<div class="kline-err">—</div>';return;}
+  const closes=clean.map(d=>d.close);
+  const n=closes.length,up=closes[n-1]>=closes[0],color=up?'#e34d4d':'#2ba471';
+  const W=140,H=40,pl=3,pr=3,pt=4,pb=4,iw=W-pl-pr,ih=H-pt-pb;
+  let mn=Math.min.apply(null,closes),mx=Math.max.apply(null,closes);if(mx===mn){mx=mn+1;}
+  const X=function(i){return pl+(n===1?iw/2:i/(n-1)*iw);};
+  const Y=function(v){return pt+(1-(v-mn)/(mx-mn))*ih;};
+  let pts='',area='M '+X(0)+' '+Y(closes[0]);
+  for(let i=0;i<n;i++){pts+=X(i).toFixed(1)+','+Y(closes[i]).toFixed(1)+' ';area+=' L '+X(i).toFixed(1)+' '+Y(closes[i]).toFixed(1);}
+  area+=' L '+X(n-1).toFixed(1)+' '+(pt+ih)+' L '+X(0).toFixed(1)+' '+(pt+ih)+' Z';
+  el.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" width="100%" height="'+H+'" preserveAspectRatio="none">'+
+    '<path d="'+area+'" fill="'+color+'" fill-opacity="0.14"/>'+
+    '<polyline points="'+pts.trim()+'" fill="none" stroke="'+color+'" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>'+
+    '<circle cx="'+X(n-1).toFixed(1)+'" cy="'+Y(closes[n-1]).toFixed(1)+'" r="2" fill="'+color+'"/></svg>';
+}
+async function cbkLoadReview(el,code,name,opts){
+  opts=opts||{};
+  code=(code||'').trim();
+  if(!code){el.innerHTML='<div class="kline-err">无正股代码</div>';return;}
+  const norm=cbkNormCode(code);
+  if(opts.mini){
+    el.innerHTML='<div class="kline-loading">…</div>';
+    try{
+      const data=await cbkFetchKline(norm);
+      const lastD=data[data.length-1],firstD=data[0];
+      const last=lastD?+lastD.close:NaN,first=firstD?+firstD.close:NaN;
+      const chg=isFinite(last)&&isFinite(first)&&first!==0?(last/first-1)*100:NaN;
+      const up=isFinite(chg)&&chg>=0,color=up?'#e34d4d':'#2ba471';
+      const box=document.createElement('div');box.className='kline-chart';
+      const tag=document.createElement('div');tag.className='kline-mini-tag '+(up?'up':'down');
+      tag.textContent=isFinite(chg)?((up?'+':'')+chg.toFixed(1)+'%'):'—';
+      el.innerHTML='';el.appendChild(box);el.appendChild(tag);
+      cbkRenderMiniSVG(box,data);
+    }catch(e){el.innerHTML='<div class="kline-err">走势失败</div>';}
+    return;
+  }
+  el.innerHTML='<div class="kline-loading">加载走势中…</div>';
+  try{
+    const data=await cbkFetchKline(norm);
+    const rev=cbkBuildReview(data,name);
+    const chartBox=document.createElement('div');chartBox.className='kline-chart';
+    const review=document.createElement('div');review.className='kline-review';
+    review.innerHTML='<div class="sum">'+rev.sum+'</div>'+rev.lines.join('');
+    el.innerHTML='';
+    el.appendChild(chartBox);
+    el.appendChild(review);
+    cbkRenderChart(chartBox,data,name);
+  }catch(e){
+    el.innerHTML='<div class="kline-err">走势加载失败：'+(e&&e.message?e.message:'请检查网络')+'</div>';
+  }
+}
+
 </script>
 </body>
 </html>
