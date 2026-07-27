@@ -409,6 +409,7 @@
 .cb-kline .kline-h-pct{font-weight:700;font-size:13px;}
 .cb-kline .kline-h-pct.up{color:#e34d4d;}
 .cb-kline .kline-h-pct.down{color:#2ba471;}
+.cb-kline .kline-h-title .kline-range{font-size:10px;color:#9aa0b0;font-weight:500;margin-left:2px;flex:none;letter-spacing:.2px;}
 .cb-kline .kline-h-toggle{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#fff;border:1.5px solid #e0e3eb;font-size:15px;color:#6366f1;transition:transform .2s ease,background .15s;flex:none;box-shadow:0 1px 2px rgba(0,0,0,.04);}
 .cb-kline .kline-head:hover .kline-h-toggle{background:#eef0ff;border-color:#c7caff;}
 .cb-kline.kline-collapsed .kline-h-toggle{transform:rotate(-180deg);}
@@ -2543,9 +2544,9 @@ function cbkPct(a,b){if(!isFinite(a)||!isFinite(b)||b===0)return NaN;return (a/b
 function cbkFmtPct(x){return isFinite(x)?(x>=0?'+':'')+x.toFixed(2)+'%':'--';}
 function cbkFmtPrice(x){return isFinite(x)?x.toFixed(2):'--';}
 async function cbkFetchKline(code){
-  const end=new Date(),start=new Date();start.setDate(start.getDate()-110);
+  const end=new Date(),start=new Date();start.setMonth(start.getMonth()-3); // 严格取最近3个自然月
   const pad=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-  const url='https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param='+code+',day,'+pad(start)+','+pad(end)+',90,qfq';
+  const url='https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param='+code+',day,'+pad(start)+','+pad(end)+',130,qfq';
   const r=await fetch(url);const j=await r.json();
   const node=Object.values(j.data)[0];
   const arr=node.qfqday||node.day||node.hfqday;
@@ -2710,8 +2711,9 @@ async function cbkLoadReview(el,code,name,opts){
     const data=await cbkFetchKline(norm);
     const rev=cbkBuildReview(data,name);
     const dir3m=rev.chg3m>=0?'up':'down';
+    const d0=(data[0]&&data[0].date||'').slice(5), d1=(data[data.length-1]&&data[data.length-1].date||'').slice(5);
     const head=document.createElement('div');head.className='kline-head';
-    head.innerHTML='<div class="kline-h-title"><span class="name">'+cbkEsc(name)+'</span><span class="dot '+(dir3m==='up'?'up':'down')+'"></span><span>正股近3月走势</span><span class="kline-h-pct '+(dir3m==='up'?'up':'down')+'">'+(rev.chg3m>=0?'+':'')+rev.chg3m.toFixed(1)+'%</span></div><div class="kline-h-toggle">▾</div>';
+    head.innerHTML='<div class="kline-h-title"><span class="name">'+cbkEsc(name)+'</span><span class="dot '+(dir3m==='up'?'up':'down')+'"></span><span>正股近3月走势</span><span class="kline-range">'+d0+'~'+d1+'</span><span class="kline-h-pct '+(dir3m==='up'?'up':'down')+'">'+(rev.chg3m>=0?'+':'')+rev.chg3m.toFixed(1)+'%</span></div><div class="kline-h-toggle">▾</div>';
     const body=document.createElement('div');body.className='kline-body';
     const chartBox=document.createElement('div');chartBox.className='kline-chart';
     const review=document.createElement('div');review.className='kline-review';
@@ -2723,6 +2725,7 @@ async function cbkLoadReview(el,code,name,opts){
     el.appendChild(body);
     cbkRenderChart(chartBox,data,name);
     head.addEventListener('click',function(){el.classList.toggle('kline-collapsed');});
+    el.addEventListener('click',function(e){e.stopPropagation();}); // 防止点走势区误触卡片→转债详情页
   }catch(e){
     el.innerHTML='<div class="kline-err">走势加载失败：'+(e&&e.message?e.message:'请检查网络')+'</div>';
   }
