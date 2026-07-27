@@ -449,7 +449,7 @@
 
   <div class="foot">
     数据源：东方财富 + 腾讯行情 + 集思录 · 每日自动更新(9:00/18:00) · 仅供参考，非投资建议
-    <div id="verStamp" style="margin-top:6px;font-size:11px;color:#bbb">版本 v20260727-1622 (审核进度剔除已过申购日的已排期申购债)</div>
+    <div id="verStamp" style="margin-top:6px;font-size:11px;color:#bbb">版本 v20260727-1727</div>
   </div>
 </div>
 <div class="mask" id="mask"><div class="modal">
@@ -1372,7 +1372,7 @@ async function loadAll(){
     try{ emList=await fetchList(); }catch(e){ console.warn("东财列表拉取失败(用快照):",e.message); }
     const emMap={}; emList.forEach(o=>emMap[o.code]=o);
     let merged=SNAPSHOT_PEND.map(base=>{ const e=emMap[base.code]; const bf=(base._c&&base._c.estFloat!=null)?base._c.estFloat:null; return e?{...base,...e,_c:null,_estFloat:bf}:{...base,_estFloat:bf}; });
-    emList.forEach(o=>{ if(!SNAPSHOT_PEND.find(b=>b.code===o.code)) merged.push(o); });
+    emList.forEach(o=>{ if(!SNAPSHOT_PEND.find(b=>b.code===o.code)){ const pm=PROGRESS.find(p=>p.code===o.code||p.stockCode===o.stockCode); const ie=pm&&pm._c&&pm._c.estFloat!=null?pm._c.estFloat:null; merged.push({...o,_estFloat:ie}); } });
     PEND=merged;
     // 价格刷新(腾讯<script>注入，file:// 可用)；东财列表失败也不影响实时价
     await Promise.all(PEND.map(async r=>{try{const q=await fetchPrice(r.stockCode);if(q){if(!r.stockName)r.stockName=q.name;const oldF=r._estFloat!=null?r._estFloat:(r._c&&r._c.estFloat!=null?r._c.estFloat:null);r._c=compute(r,q.price);if(oldF!=null)r._c.estFloat=oldF;}}catch(e){r._c=r._c||{};}}));
@@ -1453,7 +1453,7 @@ document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
   $("#view-progress").style.display=activeTab==="progress"?"block":"none";
   $("#view-fav").style.display=activeTab==="fav"?"block":"none";
   if(activeTab==="progress") loadProgressRealtime();
-  if(activeTab==="fav") renderFav();
+  if(activeTab==="fav"){ FAV_FILTER="all"; renderFav(); }
 });
 
 // ==================== 用户认证 & 关注功能（后端版） ====================
