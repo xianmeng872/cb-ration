@@ -449,7 +449,7 @@
 
   <div class="foot">
     数据源：东方财富 + 腾讯行情 + 集思录 · 每日自动更新(9:00/18:00) · 仅供参考，非投资建议
-    <div id="verStamp" style="margin-top:6px;font-size:11px;color:#bbb">版本 v20260727-1421 (修复奥普等申购阶段债不显示+流通规模必显)</div>
+    <div id="verStamp" style="margin-top:6px;font-size:11px;color:#bbb">版本 v20260727-1622 (审核进度剔除已过申购日的已排期申购债)</div>
   </div>
 </div>
 <div class="mask" id="mask"><div class="modal">
@@ -1050,8 +1050,14 @@ function progressBarHtml(kind,r){
 }
 // 审核进度只显示「还在审批中」的：排除已上市(99)和已排期申购(90含"申购")
 function filterProgressRaw(arr){
+  const today=new Date(); today.setHours(0,0,0,0);
   return arr.filter(r=>{
-    if(r.progress==="99") return false;
+    if(r.progress==="99") return false; // 已上市
+    // 已排期申购：只保留申购日未过的；过了申购日还挂着的剔除（抢权窗口已关闭）
+    if(r.progress==="90" && r.progress_nm && r.progress_nm.indexOf("申购")>=0){
+      const mm=r.progress_nm.match(/(\d{4}-\d{2}-\d{2})/);
+      if(mm){ const d=new Date(mm[1]); d.setHours(0,0,0,0); if(d<today) return false; }
+    }
     return true;
   });
 }
