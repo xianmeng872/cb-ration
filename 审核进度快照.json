@@ -1,5 +1,57 @@
 [
  {
+  "stockCode": "300697",
+  "stockName": "电工合金",
+  "code": "123278",
+  "name": "合金转债",
+  "progress": "90",
+  "progress_nm": "2026-07-30申购 申购代码370697",
+  "scale": 5.45,
+  "convertPrice": 13.98,
+  "price": 13.17,
+  "perPre": 1.2597,
+  "apply10": 794,
+  "ration_rt": null,
+  "rating_cd": "AA-",
+  "progress_full": "2025-08-29 董事会预案\n2025-12-05 股东大会通过\n2025-12-31 交易所受理\n2026-05-13 上市委通过\n2026-07-03 同意注册",
+  "accept_date": "2025-12-31",
+  "progress_dt": "2026-07-30",
+  "_c": {
+   "cv": 94.20600858369099,
+   "needShares": 794,
+   "needMoney": 10456.98,
+   "baiyuan": 9.56492027334852,
+   "price": 13.17,
+   "estFloat": 2.11
+  }
+ },
+ {
+  "stockCode": "603067",
+  "stockName": "振华股份",
+  "code": "113709",
+  "name": "振26转债",
+  "progress": "90",
+  "progress_nm": "2026-07-30申购 申购代码754067",
+  "scale": 8.78,
+  "convertPrice": 40.33,
+  "price": 30.69,
+  "perPre": 1.162,
+  "apply10": 861,
+  "ration_rt": null,
+  "rating_cd": "AA",
+  "progress_full": "2026-01-05 董事会预案\n2026-01-21 股东大会通过\n2026-04-08 交易所受理\n2026-06-02 上市委通过\n2026-06-30 同意注册",
+  "accept_date": "2026-04-08",
+  "progress_dt": "2026-07-30",
+  "_c": {
+   "cv": 76.09719811554675,
+   "needShares": 861,
+   "needMoney": 26424.09,
+   "baiyuan": 3.786249592701205,
+   "price": 30.69,
+   "estFloat": 5.07
+  }
+ },
+ {
   "stockCode": "688686",
   "stockName": "奥普特",
   "code": "118075",
@@ -309,58 +361,6 @@
    "baiyuan": 14.161798548415648,
    "price": 18.83,
    "estFloat": 3.6
-  }
- },
- {
-  "stockCode": "300697",
-  "stockName": "电工合金",
-  "code": "",
-  "name": "",
-  "progress": "90",
-  "progress_nm": "同意注册",
-  "scale": 5.45,
-  "convertPrice": 13.98,
-  "price": 13.17,
-  "perPre": null,
-  "apply10": 795,
-  "ration_rt": null,
-  "rating_cd": null,
-  "progress_full": "2025-08-29 董事会预案\n2025-12-05 股东大会通过\n2025-12-31 交易所受理\n2026-05-13 上市委通过\n2026-07-03 同意注册",
-  "accept_date": "2025-12-31",
-  "progress_dt": "2026-07-03",
-  "_c": {
-   "cv": 94.20600858369099,
-   "needShares": 795,
-   "needMoney": 10470.15,
-   "baiyuan": 9.550961543053347,
-   "price": 13.17,
-   "estFloat": 2.11
-  }
- },
- {
-  "stockCode": "603067",
-  "stockName": "振华股份",
-  "code": "",
-  "name": "",
-  "progress": "90",
-  "progress_nm": "同意注册",
-  "scale": 8.78,
-  "convertPrice": 40.32,
-  "price": 30.69,
-  "perPre": null,
-  "apply10": 860,
-  "ration_rt": null,
-  "rating_cd": null,
-  "progress_full": "2026-01-05 董事会预案\n2026-01-21 股东大会通过\n2026-04-08 交易所受理\n2026-06-02 上市委通过\n2026-06-30 同意注册",
-  "accept_date": "2026-04-08",
-  "progress_dt": "2026-06-30",
-  "_c": {
-   "cv": 76.11607142857143,
-   "needShares": 860,
-   "needMoney": 26393.4,
-   "baiyuan": 3.7888259943773823,
-   "price": 30.69,
-   "estFloat": 5.07
   }
  },
  {
