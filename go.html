@@ -449,7 +449,7 @@
 
   <div class="foot">
     数据源：东方财富 + 腾讯行情 + 集思录 · 每日自动更新(9:00/18:00) · 仅供参考，非投资建议
-    <div id="verStamp" style="margin-top:6px;font-size:11px;color:#bbb">版本 v20260727-1727</div>
+    <div id="verStamp" style="margin-top:6px;font-size:11px;color:#bbb">版本 v20260727-2358</div>
   </div>
 </div>
 <div class="mask" id="mask"><div class="modal">
@@ -585,10 +585,9 @@ const LABEL={code:"转债代码",name:"转债名称",stockCode:"正股代码",st
 let PEND=[], PROGRESS=[], keyword="", keyword2="", activeTab="pend", PROG_FILTER="all";
 let pendSort={field:"publicStart",dir:1}, progSort={field:"progress",dir:-1};
 let favSort={field:"progress",dir:-1}, FAV_FILTER="all";
+let _detailPushed=false; // 详情打开时压入的历史状态标记（用于拦截手机系统返回手势，使其只关详情不退出整页）
 const SNAPSHOT_PEND=[
-{"code":"118074","name":"特宝转债","stockCode":"688278","stockName":"特宝生物","convertPrice":58.56,"perPre":3.857,"scale":15.33,"publicStart":"2026-07-28 00:00:00","listDate":"","stage":"申购","_c":{"cv":100.8879781420765,"needShares":260,"needMoney":15360.8,"baiyuan":6.528436018957347,"price":59.08,"estFloat":6.47},"apply10":260,"rating_cd":"AA+"},
-{"code":"127115","name":"炬申转债","stockCode":"001202","stockName":"炬申股份","convertPrice":13.76,"perPre":2.2911,"scale":3.8,"publicStart":"2026-07-24 00:00:00","listDate":"","stage":"申购","_c":{"cv":111.33720930232558,"needShares":437,"needMoney":6694.84,"baiyuan":14.954960835509139,"price":15.32,"estFloat":1.32},"apply10":437,"rating_cd":"AA-"},
-{"code":"110103","name":"申能转债","stockCode":"600642","stockName":"申能股份","convertPrice":8.74,"perPre":0.408,"scale":20,"publicStart":"2026-07-24 00:00:00","listDate":"","stage":"申购","_c":{"cv":103.20366132723112,"needShares":2451,"needMoney":22108.02,"baiyuan":4.523281596452328,"price":9.02,"estFloat":7.39},"apply10":2451,"rating_cd":"AAA"}
+{"code":"118074","name":"特宝转债","stockCode":"688278","stockName":"特宝生物","convertPrice":58.56,"perPre":3.857,"scale":15.33,"publicStart":"2026-07-28 00:00:00","listDate":"","stage":"申购","_c":{"cv":100.8879781420765,"needShares":260,"needMoney":15360.8,"baiyuan":6.528436018957347,"price":59.08,"estFloat":6.47},"apply10":260,"rating_cd":"AA+"}
 ];
 const SNAPSHOT_PROGRESS=[
 {"stockCode":"688686","stockName":"奥普特","code":"118075","name":"奥普转债","progress":"90","progress_nm":"2026-07-29申购 申购代码718686","scale":12.7,"convertPrice":150.03,"price":113.68,"perPre":10.396,"apply10":97,"ration_rt":null,"rating_cd":"AA","progress_full":"2026-02-10 董事会预案\n2026-02-26 股东大会通过\n2026-04-04 交易所受理\n2026-05-29 上市委通过\n2026-06-30 同意注册","accept_date":"2026-04-04","progress_dt":"2026-07-29","_c":{"cv":75.77151236419382,"needShares":97,"needMoney":11026.960000000001,"baiyuan":9.14496833216045,"price":113.68,"estFloat":3.53}},
@@ -926,9 +925,9 @@ function isMobile(){return window.matchMedia("(max-width:720px)").matches;}
 function renderPend(){
   const p=$("#panel");
   let rows=PEND;
-  // 不再按申购日过滤：用户需看到全部待发债（含已开始申购的），stage标签已标明状态
-  // const t=todayStr();
-  // rows=rows.filter(r=>!r.publicStart || r.publicStart.slice(0,10)>=t);
+  // 剔除已过申购日的债：只保留「无申购日(待定)」或「申购日>=今天」；已过申购日(已发行未上市)不进待发列表
+  const t=todayStr();
+  rows=rows.filter(r=>!r.publicStart || r.publicStart.slice(0,10)>=t);
   if(keyword){const q=keyword.toLowerCase();rows=rows.filter(r=>(r.name||"").toLowerCase().includes(q)||(r.code||"").includes(q)||(r.stockName||"").toLowerCase().includes(q)||(r.stockCode||"").includes(q));}
   if(!rows.length){p.innerHTML='<div class="card"><div class="empty">'+(keyword?"无匹配":"加载失败或暂无待发")+'</div></div>';return;}
   rows=doSort(rows,pendSort);
@@ -1333,6 +1332,8 @@ function openDetail(r,kind){
   });
   $("#mbody").innerHTML=h||'<div class="empty">无字段</div>';
   $("#mask").classList.add("show");
+  // 手机端：压一层历史，拦截系统「左滑/右滑返回」手势，使其只关详情、不退出整页
+  if(isMobile() && !_detailPushed){ history.pushState({detail:true},""); _detailPushed=true; }
   // 异步加载正股近3个月K线走势（所有有stockCode的转债）
   const sc=(r.stockCode||"").replace(/^\s+|\s+$/g,"");
   if(sc){
@@ -1407,11 +1408,30 @@ function closeDetailMask(){
   }
   _detailSourceTab=null;
   ensureViewsVisible();
-  // 确保对��的Tab按钮高亮
+  // 确保对应的Tab按钮高亮
   document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
   var activeBtn=document.getElementById("tab-"+activeTab);
   if(activeBtn) activeBtn.classList.add("active");
+  // 点×/遮罩关闭时，弹掉本脚本压入的历史状态，避免污染浏览器历史（防止后续真实后退又重开详情）
+  if(_detailPushed){
+    _detailPushed=false;
+    history.back();
+  }
 }
+// 拦截手机系统返回手势（iOS 左边缘右滑 / Android 返回键 / 右滑）：详情打开时，
+// 该手势触发 popstate —— 直接关详情回到列表，不再执行系统后退（不退出整页）
+window.addEventListener("popstate",function(){
+  if(_detailPushed){
+    _detailPushed=false;
+    document.getElementById("mask").classList.remove("show");
+    if(_detailSourceTab && _detailSourceTab!==activeTab){ activeTab=_detailSourceTab; }
+    _detailSourceTab=null;
+    ensureViewsVisible();
+    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+    var activeBtn=document.getElementById("tab-"+activeTab);
+    if(activeBtn) activeBtn.classList.add("active");
+  }
+});
 function ensureViewsVisible(){
   // 确保只有来源Tab视图可见，其余全部隐藏（防止返回后多视图叠加）
   ["pend","progress","fav"].forEach(k=>{
