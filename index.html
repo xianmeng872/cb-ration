@@ -385,6 +385,7 @@
   .cb-fold-name{font-size:15px;font-weight:800;color:#1f2937;display:block}
   .cb-fold-code{font-size:12px;color:#9ca3af;margin-top:1px}
   .cb-fold-right{display:flex;align-items:center;gap:8px}
+  .fold-chip{font-size:12px;font-weight:600;color:#ef4444;background:#fef2f2;padding:1px 7px;border-radius:10px;white-space:nowrap}
   .cb-fold-arrow{font-size:18px;color:#9ca3af;transition:.2s}
   .cb-fold-detail{padding:10px 12px;background:#fafafa;border-bottom:1px solid #f3f4f6}
   .cb-fold-row{display:flex;justify-content:space-between;margin-bottom:6px}
@@ -448,7 +449,7 @@
 
   <div class="foot">
     数据源：东方财富 + 腾讯行情 + 集思录 · 每日自动更新(9:00/18:00) · 仅供参考，非投资建议
-    <div id="verStamp" style="margin-top:6px;font-size:11px;color:#bbb">版本 v20260727-0617 (爱心再左移32px)</div>
+    <div id="verStamp" style="margin-top:6px;font-size:11px;color:#bbb">版本 v20260727-1421 (修复奥普等申购阶段债不显示+流通规模必显)</div>
   </div>
 </div>
 <div class="mask" id="mask"><div class="modal">
@@ -1051,7 +1052,6 @@ function progressBarHtml(kind,r){
 function filterProgressRaw(arr){
   return arr.filter(r=>{
     if(r.progress==="99") return false;
-    if(r.progress==="90"&&r.progress_nm&&r.progress_nm.indexOf("申购")>=0) return false;
     return true;
   });
 }
@@ -1201,7 +1201,7 @@ function renderProgress(){
         h+='</div>';
         h+='<div class="cb-fold-right">';
         h+='<span class="tag '+tagCls+'">'+pl+'</span>';
-        h+='<span class="cb-fold-arrow">›</span>';
+        h+=(c.estFloat!=null?'<span class="fold-chip">流通'+c.estFloat+'亿</span>':'')+'<span class="cb-fold-arrow">›</span>';
         h+='</div>';
         h+='</div>';
         h+='<div class="cb-fold-detail" id="fold-detail-'+i+'" style="display:none;">';
@@ -1381,7 +1381,7 @@ async function loadProgressRealtime(){
   if(!PROGRESS.length){renderProgress();return;}
   const btn=$("#refresh");btn.disabled=true;btn.textContent="刷新中…";
   try{
-    await Promise.all(PROGRESS.map(async r=>{try{const q=await fetchPrice(r.stockCode);if(q){if(!r.stockName&&q.name)r.stockName=q.name;if(q.price!=null&&r.convertPrice){r.price=q.price;r._c=compute(r,q.price);}}}catch(e){}}));
+    await Promise.all(PROGRESS.map(async r=>{try{const q=await fetchPrice(r.stockCode);if(q){if(!r.stockName&&q.name)r.stockName=q.name;if(q.price!=null&&r.convertPrice){const oldF=(r._c&&r._c.estFloat!=null)?r._c.estFloat:null;r.price=q.price;r._c=compute(r,q.price);if(oldF!=null)r._c.estFloat=oldF;}}}catch(e){}}));
     renderProgress();
     setTime("审核进度实时");
     const shown=filterProgressRaw(PROGRESS);
