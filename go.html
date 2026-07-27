@@ -2546,12 +2546,14 @@ function cbkFmtPrice(x){return isFinite(x)?x.toFixed(2):'--';}
 async function cbkFetchKline(code){
   const end=new Date(),start=new Date();start.setMonth(start.getMonth()-3); // 严格取最近3个自然月
   const pad=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-  const url='https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param='+code+',day,'+pad(start)+','+pad(end)+',130,qfq';
+  const startStr=pad(start),endStr=pad(end);
+  const url='https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param='+code+',day,'+startStr+','+endStr+',130,qfq';
   const r=await fetch(url);const j=await r.json();
   const node=Object.values(j.data)[0];
   const arr=node.qfqday||node.day||node.hfqday;
   if(!arr||!arr.length) throw new Error('无数据');
-  return arr.map(x=>({date:x[0],close:+x[2]}));
+  // 接口可能返回比请求更早的数据，按 startStr 过滤，确保严格3个月
+  return arr.filter(x=>x[0]>=startStr).map(x=>({date:x[0],close:+x[2]}));
 }
 function cbkBuildReview(data,name){
   const clean=data.map(d=>({date:d.date||d.d,close:isFinite(d.close!==undefined?d.close:d.c)?+(d.close!==undefined?d.close:d.c):NaN})).filter(d=>d.date&&isFinite(d.close));
@@ -2612,7 +2614,7 @@ function cbkRenderEcharts(el,data){
     grid:{left:8,right:30,top:14,bottom:18,containLabel:true},
     tooltip:{trigger:'axis',formatter:function(p){const v=p&&p[0]&&p[0].data;return p[0].axisValue+'<br/>收盘 ¥'+(isFinite(v)?(+v).toFixed(2):'--');}},
     xAxis:{type:'category',data:dates,boundaryGap:false,axisLabel:{fontSize:9,color:'#9aa0b0',formatter:function(v){return v.slice(5);}},axisLine:{lineStyle:{color:'#e4e7f0'}},axisTick:{show:false}},
-    yAxis:{type:'value',scale:true,axisLabel:{fontSize:9,color:'#9aa0b0'},splitLine:{lineStyle:{color:'#f0f2f7'}}},
+    yAxis:{type:'value',scale:true,axisLabel:{show:false},splitLine:{lineStyle:{color:'#f0f2f7'}}},
     series:[{type:'line',data:closes,smooth:true,showSymbol:false,lineStyle:{width:2.5,color:color},
       areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(99,102,241,.22)'},{offset:1,color:'rgba(255,255,255,0)'}])},
       markPoint:{symbolSize:5,data:[{type:'max'},{type:'min'}],label:{show:false},itemStyle:{color:color}}}]
@@ -2641,7 +2643,7 @@ function cbkRenderSVG(el,data){
     '<text x="'+(pl+2)+'" y="'+(pt+9)+'" font-size="9" fill="#9aa0b0">'+dates[0].slice(5)+'</text>'+
     '<text x="'+(W-pr-30)+'" y="'+(pt+9)+'" font-size="9" fill="#9aa0b0">'+dates[n-1].slice(5)+'</text>'+
     '<text x="'+(pl+2)+'" y="'+(pt+ih-3)+'" font-size="9" fill="'+color+'">¥'+mn.toFixed(2)+'</text>'+
-    '<text x="'+(W-pr-44)+'" y="'+(pt+11)+'" font-size="9" fill="'+color+'">¥'+mx.toFixed(2)+'</text>'+
+    '<text x="'+(W-pr-44)+'" y="'+(pt-2)+'" font-size="9" fill="'+color+'">¥'+mx.toFixed(2)+'</text>'+
     '</svg>';
 }
 function cbkRenderMiniSVG(el,data){
@@ -2711,9 +2713,8 @@ async function cbkLoadReview(el,code,name,opts){
     const data=await cbkFetchKline(norm);
     const rev=cbkBuildReview(data,name);
     const dir3m=rev.chg3m>=0?'up':'down';
-    const d0=(data[0]&&data[0].date||'').slice(5), d1=(data[data.length-1]&&data[data.length-1].date||'').slice(5);
     const head=document.createElement('div');head.className='kline-head';
-    head.innerHTML='<div class="kline-h-title"><span class="name">'+cbkEsc(name)+'</span><span class="dot '+(dir3m==='up'?'up':'down')+'"></span><span>正股近3月走势</span><span class="kline-range">'+d0+'~'+d1+'</span><span class="kline-h-pct '+(dir3m==='up'?'up':'down')+'">'+(rev.chg3m>=0?'+':'')+rev.chg3m.toFixed(1)+'%</span></div><div class="kline-h-toggle">▾</div>';
+    head.innerHTML='<div class="kline-h-title"><span class="name">'+cbkEsc(name)+'</span><span class="dot '+(dir3m==='up'?'up':'down')+'"></span><span>正股近3月走势</span><span class="kline-h-pct '+(dir3m==='up'?'up':'down')+'">'+(rev.chg3m>=0?'+':'')+rev.chg3m.toFixed(1)+'%</span></div><div class="kline-h-toggle">▾</div>';
     const body=document.createElement('div');body.className='kline-body';
     const chartBox=document.createElement('div');chartBox.className='kline-chart';
     const review=document.createElement('div');review.className='kline-review';
