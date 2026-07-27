@@ -397,11 +397,24 @@
   .cb-fold-safe{display:flex;gap:10px;padding-top:6px;margin-top:6px;border-top:1px solid #f3f4f6;font-size:11px;color:#9ca3af}
   .cb-fold-safe span{background:#f3f4f6;padding:3px 8px;border-radius:6px}
   .cb-fold-date{font-size:11px;color:#9ca3af;margin-top:6px}
-/* ===== 我的关注·正股近3月走势简评（仅手机端 cb-kline 容器内生效，不影响其他页面） ===== */
+/* ===== 我的关注·正股近3月走势：手机端可折叠面板 ===== */
 .cb-kline{margin-top:8px;padding-top:8px;border-top:1px dashed #e6e8ef;}
+.cb-kline .kline-head{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;padding:5px 4px;border-radius:8px;transition:background .15s;}
+.cb-kline .kline-head:active{background:#f1f2f7;}
+.cb-kline .kline-h-title{display:flex;align-items:center;gap:6px;flex:1;min-width:0;font-size:12px;font-weight:600;color:#3a3f4e;}
+.cb-kline .kline-h-title .dot{width:7px;height:7px;border-radius:50%;flex:none;}
+.cb-kline .kline-h-title .dot.up{background:#e34d4d;}
+.cb-kline .kline-h-title .dot.down{background:#2ba471;}
+.cb-kline .kline-h-pct{font-weight:700;font-size:12px;}
+.cb-kline .kline-h-pct.up{color:#e34d4d;}
+.cb-kline .kline-h-pct.down{color:#2ba471;}
+.cb-kline .kline-h-toggle{font-size:10px;color:#b3b8c4;transition:transform .2s ease;flex:none;}
+.cb-kline.kline-collapsed .kline-h-toggle{transform:rotate(-90deg);}
+.cb-kline .kline-body{overflow:hidden;}
+.cb-kline.kline-collapsed .kline-body{display:none;}
 .cb-kline .kline-chart{width:100%;height:150px;}
 .cb-kline .kline-review{font-size:11.5px;line-height:1.7;color:#3a3f4e;background:#f7f8fc;border-radius:8px;padding:7px 9px;margin-top:4px;}
-.cb-kline .kline-review .line{margin:1px 0;}
+.cb-kline .kline-review .line{margin:1px 0;font-size:11px;}
 .cb-kline .kline-review .sum{font-weight:700;font-size:12px;margin-bottom:3px;}
 .cb-kline .kline-review .up{color:#e34d4d;}
 .cb-kline .kline-review .down{color:#2ba471;}
@@ -410,12 +423,23 @@
 .cb-kline .kline-review .flat-bg{background:#eef0f5;color:#6b7180;padding:1px 6px;border-radius:6px;font-weight:600;font-size:11px;}
 .cb-kline .kline-loading,.cb-kline .kline-err{padding:14px 0;text-align:center;font-size:11.5px;color:#9aa0b0;}
 .cb-kline .kline-err{color:#e34d4d;}
+/* ===== 电脑端：迷你图 + 悬停/点击点评浮层（浮层挂 body 避开 overflow 裁剪） ===== */
 .cb-kline-pc{margin:0;padding:0;border:0;}
+.cb-kline-pc .kline-wrap{display:inline-block;cursor:pointer;}
 .cb-kline-pc .kline-chart{width:150px;height:42px;}
 .cb-kline-pc .kline-loading,.cb-kline-pc .kline-err{padding:6px 0;font-size:11px;}
-.cb-kline-pc .kline-mini-tag{font-size:11px;font-weight:700;margin-top:3px;line-height:1.1;}
+.cb-kline-pc .kline-mini-tag{font-size:11px;font-weight:700;margin-top:3px;line-height:1.1;text-align:center;}
 .cb-kline-pc .kline-mini-tag.up{color:#e34d4d;}
 .cb-kline-pc .kline-mini-tag.down{color:#2ba471;}
+.kline-pop{position:fixed;z-index:9999;width:254px;background:#fff;border:1px solid #e6e8ef;border-radius:12px;box-shadow:0 10px 34px rgba(20,30,60,.18);padding:10px 12px;font-size:11px;color:#3a3f4e;}
+.kline-pop .kline-review{background:transparent;padding:0;margin:0;}
+.kline-pop .kline-review .sum{font-weight:700;font-size:12px;margin-bottom:4px;}
+.kline-pop .kline-review .line{margin:2px 0;font-size:11px;}
+.kline-pop .kline-review .up{color:#e34d4d;}
+.kline-pop .kline-review .down{color:#2ba471;}
+.kline-pop .kline-review .up-bg{background:#fdecec;color:#e34d4d;padding:1px 6px;border-radius:6px;font-weight:600;font-size:11px;}
+.kline-pop .kline-review .down-bg{background:#e9f7f0;color:#2ba471;padding:1px 6px;border-radius:6px;font-weight:600;font-size:11px;}
+.kline-pop .kline-review .flat-bg{background:#eef0f5;color:#6b7180;padding:1px 6px;border-radius:6px;font-weight:600;font-size:11px;}
 
 </style>
 </head>
@@ -2624,6 +2648,24 @@ function cbkRenderMiniSVG(el,data){
     '<polyline points="'+pts.trim()+'" fill="none" stroke="'+color+'" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>'+
     '<circle cx="'+X(n-1).toFixed(1)+'" cy="'+Y(closes[n-1]).toFixed(1)+'" r="2" fill="'+color+'"/></svg>';
 }
+let cbkPopInst=null, cbkHideTimer=null;
+function cbkHidePop(){ if(cbkHideTimer){clearTimeout(cbkHideTimer);cbkHideTimer=null;} if(cbkPopInst){cbkPopInst.remove();cbkPopInst=null;} }
+function cbkShowPop(anchor,rev){
+  cbkHidePop();
+  const pop=document.createElement('div');pop.className='kline-pop';
+  pop.innerHTML='<div class="kline-review"><div class="sum">'+rev.sum+'</div>'+rev.lines.join('')+'</div>';
+  document.body.appendChild(pop);cbkPopInst=pop;
+  const r=anchor.getBoundingClientRect();
+  const pw=pop.offsetWidth, ph=pop.offsetHeight;
+  let left=r.left; if(left+pw>window.innerWidth-8) left=Math.max(8,window.innerWidth-pw-8);
+  let top=r.bottom+6; if(top+ph>window.innerHeight-8) top=Math.max(8,r.top-ph-6);
+  pop.style.left=left+'px'; pop.style.top=top+'px';
+  pop.addEventListener('mouseenter',function(){if(cbkHideTimer){clearTimeout(cbkHideTimer);cbkHideTimer=null;}});
+  pop.addEventListener('mouseleave',function(){cbkHideTimer=setTimeout(cbkHidePop,160);});
+}
+document.addEventListener('click',function(e){
+  if(cbkPopInst && !cbkPopInst.contains(e.target) && !(e.target.closest && e.target.closest('.kline-wrap'))){cbkHidePop();}
+});
 async function cbkLoadReview(el,code,name,opts){
   opts=opts||{};
   code=(code||'').trim();
@@ -2636,12 +2678,18 @@ async function cbkLoadReview(el,code,name,opts){
       const lastD=data[data.length-1],firstD=data[0];
       const last=lastD?+lastD.close:NaN,first=firstD?+firstD.close:NaN;
       const chg=isFinite(last)&&isFinite(first)&&first!==0?(last/first-1)*100:NaN;
-      const up=isFinite(chg)&&chg>=0,color=up?'#e34d4d':'#2ba471';
+      const up=isFinite(chg)&&chg>=0;
+      const wrap=document.createElement('div');wrap.className='kline-wrap';
       const box=document.createElement('div');box.className='kline-chart';
       const tag=document.createElement('div');tag.className='kline-mini-tag '+(up?'up':'down');
       tag.textContent=isFinite(chg)?((up?'+':'')+chg.toFixed(1)+'%'):'—';
-      el.innerHTML='';el.appendChild(box);el.appendChild(tag);
+      wrap.appendChild(box);wrap.appendChild(tag);
+      el.innerHTML='';el.appendChild(wrap);
       cbkRenderMiniSVG(box,data);
+      let rev; try{rev=cbkBuildReview(data,name);}catch(e2){rev={sum:'近3月点评',lines:['<div class="line">数据不足，暂无法生成点评</div>']};}
+      wrap.addEventListener('mouseenter',function(){if(cbkHideTimer){clearTimeout(cbkHideTimer);cbkHideTimer=null;}cbkShowPop(wrap,rev);});
+      wrap.addEventListener('mouseleave',function(){cbkHideTimer=setTimeout(cbkHidePop,160);});
+      wrap.addEventListener('click',function(e){e.stopPropagation();cbkShowPop(wrap,rev);});
     }catch(e){el.innerHTML='<div class="kline-err">走势失败</div>';}
     return;
   }
@@ -2649,13 +2697,20 @@ async function cbkLoadReview(el,code,name,opts){
   try{
     const data=await cbkFetchKline(norm);
     const rev=cbkBuildReview(data,name);
+    const dir3m=rev.chg3m>=0?'up':'down';
+    const head=document.createElement('div');head.className='kline-head';
+    head.innerHTML='<div class="kline-h-title"><span class="dot '+(dir3m==='up'?'up':'down')+'"></span>正股近3月走势<span class="kline-h-pct '+(dir3m==='up'?'up':'down')+'">'+(rev.chg3m>=0?'+':'')+rev.chg3m.toFixed(1)+'%</span></div><div class="kline-h-toggle">▾</div>';
+    const body=document.createElement('div');body.className='kline-body';
     const chartBox=document.createElement('div');chartBox.className='kline-chart';
     const review=document.createElement('div');review.className='kline-review';
     review.innerHTML='<div class="sum">'+rev.sum+'</div>'+rev.lines.join('');
+    body.appendChild(chartBox);
+    body.appendChild(review);
     el.innerHTML='';
-    el.appendChild(chartBox);
-    el.appendChild(review);
+    el.appendChild(head);
+    el.appendChild(body);
     cbkRenderChart(chartBox,data,name);
+    head.addEventListener('click',function(){el.classList.toggle('kline-collapsed');});
   }catch(e){
     el.innerHTML='<div class="kline-err">走势加载失败：'+(e&&e.message?e.message:'请检查网络')+'</div>';
   }
