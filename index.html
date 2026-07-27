@@ -397,10 +397,10 @@
   .cb-fold-safe{display:flex;gap:10px;padding-top:6px;margin-top:6px;border-top:1px solid #f3f4f6;font-size:11px;color:#9ca3af}
   .cb-fold-safe span{background:#f3f4f6;padding:3px 8px;border-radius:6px}
   .cb-fold-date{font-size:11px;color:#9ca3af;margin-top:6px}
-/* ===== 我的关注·正股近3月走势：手机端可折叠面板 ===== */
-.cb-kline{margin-top:8px;padding-top:8px;border-top:1px dashed #e6e8ef;}
-.cb-kline .kline-head{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;padding:6px 8px;border-radius:10px;transition:background .15s,box-shadow .15s;background:#f8f9fc;border:1px solid #e6e8ef;box-shadow:0 1px 2px rgba(20,30,60,.04);}
-.cb-kline .kline-head:active{background:#f1f2f7;box-shadow:inset 0 1px 2px rgba(20,30,60,.06);}
+/* ===== 我的关注·正股近3月走势：手机端可折叠面板（融入卡片内部） ===== */
+.cb-kline{margin-top:0;padding:8px 12px 10px;border-top:1px solid #f0f2f7;background:transparent;}
+.cb-kline .kline-head{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;padding:5px 0;transition:background .15s;}
+.cb-kline .kline-head:active{background:transparent;}
 .cb-kline .kline-h-title{display:flex;align-items:center;gap:6px;flex:1;min-width:0;font-size:12px;font-weight:600;color:#3a3f4e;}
 .cb-kline .kline-h-title .name{color:#111;font-weight:700;margin-right:2px;}
 .cb-kline .kline-h-title .dot{width:7px;height:7px;border-radius:50%;flex:none;}
@@ -415,7 +415,7 @@
 .cb-kline .kline-body{overflow:hidden;}
 .cb-kline.kline-collapsed .kline-body{display:none;}
 .cb-kline .kline-chart{width:100%;height:150px;}
-.cb-kline .kline-review{font-size:11.5px;line-height:1.7;color:#3a3f4e;background:#f7f8fc;border-radius:8px;padding:7px 9px;margin-top:4px;}
+.cb-kline .kline-review{font-size:11.5px;line-height:1.7;color:#3a3f4e;background:#f8f9fc;border-radius:8px;padding:7px 9px;margin-top:4px;}
 .cb-kline .kline-review .line{margin:1px 0;font-size:11px;}
 .cb-kline .kline-review .sum{font-weight:700;font-size:12px;margin-bottom:3px;}
 .cb-kline .kline-review .up{color:#e34d4d;}
@@ -2081,8 +2081,8 @@ function renderFav(){
         h+='<span class="s"><span class="l" style="visibility:hidden">日期</span><span class="v"><span class="cb-d">🗓️ '+shortD+'</span></span></span>';
         h+='</div>';
         h+=progressBarHtml("pend",r);
-        h+='</div>';
         h+='<div class="cb-kline" data-sc="'+cbkNormCode(r.stockCode||r.code||"")+'" data-sn="'+cbkEsc(r.stockName||r.name||"")+'"></div>';
+        h+='</div>';
       });
       h+='</div>';
     }
@@ -2107,8 +2107,8 @@ function renderFav(){
         h+='<span class="s"><span class="l" style="visibility:hidden">日期</span><span class="v"><span class="cb-d">🗓️ '+shortD+'</span></span></span>';
         h+='</div>';
         h+=progressBarHtml("progress",r);
-        h+='</div>';
         h+='<div class="cb-kline" data-sc="'+cbkNormCode(r.stockCode||r.code||"")+'" data-sn="'+cbkEsc(r.stockName||r.name||"")+'"></div>';
+        h+='</div>';
       });
       h+='</div>';
     }
@@ -2131,6 +2131,7 @@ function renderFav(){
     h+='<div class="card"><table><thead><tr>';
     h+='<th>正股 / 转债</th>';
     h+='<th data-sf="progress">进度 '+(fs.field==="progress"?arrow(fs.dir):'')+'</th>';
+    h+='<th data-sf="progress_dt">进展日期 '+(fs.field==="progress_dt"?arrow(fs.dir):'')+'</th>';
     h+='<th data-sf="cv">转股价值 '+(fs.field==="cv"?arrow(fs.dir):'')+'</th>';
     h+='<th>一手党</th>';
     h+='<th data-sf="needMoney">所需资金 '+(fs.field==="needMoney"?arrow(fs.dir):'')+'</th>';
@@ -2149,9 +2150,11 @@ function renderFav(){
       h+='<td data-label="正股/转债"><div class="name">'+(r.stockName||r.name||"-")+mktTag+'</div><div class="code">'+(r.stockCode||r.code||"")+(r.name&&r._kind==="progress"?(" · "+r.name):(r._kind==="pend"&&r.stockName?(" · "+r.stockName):""))+'</div></td>';
       if(r._kind==="progress"){
         h+='<td data-label="进度"><span class="tag tag-s'+r.progress+'">'+progressLabel(r)+'</span></td>';
+        h+='<td data-label="进展日期"><span class="num">'+(r.progress_dt||'-')+'</span></td>';
       }else{
         const st=r.stage==="申购"?"tag-sbuy":"tag-slist";
         h+='<td data-label="进度"><span class="tag '+st+'">'+(r.stage||"待发")+'</span></td>';
+        h+='<td data-label="进展日期"><span class="num">'+(r.publicStart||r.progress_dt||'-')+'</span></td>';
       }
       h+='<td data-label="转股价值"><span class="num">'+(c.cv!=null?fmt(c.cv):"…")+'</span></td>';
       const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
