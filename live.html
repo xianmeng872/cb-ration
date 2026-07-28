@@ -1722,7 +1722,7 @@ function createGistMask(){
     }
   };
   $("#gistSyncNowBtn").onclick=async()=>{
-    if(!isGistToken()){toast("请先配置 Token");return;}
+    if(!isGistReady()){toast("请先配置 Token");return;}
     $("#gistSyncNowBtn").textContent="⏳ 同步中...";$("#gistSyncNowBtn").disabled=true;
     try{
       const pushed=await syncPushToGist();
