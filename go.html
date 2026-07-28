@@ -1621,10 +1621,11 @@ function renderUserArea(){
   if(currentUser){
     const em=emojiAvatar(currentUser.username); // 保留emoji用于手机端小圆钮后备显示
     const avatarUrl=cartoonAvatarUrl(currentUser.username); // 卡通头像URL
-    const syncReady=isGistReady();
+    const syncReady=isCloudReady()||isGistReady();
+    const syncTitle=isCloudReady()?"云端同步已开启（自动多端）":(isGistReady()?"云端同步已开启":"未开启云端同步");
     const syncDot=syncReady
-      ? '<span class="sync-dot on" title="云端同步已开启">☁️</span>'
-      : '<span class="sync-dot off" title="未开启云端同步">☁️</span>';
+      ? '<span class="sync-dot on" title="'+syncTitle+'">☁️</span>'
+      : '<span class="sync-dot off" title="'+syncTitle+'">☁️</span>';
     // PC端：卡通头像+用户名，点击弹出下拉菜单（含退出）
     ua.innerHTML='<span class="user-info" id="pcUserInfo"><img class="avatar" src="'+avatarUrl+'" alt="头像" referrerpolicy="no-referrer"><span class="uname">'+currentUser.username+'</span>'+syncDot+'<div class="u-dropdown" id="pcUDrop"><button id="btnLogout">🚪 退出登录</button></div></span>';
     $("#pcUserInfo").onclick=(e)=>{e.stopPropagation();const d=document.getElementById("pcUDrop");d.classList.toggle("show");};
@@ -1635,12 +1636,12 @@ function renderUserArea(){
       toast("已退出登录");
     };
     const sd=ua.querySelector(".sync-dot");
-    if(sd) sd.onclick=(e)=>{e.stopPropagation();showGistSettings();};
+    if(sd) sd.onclick=(e)=>{e.stopPropagation();onSyncDotClick();};
     // 手机端：卡通头像圆钮（点击弹用户菜单）
     um.innerHTML='<span class="avatar-btn logged-in" id="avatarBtn" title="'+currentUser.username+'"><img src="'+avatarUrl+'" style="width:100%;height:100%;border-radius:50%" alt="" referrerpolicy="no-referrer"></span>'+syncDot;
     $("#avatarBtn").onclick=(e)=>{e.stopPropagation();showUserMenu();};
     const sdm=um.querySelector(".sync-dot");
-    if(sdm) sdm.onclick=(e)=>{e.stopPropagation();showGistSettings();};
+    if(sdm) sdm.onclick=(e)=>{e.stopPropagation();onSyncDotClick();};
     $("#tab-fav").style.display="";
   }else{
     ua.innerHTML='<button class="btn-login" id="btnLogin">登录 / 注册</button>';
@@ -1666,7 +1667,7 @@ function showUserMenu(){
     // 已登录：显示卡通头像+用户名 + 菜单项
     const avatarUrl=cartoonAvatarUrl(currentUser.username);
     header.innerHTML='<span class="um-avatar" style="overflow:hidden"><img src="'+avatarUrl+'" style="width:100%;height:100%;border-radius:50%" alt="" referrerpolicy="no-referrer"></span><span class="um-name">'+currentUser.username+'</span>';
-    body.innerHTML='<button class="user-menu-item" onclick="document.getElementById(\'userMenuMask\').style.display=\'none\';showGistSettings();">☁️ 云端同步设置</button>'
+    body.innerHTML='<button class="user-menu-item" onclick="document.getElementById(\'userMenuMask\').style.display=\'none\';onSyncDotClick();">☁️ 云端同步设置</button>'
       +'<div class="user-menu-divider"></div>'
       +'<button class="user-menu-item danger" id="menuLogout">🚪 退出登录</button>';
     $("#menuLogout").onclick=()=>{
@@ -1756,6 +1757,11 @@ async function doAuth(){
       // 登录：先查本地
       if(users[u]&&users[u].password===p){
         // 本地验证通过
+      }else if(isCloudReady()){
+        const rec=await syncPullFromCloud(u,p);
+        if(rec){
+          users[u]={password:p,securityCode:rec.securityCode||"",favorites:rec.favorites||[]};saveUsers(users);
+        }else{showAuthError("用户名或密码错误");return;}
       }else if(isGistReady()){
         const cloud=await syncPullFromGist();
         if(cloud&&cloud.users&&cloud.users[u]&&cloud.users[u].password===p){
@@ -1769,7 +1775,9 @@ async function doAuth(){
       if(!sec||sec.length<4){showAuthError("安全码至少4位");return;}
       if(sec.length>6){showAuthError("安全码最多6位");return;}
       if(users[u]){showAuthError("该用户名已被注册");return;}
-      if(isGistReady()){
+      if(isCloudReady()){
+        if(await cloudUsernameExists(u)){showAuthError("该用户名已被注册");return;}
+      }else if(isGistReady()){
         const cloud=await syncPullFromGist();
         if(cloud&&cloud.users&&cloud.users[u]){showAuthError("该用户名已被注册");return;}
       }
@@ -1815,12 +1823,15 @@ function finishAuth(u,users,msg){
   if(activeTab==="pend")renderPend();
   if(activeTab==="progress")renderProgress();
   if(activeTab==="fav")renderFav();
-  if(isGistReady()){
+  if(isCloudReady()){
+    if(authMode==="login") tryPullCloud();
+    else scheduleSyncPush();
+  }else if(isGistReady()){
     if(authMode==="login") tryPullGist();
     else scheduleSyncPush();
   }
   toast("✅ "+msg);
-  if(!isGistReady()){
+  if(!isCloudReady() && !isGistReady()){
     setTimeout(()=>toast("💡 点头像旁 ☁️ 开启云端同步"), 1300);
   }
 }
@@ -1917,9 +1928,9 @@ async function tryPullGist(){
 function scheduleSyncPush(){
   if(_syncTimer) clearTimeout(_syncTimer);
   _syncTimer=setTimeout(async()=>{
-    if(await syncPushToGist()){
-      // 静默成功，不打扰用户
-    }
+    if(isCloudReady()){ await syncPushToCloud(); }
+    else if(isGistReady()){ await syncPushToGist(); }
+    // 静默成功，不打扰用户
   },2500); // 2.5秒防抖
 }
 // 显示 Gist 设置弹窗
@@ -1975,6 +1986,112 @@ function createGistMask(){
     finally{$("#gistSyncNowBtn").textContent="🔄 立即同步";$("#gistSyncNowBtn").disabled=false;}
   };
   return d;
+}
+
+// ==================== Cloudflare 公共云端同步（站点内置，所有用户零配置） ====================
+// 作用：让【每一个】登录用户在手机端和电脑端自动同步关注列表，无需各自配置 Token。
+// 部署方法见《Cloudflare云端同步部署指南.md》。飞哥只需把 CF_SYNC_BASE 改成自己的 Worker 地址即可全站生效。
+// 鉴权：用 sha256(用户名|密码|固定盐) 作为令牌，云端不存明文密码；按用户名分 key 存储，各用户数据隔离。
+const CF_SYNC_BASE = ""; // ← 改成你的 Worker 地址，例如 https://cb-sync-xxxx.workers.dev （留空则本功能不启用，退回原本地/Gist 行为）
+const CF_SALT = "cb-ration-cloud-sync-v1-fixed-salt-do-not-leak";
+
+// 纯 JS SHA-256（兼容 http 环境，不依赖 crypto.subtle）
+function _cfSha256Hex(str){
+  str = unescape(encodeURIComponent(str));
+  const K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+  const H=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+  const origBits = str.length * 8;
+  str += '\x80';
+  while((str.length % 64) !== 56) str += '\x00';
+  const W=[];
+  for(let i=0;i<str.length;i+=4){
+    W.push((str.charCodeAt(i)<<24)|(str.charCodeAt(i+1)<<16)|(str.charCodeAt(i+2)<<8)|str.charCodeAt(i+3));
+  }
+  W.push(0); W.push(origBits);
+  const w=new Array(64);
+  for(let j=0;j<W.length;j+=16){
+    for(let i=0;i<16;i++) w[i]=W[j+i]|0;
+    for(let i=16;i<64;i++){
+      const x=w[i-15], y=w[i-2];
+      w[i]=(w[i-16] + (((x>>>7)|(x<<25)) ^ ((x>>>18)|(x<<14)) ^ (x>>>3)) + w[i-7] + (((y>>>17)|(y<<15)) ^ ((y>>>19)|(y<<13)) ^ (y>>>10))) | 0;
+    }
+    let a=H[0],b=H[1],c=H[2],d=H[3],e=H[4],f=H[5],g=H[6],h=H[7];
+    for(let i=0;i<64;i++){
+      const S1=(((e>>>6)|(e<<26)) ^ ((e>>>11)|(e<<21)) ^ ((e>>>25)|(e<<7)));
+      const ch=((e&f) ^ (~e & g));
+      const t1=(h + S1 + ch + K[i] + w[i])|0;
+      const S0=(((a>>>2)|(a<<30)) ^ ((a>>>13)|(a<<19)) ^ ((a>>>22)|(a<<10)));
+      const maj=((a&b) ^ (a&c) ^ (b&c));
+      const t2=(S0 + maj)|0;
+      h=g; g=f; f=e; e=(d+t1)|0; d=c; c=b; b=a; a=(t1+t2)|0;
+    }
+    H[0]=(H[0]+a)|0;H[1]=(H[1]+b)|0;H[2]=(H[2]+c)|0;H[3]=(H[3]+d)|0;H[4]=(H[4]+e)|0;H[5]=(H[5]+f)|0;H[6]=(H[6]+g)|0;H[7]=(H[7]+h)|0;
+  }
+  return H.map(x=>(x>>>0).toString(16).padStart(8,'0')).join('');
+}
+function cfAuthToken(username, password){ return _cfSha256Hex(username + "|" + password + "|" + CF_SALT); }
+function isCloudReady(){ return !!CF_SYNC_BASE && CF_SYNC_BASE.indexOf("workers.dev") > -1; }
+
+// 推送当前用户的记录（安全码+关注）到云端
+async function syncPushToCloud(){
+  if(!isCloudReady() || !currentUser) return false;
+  const u = getCur(); const users = loadUsers(); const rec = users[u];
+  if(!rec) return false;
+  try{
+    const t = cfAuthToken(u, rec.password || "");
+    const body = JSON.stringify({ securityCode: rec.securityCode || "", favorites: rec.favorites || [] });
+    const res = await fetch(CF_SYNC_BASE + "/api/sync?u=" + encodeURIComponent(u) + "&t=" + t, {method:"POST", headers:{"Content-Type":"application/json"}, body});
+    return res.ok;
+  }catch(e){ console.warn("Cloud推送失败:", e.message); return false; }
+}
+// 从云端拉取指定用户的记录（用密码派生令牌鉴权）
+async function syncPullFromCloud(username, password){
+  if(!isCloudReady()) return null;
+  try{
+    const t = cfAuthToken(username, password || "");
+    const res = await fetch(CF_SYNC_BASE + "/api/sync?u=" + encodeURIComponent(username) + "&t=" + t, {method:"GET"});
+    if(res.status === 404 || res.status === 403) return null;
+    if(!res.ok) return null;
+    const data = await res.json();
+    return data && data.data ? data.data : null;
+  }catch(e){ console.warn("Cloud拉取失败:", e.message); return null; }
+}
+// 查询某用户名是否已在云端注册（避免重名）
+async function cloudUsernameExists(username){
+  if(!isCloudReady()) return false;
+  try{
+    const res = await fetch(CF_SYNC_BASE + "/api/sync?u=" + encodeURIComponent(username) + "&t=__probe__", {method:"GET"});
+    return res.status === 403;
+  }catch(e){ return false; }
+}
+// 登录后尝试从云端合并当前用户的关注（跨设备同步）
+async function tryPullCloud(){
+  if(!isCloudReady() || !currentUser) return;
+  const u = getCur(); const users = loadUsers(); const rec = users[u];
+  if(!rec) return;
+  const cloud = await syncPullFromCloud(u, rec.password || "");
+  if(cloud && cloud.favorites){
+    const merged = mergeFavorites(currentUser.favorites || [], cloud.favorites);
+    const changed = merged.length !== (currentUser.favorites||[]).length || JSON.stringify(merged) !== JSON.stringify(currentUser.favorites||[]);
+    if(changed){
+      currentUser.favorites = merged;
+      const us = loadUsers(); if(us[u]) us[u].favorites = merged; saveUsers(us);
+      renderFav(); toast("☁️ 已从云端同步 " + merged.length + " 条关注");
+    }
+  }
+}
+// 手动立即同步（点头像旁 ☁️ 触发）
+async function manualCloudSync(){
+  if(!currentUser){ toast("请先登录后再同步"); return; }
+  toast("☁️ 同步中...");
+  const ok = await syncPushToCloud();
+  await tryPullCloud();
+  if(activeTab === "fav") renderFav();
+  toast(ok ? "☁️ 同步完成" : "⚠️ 云端同步失败，请检查网络");
+}
+function onSyncDotClick(){
+  if(isCloudReady()) manualCloudSync();
+  else showGistSettings();
 }
 
 // 唯一ID：待发债用code，审核进度用stockCode
