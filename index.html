@@ -2552,8 +2552,10 @@ async function cbkFetchKline(code){
   const pad=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
   const startStr=pad(start);
   // 优先使用 CI 每日抓取的新浪不复权快照（与行情软件真实成交价口径一致）
-  if(window.KLINE_SNAPSHOT && window.KLINE_SNAPSHOT[code] && window.KLINE_SNAPSHOT[code].length>=5){
-    return window.KLINE_SNAPSHOT[code].filter(x=>x.date>=startStr);
+  // 注意：CI 注入用的是 const KLINE_SNAPSHOT（非 window 属性），需同时读取全局变量与 window 属性
+  const snap=(typeof KLINE_SNAPSHOT!=='undefined'?KLINE_SNAPSHOT:null)||window.KLINE_SNAPSHOT||null;
+  if(snap && snap[code] && snap[code].length>=5){
+    return snap[code].filter(x=>x.date>=startStr);
   }
   // fallback：腾讯不复权实时接口（与新浪快照同口径，避免前复权导致数据对不上）
   const endStr=pad(end);
