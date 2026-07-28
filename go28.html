@@ -2030,7 +2030,7 @@ function _cfSha256Hex(str){
   return H.map(x=>(x>>>0).toString(16).padStart(8,'0')).join('');
 }
 function cfAuthToken(username, password){ return _cfSha256Hex(username + "|" + password + "|" + CF_SALT); }
-function isCloudReady(){ return !!CF_SYNC_BASE && CF_SYNC_BASE.indexOf("workers.dev") > -1; }
+function isCloudReady(){ return !!CF_SYNC_BASE && /^https?:\/\//.test(CF_SYNC_BASE); }
 
 // 推送当前用户的记录（安全码+关注）到云端
 async function syncPushToCloud(){
