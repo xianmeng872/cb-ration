@@ -20,7 +20,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - run: node update.mjs
+      - run: node update.mjs || echo "数据抓取失败，沿用已嵌入快照继续部署"
       - name: 同步到各入口文件
         run: cp index.html app.html && cp index.html go.html && cp index.html go28.html
       - name: 提交更新

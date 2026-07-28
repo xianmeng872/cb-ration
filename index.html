@@ -2554,12 +2554,12 @@ async function cbkFetchKline(code){
   if(window.KLINE_SNAPSHOT && window.KLINE_SNAPSHOT[code] && window.KLINE_SNAPSHOT[code].length>=5){
     return window.KLINE_SNAPSHOT[code].filter(x=>x.date>=startStr);
   }
-  // fallback：腾讯前复权实时接口
+  // fallback：腾讯不复权实时接口（与新浪快照同口径，避免前复权导致数据对不上）
   const endStr=pad(end);
-  const url='https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param='+code+',day,'+startStr+','+endStr+',130,qfq';
+  const url='https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param='+code+',day,'+startStr+','+endStr+',130';
   const r=await fetch(url);const j=await r.json();
   const node=Object.values(j.data)[0];
-  const arr=node.qfqday||node.day||node.hfqday;
+  const arr=node.day||node.qfqday||node.hfqday;
   if(!arr||!arr.length) throw new Error('无数据');
   return arr.filter(x=>x[0]>=startStr).map(x=>({date:x[0],close:+x[2]}));
 }
@@ -2598,13 +2598,23 @@ function cbkBuildReview(data,name){
 }
 function cbkEnsureEcharts(cb){
   if(window.echarts){cb(true);return;}
-  const s=document.createElement('script');
-  s.src='https://lib.baomitu.com/echarts/5.5.0/echarts.min.js';
-  let done=false;
-  const t=setTimeout(function(){if(!done){done=true;cb(false);}},4000);
-  s.onload=function(){if(!done){done=true;clearTimeout(t);cb(true);}};
-  s.onerror=function(){if(!done){done=true;clearTimeout(t);cb(false);}};
-  document.head.appendChild(s);
+  // 多 CDN 兜底，避免单一 CDN 在手机端被拦/超时导致一直走 SVG 兜底
+  const CDNS=[
+    'https://lib.baomitu.com/echarts/5.5.0/echarts.min.js',
+    'https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js'
+  ];
+  let idx=0,done=false;
+  const t=setTimeout(function(){if(!done){done=true;cb(false);}},8000);
+  function tryLoad(){
+    if(idx>=CDNS.length){if(!done){done=true;clearTimeout(t);cb(false);}return;}
+    const s=document.createElement('script');
+    s.src=CDNS[idx++];
+    s.onload=function(){if(!done){done=true;clearTimeout(t);cb(true);}};
+    s.onerror=function(){tryLoad();};
+    document.head.appendChild(s);
+  }
+  tryLoad();
 }
 function cbkRenderChart(el,data,name){
   cbkEnsureEcharts(function(ok){
@@ -2633,7 +2643,7 @@ function cbkRenderSVG(el,data){
   if(clean.length<2){el.innerHTML='<div class="kline-err">数据不足，无法绘图</div>';return;}
   const closes=clean.map(d=>d.close),dates=clean.map(d=>d.date);
   const n=closes.length,color='#6366f1';
-  const W=320,H=150,pl=6,pr=6,pt=10,pb=16,iw=W-pl-pr,ih=H-pt-pb;
+  const W=320,H=152,pl=6,pr=6,pt=20,pb=16,iw=W-pl-pr,ih=H-pt-pb;
   let mn=Math.min.apply(null,closes),mx=Math.max.apply(null,closes);if(mx===mn){mx=mn+1;}
   const X=function(i){return pl+(n===1?iw/2:i/(n-1)*iw);};
   const Y=function(v){return pt+(1-(v-mn)/(mx-mn))*ih;};
@@ -2648,10 +2658,11 @@ function cbkRenderSVG(el,data){
     '<polyline points="'+pts.trim()+'" fill="none" stroke="'+color+'" stroke-width="2" stroke-linejoin="round"/>'+
     '<circle cx="'+X(0)+'" cy="'+Y(closes[0])+'" r="2.5" fill="'+color+'"/>'+
     '<circle cx="'+X(n-1)+'" cy="'+Y(closes[n-1])+'" r="3" fill="'+color+'"/>'+
-    '<text x="'+(pl+2)+'" y="'+(pt+9)+'" font-size="9" fill="#9aa0b0">'+dates[0].slice(5)+'</text>'+
-    '<text x="'+(W-pr-30)+'" y="'+(pt+9)+'" font-size="9" fill="#9aa0b0">'+dates[n-1].slice(5)+'</text>'+
-    '<text x="'+(pl+2)+'" y="'+(pt+ih-3)+'" font-size="9" fill="'+color+'">¥'+mn.toFixed(2)+'</text>'+
-    '<text x="'+(W-pr-44)+'" y="'+(pt-2)+'" font-size="9" fill="'+color+'">¥'+mx.toFixed(2)+'</text>'+
+    // 价格标注放顶部(左最低/右最高)，日期标注放底部(左起/右止)，互不重叠
+    '<text x="'+(pl+2)+'" y="'+(pt-7)+'" font-size="9" fill="'+color+'" text-anchor="start">¥'+mn.toFixed(2)+'</text>'+
+    '<text x="'+(W-pr-2)+'" y="'+(pt-7)+'" font-size="9" fill="'+color+'" text-anchor="end">¥'+mx.toFixed(2)+'</text>'+
+    '<text x="'+(pl+2)+'" y="'+(H-4)+'" font-size="9" fill="#9aa0b0" text-anchor="start">'+dates[0].slice(5)+'</text>'+
+    '<text x="'+(W-pr-2)+'" y="'+(H-4)+'" font-size="9" fill="#9aa0b0" text-anchor="end">'+dates[n-1].slice(5)+'</text>'+
     '</svg>';
 }
 function cbkRenderMiniSVG(el,data){
