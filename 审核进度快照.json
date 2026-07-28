@@ -286,32 +286,6 @@
   }
  },
  {
-  "stockCode": "603786",
-  "stockName": "科博达",
-  "code": "113707",
-  "name": "科博转债",
-  "progress": "90",
-  "progress_nm": "2026-07-03申购 申购代码754786",
-  "scale": 14.91,
-  "convertPrice": 45.56,
-  "price": 39.83,
-  "perPre": 3.691,
-  "apply10": 271,
-  "ration_rt": "91.740",
-  "rating_cd": "AA+",
-  "progress_full": "2025-10-24 董事会预案\n2025-11-15 股东大会通过\n2026-01-28 交易所受理\n2026-04-14 上市委通过\n2026-05-20 同意注册",
-  "accept_date": "2026-01-28",
-  "progress_dt": "2026-07-03",
-  "_c": {
-   "cv": 87.42317822651448,
-   "needShares": 271,
-   "needMoney": 10793.93,
-   "baiyuan": 9.266884258096912,
-   "price": 39.83,
-   "estFloat": 5.12
-  }
- },
- {
   "stockCode": "000887",
   "stockName": "中鼎股份",
   "code": "",
