@@ -2553,18 +2553,21 @@ async function cbkFetchKline(code){
   const startStr=pad(start);
   // 优先使用 CI 每日抓取的新浪不复权快照（与行情软件真实成交价口径一致）
   // 注意：CI 注入用的是 const KLINE_SNAPSHOT（非 window 属性），需同时读取全局变量与 window 属性
+  // 快照键为 6 位纯数字代码（如 002550），而传入的 code 可能带 sz/sh 前缀，两者都要兼容
+  const raw=String(code||'').replace(/^(sh|sz)/i,'');
   const snap=(typeof KLINE_SNAPSHOT!=='undefined'?KLINE_SNAPSHOT:null)||window.KLINE_SNAPSHOT||null;
-  if(snap && snap[code] && snap[code].length>=5){
-    return snap[code].filter(x=>x.date>=startStr);
+  const arr=(snap&&(snap[code]||(raw&&snap[raw]))&&(snap[code]||snap[raw]).length>=5)?(snap[code]||snap[raw]):null;
+  if(arr){
+    return arr.filter(x=>x.date>=startStr);
   }
   // fallback：腾讯不复权实时接口（与新浪快照同口径，避免前复权导致数据对不上）
   const endStr=pad(end);
   const url='https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param='+code+',day,'+startStr+','+endStr+',130';
   const r=await fetch(url);const j=await r.json();
   const node=Object.values(j.data)[0];
-  const arr=node.day||node.qfqday||node.hfqday;
-  if(!arr||!arr.length) throw new Error('无数据');
-  return arr.filter(x=>x[0]>=startStr).map(x=>({date:x[0],close:+x[2]}));
+  const fbArr=node.day||node.qfqday||node.hfqday;
+  if(!fbArr||!fbArr.length) throw new Error('无数据');
+  return fbArr.filter(x=>x[0]>=startStr).map(x=>({date:x[0],close:+x[2]}));
 }
 function cbkBuildReview(data,name){
   const clean=data.map(d=>({date:d.date||d.d,close:isFinite(d.close!==undefined?d.close:d.c)?+(d.close!==undefined?d.close:d.c):NaN})).filter(d=>d.date&&isFinite(d.close));
