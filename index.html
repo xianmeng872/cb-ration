@@ -1038,9 +1038,10 @@ function renderPend(){
   h+='<th data-sf="cv">转股价值 '+(ps.field==="cv"?arrow(ps.dir):'')+'</th>';
   h+='<th>一手党</th>';
   h+='<th data-sf="needMoney">所需资金 '+(ps.field==="needMoney"?arrow(ps.dir):'')+'</th>';
-  h+='<th>申购日</th><th>阶段</th>';
-  h+='<th data-sf="scale">规模(亿) '+(ps.field==="scale"?arrow(ps.dir):'')+'</th>';
+  h+='<th>阶段</th>';
+  h+='<th data-sf="publicStart">申购日 '+(ps.field==="publicStart"?arrow(ps.dir):'')+'</th>';
   h+='<th data-sf="baiyuan">百元含权 '+(ps.field==="baiyuan"?arrow(ps.dir):'')+'</th>';
+  h+='<th data-sf="scale">规模(亿) '+(ps.field==="scale"?arrow(ps.dir):'')+'</th>';
   h+='<th data-sf="estFloat">预估流通(亿) '+(ps.field==="estFloat"?arrow(ps.dir):'')+'</th>';
   h+='<th style="width:40px"></th>';
   h+='</tr></thead><tbody>';
@@ -1055,11 +1056,11 @@ function renderPend(){
     const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
     h+='<td data-label="一手党">'+(c.needShares!=null?('<span class="num">'+shLabel+'</span>'+(c.isSH&&c.needSharesSafe!=null?'<br><span class="muted" style="font-size:11px">稳配'+c.needSharesSafe+'股</span>':'')):'<span class="muted">-</span>')+'</td>';
     h+='<td data-label="所需资金">'+(c.needMoney!=null?('<span class="hl-fund num">'+fmt(c.needMoney,0)+'元</span>'+(c.isSH&&c.needMoneySafe!=null?'<br><span class="muted" style="font-size:11px">稳'+fmt(c.needMoneySafe,0)+'元</span>':'')):'<span class="muted">-</span>')+'</td>';
-    h+='<td data-label="申购日"><span class="muted">'+((r.publicStart||"-").replace(/\s*00:00:00$/,''))+'</span></td>';
     h+='<td data-label="阶段"><span class="tag '+(r.stage==="申购"?"tag-sbuy":"tag-slist")+'">'+r.stage+'</span></td>';
-    h+='<td data-label="规模"><span class="num">'+fmt(r.scale)+'</span></td>';
+    h+='<td data-label="申购日"><span class="num">'+fmtShortDate(r.publicStart)+'</span></td>';
     h+='<td data-label="百元含权"><span class="num">'+(c.baiyuan!=null?fmt(c.baiyuan):"…")+'</span></td>';
-    h+='<td data-label="预估流通"><span class="num">'+(c.estFloat!=null?c.estFloat:'-')+'<span class="muted" style="font-size:10px;font-weight:400"> 预</span></span></td>';
+    h+='<td data-label="规模"><span class="num">'+fmt(r.scale)+'</span></td>';
+    h+='<td data-label="预估流通"><span class="hl-fund num">'+(c.estFloat!=null?c.estFloat:'-')+'<span class="muted" style="font-size:10px;font-weight:400"> 预</span></span></td>';
     h+='<td style="text-align:right">'+favBtnHtml(id,"pend")+'</td>';
   });
   h+='</tbody></table></div>';
@@ -2658,7 +2659,6 @@ function cbkRenderSVG(el,data){
     '<polyline points="'+pts.trim()+'" fill="none" stroke="'+color+'" stroke-width="2" stroke-linejoin="round"/>'+
     '<circle cx="'+X(0)+'" cy="'+Y(closes[0])+'" r="2.5" fill="'+color+'"/>'+
     '<circle cx="'+X(n-1)+'" cy="'+Y(closes[n-1])+'" r="3" fill="'+color+'"/>'+
-    // 价格标注放顶部(左最低/右最高)，日期标注放底部(左起/右止)，互不重叠
     '<text x="'+(pl+2)+'" y="'+(pt-7)+'" font-size="9" fill="'+color+'" text-anchor="start">¥'+mn.toFixed(2)+'</text>'+
     '<text x="'+(W-pr-2)+'" y="'+(pt-7)+'" font-size="9" fill="'+color+'" text-anchor="end">¥'+mx.toFixed(2)+'</text>'+
     '<text x="'+(pl+2)+'" y="'+(H-4)+'" font-size="9" fill="#9aa0b0" text-anchor="start">'+dates[0].slice(5)+'</text>'+
