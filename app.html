@@ -1992,7 +1992,7 @@ function createGistMask(){
 // 作用：让【每一个】登录用户在手机端和电脑端自动同步关注列表，无需各自配置 Token。
 // 部署方法见《Cloudflare云端同步部署指南.md》。飞哥只需把 CF_SYNC_BASE 改成自己的 Worker 地址即可全站生效。
 // 鉴权：用 sha256(用户名|密码|固定盐) 作为令牌，云端不存明文密码；按用户名分 key 存储，各用户数据隔离。
-const CF_SYNC_BASE = ""; // ← 改成你的 Worker 地址，例如 https://cb-sync-xxxx.workers.dev （留空则本功能不启用，退回原本地/Gist 行为）
+const CF_SYNC_BASE = "https://cb-ration-sync.cb-ration-sync-59146.workers.dev"; // ← Cloudflare 公共云端同步地址（Worker+KV 已部署）；留空则退回本地/Gist 行为
 const CF_SALT = "cb-ration-cloud-sync-v1-fixed-salt-do-not-leak";
 
 // 纯 JS SHA-256（兼容 http 环境，不依赖 crypto.subtle）
