@@ -2748,6 +2748,7 @@ async function cbkLoadReview(el,code,name,opts){
     el.innerHTML='';
     el.appendChild(head);
     el.appendChild(body);
+    if(isMobile()){el.classList.add('kline-collapsed');} // 手机端默认折叠，点击展开
     cbkRenderChart(chartBox,data,name);
     head.addEventListener('click',function(){el.classList.toggle('kline-collapsed');});
     el.addEventListener('click',function(e){e.stopPropagation();}); // 防止点走势区误触卡片→转债详情页
