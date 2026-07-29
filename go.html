@@ -178,9 +178,9 @@
     #progChips{display:none !important}
     /* 手机端：隐藏排序触发器(filter-trigger)，排序由顶部排序chips完成 */
     .filter-trigger{display:none}
-    /* PC端：隐藏手机端专属的刷新按钮(PC端用顶部refreshBar) */
+    /* PC端：隐藏手机端专属的排序chips和刷新按钮(PC端用顶部refreshBar+表头排序) */
     @media(min-width:721px){
-      #refreshMobile,#refreshMobile2,#refreshMobileFav{display:none !important}
+      #favChips,#refreshMobile,#refreshMobile2,#refreshMobileFav{display:none !important}
     }
     .hero{padding:14px 12px 10px}
     /* 手机端Hero：大标题居中 + 副标题 + 时间刷新行 */
@@ -483,6 +483,13 @@ table td[data-label="进展日期"],table th[data-label="进展日期"]{white-sp
 
   <div id="view-fav" style="display:none">
     <div class="search"><input id="qfav" placeholder="🔍 搜索正股 / 转债 / 代码"><button class="btn-refresh-sm" id="refreshMobileFav" title="刷新数据">↻</button></div>
+    <div class="chips" id="favChips">
+      <span class="chip active" data-sf="progress">进度↓</span>
+      <span class="chip" data-sf="needMoney">所需资金</span>
+      <span class="chip" data-sf="baiyuan">百元含权</span>
+      <span class="chip" data-sf="scale">规模</span>
+      <span class="chip" data-sf="estFloat">预估流通</span>
+    </div>
     <div id="favPanel"></div>
   </div>
 
@@ -1559,6 +1566,15 @@ document.querySelectorAll("#layoutSwitcher .layout-btn").forEach(btn=>{
     if(activeTab==="fav")renderFav();
   };
 });
+// 我的关注 chips 排序事件（手机端快速排序）
+document.querySelectorAll("#favChips .chip").forEach(c=>{
+  c.onclick=()=>{
+    const f=c.dataset.sf;
+    if(!f)return;
+    favSort={field:f, dir:favSort.field===f?-favSort.dir:1};
+    renderFav();
+  };
+});
 // 我的关注 搜索框刷新按钮
 const _refreshFavBtn=document.getElementById("refreshMobileFav");
 if(_refreshFavBtn)_refreshFavBtn.onclick=()=>{loadAll();};
@@ -2183,6 +2199,10 @@ function bindFavBtns(container){
 // 渲染"我的关注"
 function renderFav(){
   checkProgress();
+  // 同步顶部排序chips的active状态
+  document.querySelectorAll("#favChips .chip").forEach(c=>{
+    c.classList.toggle("active",c.dataset.sf===favSort.field);
+  });
   const p=$("#favPanel");
   if(!currentUser){
     p.innerHTML='<div class="card"><div class="empty">请先登录后查看关注列表</div></div>';
