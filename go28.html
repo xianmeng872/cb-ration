@@ -1789,7 +1789,9 @@ async function doAuth(){
       }else if(isCloudReady()){
         const rec=await syncPullFromCloud(u,p);
         if(rec){
-          users[u]={password:p,securityCode:rec.securityCode||"",favorites:rec.favorites||[]};saveUsers(users);
+          // 登录：本地与云端合并（云端空不覆盖本地，避免刷新后关注被清空）
+          const localFav = users[u] ? (users[u].favorites||[]) : [];
+          users[u]={password:p,securityCode:rec.securityCode||"",favorites:mergeFavorites(localFav, rec.favorites||[])};saveUsers(users);
         }else{showAuthError("用户名或密码错误");return;}
       }else if(isGistReady()){
         const cloud=await syncPullFromGist();
