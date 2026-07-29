@@ -1459,8 +1459,10 @@ async function loadAll(){
     await Promise.all(PEND.map(async r=>{try{const q=await fetchPrice(r.stockCode);if(q){if(!r.stockName)r.stockName=q.name;const oldF=r._estFloat!=null?r._estFloat:(r._c&&r._c.estFloat!=null?r._c.estFloat:null);r._c=compute(r,q.price);if(oldF!=null)r._c.estFloat=oldF;}}catch(e){r._c=r._c||{};}}));
     renderPend();
     setTime("待发债实时");
-    const hit=PEND.filter(r=>r._c&&r._c.cv!=null).length;
-    toast(hit>0?("✅ 待发债 "+PEND.length+" 只（"+hit+"/"+PEND.length+" 已刷新实时价）"):"⚠️ 实时价拉取失败，已用快照价");
+    const t=todayStr();
+    const visible=PEND.filter(r=>!r.publicStart || r.publicStart.slice(0,10)>=t);
+    const hit=visible.filter(r=>r._c&&r._c.cv!=null).length;
+    toast(hit>0?("✅ 待发债 "+visible.length+" 只（"+hit+"/"+visible.length+" 已刷新实时价）"):"⚠️ 实时价拉取失败，已用快照价");
   }catch(e){console.error("刷新失败(非致命)，使用快照数据:",e.message);}
   finally{btn.disabled=false;btn.textContent="↻ 刷新实时";}
 }
