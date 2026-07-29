@@ -310,7 +310,8 @@
     /* 排序提示条（手机端卡片模式） */
     .sort-bar{display:flex;gap:4px;padding:6px 8px;margin:2px 0 8px;flex-wrap:nowrap;background:var(--primary-light);border-radius:10px;align-items:center;overflow-x:auto}
     .sort-label{font-size:11px;color:var(--primary);font-weight:800;flex-shrink:0;margin-right:2px}
-    .sort-btn{font-size:11px;font-weight:700;padding:4px 7px;border-radius:14px;background:#fff;color:#6b7280;border:1px solid #e5e7eb;white-space:nowrap;cursor:pointer:transition:.15s;flex-shrink:0}
+    .sort-btn{font-size:11px;font-weight:700;padding:4px 7px;border-radius:14px;background:#fff;color:#6b7280;border:1px solid #e5e7eb;white-space:nowrap;cursor:pointer;transition:.15s;flex-shrink:0}
+    .sort-btn .sort-arrow{margin-left:3px;font-size:10px;opacity:.9}
     .sort-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
     /* 手机端：我的关注排序条吸顶固定（仅作用于关注页，不动其他tab） */
     @media(max-width:720px){
@@ -487,12 +488,12 @@ table td[data-label="进展日期"],table th[data-label="进展日期"]{white-sp
 
   <div id="view-fav" style="display:none">
     <div class="search"><input id="qfav" placeholder="🔍 搜索正股 / 转债 / 代码"><button class="btn-refresh-sm" id="refreshMobileFav" title="刷新数据">↻</button></div>
-    <div class="chips" id="favChips">
-      <span class="chip active" data-sf="progress">进度↓</span>
-      <span class="chip" data-sf="needMoney">所需资金</span>
-      <span class="chip" data-sf="baiyuan">百元含权</span>
-      <span class="chip" data-sf="scale">规模</span>
-      <span class="chip" data-sf="estFloat">预估流通</span>
+    <div class="sort-bar" id="favChips">
+      <span class="sort-btn active" data-sf="progress">进度<span class="sort-arrow active">↓</span></span>
+      <span class="sort-btn" data-sf="needMoney">所需资金</span>
+      <span class="sort-btn" data-sf="baiyuan">百元含权</span>
+      <span class="sort-btn" data-sf="scale">规模</span>
+      <span class="sort-btn" data-sf="estFloat">预估流通</span>
     </div>
     <div id="favPanel"></div>
   </div>
@@ -1561,8 +1562,8 @@ document.querySelectorAll("#layoutSwitcher .layout-btn").forEach(btn=>{
     if(activeTab==="fav")renderFav();
   };
 });
-// 我的关注 chips 排序事件（手机端快速排序）
-document.querySelectorAll("#favChips .chip").forEach(c=>{
+// 我的关注 chips 排序事件（手机端快速排序，与审核进度 sort-bar 一致）
+document.querySelectorAll("#favChips .sort-btn").forEach(c=>{
   c.onclick=()=>{
     const f=c.dataset.sf;
     if(!f)return;
@@ -2194,9 +2195,18 @@ function bindFavBtns(container){
 // 渲染"我的关注"
 function renderFav(){
   checkProgress();
-  // 同步顶部排序chips的active状态
-  document.querySelectorAll("#favChips .chip").forEach(c=>{
-    c.classList.toggle("active",c.dataset.sf===favSort.field);
+  // 同步顶部排序sort-btn的active状态和箭头方向（与审核进度sort-bar一致）
+  document.querySelectorAll("#favChips .sort-btn").forEach(c=>{
+    const isActive=c.dataset.sf===favSort.field;
+    c.classList.toggle("active",isActive);
+    let arr=c.querySelector(".sort-arrow");
+    if(isActive){
+      if(!arr){arr=document.createElement("span");arr.className="sort-arrow active";c.appendChild(arr);}
+      arr.textContent=favSort.dir===1?'▲':(favSort.dir===-1?'↓':'⇅');
+      arr.classList.add("active");
+    }else{
+      if(arr)arr.remove();
+    }
   });
   const p=$("#favPanel");
   if(!currentUser){
