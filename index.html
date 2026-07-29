@@ -78,6 +78,7 @@
   .foot{text-align:center;color:var(--muted);font-size:11px;line-height:1.7;padding:16px 8px}
   .foot b{color:var(--ink)}
   @media(min-width:721px){ .foot{display:none !important} } /* PC端隐藏底部文字（飞哥要求），手机端不受影响 */
+  @media(min-width:721px){ #favChips,#refreshMobile,#refreshMobile2,#refreshMobileFav{display:none !important} } /* PC端隐藏手机端专属的排序chips和刷新按钮（飞哥要求只加手机端） */
   .mask{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:18px;overscroll-behavior:contain;touch-action:pan-y}
   .mask.show{display:flex}
   .modal{background:#fff;border-radius:16px;max-width:440px;width:100%;max-height:82vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
@@ -178,10 +179,6 @@
     #progChips{display:none !important}
     /* 手机端：隐藏排序触发器(filter-trigger)，排序由顶部排序chips完成 */
     .filter-trigger{display:none}
-    /* PC端：隐藏手机端专属的排序chips和刷新按钮(PC端用顶部refreshBar+表头排序) */
-    @media(min-width:721px){
-      #favChips,#refreshMobile,#refreshMobile2,#refreshMobileFav{display:none !important}
-    }
     .hero{padding:14px 12px 10px}
     /* 手机端Hero：大标题居中 + 副标题 + 时间刷新行 */
     .hero h1{font-size:22px;text-align:center;font-weight:900;letter-spacing:.8px;margin-bottom:2px}
