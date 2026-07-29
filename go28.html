@@ -2233,17 +2233,15 @@ function renderFav(){
         const id=getRowId(r,"pend");
         h+='<div class="cb-item" data-i="'+i+'" data-kind="pend">';
         h+='<div class="cb-name"><span class="n">'+(r.name||"-")+'</span><span class="c">'+(r.code||"")+'</span>'+favBtnHtml(id,"pend")+'</div>';
-        // 第一行：阶段 + 申购日（移到名称下方，最显眼）
-        h+='<div class="cb-stage-row">'+stageTag+'<span class="cb-d">🗓️ '+shortD+'</span></div>';
-        // 3列×1行：配售 | 规模 | 所需资金 | 流通（去掉状态和日期独立位）
+        // 3列×2行：配售 | 规模 | 状态 | 所需资金 | 流通 | 日期（恢复状态和日期独立位）
         const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
         h+='<div class="cb-stats">';
         h+='<span class="s"><span class="l">配售</span><span class="v hl">'+(c.needShares!=null?shLabel:'-')+'</span></span>';
         h+='<span class="s"><span class="l">规模</span><span class="v">'+(r.scale!=null?fmt(r.scale)+'亿':'-')+'</span></span>';
-        h+='<span class="s"><span class="l" style="visibility:hidden">占位</span><span class="v">-</span></span>';
+        h+='<span class="s"><span class="l">状态</span><span class="v">'+stageTag+'</span></span>';
         h+='<span class="s"><span class="l">所需资金</span><span class="v hl">'+(c.needMoney!=null?fmt(c.needMoney,0)+'元':'-')+'</span></span>';
         h+='<span class="s"><span class="l">流通</span><span class="v f">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span>';
-        h+='<span class="s"><span class="l" style="visibility:hidden">占位</span><span class="v">-</span></span>';
+        h+='<span class="s"><span class="l">日期</span><span class="v"><span class="cb-d">🗓️ '+shortD+'</span></span></span>';
         h+='</div>';
         h+=progressBarHtml("pend",r);
         h+='<div class="cb-kline" data-sc="'+cbkNormCode(r.stockCode||r.code||"")+'" data-sn="'+cbkEsc(r.stockName||r.name||"")+'"></div>';
