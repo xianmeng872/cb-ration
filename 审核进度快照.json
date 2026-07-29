@@ -1,5 +1,31 @@
 [
  {
+  "stockCode": "301626",
+  "stockName": "苏州天脉",
+  "code": "123279",
+  "name": "天脉转债",
+  "progress": "90",
+  "progress_nm": "2026-08-03申购 申购代码371626",
+  "scale": 7.86,
+  "convertPrice": 267.33,
+  "price": 202,
+  "perPre": 6.7946,
+  "apply10": 148,
+  "ration_rt": null,
+  "rating_cd": "AA",
+  "progress_full": "2025-10-29 董事会预案\n2025-11-13 股东大会通过\n2025-12-11 交易所受理\n2026-04-24 上市委通过\n2026-06-26 同意注册",
+  "accept_date": "2025-12-11",
+  "progress_dt": "2026-08-03",
+  "_c": {
+   "cv": 75.56203942692554,
+   "needShares": 148,
+   "needMoney": 29896,
+   "baiyuan": 3.3636633663366338,
+   "price": 202,
+   "estFloat": 3.72
+  }
+ },
+ {
   "stockCode": "300697",
   "stockName": "电工合金",
   "code": "123278",
@@ -364,32 +390,6 @@
   }
  },
  {
-  "stockCode": "002550",
-  "stockName": "千红制药",
-  "code": "",
-  "name": "",
-  "progress": "90",
-  "progress_nm": "同意注册",
-  "scale": 10,
-  "convertPrice": 6.84,
-  "price": 6.86,
-  "perPre": null,
-  "apply10": 1280,
-  "ration_rt": null,
-  "rating_cd": null,
-  "progress_full": "2024-11-22 董事会预案\n2024-12-11 股东大会通过\n2026-01-23 交易所受理\n2026-06-05 上市委通过\n2026-07-16 同意注册",
-  "accept_date": "2026-01-23",
-  "progress_dt": "2026-07-16",
-  "_c": {
-   "cv": 100.29239766081872,
-   "needShares": 1280,
-   "needMoney": 8780.800000000001,
-   "baiyuan": 11.388483965014577,
-   "price": 6.86,
-   "estFloat": 7.34
-  }
- },
- {
   "stockCode": "301565",
   "stockName": "中仑新材",
   "code": "",
@@ -416,29 +416,29 @@
   }
  },
  {
-  "stockCode": "301626",
-  "stockName": "苏州天脉",
+  "stockCode": "002550",
+  "stockName": "千红制药",
   "code": "",
   "name": "",
   "progress": "90",
   "progress_nm": "同意注册",
-  "scale": 7.86,
-  "convertPrice": 267.33,
-  "price": 202,
+  "scale": 10,
+  "convertPrice": 6.84,
+  "price": 6.86,
   "perPre": null,
-  "apply10": 148,
+  "apply10": 1280,
   "ration_rt": null,
   "rating_cd": null,
-  "progress_full": "2025-10-29 董事会预案\n2025-11-13 股东大会通过\n2025-12-11 交易所受理\n2026-04-24 上市委通过\n2026-06-26 同意注册",
-  "accept_date": "2025-12-11",
-  "progress_dt": "2026-06-26",
+  "progress_full": "2024-11-22 董事会预案\n2024-12-11 股东大会通过\n2026-01-23 交易所受理\n2026-06-05 上市委通过\n2026-07-16 同意注册",
+  "accept_date": "2026-01-23",
+  "progress_dt": "2026-07-16",
   "_c": {
-   "cv": 75.56203942692554,
-   "needShares": 148,
-   "needMoney": 29896,
-   "baiyuan": 3.344929087503345,
-   "price": 202,
-   "estFloat": 3.72
+   "cv": 100.29239766081872,
+   "needShares": 1280,
+   "needMoney": 8780.800000000001,
+   "baiyuan": 11.388483965014577,
+   "price": 6.86,
+   "estFloat": 7.34
   }
  },
  {
