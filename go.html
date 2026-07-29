@@ -2277,10 +2277,18 @@ function renderFav(){
       h+='<tr class="clickable" data-i="'+i+'" data-kind="'+r._kind+'">';
       h+='<td data-label="正股/转债"><div class="name">'+(r.stockName||r.name||"-")+mktTag+'</div><div class="code">'+(r.stockCode||r.code||"")+(r.name&&r._kind==="progress"?(" · "+r.name):(r._kind==="pend"&&r.stockName?(" · "+r.stockName):""))+'</div></td>';
       if(r._kind==="progress"){
-        h+='<td data-label="进度/日期"><span class="tag tag-s'+r.progress+'">'+progressLabel(r)+'</span><br><span class="muted" style="font-weight:600">'+fmtShortDate(r.progress_dt)+'</span></td>';
+        const isBuy=r.progress==="90" && r.progress_nm && r.progress_nm.indexOf("申购")>=0;
+        const lbl=isBuy?"申购":progressLabel(r);
+        const cls=isBuy?"tag tag-sbuy":"";
+        const st=isBuy?"":'style="color:var(--primary);font-weight:700"';
+        h+='<td data-label="进度/日期"><span style="display:block;color:var(--primary);font-weight:700;margin-bottom:2px">'+(r.progress_dt||"-")+'</span><span class="'+cls+'" '+st+'>'+lbl+'</span></td>';
       }else{
-        const st=r.stage==="申购"?"tag-sbuy":"tag-slist";
-        h+='<td data-label="进度/日期"><span class="tag '+st+'">'+(r.stage||"待发")+'</span><br><span class="muted" style="font-weight:600">'+fmtShortDate(r.publicStart||r.progress_dt)+'</span></td>';
+        const isBuy=r.stage==="申购";
+        const lbl=r.stage||"待发";
+        const cls=isBuy?"tag tag-sbuy":"";
+        const st=isBuy?"":'style="color:var(--primary);font-weight:700"';
+        const dt=r.publicStart||r.progress_dt||"-";
+        h+='<td data-label="进度/日期"><span style="display:block;color:var(--primary);font-weight:700;margin-bottom:2px">'+dt+'</span><span class="'+cls+'" '+st+'>'+lbl+'</span></td>';
       }
       h+='<td data-label="转股价值"><span class="num">'+(c.cv!=null?fmt(c.cv):"…")+'</span></td>';
       const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
