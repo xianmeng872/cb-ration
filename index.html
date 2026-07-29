@@ -1043,7 +1043,8 @@ function renderPend(){
   h+='<th data-sf="cv">转股价值 '+(ps.field==="cv"?arrow(ps.dir):'')+'</th>';
   h+='<th>一手党</th>';
   h+='<th data-sf="needMoney">所需资金 '+(ps.field==="needMoney"?arrow(ps.dir):'')+'</th>';
-  h+='<th data-sf="publicStart">阶段 / 申购日 '+(ps.field==="publicStart"?arrow(ps.dir):'')+'</th>';
+  h+='<th>阶段</th>';
+  h+='<th data-sf="publicStart">申购日 '+(ps.field==="publicStart"?arrow(ps.dir):'')+'</th>';
   h+='<th data-sf="baiyuan">百元含权 '+(ps.field==="baiyuan"?arrow(ps.dir):'')+'</th>';
   h+='<th data-sf="scale">规模(亿) '+(ps.field==="scale"?arrow(ps.dir):'')+'</th>';
   h+='<th data-sf="estFloat">预估流通(亿) '+(ps.field==="estFloat"?arrow(ps.dir):'')+'</th>';
@@ -1060,9 +1061,8 @@ function renderPend(){
     const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
     h+='<td data-label="一手党">'+(c.needShares!=null?('<span class="num">'+shLabel+'</span>'+(c.isSH&&c.needSharesSafe!=null?'<br><span class="muted" style="font-size:11px">稳配'+c.needSharesSafe+'股</span>':'')):'<span class="muted">-</span>')+'</td>';
     h+='<td data-label="所需资金">'+(c.needMoney!=null?('<span class="hl-fund num">'+fmt(c.needMoney,0)+'元</span>'+(c.isSH&&c.needMoneySafe!=null?'<br><span class="muted" style="font-size:11px">稳'+fmt(c.needMoneySafe,0)+'元</span>':'')):'<span class="muted">-</span>')+'</td>';
-    const stageCls=r.stage==="申购"?"tag-sbuy":"tag-slist";
-    const stageLbl=r.stage||"待发";
-    h+='<td data-label="阶段/申购日"><span class="tag '+stageCls+'">'+stageLbl+'</span><br><span class="num" style="color:var(--ink);font-weight:400">'+fmtShortDate(r.publicStart)+'</span></td>';
+    h+='<td data-label="阶段"><span class="tag '+(r.stage==="申购"?"tag-sbuy":"tag-slist")+'">'+r.stage+'</span></td>';
+    h+='<td data-label="申购日"><span class="num">'+fmtShortDate(r.publicStart)+'</span></td>';
     h+='<td data-label="百元含权"><span class="num">'+(c.baiyuan!=null?fmt(c.baiyuan):"…")+'</span></td>';
     h+='<td data-label="规模"><span class="num">'+fmt(r.scale)+'</span></td>';
     h+='<td data-label="预估流通"><span class="hl-fund num">'+(c.estFloat!=null?c.estFloat:'-')+'<span class="muted" style="font-size:10px;font-weight:400"> 预</span></span></td>';
