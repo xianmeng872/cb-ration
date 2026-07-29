@@ -77,6 +77,7 @@
   .empty{text-align:center;color:var(--muted);padding:36px 0}
   .foot{text-align:center;color:var(--muted);font-size:11px;line-height:1.7;padding:16px 8px}
   .foot b{color:var(--ink)}
+  @media(min-width:721px){ .foot{display:none !important} } /* PC端隐藏底部文字（飞哥要求），手机端不受影响 */
   .mask{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:18px;overscroll-behavior:contain;touch-action:pan-y}
   .mask.show{display:flex}
   .modal{background:#fff;border-radius:16px;max-width:440px;width:100%;max-height:82vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
@@ -2258,8 +2259,7 @@ function renderFav(){
     h+='</div>';
     h+='<div class="card"><table><thead><tr>';
     h+='<th>正股 / 转债</th>';
-    h+='<th data-sf="progress">进度 '+(fs.field==="progress"?arrow(fs.dir):'')+'</th>';
-    h+='<th data-sf="progress_dt">进展日期 '+(fs.field==="progress_dt"?arrow(fs.dir):'')+'</th>';
+    h+='<th data-sf="progress">进度/日期 '+(fs.field==="progress"?arrow(fs.dir):'')+'</th>';
     h+='<th data-sf="cv">转股价值 '+(fs.field==="cv"?arrow(fs.dir):'')+'</th>';
     h+='<th>一手党</th>';
     h+='<th data-sf="needMoney">所需资金 '+(fs.field==="needMoney"?arrow(fs.dir):'')+'</th>';
@@ -2277,12 +2277,10 @@ function renderFav(){
       h+='<tr class="clickable" data-i="'+i+'" data-kind="'+r._kind+'">';
       h+='<td data-label="正股/转债"><div class="name">'+(r.stockName||r.name||"-")+mktTag+'</div><div class="code">'+(r.stockCode||r.code||"")+(r.name&&r._kind==="progress"?(" · "+r.name):(r._kind==="pend"&&r.stockName?(" · "+r.stockName):""))+'</div></td>';
       if(r._kind==="progress"){
-        h+='<td data-label="进度"><span class="tag tag-s'+r.progress+'">'+progressLabel(r)+'</span></td>';
-        h+='<td data-label="进展日期"><span class="num">'+fmtShortDate(r.progress_dt)+'</span></td>';
+        h+='<td data-label="进度/日期"><span class="tag tag-s'+r.progress+'">'+progressLabel(r)+'</span><br><span class="muted" style="font-size:11px">'+fmtShortDate(r.progress_dt)+'</span></td>';
       }else{
         const st=r.stage==="申购"?"tag-sbuy":"tag-slist";
-        h+='<td data-label="进度"><span class="tag '+st+'">'+(r.stage||"待发")+'</span></td>';
-        h+='<td data-label="进展日期"><span class="num">'+fmtShortDate(r.publicStart||r.progress_dt)+'</span></td>';
+        h+='<td data-label="进度/日期"><span class="tag '+st+'">'+(r.stage||"待发")+'</span><br><span class="muted" style="font-size:11px">'+fmtShortDate(r.publicStart||r.progress_dt)+'</span></td>';
       }
       h+='<td data-label="转股价值"><span class="num">'+(c.cv!=null?fmt(c.cv):"…")+'</span></td>';
       const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
