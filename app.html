@@ -312,6 +312,10 @@
     .sort-label{font-size:11px;color:var(--primary);font-weight:800;flex-shrink:0;margin-right:2px}
     .sort-btn{font-size:11px;font-weight:700;padding:4px 7px;border-radius:14px;background:#fff;color:#6b7280;border:1px solid #e5e7eb;white-space:nowrap;cursor:pointer:transition:.15s;flex-shrink:0}
     .sort-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+    /* 手机端：我的关注排序条吸顶固定（仅作用于关注页，不动其他tab） */
+    @media(max-width:720px){
+      #favPanel .sort-bar{position:sticky;top:0;z-index:40;background:var(--primary-light);box-shadow:0 3px 8px rgba(0,0,0,.08);margin:2px 0 10px;padding:6px 8px}
+    }
     .foot{padding:20px 8px 30px}
   }
   /* 超小屏(≤380px)再收紧一点 */
@@ -2225,9 +2229,17 @@ function renderFav(){
   // 按类型分组：待发/审核中
   const pendRows=rows.filter(r=>r._kind==="pend");
   const progRows=rows.filter(r=>r._kind==="progress");
+  // 按当前 favSort 对两组分别排序（所需资金/百元含权/规模/预估流通均来自 _c，待发与审核都支持）
+  pendRows=doSort(pendRows,favSort);
+  progRows=doSort(progRows,favSort);
 
   let h="";
   if(isMobile()){
+    // 顶部排序条（吸顶固定）：仅作用于「我的关注」手机端
+    const favSfs=[{f:"needMoney",l:"所需资金"},{f:"baiyuan",l:"百元含权"},{f:"scale",l:"规模"},{f:"estFloat",l:"预估流通"}];
+    h+='<div class="sort-bar">';
+    favSfs.forEach(s=>{const ac=(favSort.field===s.f);h+='<span class="sort-btn'+(ac?' active':'')+'" data-sf="'+s.f+'">'+(s.l)+(ac?arrow(favSort.dir):'')+'</span>'});
+    h+='</div>';
     if(pendRows.length){
       h+='<div class="cb-list">';
       pendRows.forEach((r,i)=>{
@@ -2368,6 +2380,13 @@ function renderFav(){
     openDetail(rows[+el.dataset.i],kind);
   });
   bindFavBtns(p);
+  // 手机端「我的关注」排序条：点击切换排序字段/方向，触发重渲染（吸顶）
+  p.querySelectorAll(".sort-btn").forEach(btn=>btn.onclick=()=>{
+    if(!recordUsage())return;
+    const f=btn.dataset.sf;
+    favSort={field:f, dir:favSort.field===f?-favSort.dir:1};
+    renderFav();
+  });
 
 }
 
