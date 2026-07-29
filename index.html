@@ -178,6 +178,10 @@
     #progChips{display:none !important}
     /* 手机端：隐藏排序触发器(filter-trigger)，排序由顶部排序chips完成 */
     .filter-trigger{display:none}
+    /* PC端：隐藏手机端专属的排序chips和刷新按钮(PC端用顶部refreshBar+表头排序) */
+    @media(min-width:721px){
+      #favChips,#refreshMobile,#refreshMobile2,#refreshMobileFav{display:none !important}
+    }
     .hero{padding:14px 12px 10px}
     /* 手机端Hero：大标题居中 + 副标题 + 时间刷新行 */
     .hero h1{font-size:22px;text-align:center;font-weight:900;letter-spacing:.8px;margin-bottom:2px}
@@ -478,7 +482,14 @@ table td[data-label="进展日期"],table th[data-label="进展日期"]{white-sp
   </div>
 
   <div id="view-fav" style="display:none">
-    <div class="search"><input id="qfav" placeholder="🔍 在关注列表中搜索"></div>
+    <div class="search"><input id="qfav" placeholder="🔍 搜索正股 / 转债 / 代码"><button class="btn-refresh-sm" id="refreshMobileFav" title="刷新数据">↻</button></div>
+    <div class="chips" id="favChips">
+      <span class="chip active" data-sf="progress">进度↓</span>
+      <span class="chip" data-sf="needMoney">所需资金</span>
+      <span class="chip" data-sf="baiyuan">百元含权</span>
+      <span class="chip" data-sf="scale">规模</span>
+      <span class="chip" data-sf="estFloat">预估流通</span>
+    </div>
     <div id="favPanel"></div>
   </div>
 
@@ -638,6 +649,8 @@ const LABEL={code:"转债代码",name:"转债名称",stockCode:"正股代码",st
 let PEND=[], PROGRESS=[], keyword="", keyword2="", activeTab="pend", PROG_FILTER="all";
 let pendSort={field:"publicStart",dir:1}, progSort={field:"progress",dir:-1};
 let favSort={field:"progress",dir:-1}, FAV_FILTER="all";
+// 我的关注chips的默认字段（与favSort区分：chips用于筛选+排序展示，favSort用于表头点击排序）
+const FAV_CHIP_DEFAULT_FIELD="progress";
 let _detailPushed=false; // 详情打开时压入的历史状态标记（用于拦截手机系统返回手势，使其只关详情不退出整页）
 const SNAPSHOT_PEND=[
 {"code":"118074","name":"特宝转债","stockCode":"688278","stockName":"特宝生物","convertPrice":58.56,"perPre":3.857,"scale":15.33,"publicStart":"2026-07-28 00:00:00","listDate":"","stage":"申购","_c":{"cv":100.8879781420765,"needShares":260,"needMoney":15360.8,"baiyuan":6.528436018957347,"price":59.08,"estFloat":6.47},"apply10":260,"rating_cd":"AA+"}
@@ -1042,12 +1055,12 @@ function renderPend(){
 
   // ===== PC端：表格 =====
   let h='<div class="card"><table><thead><tr>';
-  h+='<th>阶段</th>';
-  h+='<th data-sf="publicStart">申购日 '+(ps.field==="publicStart"?arrow(ps.dir):'')+'</th>';
   h+='<th>转债 / 正股</th>';
   h+='<th data-sf="cv">转股价值 '+(ps.field==="cv"?arrow(ps.dir):'')+'</th>';
   h+='<th>一手党</th>';
   h+='<th data-sf="needMoney">所需资金 '+(ps.field==="needMoney"?arrow(ps.dir):'')+'</th>';
+  h+='<th>阶段</th>';
+  h+='<th data-sf="publicStart">申购日 '+(ps.field==="publicStart"?arrow(ps.dir):'')+'</th>';
   h+='<th data-sf="baiyuan">百元含权 '+(ps.field==="baiyuan"?arrow(ps.dir):'')+'</th>';
   h+='<th data-sf="scale">规模(亿) '+(ps.field==="scale"?arrow(ps.dir):'')+'</th>';
   h+='<th data-sf="estFloat">预估流通(亿) '+(ps.field==="estFloat"?arrow(ps.dir):'')+'</th>';
@@ -1059,16 +1072,13 @@ function renderPend(){
     const mktTag=mkt?'<span style="font-size:10px;background:'+(mkt==="沪"?"#fff4ea;color:#ea580c":"#f3f4f6;color:#6b7280")+';padding:1px 6px;border-radius:8px;font-weight:700;margin-left:4px">'+mkt+'</span>':"";
     const id=getRowId(r,"pend");
     h+='<tr class="clickable" data-i="'+i+'" data-kind="pend">';
-    h+='<td data-label="阶段"><span class="tag '+(r.stage==="申购"?"tag-sbuy":"tag-slist")+'">'+(r.stage||"待发")+'</span></td>';
-    h+='<td data-label="申购日"><span class="num">'+fmtShortDate(r.publicStart)+'</span></td>';
     h+='<td data-label="转债/正股"><div class="name">'+(r.name||"-")+mktTag+'</div><div class="code">'+(r.code||"")+' · '+(r.stockName||"")+'('+(r.stockCode||"")+')</div></td>';
     h+='<td data-label="转股价值"><span class="num">'+(c.cv!=null?fmt(c.cv):"…")+'</span></td>';
     const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
     h+='<td data-label="一手党">'+(c.needShares!=null?('<span class="num">'+shLabel+'</span>'+(c.isSH&&c.needSharesSafe!=null?'<br><span class="muted" style="font-size:11px">稳配'+c.needSharesSafe+'股</span>':'')):'<span class="muted">-</span>')+'</td>';
     h+='<td data-label="所需资金">'+(c.needMoney!=null?('<span class="hl-fund num">'+fmt(c.needMoney,0)+'元</span>'+(c.isSH&&c.needMoneySafe!=null?'<br><span class="muted" style="font-size:11px">稳'+fmt(c.needMoneySafe,0)+'元</span>':'')):'<span class="muted">-</span>')+'</td>';
-    h+='<td data-label="百元含权"><span class="num">'+(c.baiyuan!=null?fmt(c.baiyuan):"…")+'</span></td>';
-    h+='<td data-label="规模"><span class="num">'+fmt(r.scale)+'</span></td>';
-    h+='<td data-label="预估流通"><span class="hl-fund num">'+(c.estFloat!=null?c.estFloat:'-')+'<span class="muted" style="font-size:10px;font-weight:400"> 预</span></span></td>';
+    h+='<td data-label="阶段"><span class="tag '+(r.stage==="申购"?"tag-sbuy":"tag-slist")+'">'+(r.stage||"待发")+'</span></td>';
+    h+='<td data-label="申购日"><span class="num">'+fmtShortDate(r.publicStart)+'</span></td>';
     h+='<td style="text-align:right">'+favBtnHtml(id,"pend")+'</td>';
   });
   h+='</tbody></table></div>';
@@ -1551,6 +1561,18 @@ document.querySelectorAll("#layoutSwitcher .layout-btn").forEach(btn=>{
     if(activeTab==="fav")renderFav();
   };
 });
+// 我的关注 chips 排序事件（手机端快速排序）
+document.querySelectorAll("#favChips .chip").forEach(c=>{
+  c.onclick=()=>{
+    const f=c.dataset.sf;
+    if(!f)return;
+    favSort={field:f, dir:favSort.field===f?-favSort.dir:1};
+    renderFav();
+  };
+});
+// 我的关注 搜索框刷新按钮
+const _refreshFavBtn=document.getElementById("refreshMobileFav");
+if(_refreshFavBtn)_refreshFavBtn.onclick=()=>{loadAll();};
 // 手机端搜索框旁的刷新按钮（待发债/审核进度各一个）
 document.querySelectorAll("#refreshMobile,#refreshMobile2").forEach(btn=>{
   if(btn) btn.onclick=()=>{ if(activeTab==="pend") loadAll(); else loadProgressRealtime(); };
@@ -2172,6 +2194,10 @@ function bindFavBtns(container){
 // 渲染"我的关注"
 function renderFav(){
   checkProgress();
+  // 同步顶部排序chips的active状态
+  document.querySelectorAll("#favChips .chip").forEach(c=>{
+    c.classList.toggle("active",c.dataset.sf===favSort.field);
+  });
   const p=$("#favPanel");
   if(!currentUser){
     p.innerHTML='<div class="card"><div class="empty">请先登录后查看关注列表</div></div>';
