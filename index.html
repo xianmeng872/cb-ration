@@ -1791,7 +1791,7 @@ async function doAuth(){
         if(rec){
           // 登录：本地与云端合并（云端空不覆盖本地，避免刷新后关注被清空）
           const localFav = users[u] ? (users[u].favorites||[]) : [];
-          users[u]={password:p,securityCode:rec.securityCode||"",favorites:mergeFavorites(localFav, rec.favorites||[])};saveUsers(users);
+          users[u]={password:p,securityCode:rec.securityCode||"",favorites:mergeFavorites(localFav, rec.favorites||[]),usageCount:rec.usageCount||0,unlocked:!!rec.unlocked,inviteCode:rec.inviteCode||""};saveUsers(users);
         }else{showAuthError("用户名或密码错误");return;}
       }else if(isGistReady()){
         const cloud=await syncPullFromGist();
@@ -2070,7 +2070,8 @@ async function syncPushToCloud(){
   if(!rec) return false;
   try{
     const t = cfAuthToken(u, rec.password || "");
-    const body = JSON.stringify({ securityCode: rec.securityCode || "", favorites: rec.favorites || [] });
+    const recUsage = rec || {};
+    const body = JSON.stringify({ securityCode: rec.securityCode || "", favorites: rec.favorites || [], usageCount: recUsage.usageCount||0, unlocked: !!recUsage.unlocked, inviteCode: recUsage.inviteCode||"" });
     const res = await fetch(CF_SYNC_BASE + "/api/sync?u=" + encodeURIComponent(u) + "&t=" + t, {method:"POST", headers:{"Content-Type":"application/json"}, body});
     return res.ok;
   }catch(e){ console.warn("Cloud推送失败:", e.message); return false; }
@@ -2546,15 +2547,65 @@ $("#backToLogin").onclick=()=>{setAuthMode("login");showAuthError("");};
 $("#authSec").addEventListener("keydown",e=>{if(e.key==="Enter"){const np=$("#authNewPass");if(np&&np.offsetParent!==null)np.focus();else doAuth();}});
 $("#authNewPass").addEventListener("keydown",e=>{if(e.key==="Enter")doAuth();});
 
-// ===== 使用次数限制 + 邀请码系统 =====
+// ===== 使用次数限制 + 邀请码系统（云端版）=====
+// 邀请码与解锁状态统一存云端：管理员在后台加的码，所有访客都能用；解锁状态跟随账号跨设备。
+// 管理密码不再明文写在网页，改为后端环境变量 + 登录拿 token。
 const USAGE_KEY="cb_ration_usage";
-const INVITE_KEY="cb_ration_invites";
+const ADMIN_TOKEN_KEY="cb_ration_admin_token";
 const USAGE_LIMIT=10;
-const ADMIN_PASS="admin2026"; // 管理页密码（可改）
-const DEFAULT_INVITES=[]; // 不再内置预设邀请码（避免源码泄露被白嫖），请在管理页自行添加
 
+// ---------- 云端接口封装 ----------
+async function cloudInviteCheck(code){
+  if(!isCloudReady()) return false;
+  try{
+    const res=await fetch(CF_SYNC_BASE+"/api/invites?action=check&code="+encodeURIComponent(code),{cache:"no-store"});
+    if(!res.ok) return false;
+    const j=await res.json();
+    return !!j.valid;
+  }catch(e){ console.warn("邀请码校验失败:",e.message); return false; }
+}
+async function cloudAdminLogin(pass){
+  if(!isCloudReady()) return null;
+  try{
+    const res=await fetch(CF_SYNC_BASE+"/api/admin/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({pass})});
+    if(res.status!==200) return null;
+    const j=await res.json();
+    return j.token||null;
+  }catch(e){ return null; }
+}
+async function cloudInviteList(token){
+  if(!isCloudReady()) return null;
+  try{
+    const res=await fetch(CF_SYNC_BASE+"/api/invites",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token,action:"list"})});
+    if(!res.ok) return null;
+    const j=await res.json();
+    return j.codes||[];
+  }catch(e){ return null; }
+}
+async function cloudInviteAdd(token,code){
+  if(!isCloudReady()) return null;
+  try{
+    const res=await fetch(CF_SYNC_BASE+"/api/invites",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token,action:"add",code})});
+    if(!res.ok) return null;
+    const j=await res.json();
+    return j.codes||null;
+  }catch(e){ return null; }
+}
+async function cloudInviteRemove(token,code){
+  if(!isCloudReady()) return null;
+  try{
+    const res=await fetch(CF_SYNC_BASE+"/api/invites",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token,action:"remove",code})});
+    if(!res.ok) return null;
+    const j=await res.json();
+    return j.codes||null;
+  }catch(e){ return null; }
+}
+function getAdminToken(){return localStorage.getItem(ADMIN_TOKEN_KEY)||"";}
+function setAdminToken(t){t?localStorage.setItem(ADMIN_TOKEN_KEY,t):localStorage.removeItem(ADMIN_TOKEN_KEY);}
+
+// ---------- 本地使用计数（未登录用户）----------
 function getUsage(){
-  // 已登录：使用次数/解锁状态跟随账号（可云端同步，清localStorage重登可恢复）
+  // 已登录：使用次数/解锁状态跟随账号（云端同步，清localStorage重登可恢复）
   if(currentUser && currentUser.username){
     const users=loadUsers();
     const u=users[currentUser.username];
@@ -2563,7 +2614,6 @@ function getUsage(){
   try{return JSON.parse(localStorage.getItem(USAGE_KEY)||"{}");}catch(e){return{};}
 }
 function saveUsage(u){
-  // 已登录：写回账号档案（并触发Gist同步）
   if(currentUser && currentUser.username){
     const users=loadUsers();
     const su=users[currentUser.username];
@@ -2572,20 +2622,12 @@ function saveUsage(u){
       su.unlocked=!!u.unlocked;
       su.inviteCode=u.inviteCode||"";
       saveUsers(users);
-      if(isGistReady()) scheduleSyncPush();
+      scheduleSyncPush(); // 同步到云端（含解锁状态），跨设备生效
       return;
     }
   }
   localStorage.setItem(USAGE_KEY,JSON.stringify(u));
 }
-function getInvites(){
-  try{const d=JSON.parse(localStorage.getItem(INVITE_KEY)||"null");if(d&&d.codes)return d;}catch(e){}
-  // 初始化默认邀请码
-  const d={codes:[...DEFAULT_INVITES],adminPass:ADMIN_PASS};
-  localStorage.setItem(INVITE_KEY,JSON.stringify(d));
-  return d;
-}
-function saveInvites(d){localStorage.setItem(INVITE_KEY,JSON.stringify(d));}
 
 // 检查是否需要验证邀请码（返回 true 表示需要拦截）
 function checkUsageLimit(){
@@ -2618,13 +2660,12 @@ function showInviteModal(){
 }
 function hideInviteModal(){$("#inviteMask").classList.remove("show");}
 
-// 验证邀请码
-function verifyInviteCode(){
+// 验证邀请码（云端校验）
+async function verifyInviteCode(){
   const code=$("#inviteCodeInput").value.trim().toUpperCase();
   if(!code){showInviteError("请输入邀请码");return;}
-  const inv=getInvites();
-  if(inv.codes.includes(code)){
-    // 验证通过，永久解锁
+  const ok=await cloudInviteCheck(code);
+  if(ok){
     const u=getUsage();u.unlocked=true;u.inviteCode=code;saveUsage(u);
     hideInviteModal();
     toast("✅ 邀请码验证成功！已永久解锁所有功能");
@@ -2636,7 +2677,7 @@ function showInviteError(msg){
   const e=$("#inviteError");e.textContent=msg;e.classList.add("show");
 }
 
-// ===== 邀请码管理页 =====
+// ===== 邀请码管理页（云端）=====
 let adminAuthed=false;
 function showAdminLogin(){
   adminAuthed=false;
@@ -2644,48 +2685,62 @@ function showAdminLogin(){
   $("#adminMask").classList.add("show");
 }
 function hideAdmin(){$("#adminMask").classList.remove("show");}
-function renderAdminBody(){
+async function renderAdminBody(){
   const ab=$("#adminBody");
   if(!adminAuthed){
-    ab.innerHTML='<div class="auth-field"><label>管理员密码</label><input type="password" id="adminPassInput" placeholder="输入管理密码"></div><button class="auth-submit" id="adminLoginBtn" style="background:linear-gradient(135deg,#059669,#047857)">登录管理</button>';
-    $("#adminPassInput").addEventListener("keydown",e=>{if(e.key==="Enter")doAdminLogin();});
-    $("#adminLoginBtn").onclick=doAdminLogin;
+    ab.innerHTML='<div class="auth-field"><label>管理员密码</label><input type="password" id="adminPassInput" placeholder="输入管理密码"></div><button class="auth-submit" id="adminLoginBtn" style="background:linear-gradient(135deg,#059669,#047857)">登录管理</button><p id="adminErr" style="color:#ef4444;font-size:12px;margin-top:8px;display:none"></p>';
+    const api=$("#adminPassInput"); if(api) api.addEventListener("keydown",e=>{if(e.key==="Enter")doAdminLogin();});
+    const abtn=$("#adminLoginBtn"); if(abtn) abtn.onclick=doAdminLogin;
+    return;
+  }
+  // 已登录：从云端拉取邀请码列表
+  ab.innerHTML='<p style="margin-bottom:12px;font-size:12px;color:#6b7280">正在加载云端邀请码…</p>';
+  const token=getAdminToken();
+  const codes=await cloudInviteList(token);
+  if(codes===null){
+    ab.innerHTML='<p style="color:#ef4444;font-size:13px">拉取失败：后端未就绪或未开启云端同步。</p><button onclick="adminAuthed=false;renderAdminBody()" style="margin-top:8px;border:none;background:transparent;color:#9ca3af;font-size:12px;cursor:pointer;text-decoration:underline">退出</button>';
+    return;
+  }
+  const u=getUsage();
+  let h='<p style="margin-bottom:12px;font-size:12px;color:#6b7280">总使用次数：<b>'+(u.count||0)+'</b> · 解锁状态：'+(u.unlocked?'<span style="color:#059669">已解锁</span>':'<span style="#ef4444">未解锁</span>')+'</p>';
+  h+='<div style="margin-bottom:14px"><div class="auth-field" style="margin-bottom:8px"><label>添加新邀请码</label><input type="text" id="newInviteInput" placeholder="输入新邀请码（大写，≥4位）"></div><button class="auth-submit" id="addInviteBtn" style="background:linear-gradient(135deg,#059669,#047857);padding:10px;font-size:13px">+ 添加</button></div>';
+  h+='<div style="font-size:12px;font-weight:700;margin-bottom:6px;color:#374151">当前邀请码 ('+codes.length+' 个，云端统一)</div>';
+  h+='<div style="max-height:200px;overflow-y:auto">';
+  codes.forEach((c)=>{
+    h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#f9fafb;border-radius:8px;margin-bottom:4px"><span style="font-family:monospace;font-weight:700;font-size:14px;letter-spacing:1px">'+c+'</span><button onclick="removeInviteCode(\''+c+'\')" style="border:none;background:#fef2f2;color:#ef4444;padding:4px 10px;border-radius:14px;font-size:11px;font-weight:700;cursor:pointer">删除</button></div>';
+  });
+  if(!codes.length)h+='<p style="color:#9ca3af;text-align:center;padding:16px">暂无邀请码</p>';
+  h+='</div><button onclick="adminAuthed=false;setAdminToken(\'\');renderAdminBody()" style="margin-top:14px;border:none;background:transparent;color:#9ca3af;font-size:12px;cursor:pointer;text-decoration:underline">退出管理</button>';
+  ab.innerHTML=h;
+  const ni=$("#newInviteInput");
+  if(ni) ni.addEventListener("keydown",e=>{if(e.key==="Enter")addInviteCode();});
+  const ai=$("#addInviteBtn");
+  if(ai) ai.onclick=addInviteCode;
+}
+async function doAdminLogin(){
+  const p=$("#adminPassInput")?$("#adminPassInput").value:"";
+  const token=await cloudAdminLogin(p);
+  if(token){
+    setAdminToken(token);
+    adminAuthed=true;renderAdminBody();toast("✅ 管理员登录成功");
   }else{
-    const inv=getInvites();
-    const u=getUsage();
-    let h='<p style="margin-bottom:12px;font-size:12px;color:#6b7280">总使用次数：<b>'+(u.count||0)+'</b> · 解锁状态：'+(u.unlocked?'<span style="color:#059669">已解锁</span>':'<span style="#ef4444">未解锁</span>')+'</p>';
-    h+='<div style="margin-bottom:14px"><div class="auth-field" style="margin-bottom:8px"><label>添加新邀请码</label><input type="text" id="newInviteInput" placeholder="输入新邀请码（大写）"></div><button class="auth-submit" id="addInviteBtn" style="background:linear-gradient(135deg,#059669,#047857);padding:10px;font-size:13px">+ 添加</button></div>';
-    h+='<div style="font-size:12px;font-weight:700;margin-bottom:6px;color:#374151">当前邀请码 ('+inv.codes.length+' 个)</div>';
-    h+='<div style="max-height:200px;overflow-y:auto">';
-    inv.codes.forEach((c,i)=>{
-      h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#f9fafb;border-radius:8px;margin-bottom:4px"><span style="font-family:monospace;font-weight:700;font-size:14px;letter-spacing:1px">'+c+'</span><button onclick="removeInviteCode('+i+')" style="border:none;background:#fef2f2;color:#ef4444;padding:4px 10px;border-radius:14px;font-size:11px;font-weight:700;cursor:pointer">删除</button></div>';
-    });
-    if(!inv.codes.length)h+='<p style="color:#9ca3af;text-align:center;padding:16px">暂无邀请码</p>';
-    h+='</div><button onclick="adminAuthed=false;renderAdminBody()" style="margin-top:14px;border:none;background:transparent;color:#9ca3af;font-size:12px;cursor:pointer;text-decoration:underline">退出管理</button>';
-    ab.innerHTML=h;
-    const ni=$("#newInviteInput");
-    if(ni) ni.addEventListener("keydown",e=>{if(e.key==="Enter")addInviteCode();});
-    const ai=$("#addInviteBtn");
-    if(ai) ai.onclick=addInviteCode;
+    const err=$("#adminErr");
+    if(err){err.textContent="密码错误";err.style.display="block";}
+    else alert("密码错误");
   }
 }
-function doAdminLogin(){
-  const p=$("#adminPassInput").value;
-  const inv=getInvites();
-  if(p===inv.adminPass||p===ADMIN_PASS){
-    adminAuthed=true;renderAdminBody();toast("✅ 管理员登录成功");
-  }else{$("#inviteError").textContent="密码错误";/* 复用样式 */alert("密码错误");}
-}
-function addInviteCode(){
-  const c=$("#newInviteInput").value.trim().toUpperCase();
+async function addInviteCode(){
+  const c=$("#newInviteInput")?$("#newInviteInput").value.trim().toUpperCase():"";
   if(!c){toast("请输入邀请码");return;}
   if(c.length<4){toast("邀请码至少4位");return;}
-  const inv=getInvites();
-  if(inv.codes.includes(c)){toast("该邀请码已存在");return;}
-  inv.codes.push(c);saveInvites(inv);renderAdminBody();toast("✅ 已添加："+c);
+  const codes=await cloudInviteAdd(getAdminToken(),c);
+  if(codes){renderAdminBody();toast("✅ 已添加："+c);}
+  else{toast("添加失败（可能已存在或网络异常）");}
 }
-function removeInviteCode(i){
-  const inv=getInvites();inv.codes.splice(i,1);saveInvites(inv);renderAdminBody();toast("已删除");
+async function removeInviteCode(c){
+  const codes=await cloudInviteRemove(getAdminToken(),c);
+  if(codes!==null){renderAdminBody();toast("已删除");}
+  else{toast("删除失败");}
 }
 
 // 邀请码弹窗事件
