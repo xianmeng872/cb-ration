@@ -980,26 +980,30 @@ function progPriorityVal(r){
 }
 function doSort(rows,sort){
   if(!sort.field) return rows;
-  // 百元含权排序时，强化阶段权重：低进度项目显著靠后（不仅作为同值排位）
-  const needSecondary=sort.field==="baiyuan";
-  // 百元含权的典型范围约5~50，用权重10让阶段优先级(1-5)产生±50的影响
-  const PROG_WEIGHT=needSecondary?10:0;
+  // 百元含权排序时，硬分组：交易所受理之前的项目(10董事会预案/20股东大会通过)整体排到后面
+  // 仅作用于「审核进度」(_kind=="progress")；待发债之间行为不变
+  const isBaiyuan=sort.field==="baiyuan";
+  function isEarlyStage(r){
+    if(r._kind!=="progress") return false;
+    const p=Number(r.progress)||0;
+    return p===10 || p===20;
+  }
   return rows.slice().sort((a,b)=>{
-    let va=getVal(a,sort.field), vb=getVal(b,sort.field);
-    // 百元含权：复合分数=含权值+阶段优先级×权重（高进度加分）
-    if(needSecondary && typeof va==="number" && typeof vb==="number"){
-      va=va+progPriorityVal(a)*PROG_WEIGHT;
-      vb=vb+progPriorityVal(b)*PROG_WEIGHT;
+    // 百元含权：先按「是否早期进度」硬分组,早期项目(10/20)整体后置;非早期(50/80/90)整体前置
+    // 注:这个关系应无视 dir 方向,硬分组结果要稳定(早期永远在后)
+    if(isBaiyuan){
+      const ea=isEarlyStage(a), eb=isEarlyStage(b);
+      if(ea!==eb) return ea ? 1 : -1;  // 早期 a → 排后(+1);非早期 a → 排前(-1)
+      // 同一组内,直接进入主排序(baiyuan 降序),同 baiyuan 时 progress 降序兜底
     }
+    let va=getVal(a,sort.field), vb=getVal(b,sort.field);
     let cmp=0;
     if(typeof va==="string"&&typeof vb==="string"){cmp=va.localeCompare(vb);}
     else if(typeof va==="number"&&typeof vb==="number"){cmp=va-vb;}
     if(cmp!==0) return sort.dir*cmp;
-    // 完全相等时再按阶段排
-    if(needSecondary){
-      const pa=progPriorityVal(a), pb=progPriorityVal(b);
-      if(pa!==pb) return sort.dir*(pb-pa);
-    }
+    // 完全相等(同 baiyuan)时按 progress 降序兜底
+    const pa2=Number(a.progress)||0, pb2=Number(b.progress)||0;
+    if(pa2!==pb2) return sort.dir*(pb2-pa2);
     return 0;
   });
 }
