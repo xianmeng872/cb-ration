@@ -2399,6 +2399,13 @@ function renderFav(){
     });
     p.querySelectorAll(".cb-kline-pc").forEach(el=>cbkLoadReview(el, el.getAttribute("data-sc"), el.getAttribute("data-sn"), {mini:true}));
     bindFavBtns(p);
+    // PC端:把"全部阶段"那行 chips 从 favPanel 内部挪到 view-fav 搜索框上方（飞哥要求位置对调）
+    const viewFavEl=$("#view-fav");
+    const searchEl=viewFavEl?viewFavEl.querySelector(".search"):null;
+    const chipsEl=p.firstElementChild;
+    if(viewFavEl&&searchEl&&chipsEl&&chipsEl.classList.contains("sort-bar")){
+      viewFavEl.insertBefore(chipsEl,searchEl);
+    }
     return;
   }
   p.innerHTML=h;
