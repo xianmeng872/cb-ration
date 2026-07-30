@@ -1487,7 +1487,7 @@ async function loadAll(){
     renderPend();
     setTime("待发债实时");
     const t=todayStr();
-    const visible=PEND.filter(r=>!r.publicStart || r.publicStart.slice(0,10)>=t);
+    const visible=PEND.filter(r=>r.stage==='申购' && r.publicStart && r.publicStart.slice(0,10)>=t);
     const hit=visible.filter(r=>r._c&&r._c.cv!=null).length;
     toast(hit>0?("✅ 待发债 "+visible.length+" 只（"+hit+"/"+visible.length+" 已刷新实时价）"):"⚠️ 实时价拉取失败，已用快照价");
   }catch(e){console.error("刷新失败(非致命)，使用快照数据:",e.message);}
