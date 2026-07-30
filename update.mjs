@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { syncApplyBonds } from './pend_sync.mjs';
 
 const HTML = './index.html';
 const JSON_OUT = './审核进度快照.json';
@@ -158,6 +159,7 @@ async function fetchSinaKline(stockCode) {
   }
 
   let html = fs.readFileSync(HTML, 'utf8');
+  let mergedPend = []; // 待发债合并结果（手动 + 自动申购债），供步骤3 K线抓取复用
   const re = /const SNAPSHOT_PROGRESS=\[[\s\S]*?\];/;
   if (!re.test(html)) { console.error('HTML 未找到 SNAPSHOT_PROGRESS'); process.exit(1); }
   const lit = '[\n' + filtered.map(o => JSON.stringify(o)).join(',\n') + '\n]';
@@ -178,12 +180,24 @@ async function fetchSinaKline(stockCode) {
     html = html.replace(/const SNAPSHOT_PEND=\[[\s\S]*?\];/, 'const SNAPSHOT_PEND=' + pendLit + ';');
   }
 
+  // ===== 2.5 自动同步申购债：把集思录 progress=90 且含"申购" 的标的并入待发债列表 =====
+  // 先从当前 HTML 读回 PEND（含上面补好的 estFloat），再与集思录申购债合并
+  const pendAfter = html.match(/const SNAPSHOT_PEND=(\[[\s\S]*?\]);/);
+  if (pendAfter) {
+    const pendNow = JSON.parse(pendAfter[1]);
+    mergedPend = syncApplyBonds(pendNow, filtered);
+    const manualCnt = mergedPend.filter(b => b._auto !== true).length;
+    const autoCnt = mergedPend.filter(b => b._auto === true).length;
+    console.log('自动同步申购债: 手动保留 ' + manualCnt + ' 只 + 自动 ' + autoCnt + ' 只 → 待发债合计 ' + mergedPend.length + ' 只');
+    const pendLit2 = '[\n' + mergedPend.map(o => JSON.stringify(o)).join(',\n') + '\n]';
+    html = html.replace(/const SNAPSHOT_PEND=\[[\s\S]*?\];/, 'const SNAPSHOT_PEND=' + pendLit2 + ';');
+  }
+
   // ===== 3. 抓取近3个月不复权日K（供正股走势使用，与行情软件真实成交价口径一致） =====
   const klineCodes = new Set();
   filtered.forEach(o => { if (o.stockCode) klineCodes.add(o.stockCode); });
-  if (pendMatch) {
-    const pend = JSON.parse(pendMatch[1]);
-    pend.forEach(b => { if (b.stockCode) klineCodes.add(b.stockCode); });
+  if (mergedPend.length) {
+    mergedPend.forEach(b => { if (b.stockCode) klineCodes.add(b.stockCode); });
   }
   console.log('拉取 ' + klineCodes.size + ' 只正股日K（新浪不复权）...');
   const klineData = {};

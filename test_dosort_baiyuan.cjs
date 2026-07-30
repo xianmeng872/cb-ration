@@ -1,4 +1,4 @@
-// 测试 1: 验证审核进度页面 百元含权 硬分组是否生效
+// 实测：审核进度页面，按百元含权排序时，董事会预案/股东大会通过 是否排到后面
 const puppeteer = require('puppeteer');
 const path = require('path');
 
@@ -10,58 +10,65 @@ const path = require('path');
     defaultViewport: { width: 1280, height: 800 }
   });
   const page = await browser.newPage();
-
-  // 拦截可能的网络错误
-  page.on('pageerror', e => console.log('[pageerror]', e.message));
-  page.on('console', m => { if (m.type()==='error') console.log('[console.error]', m.text()); });
-
-  // 加载本地 index.html
   const filePath = 'file:///' + path.resolve('index.html').replace(/\\/g, '/');
   await page.goto(filePath, { waitUntil: 'domcontentloaded', timeout: 15000 });
   await new Promise(r => setTimeout(r, 1500));
 
-  // 测试 doSort 的硬分组逻辑
+  // 调用 doSort 测试 6 条审核进度（覆盖 10/20/50/80/90）
   const result = await page.evaluate(() => {
-    // 测试 1: 直接验证 doSort 硬分组
+    // 真实数据：百元含权高的交易所受理 + 高的上市委 + 低的董事会预案 + 低的股东大会
     const rows = [
-      { _kind: 'progress', name: 'A-董事会预案', progress: 10, _c: { baiyuan: 15 } },
-      { _kind: 'progress', name: 'B-股东大会', progress: 20, _c: { baiyuan: 12 } },
-      { _kind: 'progress', name: 'C-交易所受理', progress: 50, _c: { baiyuan: 25 } },
-      { _kind: 'progress', name: 'D-交易所受理2', progress: 50, _c: { baiyuan: 8 } },
-      { _kind: 'progress', name: 'E-上市委', progress: 80, _c: { baiyuan: 30 } },
-      { _kind: 'progress', name: 'F-同意注册', progress: 90, _c: { baiyuan: 20 } }
+      // progress=10 董事会预案 (早期)
+      { _kind: 'progress', name: 'A.弘景光电', progress: 10, _c: { baiyuan: 50 } },
+      { _kind: 'progress', name: 'A2.某早期高', progress: 10, _c: { baiyuan: 80 } },
+      // progress=20 股东大会 (早期)
+      { _kind: 'progress', name: 'B.中谷物流', progress: 20, _c: { baiyuan: 30 } },
+      { _kind: 'progress', name: 'B2.某股东大会高', progress: 20, _c: { baiyuan: 60 } },
+      // progress=50 交易所受理 (非早期)
+      { _kind: 'progress', name: 'C.强力', progress: 50, _c: { baiyuan: 20 } },
+      { _kind: 'progress', name: 'C2.某受理高', progress: 50, _c: { baiyuan: 40 } },
+      // progress=80 上市委通过 (非早期)
+      { _kind: 'progress', name: 'D.长芯', progress: 80, _c: { baiyuan: 15 } },
+      // progress=90 同意注册 (非早期)
+      { _kind: 'progress', name: 'E.中富', progress: 90, _c: { baiyuan: 10 } }
     ];
-    const sorted = window.doSort(rows, { field: 'baiyuan', dir: 1 });
+    const sortedDesc = window.doSort(rows, { field: 'baiyuan', dir: 1 });
+    const sortedAsc = window.doSort(rows, { field: 'baiyuan', dir: -1 });
     return {
-      sortedNames: sorted.map(r => r.name),
-      sortedProgress: sorted.map(r => r.progress),
-      sortedBaiyuan: sorted.map(r => r._c.baiyuan)
+      desc: sortedDesc.map(r => `${r.name} [progress=${r.progress}, baiyuan=${r._c.baiyuan}]`),
+      asc: sortedAsc.map(r => `${r.name} [progress=${r.progress}, baiyuan=${r._c.baiyuan}]`)
     };
   });
 
-  console.log('=== doSort 硬分组测试（field=baiyuan, dir=1 降序）===');
-  console.log('排序后:', JSON.stringify(result.sortedNames));
-  console.log('progress:', JSON.stringify(result.sortedProgress));
-  console.log('baiyuan:', JSON.stringify(result.sortedBaiyuan));
+  console.log('=== 审核进度 百元含权 降序（dir=1）===');
+  result.desc.forEach((s, i) => console.log(`${i+1}. ${s}`));
+  console.log('\n=== 审核进度 百元含权 升序（dir=-1）===');
+  result.asc.forEach((s, i) => console.log(`${i+1}. ${s}`));
 
-  // 测试 2: 验证 dir=-1 升序时硬分组是否仍然生效
-  const result2 = await page.evaluate(() => {
-    const rows = [
-      { _kind: 'progress', name: 'A-董事会预案', progress: 10, _c: { baiyuan: 15 } },
-      { _kind: 'progress', name: 'B-股东大会', progress: 20, _c: { baiyuan: 12 } },
-      { _kind: 'progress', name: 'C-交易所受理', progress: 50, _c: { baiyuan: 25 } },
-      { _kind: 'progress', name: 'D-交易所受理2', progress: 50, _c: { baiyuan: 8 } },
-      { _kind: 'progress', name: 'E-上市委', progress: 80, _c: { baiyuan: 30 } },
-      { _kind: 'progress', name: 'F-同意注册', progress: 90, _c: { baiyuan: 20 } }
-    ];
-    const sorted = window.doSort(rows, { field: 'baiyuan', dir: -1 });
-    return sorted.map(r => `${r.name}(baiyuan=${r._c.baiyuan},progress=${r.progress})`);
-  });
-  console.log('\n=== doSort 硬分组测试（field=baiyuan, dir=-1 升序）===');
-  console.log('排序后:', JSON.stringify(result2, null, 2));
-
-  // 期望：早期(10/20) 永远在后面（不分升降序）
-  // 升降序只影响组内排序
+  // 验证：早期(progress=10/20) 永远在最后
+  const descEarlyIdx = result.desc.findIndex(s => s.includes('progress=10') || s.includes('progress=20'));
+  const descNonEarlyIdx = result.desc.findLastIndex ? result.desc.findLastIndex(s => s.includes('progress=5') || s.includes('progress=8') || s.includes('progress=9')) : -1;
+  // 简单验证：desc 数组中所有 progress=10/20 都在 progress=50/80/90 之后
+  let descCorrect = true, ascCorrect = true;
+  for (let i = 0; i < result.desc.length; i++) {
+    const s = result.desc[i];
+    if (s.includes('progress=10') || s.includes('progress=20')) {
+      // 检查 i 之后还有没有 progress=50/80/90
+      for (let j = i+1; j < result.desc.length; j++) {
+        if (result.desc[j].match(/progress=[589]/)) { descCorrect = false; break; }
+      }
+    }
+  }
+  for (let i = 0; i < result.asc.length; i++) {
+    const s = result.asc[i];
+    if (s.includes('progress=10') || s.includes('progress=20')) {
+      for (let j = i+1; j < result.asc.length; j++) {
+        if (result.asc[j].match(/progress=[589]/)) { ascCorrect = false; break; }
+      }
+    }
+  }
+  console.log(`\n降序硬分组正确：${descCorrect ? '✅' : '❌'}`);
+  console.log(`升序硬分组正确：${ascCorrect ? '✅' : '❌'}`);
 
   await browser.close();
 })();
