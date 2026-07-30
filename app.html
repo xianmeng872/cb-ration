@@ -2246,8 +2246,8 @@ function renderFav(){
     return;
   }
   // 按类型分组：待发/审核中
-  const pendRows=rows.filter(r=>r._kind==="pend");
-  const progRows=rows.filter(r=>r._kind==="progress");
+  let pendRows=rows.filter(r=>r._kind==="pend");
+  let progRows=rows.filter(r=>r._kind==="progress");
   // 按当前 favSort 对两组分别排序（所需资金/百元含权/规模/预估流通均来自 _c，待发与审核都支持）
   pendRows=doSort(pendRows,favSort);
   progRows=doSort(progRows,favSort);
