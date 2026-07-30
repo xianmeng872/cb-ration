@@ -143,6 +143,10 @@ async function fetchSinaKline(stockCode) {
     return true;
   });
 
+  // 已公布上市(99)的债：filtered 已剔除，单独抽出供 syncApplyBonds 并入待发债
+  // （progress_nm 形如 "2026-08-04上市"，含"上市"二字；排除"已上市"这种真正上市的状态）
+  const listedArr = arr.filter(o => o.progress === '99' && o.progress_nm && o.progress_nm.indexOf('上市') >= 0 && o.progress_nm.indexOf('已上市') < 0);
+
   // 批量拉股东算流通盘（emweb 稳定，300ms间隔即可）
   console.log('拉取 ' + filtered.length + ' 只正股股东数据算流通盘... (已缓存 ' + Object.keys(LOCK_CACHE).length + ' 只)');
   let ok = 0, fail = 0;
@@ -180,15 +184,16 @@ async function fetchSinaKline(stockCode) {
     html = html.replace(/const SNAPSHOT_PEND=\[[\s\S]*?\];/, 'const SNAPSHOT_PEND=' + pendLit + ';');
   }
 
-  // ===== 2.5 自动同步申购债：把集思录 progress=90 且含"申购" 的标的并入待发债列表 =====
-  // 先从当前 HTML 读回 PEND（含上面补好的 estFloat），再与集思录申购债合并
+  // ===== 2.5 自动同步申购债+上市债：把集思录 progress=90 含"申购" 与 progress=99 含"上市" 的标的并入待发债列表 =====
+  // 先从当前 HTML 读回 PEND（含上面补好的 estFloat），再与集思录申购/上市债合并
   const pendAfter = html.match(/const SNAPSHOT_PEND=(\[[\s\S]*?\]);/);
   if (pendAfter) {
     const pendNow = JSON.parse(pendAfter[1]);
-    mergedPend = syncApplyBonds(pendNow, filtered);
+    mergedPend = syncApplyBonds(pendNow, filtered, listedArr);
     const manualCnt = mergedPend.filter(b => b._auto !== true).length;
-    const autoCnt = mergedPend.filter(b => b._auto === true).length;
-    console.log('自动同步申购债: 手动保留 ' + manualCnt + ' 只 + 自动 ' + autoCnt + ' 只 → 待发债合计 ' + mergedPend.length + ' 只');
+    const applyCnt = mergedPend.filter(b => b._auto === true && b.stage === '申购').length;
+    const listCnt = mergedPend.filter(b => b._auto === true && b.stage === '待上市').length;
+    console.log('自动同步: 手动保留 ' + manualCnt + ' 只 + 申购 ' + applyCnt + ' 只 + 上市 ' + listCnt + ' 只 → 待发债合计 ' + mergedPend.length + ' 只');
     const pendLit2 = '[\n' + mergedPend.map(o => JSON.stringify(o)).join(',\n') + '\n]';
     html = html.replace(/const SNAPSHOT_PEND=\[[\s\S]*?\];/, 'const SNAPSHOT_PEND=' + pendLit2 + ';');
   }
