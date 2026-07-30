@@ -2400,10 +2400,14 @@ function renderFav(){
     p.querySelectorAll(".cb-kline-pc").forEach(el=>cbkLoadReview(el, el.getAttribute("data-sc"), el.getAttribute("data-sn"), {mini:true}));
     bindFavBtns(p);
     // PC端:把"全部阶段"那行 chips 从 favPanel 内部挪到 view-fav 搜索框上方（飞哥要求位置对调）
+    // 关键：view-fav 内部上次残留的 .chips 容器必须先清掉，否则每次 renderFav 都会多出一排（飞哥反馈"表头变3排"）
     const viewFavEl=$("#view-fav");
     const searchEl=viewFavEl?viewFavEl.querySelector(".search"):null;
     const chipsEl=p.firstElementChild;
     if(viewFavEl&&searchEl&&chipsEl&&chipsEl.classList.contains("chips")){
+      // 1) 清掉 view-fav 内所有残留的 .chips（保留 search/favChips/favPanel 这3个固定子元素）
+      viewFavEl.querySelectorAll(":scope > .chips").forEach(el=>el.remove());
+      // 2) 移动新生成的 chips 到 view-fav 在 search 之前
       viewFavEl.insertBefore(chipsEl,searchEl);
     }
     return;
