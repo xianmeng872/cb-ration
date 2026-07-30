@@ -1,5 +1,31 @@
 [
  {
+  "stockCode": "300453",
+  "stockName": "三鑫医疗",
+  "code": "123280",
+  "name": "三鑫转债",
+  "progress": "90",
+  "progress_nm": "2026-08-04申购 申购代码370453",
+  "scale": 5.3,
+  "convertPrice": 9.72,
+  "price": 9.75,
+  "perPre": 1.0154,
+  "apply10": 985,
+  "ration_rt": null,
+  "rating_cd": "AA-",
+  "progress_full": "2025-08-09 董事会预案\n2025-08-27 股东大会通过\n2025-10-29 交易所受理\n2026-04-24 上市委通过\n2026-06-05 同意注册",
+  "accept_date": "2025-10-29",
+  "progress_dt": "2026-08-04",
+  "_c": {
+   "cv": 100.30864197530865,
+   "needShares": 985,
+   "needMoney": 9603.75,
+   "baiyuan": 10.414358974358976,
+   "price": 9.75,
+   "estFloat": 3.71
+  }
+ },
+ {
   "stockCode": "301626",
   "stockName": "苏州天脉",
   "code": "123279",
@@ -89,7 +115,7 @@
   "price": 100.29,
   "perPre": 10.396,
   "apply10": 97,
-  "ration_rt": null,
+  "ration_rt": "87.660",
   "rating_cd": "AA",
   "progress_full": "2026-02-10 董事会预案\n2026-02-26 股东大会通过\n2026-04-04 交易所受理\n2026-05-29 上市委通过\n2026-06-30 同意注册",
   "accept_date": "2026-04-04",
@@ -115,7 +141,7 @@
   "price": 14.69,
   "perPre": 3.7632,
   "apply10": 266,
-  "ration_rt": null,
+  "ration_rt": "82.270",
   "rating_cd": "AA",
   "progress_full": "2024-08-30 董事会预案\n2024-09-18 股东大会通过\n2025-10-20 交易所受理\n2026-03-05 上市委通过\n2026-04-22 同意注册",
   "accept_date": "2025-10-20",
@@ -141,7 +167,7 @@
   "price": 57.89,
   "perPre": 3.857,
   "apply10": 260,
-  "ration_rt": null,
+  "ration_rt": "93.320",
   "rating_cd": "AA+",
   "progress_full": "2026-01-27 董事会预案\n2026-02-12 股东大会通过\n2026-04-24 交易所受理\n2026-05-27 上市委通过\n2026-06-26 同意注册",
   "accept_date": "2026-04-24",
@@ -205,32 +231,6 @@
    "baiyuan": 4.771929824561402,
    "price": 8.55,
    "estFloat": 7.39
-  }
- },
- {
-  "stockCode": "300631",
-  "stockName": "久吾高科",
-  "code": "123276",
-  "name": "久吾转02",
-  "progress": "90",
-  "progress_nm": "2026-07-20申购 申购代码370631",
-  "scale": 3,
-  "convertPrice": 23.78,
-  "price": 19.61,
-  "perPre": 2.3993,
-  "apply10": 417,
-  "ration_rt": "70.530",
-  "rating_cd": "A+",
-  "progress_full": "2025-08-19 董事会预案\n2025-09-03 股东大会通过\n2026-02-09 交易所受理\n2026-06-05 上市委通过\n2026-07-02 同意注册",
-  "accept_date": "2026-02-09",
-  "progress_dt": "2026-07-20",
-  "_c": {
-   "cv": 82.46425567703952,
-   "needShares": 417,
-   "needMoney": 8177.37,
-   "baiyuan": 12.235084140744519,
-   "price": 19.61,
-   "estFloat": 2.23
   }
  },
  {
@@ -338,32 +338,6 @@
   }
  },
  {
-  "stockCode": "301459",
-  "stockName": "丰茂股份",
-  "code": "",
-  "name": "",
-  "progress": "90",
-  "progress_nm": "同意注册",
-  "scale": 6.08,
-  "convertPrice": 33.12,
-  "price": 30.6,
-  "perPre": null,
-  "apply10": 172,
-  "ration_rt": null,
-  "rating_cd": null,
-  "progress_full": "2025-11-05 董事会预案\n2025-11-20 股东大会通过\n2026-01-05 交易所受理\n2026-06-11 上市委通过\n2026-07-28 同意注册",
-  "accept_date": "2026-01-05",
-  "progress_dt": "2026-07-28",
-  "_c": {
-   "cv": 92.3913043478261,
-   "needShares": 172,
-   "needMoney": 5263.2,
-   "baiyuan": 18.999848001215987,
-   "price": 30.6,
-   "estFloat": 1.75
-  }
- },
- {
   "stockCode": "000887",
   "stockName": "中鼎股份",
   "code": "",
@@ -387,6 +361,32 @@
    "baiyuan": 8.67694016382063,
    "price": 16.8,
    "estFloat": 11.43
+  }
+ },
+ {
+  "stockCode": "301459",
+  "stockName": "丰茂股份",
+  "code": "",
+  "name": "",
+  "progress": "90",
+  "progress_nm": "同意注册",
+  "scale": 6.08,
+  "convertPrice": 33.12,
+  "price": 30.6,
+  "perPre": null,
+  "apply10": 172,
+  "ration_rt": null,
+  "rating_cd": null,
+  "progress_full": "2025-11-05 董事会预案\n2025-11-20 股东大会通过\n2026-01-05 交易所受理\n2026-06-11 上市委通过\n2026-07-28 同意注册",
+  "accept_date": "2026-01-05",
+  "progress_dt": "2026-07-28",
+  "_c": {
+   "cv": 92.3913043478261,
+   "needShares": 172,
+   "needMoney": 5263.2,
+   "baiyuan": 18.999848001215987,
+   "price": 30.6,
+   "estFloat": 1.75
   }
  },
  {
@@ -491,32 +491,6 @@
    "baiyuan": 13.689253935660505,
    "price": 19.48,
    "estFloat": 3.6
-  }
- },
- {
-  "stockCode": "300453",
-  "stockName": "三鑫医疗",
-  "code": "",
-  "name": "",
-  "progress": "90",
-  "progress_nm": "同意注册",
-  "scale": 5.3,
-  "convertPrice": 9.47,
-  "price": 9.75,
-  "perPre": null,
-  "apply10": 986,
-  "ration_rt": null,
-  "rating_cd": null,
-  "progress_full": "2025-08-09 董事会预案\n2025-08-27 股东大会通过\n2025-10-29 交易所受理\n2026-04-24 上市委通过\n2026-06-05 同意注册",
-  "accept_date": "2025-10-29",
-  "progress_dt": "2026-06-05",
-  "_c": {
-   "cv": 102.95670538542765,
-   "needShares": 986,
-   "needMoney": 9613.5,
-   "baiyuan": 10.402038799604723,
-   "price": 9.75,
-   "estFloat": 3.71
   }
  },
  {
