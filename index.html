@@ -1175,7 +1175,7 @@ function renderProgress(){
   if(PROG_FILTER!=="all") rows=rows.filter(r=>String(r.progress)===PROG_FILTER);
   if(keyword2){const q=keyword2.toLowerCase();rows=rows.filter(r=>(r.name||"").toLowerCase().includes(q)||(r.stockName||"").toLowerCase().includes(q)||(r.stockCode||"").includes(q)||(r.code||"").includes(q));}
   if(!rows.length){p.innerHTML='<div class="card"><div class="empty">'+(keyword2||(PROG_FILTER!=="all")?"无匹配":"加载中 / 暂无数据")+'</div></div>';return;}
-  rows=doSort(rows,progSort);
+  rows=doSort(rows.map(r=>({...r,_kind:"progress"})),progSort);
   const ps=progSort;
 
   // ===== 手机端：多种布局模式 =====
