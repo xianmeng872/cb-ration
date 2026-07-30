@@ -1023,8 +1023,9 @@ function isMobile(){return window.matchMedia("(max-width:720px)").matches;}
 function renderPend(){
   const p=$("#panel");
   let rows=PEND;
-  // 放宽过滤（飞哥 2026-07-31）：待发债 tab 显示所有 PEND 标的，含已过申购日、等待上市的债。
-  // 已真正上市的债，集思录会移出待发表，syncApplyBonds 下一轮不再生成，不会在 PEND 堆积。
+  // 只显示当前待申购的债（飞哥 2026-07-31）：stage=申购 且 申购日未到/当天。
+  // 已过申购日（待上市）、公布上市、手动待发行 一律不在待发债列表显示；数据仍保留在 PEND，不丢。
+  rows = rows.filter(r => r.stage === '申购' && r.publicStart && r.publicStart.slice(0,10) >= todayStr());
   if(keyword){const q=keyword.toLowerCase();rows=rows.filter(r=>(r.name||"").toLowerCase().includes(q)||(r.code||"").includes(q)||(r.stockName||"").toLowerCase().includes(q)||(r.stockCode||"").includes(q));}
   if(!rows.length){p.innerHTML='<div class="card"><div class="empty">'+(keyword?"无匹配":"加载失败或暂无待发")+'</div></div>';return;}
   rows=doSort(rows,pendSort);
