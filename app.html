@@ -659,12 +659,12 @@ let favSort={field:"progress",dir:-1}, FAV_FILTER="all";
 const FAV_CHIP_DEFAULT_FIELD="progress";
 let _detailPushed=false; // 详情打开时压入的历史状态标记（用于拦截手机系统返回手势，使其只关详情不退出整页）
 const SNAPSHOT_PEND=[
-{"_auto":true,"code":"118074","name":"特宝转债","stockCode":"688278","stockName":"特宝生物","convertPrice":58.56,"perPre":3.857,"scale":15.33,"publicStart":"2026-07-28 00:00:00","listDate":"","stage":"申购","apply10":260,"rating_cd":"AA+","_c":{"cv":98.85587431693989,"needShares":260,"needMoney":15051.4,"baiyuan":6.662636033857316,"price":57.89,"estFloat":6.47}},
 {"_auto":true,"code":"110102","name":"江农转债","stockCode":"600389","stockName":"江山股份","convertPrice":20.64,"perPre":2.751,"scale":11.85,"publicStart":"2026-07-14 00:00:00","listDate":"","stage":"申购","apply10":364,"rating_cd":"AA+","_c":{"cv":103.87596899224806,"needShares":364,"needMoney":7804.160000000001,"baiyuan":12.831156716417908,"price":21.44,"estFloat":8.42}},
 {"_auto":true,"code":"110103","name":"申能转债","stockCode":"600642","stockName":"申能股份","convertPrice":8.74,"perPre":0.408,"scale":20,"publicStart":"2026-07-24 00:00:00","listDate":"","stage":"申购","apply10":2451,"rating_cd":"AAA","_c":{"cv":97.82608695652173,"needShares":2451,"needMoney":20956.050000000003,"baiyuan":4.771929824561402,"price":8.55,"estFloat":7.39}},
 {"_auto":true,"code":"113708","name":"曙26转债","stockCode":"603019","stockName":"中科曙光","convertPrice":108.89,"perPre":5.47,"scale":80,"publicStart":"2026-07-15 00:00:00","listDate":"","stage":"申购","apply10":183,"rating_cd":"AAA","_c":{"cv":74.3869960510607,"needShares":183,"needMoney":14823,"baiyuan":6.753086419753086,"price":81,"estFloat":68.26}},
 {"_auto":true,"code":"113709","name":"振26转债","stockCode":"603067","stockName":"振华股份","convertPrice":40.33,"perPre":1.162,"scale":8.78,"publicStart":"2026-07-30 00:00:00","listDate":"","stage":"申购","apply10":861,"rating_cd":"AA","_c":{"cv":70.19588395735184,"needShares":861,"needMoney":24374.91,"baiyuan":4.104556693747792,"price":28.31,"estFloat":5.07}},
 {"_auto":true,"code":"118073","name":"赛斯转债","stockCode":"688480","stockName":"赛恩斯","convertPrice":88.16,"perPre":5.789,"scale":5.519,"publicStart":"2026-07-17 00:00:00","listDate":"","stage":"申购","apply10":173,"rating_cd":"AA","_c":{"cv":77.15517241379311,"needShares":173,"needMoney":11767.46,"baiyuan":8.510732137606587,"price":68.02,"estFloat":2.56}},
+{"_auto":true,"code":"118074","name":"特宝转债","stockCode":"688278","stockName":"特宝生物","convertPrice":58.56,"perPre":3.857,"scale":15.33,"publicStart":"2026-07-28 00:00:00","listDate":"","stage":"申购","apply10":260,"rating_cd":"AA+","_c":{"cv":98.85587431693989,"needShares":260,"needMoney":15051.4,"baiyuan":6.662636033857316,"price":57.89,"estFloat":6.47}},
 {"_auto":true,"code":"118075","name":"奥普转债","stockCode":"688686","stockName":"奥普特","convertPrice":150.03,"perPre":10.396,"scale":12.7,"publicStart":"2026-07-29 00:00:00","listDate":"","stage":"申购","apply10":97,"rating_cd":"AA","_c":{"cv":66.84663067386522,"needShares":97,"needMoney":9728.130000000001,"baiyuan":10.36593877754512,"price":100.29,"estFloat":3.53}},
 {"_auto":true,"code":"123277","name":"玉禾转债","stockCode":"300815","stockName":"玉禾田","convertPrice":16.35,"perPre":3.7632,"scale":15,"publicStart":"2026-07-29 00:00:00","listDate":"","stage":"申购","apply10":266,"rating_cd":"AA","_c":{"cv":89.84709480122322,"needShares":266,"needMoney":3907.54,"baiyuan":25.617426820966646,"price":14.69,"estFloat":8.56}},
 {"_auto":true,"code":"123278","name":"合金转债","stockCode":"300697","stockName":"电工合金","convertPrice":13.98,"perPre":1.2597,"scale":5.45,"publicStart":"2026-07-30 00:00:00","listDate":"","stage":"申购","apply10":794,"rating_cd":"AA-","_c":{"cv":91.77396280400572,"needShares":794,"needMoney":10187.02,"baiyuan":9.818394388152766,"price":12.83,"estFloat":2.11}},
@@ -1023,9 +1023,8 @@ function isMobile(){return window.matchMedia("(max-width:720px)").matches;}
 function renderPend(){
   const p=$("#panel");
   let rows=PEND;
-  // 剔除已过申购日的债：只保留「无申购日(待定)」或「申购日>=今天」；已过申购日(已发行未上市)不进待发列表
-  const t=todayStr();
-  rows=rows.filter(r=>!r.publicStart || r.publicStart.slice(0,10)>=t);
+  // 放宽过滤（飞哥 2026-07-31）：待发债 tab 显示所有 PEND 标的，含已过申购日、等待上市的债。
+  // 已真正上市的债，集思录会移出待发表，syncApplyBonds 下一轮不再生成，不会在 PEND 堆积。
   if(keyword){const q=keyword.toLowerCase();rows=rows.filter(r=>(r.name||"").toLowerCase().includes(q)||(r.code||"").includes(q)||(r.stockName||"").toLowerCase().includes(q)||(r.stockCode||"").includes(q));}
   if(!rows.length){p.innerHTML='<div class="card"><div class="empty">'+(keyword?"无匹配":"加载失败或暂无待发")+'</div></div>';return;}
   rows=doSort(rows,pendSort);
@@ -1042,7 +1041,7 @@ function renderPend(){
       const mkt=c.market||"";
       h+='<div class="cb-item" data-i="'+i+'" data-kind="pend">';
       // 第一行：名称+代码
-      const stageTag=r.stage==="申购"?'<span class="tag tag-sbuy">申购</span>':(r.stage==="待发行"?'<span class="tag tag-slist">待发行</span>':'');
+      const stageTag=stageTagOf(r);
       const dStr=(r.publicStart||r.progress_dt||"");
       const shortD=dStr?dStr.slice(5,10):"-";
       h+='<div class="cb-name"><span class="n">'+(r.name||"-")+'</span><span class="c">'+(r.code||"")+'</span>'+favBtnHtml(getRowId(r,"pend"),"pend")+'</div>';
@@ -1052,7 +1051,7 @@ function renderPend(){
       // 第1行：配售 | 规模 | 阶段（标签文字隐藏占位，值位置与审核进度一致）
       h+='<span class="s"><span class="l">配售</span><span class="v hl">'+(c.needShares!=null?shLabel:'-')+'</span></span>';
       h+='<span class="s"><span class="l">规模</span><span class="v">'+(r.scale!=null?fmt(r.scale)+'亿':'-')+'</span></span>';
-      h+='<span class="s"><span class="l" style="visibility:hidden">状态</span><span class="v"><span class="tag '+(stageTag?'tag-sbuy':'')+'">'+(stageTag?stageTag:'待发行')+'</span></span></span>';
+      h+='<span class="s"><span class="l" style="visibility:hidden">状态</span><span class="v">'+(stageTag||'<span class="tag tag-slist">待发</span>')+'</span></span>';
       // 第2行：所需资金 | 流通 | 日期（标签文字隐藏占位）
       h+='<span class="s"><span class="l">所需资金</span><span class="v hl">'+(c.needMoney!=null?fmt(c.needMoney,0)+'元':'-')+'</span></span>';
       h+='<span class="s"><span class="l">流通</span><span class="v f">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span>';
@@ -1093,7 +1092,7 @@ function renderPend(){
     const id=getRowId(r,"pend");
     h+='<tr class="clickable" data-i="'+i+'" data-kind="pend">';
     h+='<td data-label="转债/正股"><div class="name">'+(r.name||"-")+mktTag+'</div><div class="code">'+(r.code||"")+' · '+(r.stockName||"")+'('+(r.stockCode||"")+')</div></td>';
-    h+='<td data-label="阶段"><span class="tag '+(r.stage==="申购"?"tag-sbuy":"tag-slist")+'">'+(r.stage||"待发")+'</span></td>';
+    h+='<td data-label="阶段">'+stageTagOf(r)+'</td>';
     h+='<td data-label="申购日"><span class="num">'+fmtShortDate(r.publicStart)+'</span></td>';
     h+='<td data-label="转股价值"><span class="num">'+(c.cv!=null?fmt(c.cv):"…")+'</span></td>';
     const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
@@ -1117,6 +1116,17 @@ function renderPend(){
   });
   bindFavBtns(p);
 }
+function stageTagOf(r){
+  // 待发债阶段标签：申购(未到申购日) / 待上市(已过申购日、等待上市) / 待发行 / 待发(兜底)
+  const t=todayStr();
+  if(r.stage==="申购"){
+    const passed = r.publicStart && r.publicStart.slice(0,10) < t;
+    return passed ? '<span class="tag tag-slist">待上市</span>' : '<span class="tag tag-sbuy">申购</span>';
+  }
+  if(r.stage==="待发行") return '<span class="tag tag-slist">待发行</span>';
+  return '<span class="tag tag-slist">'+(r.stage||"待发")+'</span>';
+}
+
 function progressLabel(r){
   if(r.progress==="90") return (r.progress_nm&&r.progress_nm.indexOf("申购")>=0)?"已排期申购":"同意注册";
   if(r.progress==="80") return "上市委通过";
