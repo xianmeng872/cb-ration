@@ -2255,11 +2255,7 @@ function renderFav(){
 
   let h="";
   if(isMobile()){
-    // 顶部排序条（吸顶固定）：仅作用于「我的关注」手机端
-    const favSfs=[{f:"needMoney",l:"所需资金"},{f:"baiyuan",l:"百元含权"},{f:"scale",l:"规模"},{f:"estFloat",l:"预估流通"}];
-    h+='<div class="sort-bar">';
-    favSfs.forEach(s=>{const ac=(favSort.field===s.f);h+='<span class="sort-btn'+(ac?' active':'')+'" data-sf="'+s.f+'">'+(s.l)+(ac?arrow(favSort.dir):'')+'</span>'});
-    h+='</div>';
+    // 排序条统一在 HTML 顶部 #favChips（与审核进度 sort-bar 一致），此处不重复渲染
     if(pendRows.length){
       h+='<div class="cb-list">';
       pendRows.forEach((r,i)=>{
