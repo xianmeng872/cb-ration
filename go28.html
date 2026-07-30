@@ -77,6 +77,8 @@
   .empty{text-align:center;color:var(--muted);padding:36px 0}
   .foot{text-align:center;color:var(--muted);font-size:11px;line-height:1.7;padding:16px 8px}
   .foot b{color:var(--ink)}
+  /* 免责声明：独立于 .foot，两端都显示（合规项，不受 PC/手机端 .foot 隐藏规则影响） */
+  .disclaimer{text-align:center;color:#c0392b;font-weight:700;font-size:12px;line-height:1.7;padding:14px 8px 24px}
   @media(min-width:721px){ .foot{display:none !important} } /* PC端隐藏底部文字（飞哥要求），手机端不受影响 */
   @media(min-width:721px){ #favChips,#refreshMobile,#refreshMobile2,#refreshMobileFav{display:none !important} } /* PC端隐藏手机端专属的排序chips和刷新按钮（飞哥要求只加手机端） */
   .mask{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:18px;overscroll-behavior:contain;touch-action:pan-y}
@@ -515,9 +517,9 @@ table td[data-label="进展日期"],table th[data-label="进展日期"]{white-sp
 
   <div class="foot">
     数据源：东方财富 + 腾讯行情 + 集思录 · 每日自动更新(9:00/18:00) · 仅供参考，非投资建议
-    <div style="margin-top:6px;color:#c0392b;font-weight:700">本工具只用来回测数据，所涉及标的不作推荐，据此买卖，风险自负。</div>
     <div id="verStamp" style="margin-top:6px;font-size:11px;color:#bbb">版本 v20260728-0135</div>
   </div>
+  <div class="disclaimer">本工具只用来回测数据，所涉及标的不作推荐，据此买卖，风险自负。</div>
 </div>
 <div class="mask" id="mask"><div class="modal">
   <div class="mh"><h3 id="mtitle">详情</h3><span class="x" id="mx">×</span></div>
