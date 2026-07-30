@@ -1012,9 +1012,8 @@ function isMobile(){return window.matchMedia("(max-width:720px)").matches;}
 function renderPend(){
   const p=$("#panel");
   let rows=PEND;
-  // 剔除已过申购日的债：只保留「无申购日(待定)」或「申购日>=今天」；已过申购日(已发行未上市)不进待发列表
-  const t=todayStr();
-  rows=rows.filter(r=>!r.publicStart || r.publicStart.slice(0,10)>=t);
+  // 放宽过滤（飞哥 2026-07-31）：待发债 tab 显示所有 PEND 标的，含已过申购日、等待上市的债。
+  // 已真正上市的债，集思录会移出待发表，syncApplyBonds 下一轮不再生成，不会在 PEND 堆积。
   if(keyword){const q=keyword.toLowerCase();rows=rows.filter(r=>(r.name||"").toLowerCase().includes(q)||(r.code||"").includes(q)||(r.stockName||"").toLowerCase().includes(q)||(r.stockCode||"").includes(q));}
   if(!rows.length){p.innerHTML='<div class="card"><div class="empty">'+(keyword?"无匹配":"加载失败或暂无待发")+'</div></div>';return;}
   rows=doSort(rows,pendSort);
@@ -1031,7 +1030,7 @@ function renderPend(){
       const mkt=c.market||"";
       h+='<div class="cb-item" data-i="'+i+'" data-kind="pend">';
       // 第一行：名称+代码
-      const stageTag=r.stage==="申购"?'<span class="tag tag-sbuy">申购</span>':(r.stage==="待发行"?'<span class="tag tag-slist">待发行</span>':'');
+      const stageTag=stageTagOf(r);
       const dStr=(r.publicStart||r.progress_dt||"");
       const shortD=dStr?dStr.slice(5,10):"-";
       h+='<div class="cb-name"><span class="n">'+(r.name||"-")+'</span><span class="c">'+(r.code||"")+'</span>'+favBtnHtml(getRowId(r,"pend"),"pend")+'</div>';
@@ -1041,7 +1040,7 @@ function renderPend(){
       // 第1行：配售 | 规模 | 阶段（标签文字隐藏占位，值位置与审核进度一致）
       h+='<span class="s"><span class="l">配售</span><span class="v hl">'+(c.needShares!=null?shLabel:'-')+'</span></span>';
       h+='<span class="s"><span class="l">规模</span><span class="v">'+(r.scale!=null?fmt(r.scale)+'亿':'-')+'</span></span>';
-      h+='<span class="s"><span class="l" style="visibility:hidden">状态</span><span class="v"><span class="tag '+(stageTag?'tag-sbuy':'')+'">'+(stageTag?stageTag:'待发行')+'</span></span></span>';
+      h+='<span class="s"><span class="l" style="visibility:hidden">状态</span><span class="v">'+(stageTag||'<span class="tag tag-slist">待发</span>')+'</span></span>';
       // 第2行：所需资金 | 流通 | 日期（标签文字隐藏占位）
       h+='<span class="s"><span class="l">所需资金</span><span class="v hl">'+(c.needMoney!=null?fmt(c.needMoney,0)+'元':'-')+'</span></span>';
       h+='<span class="s"><span class="l">流通</span><span class="v f">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span>';
@@ -1082,7 +1081,7 @@ function renderPend(){
     const id=getRowId(r,"pend");
     h+='<tr class="clickable" data-i="'+i+'" data-kind="pend">';
     h+='<td data-label="转债/正股"><div class="name">'+(r.name||"-")+mktTag+'</div><div class="code">'+(r.code||"")+' · '+(r.stockName||"")+'('+(r.stockCode||"")+')</div></td>';
-    h+='<td data-label="阶段"><span class="tag '+(r.stage==="申购"?"tag-sbuy":"tag-slist")+'">'+(r.stage||"待发")+'</span></td>';
+    h+='<td data-label="阶段">'+stageTagOf(r)+'</td>';
     h+='<td data-label="申购日"><span class="num">'+fmtShortDate(r.publicStart)+'</span></td>';
     h+='<td data-label="转股价值"><span class="num">'+(c.cv!=null?fmt(c.cv):"…")+'</span></td>';
     const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
@@ -1106,6 +1105,17 @@ function renderPend(){
   });
   bindFavBtns(p);
 }
+function stageTagOf(r){
+  // 待发债阶段标签：申购(未到申购日) / 待上市(已过申购日、等待上市) / 待发行 / 待发(兜底)
+  const t=todayStr();
+  if(r.stage==="申购"){
+    const passed = r.publicStart && r.publicStart.slice(0,10) < t;
+    return passed ? '<span class="tag tag-slist">待上市</span>' : '<span class="tag tag-sbuy">申购</span>';
+  }
+  if(r.stage==="待发行") return '<span class="tag tag-slist">待发行</span>';
+  return '<span class="tag tag-slist">'+(r.stage||"待发")+'</span>';
+}
+
 function progressLabel(r){
   if(r.progress==="90") return (r.progress_nm&&r.progress_nm.indexOf("申购")>=0)?"已排期申购":"同意注册";
   if(r.progress==="80") return "上市委通过";
