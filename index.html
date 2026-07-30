@@ -2337,7 +2337,7 @@ function renderFav(){
     }
     rows=doSort(rows,favSort);
     const fs=favSort;
-    let h='<div class="sort-bar" style="margin:2px 0 8px">';
+    let h='<div class="chips">';
     h+='<span class="chip'+(FAV_FILTER==="all"?" active":"")+'" data-f="all">全部阶段</span>';
     ["90","80","50","20","10"].forEach(v=>{ h+='<span class="chip'+(FAV_FILTER===v?" active":"")+'" data-f="'+v+'">'+STAGE_LABEL[v]+'</span>'; });
     h+='</div>';
@@ -2403,7 +2403,7 @@ function renderFav(){
     const viewFavEl=$("#view-fav");
     const searchEl=viewFavEl?viewFavEl.querySelector(".search"):null;
     const chipsEl=p.firstElementChild;
-    if(viewFavEl&&searchEl&&chipsEl&&chipsEl.classList.contains("sort-bar")){
+    if(viewFavEl&&searchEl&&chipsEl&&chipsEl.classList.contains("chips")){
       viewFavEl.insertBefore(chipsEl,searchEl);
     }
     return;
