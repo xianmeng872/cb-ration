@@ -410,7 +410,7 @@
   .cb-fold-safe{display:flex;gap:10px;padding-top:6px;margin-top:6px;border-top:1px solid #f3f4f6;font-size:11px;color:#9ca3af}
   .cb-fold-safe span{background:#f3f4f6;padding:3px 8px;border-radius:6px}
   .cb-fold-date{font-size:11px;color:#9ca3af;margin-top:6px}
-/* ===== 我的关注·正股近3月走势·不复权：手机端可折叠面板（融入卡片内部） ===== */
+/* ===== 我的关注·正股近3月走势：手机端可折叠面板（融入卡片内部） ===== */
 .cb-kline{margin-top:0;padding:8px 12px 10px;border-top:1px solid #f0f2f7;background:transparent;}
 .cb-kline .kline-head{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;padding:8px 0;transition:background .15s;min-height:40px;}
 .cb-kline .kline-head:active{background:transparent;}
@@ -2377,7 +2377,7 @@ function renderFav(){
     h+='<th data-sf="baiyuan">百元含权 '+(fs.field==="baiyuan"?arrow(fs.dir):'')+'</th>';
     h+='<th data-sf="scale">规模(亿) '+(fs.field==="scale"?arrow(fs.dir):'')+'</th>';
     h+='<th data-sf="estFloat">预估流通(亿) '+(fs.field==="estFloat"?arrow(fs.dir):'')+'</th>';
-    h+='<th style="width:160px">正股近3月走势·不复权</th>';
+    h+='<th style="width:160px">正股近3月走势</th>';
     h+='<th>操作</th>';
     h+='</tr></thead><tbody>';
     rows.forEach((r,i)=>{
@@ -2901,7 +2901,7 @@ function cbkBuildReview(data,name){
   else if(ma20v>ma60v){maRel='20日线在60日线上方(多头)';maCls='up';}
   else{maRel='20日线在60日线下方(空头)';maCls='down';}
   const dir3m=isFinite(chg3m)?(chg3m>=0?'up':'down'):'flat';
-  const sum='<span class="tag '+(dir3m==='up'?'up-bg':dir3m==='down'?'down-bg':'flat-bg')+'">近3月'+cbkFmtPct(chg3m)+'</span>'+cbkEsc(name)+'（不复权）'+trendWord+'，当前'+posWord+'，整体'+(maCls==='up'?'偏强':maCls==='down'?'偏弱':'中性')+'。';
+  const sum='<span class="tag '+(dir3m==='up'?'up-bg':dir3m==='down'?'down-bg':'flat-bg')+'">近3月'+cbkFmtPct(chg3m)+'</span>'+cbkEsc(name)+trendWord+'，当前'+posWord+'，整体'+(maCls==='up'?'偏强':maCls==='down'?'偏弱':'中性')+'。';
   const lines=[
     '<div class="line">区间最高 <b class="up">¥'+cbkFmtPrice(max)+'</b>('+maxDate+') ｜ 最低 <b class="down">¥'+cbkFmtPrice(min)+'</b>('+minDate+')</div>',
     '<div class="line">最新收盘 <b class="'+(dir3m==='up'?'up':(dir3m==='down'?'down':'flat'))+'">¥'+cbkFmtPrice(last)+'</b>，相对20日线 '+posWord+'</div>',
@@ -3046,7 +3046,7 @@ async function cbkLoadReview(el,code,name,opts){
     const rev=cbkBuildReview(data,name);
     const dir3m=rev.chg3m>=0?'up':'down';
     const head=document.createElement('div');head.className='kline-head';
-    head.innerHTML='<div class="kline-h-title"><span class="name">'+cbkEsc(name)+'</span><span class="dot '+(dir3m==='up'?'up':'down')+'"></span><span>正股近3月走势·不复权</span><span class="kline-h-pct '+(dir3m==='up'?'up':'down')+'">'+(rev.chg3m>=0?'+':'')+rev.chg3m.toFixed(1)+'%</span></div><div class="kline-h-toggle">▾</div>';
+    head.innerHTML='<div class="kline-h-title"><span class="name">'+cbkEsc(name)+'</span><span class="dot '+(dir3m==='up'?'up':'down')+'"></span><span>正股近3月走势</span><span class="kline-h-pct '+(dir3m==='up'?'up':'down')+'">'+(rev.chg3m>=0?'+':'')+rev.chg3m.toFixed(1)+'%</span></div><div class="kline-h-toggle">▾</div>';
     const body=document.createElement('div');body.className='kline-body';
     const chartBox=document.createElement('div');chartBox.className='kline-chart';
     const review=document.createElement('div');review.className='kline-review';
