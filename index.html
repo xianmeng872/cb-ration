@@ -2813,6 +2813,8 @@ async function initApp(){
   renderUserArea();
   if(activeTab==="pend")renderPend();
   if(activeTab==="progress")renderProgress();
+  // 【修复】已登录则主动从云端拉取最新关注，解决刷新/换设备后不同步
+  if(currentUser && isCloudReady()){ tryPullCloud(); }
 
   // 延迟加载实时数据（给页面渲染留时间）
   setTimeout(()=>{
@@ -2823,6 +2825,10 @@ async function initApp(){
 }
 // PC端：点击页面其他区域关闭用户下拉菜单
 document.addEventListener("click",function(){var d=document.getElementById("pcUDrop");if(d)d.classList.remove("show");});
+// 【增强】页面从后台切回前台时，若已登录则重新拉取云端关注，保证另一端更新后即时同步
+document.addEventListener("visibilitychange",function(){
+  if(document.visibilityState==="visible" && currentUser && isCloudReady()){ tryPullCloud(); }
+});
 initApp();
 setInterval(()=>setTime("数据更新"), 30000);
 // 把版本号同步到浏览器标签标题，方便一眼判断是否加载了最新页
