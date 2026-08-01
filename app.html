@@ -352,7 +352,6 @@
   .sheet-apply:active{transform:scale(.98)}
   /* filter-trigger 仅PC端显示（通过JS openProgSheet 触发），手机端已由全局 @media 隐藏 */
 
-
   /* ===== 布局切换器 ===== */
   .layout-switcher{display:flex;gap:4px}
   .layout-btn{width:28px;height:28px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s}
@@ -833,22 +832,6 @@ function fetchPrice(stockCode){
 }
 
 // ===== 正股K线数据获取（东方财富历史K线接口） =====
-async function fetchKLine(stockCode, months=3){
-  if(!stockCode) return [];
-  const mkt=stockCode[0]==="6"?"1":"0"; // 1=沪,0=深
-  const url="https://push2his.eastmoney.com/api/qt/stock/kline/get?secid="+mkt+"."+stockCode+"&fields1=f1,f2,f3&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=101&fqt=1&beg=0&end=20500101&lmt="+Math.ceil(months*22);
-  try{
-    const resp=await fetch(url,{cache:"no-store"});
-    const json=await resp.json();
-    if(json.data&&json.data.klines){
-      return json.data.klines.map(line=>{
-        const p=line.split(",");
-        return{date:p[0],open:+p[1],close:+p[2],high:+p[3],low:+p[4],vol:+p[5],amt:+p[6]||0};
-      });
-    }
-  }catch(e){ console.warn("K线获取失败:",stockCode,e.message); }
-  return [];
-}
 // 根据K线数据生成AI风格点评
 function generateStockComment(klines, stockName){
   if(!klines||klines.length<10) return null;
