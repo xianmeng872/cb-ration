@@ -465,7 +465,8 @@ table td[data-label="进展日期"],table th[data-label="进展日期"]{white-sp
 .badge.b-zz1000{background:#d3f9d8;color:#2f9e44}
 .badge.b-zz2000{background:#f3d9fa;color:#9c36b5}
 .badge.b-other{background:#f1f3f5;color:#868e96}
-.idx-badges{margin-top:5px;display:flex;flex-wrap:wrap;gap:4px}
+.idx-badges{display:flex;flex-wrap:wrap;gap:4px}
+.kline-review .line.idx-line{padding:2px 0}
 </style>
 </head>
 <body>
@@ -2383,7 +2384,7 @@ function renderFav(){
       const mktTag=mkt?'<span style="font-size:10px;background:'+(mkt==="沪"?"#fff4ea;color:#ea580c":"#f3f4f6;color:#6b7280")+';padding:1px 6px;border-radius:8px;font-weight:700;margin-left:4px">'+mkt+'</span>':"";
       const id=getRowId(r,r._kind);
       h+='<tr class="clickable" data-i="'+i+'" data-kind="'+r._kind+'">';
-      h+='<td data-label="正股/转债"><div class="name">'+(r.stockName||r.name||"-")+mktTag+(cbkIdxBadges(r.stockCode)||'')+'</div><div class="code">'+(r.stockCode||r.code||"")+(r.name&&r._kind==="progress"?(" · "+r.name):(r._kind==="pend"&&r.stockName?(" · "+r.stockName):""))+'</div></td>';
+      h+='<td data-label="正股/转债"><div class="name">'+(r.stockName||r.name||"-")+mktTag+'</div><div class="code">'+(r.stockCode||r.code||"")+(r.name&&r._kind==="progress"?(" · "+r.name):(r._kind==="pend"&&r.stockName?(" · "+r.stockName):""))+'</div></td>';
       if(r._kind==="progress"){
         const isBuy=r.progress==="90" && r.progress_nm && r.progress_nm.indexOf("申购")>=0;
         const lbl=isBuy?"申购":progressLabel(r);
@@ -2874,7 +2875,7 @@ async function cbkFetchKline(code){
   if(!fbArr||!fbArr.length) throw new Error('无数据');
   return fbArr.filter(x=>x[0]>=startStr).map(x=>({date:x[0],close:+x[2]}));
 }
-function cbkBuildReview(data,name){
+function cbkBuildReview(data,name,code){
   const clean=data.map(d=>({date:d.date||d.d,close:isFinite(d.close!==undefined?d.close:d.c)?+(d.close!==undefined?d.close:d.c):NaN})).filter(d=>d.date&&isFinite(d.close));
   if(clean.length<5) throw new Error('有效数据不足（仅'+clean.length+'条）');
   const closes=clean.map(d=>d.close),dates=clean.map(d=>d.date);
@@ -2898,7 +2899,9 @@ function cbkBuildReview(data,name){
   else{maRel='20日线在60日线下方(空头)';maCls='down';}
   const dir3m=isFinite(chg3m)?(chg3m>=0?'up':'down'):'flat';
   const sum='<span class="tag '+(dir3m==='up'?'up-bg':dir3m==='down'?'down-bg':'flat-bg')+'">近3月'+cbkFmtPct(chg3m)+'</span>'+cbkEsc(name)+trendWord+'，当前'+posWord+'，整体'+(maCls==='up'?'偏强':maCls==='down'?'偏弱':'中性')+'。';
+  const idxBadges=cbkIdxBadges(code);
   const lines=[
+    (idxBadges?'<div class="line idx-line"><span class="idx-badges">'+idxBadges+'</span></div>':''),
     '<div class="line">区间最高 <b class="up">¥'+cbkFmtPrice(max)+'</b> ｜ 最低 <b class="down">¥'+cbkFmtPrice(min)+'</b></div>',
     '<div class="line">最新收盘 <b class="'+(dir3m==='up'?'up':(dir3m==='down'?'down':'flat'))+'">¥'+cbkFmtPrice(last)+'</b>，'+posWord+'</div>',
     '<div class="line">20日均线 <b>¥'+(ma20v!=null?cbkFmtPrice(ma20v):'--')+'</b> ｜ 60日均线 <b>¥'+(ma60v!=null?cbkFmtPrice(ma60v):'--')+'</b></div>',
@@ -3030,7 +3033,7 @@ async function cbkLoadReview(el,code,name,opts){
       wrap.appendChild(box);wrap.appendChild(tag);
       el.innerHTML='';el.appendChild(wrap);
       cbkRenderMiniSVG(box,data);
-      let rev; try{rev=cbkBuildReview(data,name);}catch(e2){rev={sum:'近3月点评',lines:['<div class="line">数据不足，暂无法生成点评</div>']};}
+      let rev; try{rev=cbkBuildReview(data,name,code);}catch(e2){rev={sum:'近3月点评',lines:['<div class="line">数据不足，暂无法生成点评</div>']};}
       wrap.addEventListener('mouseenter',function(){if(cbkHideTimer){clearTimeout(cbkHideTimer);cbkHideTimer=null;}cbkShowPop(wrap,rev);});
       wrap.addEventListener('mouseleave',function(){cbkHideTimer=setTimeout(cbkHidePop,160);});
       wrap.addEventListener('click',function(e){e.stopPropagation();cbkShowPop(wrap,rev);});
@@ -3040,7 +3043,7 @@ async function cbkLoadReview(el,code,name,opts){
   el.innerHTML='<div class="kline-loading">加载走势中…</div>';
   try{
     const data=await cbkFetchKline(norm);
-    const rev=cbkBuildReview(data,name);
+    const rev=cbkBuildReview(data,name,code);
     const dir3m=rev.chg3m>=0?'up':'down';
     const head=document.createElement('div');head.className='kline-head';
     head.innerHTML='<div class="kline-h-title"><span class="name">'+cbkEsc(name)+'</span><span class="dot '+(dir3m==='up'?'up':'down')+'"></span><span>正股近3月走势</span><span class="kline-h-pct '+(dir3m==='up'?'up':'down')+'">'+(rev.chg3m>=0?'+':'')+rev.chg3m.toFixed(1)+'%</span></div><div class="kline-h-toggle">▾</div>';
