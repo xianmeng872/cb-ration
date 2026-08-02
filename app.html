@@ -3033,7 +3033,7 @@ async function cbkLoadReview(el,code,name,opts){
       wrap.appendChild(box);wrap.appendChild(tag);
       el.innerHTML='';el.appendChild(wrap);
       cbkRenderMiniSVG(box,data);
-      let rev; try{rev=cbkBuildReview(data,name,code);}catch(e2){rev={sum:'近3月点评',lines:['<div class="line">数据不足，暂无法生成点评</div>']};}
+      let rev; try{rev=cbkBuildReview(data,name,code);}catch(e2){rev={sum:'近3月点评 '+cbkIdxBadges(code),lines:['<div class="line">数据不足，暂无法生成点评</div>']};}
       wrap.addEventListener('mouseenter',function(){if(cbkHideTimer){clearTimeout(cbkHideTimer);cbkHideTimer=null;}cbkShowPop(wrap,rev);});
       wrap.addEventListener('mouseleave',function(){cbkHideTimer=setTimeout(cbkHidePop,160);});
       wrap.addEventListener('click',function(e){e.stopPropagation();cbkShowPop(wrap,rev);});
