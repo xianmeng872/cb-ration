@@ -286,32 +286,6 @@
   }
  },
  {
-  "stockCode": "600389",
-  "stockName": "江山股份",
-  "code": "110102",
-  "name": "江农转债",
-  "progress": "90",
-  "progress_nm": "2026-07-14申购 申购代码733389",
-  "scale": 11.85,
-  "convertPrice": 20.64,
-  "price": 21.14,
-  "perPre": 2.751,
-  "apply10": 364,
-  "ration_rt": "71.600",
-  "rating_cd": "AA+",
-  "progress_full": "2023-12-30 董事会预案\n2024-04-20 股东大会通过\n2026-01-13 交易所受理\n2026-05-21 上市委通过\n2026-06-18 同意注册",
-  "accept_date": "2026-01-13",
-  "progress_dt": "2026-07-14",
-  "_c": {
-   "cv": 102.42248062015504,
-   "needShares": 364,
-   "needMoney": 7694.96,
-   "baiyuan": 13.01324503311258,
-   "price": 21.14,
-   "estFloat": 8.42
-  }
- },
- {
   "stockCode": "605123",
   "stockName": "派克新材",
   "code": "",
