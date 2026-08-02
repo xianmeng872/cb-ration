@@ -147,7 +147,7 @@
   .fav-btn.active:hover{color:#dc2626;transform:scale(1.1)}
   .cb-item{position:relative}
   /* PC端表格"操作"列内的爱心按钮：内联显示，非absolute */
-  td .fav-btn{position:relative;top:auto;right:auto;width:auto;height:auto;border:none;background:none;font-size:18px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:2px 4px;margin-right:32px;color:#d1d5db;box-shadow:none}
+  td .fav-btn,table td .fav-btn{position:static!important;top:auto!important;right:auto!important;width:auto!important;height:auto!important;border:none!important;background:transparent!important;font-size:18px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0!important;margin:0 4px 0 0!important;box-shadow:none!important}
   td .fav-btn.active{color:#ef4444}
   td .fav-btn:hover{transform:scale(1.2)}
 
@@ -482,12 +482,13 @@ table td[data-label="进展日期"],table th[data-label="进展日期"]{white-sp
 .note-col-c{font-size:14px;color:#cfd4db;cursor:pointer;transition:.15s}
 .note-col-c:hover{color:#ea580c}
 .note-col-c.has{color:#ea580c}
-.note-ico-m{display:inline-block;font-size:14px;color:#a3a8b3;cursor:pointer;margin-left:4px;transition:.15s;vertical-align:middle;opacity:.75}
+.note-ico-m{display:inline-block;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;vertical-align:middle;padding:1px 6px;border-radius:4px;line-height:1.4;background:#f3f4f6;color:#6b7280;border:1px solid #e5e7eb}
+.note-ico-m:hover{background:#e5e7eb;color:#374151}
 .note-td{text-align:center;width:46px;padding:0 4px;}
 .note-td .note-ico-m{margin-left:0;}
 .note-th{width:46px;text-align:center;color:#6b7280;font-weight:500;}
-.note-ico-m:hover{color:#ea580c}
-.note-ico-m.has{color:#ea580c}
+
+.note-ico-m.has{background:#fef3c7;color:#b45309;border-color:#fde68a;font-weight:700}
 .noteMask{position:fixed;inset:0;background:rgba(31,41,55,.5);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:300;padding:18px}
 .noteMask.show{display:flex}
 .noteModal{background:#fff;border-radius:14px;width:420px;max-width:100%;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.25);animation:noteAuthIn .22s ease-out}
@@ -2296,7 +2297,7 @@ function renderFav(){
       const pr=progressOfId(f.id);
       const tag=pr?('<span class="tag tag-s'+pr+'">'+(PROG_LABEL[pr]||pr)+'</span>'):'<span class="tag tag-slist">数据源无</span>';
       fallback+='<div class="cb-item" data-i="'+i+'" data-kind="fallback">';
-      fallback+='<div class="cb-name"><span class="n">'+nm+'</span><span class="c">'+f.id+'</span><button class="fav-btn active" data-fav="'+f.id+'" data-kind="pend">♥</button><span class="note-ico-m" data-note-id="'+f.id+'">📝</span></div>';
+      fallback+='<div class="cb-name"><span class="n">'+nm+'</span><span class="c">'+f.id+'</span><button class="fav-btn active" data-fav="'+f.id+'" data-kind="pend">♥</button><span class="note-ico-m" data-note-id="'+f.id+'">备</span></div>';
       fallback+='<div class="cb-stats">';
       fallback+='<span class="s"><span class="l">阶段</span><span class="v">'+tag+'</span></span>';
       fallback+='<span class="s"><span class="l">关注ID</span><span class="v">'+f.id+'</span></span>';
@@ -2329,7 +2330,7 @@ function renderFav(){
         const shortD=dStr!=="-"?dStr.slice(0,10):"-";
         const id=getRowId(r,"pend");
         h+='<div class="cb-item" data-i="'+i+'" data-kind="pend">';
-        h+='<div class="cb-name"><span class="n">'+(r.name||"-")+'</span><span class="c">'+(r.code||"")+'</span>'+favBtnHtml(id,"pend")+'<span class="note-ico-m" data-note-id="'+id+'">📝</span></div>';
+        h+='<div class="cb-name"><span class="n">'+(r.name||"-")+'</span><span class="c">'+(r.code||"")+'</span>'+favBtnHtml(id,"pend")+'<span class="note-ico-m" data-note-id="'+id+'">备</span></div>';
         // 3列×2行：配售 | 规模 | 状态 | 所需资金 | 流通 | 日期（恢复状态和日期独立位）
         const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
         h+='<div class="cb-stats">';
@@ -2358,7 +2359,7 @@ function renderFav(){
         const shortD=dStr!=="-"?dStr.slice(0,10):"-";
         const id=getRowId(r,"progress");
         h+='<div class="cb-item" data-i="'+i+'" data-kind="progress">';
-        h+='<div class="cb-name"><span class="n">'+(r.stockName||r.name||"-")+'</span><span class="c">'+(r.code||r.stockCode||"")+'</span>'+favBtnHtml(id,"progress")+'<span class="note-ico-m" data-note-id="'+id+'">📝</span></div>';
+        h+='<div class="cb-name"><span class="n">'+(r.stockName||r.name||"-")+'</span><span class="c">'+(r.code||r.stockCode||"")+'</span>'+favBtnHtml(id,"progress")+'<span class="note-ico-m" data-note-id="'+id+'">备</span></div>';
         // 3列×2行（与审核进度Tab统一，标签隐藏占位）
         const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
         h+='<div class="cb-stats">';
@@ -2389,7 +2390,7 @@ function renderFav(){
         const nm=nameOfId(f.id);
         const pr=progressOfId(f.id);
         const tag=pr?('<span class="tag tag-s'+pr+'">'+(PROG_LABEL[pr]||pr)+'</span>'):'<span class="muted">-</span>';
-        fb+='<tr><td>'+nm+'</td><td><span class="muted">'+f.id+'</span></td><td>'+tag+'</td><td>'+(f.seen||"未记录")+'</td><td style="text-align:right">'+favBtnHtml(f.id,"pend")+'</td><td class="note-td" data-note-id="'+f.id+'"><span class="note-ico-m">📝</span></td>';
+        fb+='<tr><td>'+nm+'</td><td><span class="muted">'+f.id+'</span></td><td>'+tag+'</td><td>'+(f.seen||"未记录")+'</td><td style="text-align:right">'+favBtnHtml(f.id,"pend")+'</td><td class="note-td" data-note-id="'+f.id+'"><span class="note-ico-m">备</span></td>';
       });
       fb+='</tbody></table></div>';
       p.innerHTML=fb;
@@ -2440,7 +2441,7 @@ function renderFav(){
       h+='<td data-label="规模"><span class="num">'+fmt(r.scale)+'</span></td>';
       h+='<td data-label="预估流通"><span class="num">'+(c.estFloat!=null?c.estFloat:'-')+'<span class="muted" style="font-size:10px;font-weight:400"> 预</span></span></td>';
       h+='<td data-label="正股走势"><div class="cb-kline cb-kline-pc" data-sc="'+cbkNormCode(r.stockCode||r.code||"")+'" data-sn="'+cbkEsc(r.stockName||r.name||"")+'"></div></td>';
-      h+='<td style="text-align:right">'+favBtnHtml(id,r._kind)+'</td><td class="note-td" data-note-id="'+id+'"><span class="note-ico-m">📝</span></td>';
+      h+='<td style="text-align:right">'+favBtnHtml(id,r._kind)+'</td><td class="note-td" data-note-id="'+id+'"><span class="note-ico-m">备</span></td>';
       h+='</tr>';
     });
     h+='</tbody></table></div>';
