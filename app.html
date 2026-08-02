@@ -432,7 +432,6 @@
 .cb-kline .kline-review{font-size:11.5px;line-height:1.7;color:#3a3f4e;background:#f8f9fc;border-radius:8px;padding:7px 9px;margin-top:4px;}
 .cb-kline .kline-review .line{margin:1px 0;font-size:11px;}
 .cb-kline .kline-review .sum{font-weight:700;font-size:12px;margin-bottom:3px;}
-.kline-review .sum .badge{display:inline-block;margin-left:6px;vertical-align:middle;transform:translateY(-1px);}
 .cb-kline .kline-review .up{color:#e34d4d;}
 .cb-kline .kline-review .down{color:#2ba471;}
 .cb-kline .kline-review .up-bg{background:#fdecec;color:#e34d4d;padding:1px 6px;border-radius:6px;font-weight:600;font-size:11px;}
@@ -454,6 +453,9 @@ table td[data-label="进展日期"],table th[data-label="进展日期"]{white-sp
 .kline-pop .kline-review{background:transparent;padding:0;margin:0;}
 .kline-pop .kline-review .sum{font-weight:700;font-size:12px;margin-bottom:4px;}
 .kline-pop .kline-review .line{margin:2px 0;font-size:11px;}
+.kline-review .line.idx-line{padding:6px 0 2px;margin-top:4px;border-top:1px dashed #e8e8e8;color:#999;font-size:12px}
+.kline-review .line.idx-line .idx-label{margin-right:6px;font-weight:600;color:#666}
+.kline-review .line.idx-line .badge{margin-left:0;margin-right:6px}
 .kline-pop .kline-review .up{color:#e34d4d;}
 .kline-pop .kline-review .down{color:#2ba471;}
 .kline-pop .kline-review .up-bg{background:#fdecec;color:#e34d4d;padding:1px 6px;border-radius:6px;font-weight:600;font-size:11px;}
@@ -2898,9 +2900,9 @@ function cbkBuildReview(data,name,code){
   if(ma20v==null||ma60v==null){maRel='均线样本不足';maCls='flat';}
   else if(ma20v>ma60v){maRel='20日线在60日线上方(多头)';maCls='up';}
   else{maRel='20日线在60日线下方(空头)';maCls='down';}
-  const dir3m=isFinite(chg3m)?(chg3m>=0?'up':'down'):'flat';  const idxBadges=cbkIdxBadges(code);
-  const sum='<span class="tag '+(dir3m==='up'?'up-bg':dir3m==='down'?'down-bg':'flat-bg')+'">近3月'+cbkFmtPct(chg3m)+'</span>'+cbkEsc(name)+idxBadges+trendWord+'，当前'+posWord+'，整体'+(maCls==='up'?'偏强':maCls==='down'?'偏弱':'中性')+'。';
-
+  const dir3m=isFinite(chg3m)?(chg3m>=0?'up':'down'):'flat';
+  const sum='<span class="tag '+(dir3m==='up'?'up-bg':dir3m==='down'?'down-bg':'flat-bg')+'">近3月'+cbkFmtPct(chg3m)+'</span>'+cbkEsc(name)+trendWord+'，当前'+posWord+'，整体'+(maCls==='up'?'偏强':maCls==='down'?'偏弱':'中性')+'。';
+  const idxBadges=cbkIdxBadges(code);
   const lines=[
     '<div class="line">区间最高 <b class="up">¥'+cbkFmtPrice(max)+'</b> ｜ 最低 <b class="down">¥'+cbkFmtPrice(min)+'</b></div>',
     '<div class="line">最新收盘 <b class="'+(dir3m==='up'?'up':(dir3m==='down'?'down':'flat'))+'">¥'+cbkFmtPrice(last)+'</b>，'+posWord+'</div>',
@@ -2908,6 +2910,7 @@ function cbkBuildReview(data,name,code){
     '<div class="line">'+maRel+'</div>',
     '<div class="line">近20日 <span class="'+(isFinite(chg20)?(chg20>=0?'up':'down'):'flat')+'">'+cbkFmtPct(chg20)+'</span> ｜ 近5日 <span class="'+(isFinite(chg5)?(chg5>=0?'up':'down'):'flat')+'">'+cbkFmtPct(chg5)+'</span></div>',
   ];
+  if(idxBadges)lines.push('<div class="line idx-line"><span class="idx-label">宽基成分</span> '+idxBadges+'</div>');
   return {sum,lines,chg3m:isFinite(chg3m)?chg3m:0};
 }
 function cbkEnsureEcharts(cb){
@@ -3033,7 +3036,7 @@ async function cbkLoadReview(el,code,name,opts){
       wrap.appendChild(box);wrap.appendChild(tag);
       el.innerHTML='';el.appendChild(wrap);
       cbkRenderMiniSVG(box,data);
-      let rev; try{rev=cbkBuildReview(data,name,code);}catch(e2){rev={sum:'近3月点评 '+cbkIdxBadges(code),lines:['<div class="line">数据不足，暂无法生成点评</div>']};}
+      let rev; try{rev=cbkBuildReview(data,name,code);}catch(e2){rev={sum:'近3月点评',lines:['<div class="line">数据不足，暂无法生成点评</div>']};}
       wrap.addEventListener('mouseenter',function(){if(cbkHideTimer){clearTimeout(cbkHideTimer);cbkHideTimer=null;}cbkShowPop(wrap,rev);});
       wrap.addEventListener('mouseleave',function(){cbkHideTimer=setTimeout(cbkHidePop,160);});
       wrap.addEventListener('click',function(e){e.stopPropagation();cbkShowPop(wrap,rev);});
@@ -3046,7 +3049,7 @@ async function cbkLoadReview(el,code,name,opts){
     const rev=cbkBuildReview(data,name,code);
     const dir3m=rev.chg3m>=0?'up':'down';
     const head=document.createElement('div');head.className='kline-head';
-    head.innerHTML='<div class="kline-h-title"><span class="name">'+cbkEsc(name)+'</span>'+cbkIdxBadges(code)+'<span class="dot '+(dir3m==='up'?'up':'down')+'"></span><span>正股近3月走势</span><span class="kline-h-pct '+(dir3m==='up'?'up':'down')+'">'+(rev.chg3m>=0?'+':'')+rev.chg3m.toFixed(1)+'%</span></div><div class="kline-h-toggle">▾</div>';
+    head.innerHTML='<div class="kline-h-title"><span class="name">'+cbkEsc(name)+'</span>'<span class="dot '+(dir3m==='up'?'up':'down')+'"></span><span>正股近3月走势</span><span class="kline-h-pct '+(dir3m==='up'?'up':'down')+'">'+(rev.chg3m>=0?'+':'')+rev.chg3m.toFixed(1)+'%</span></div><div class="kline-h-toggle">▾</div>';
     const body=document.createElement('div');body.className='kline-body';
     const chartBox=document.createElement('div');chartBox.className='kline-chart';
     const review=document.createElement('div');review.className='kline-review';
