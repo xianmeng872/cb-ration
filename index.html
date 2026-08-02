@@ -2196,6 +2196,7 @@ async function manualCloudSync(){
   const ok = await syncPushToCloud();
   await tryPullCloud();
   if(activeTab === "fav") renderFav();
+  syncNoteIco(); // 同步完成后全 tab 刷新备注图标（覆盖 has 状态）
   toast(ok ? "☁️ 同步完成" : "⚠️ 云端同步失败，请检查网络");
 }
 function onSyncDotClick(){
@@ -2405,7 +2406,7 @@ function renderFav(){
         const nm=nameOfId(f.id);
         const pr=progressOfId(f.id);
         const tag=pr?('<span class="tag tag-s'+pr+'">'+(PROG_LABEL[pr]||pr)+'</span>'):'<span class="muted">-</span>';
-        fb+='<tr><td>'+nm+'</td><td><span class="muted">'+f.id+'</span></td><td>'+tag+'</td><td>'+(f.seen||"未记录")+'</td><td style="text-align:right">'+favBtnHtml(f.id,"pend")+'</td><td class="note-td" data-note-id="'+f.id+'"><span class="note-ico-m" title="备注">📝</span></td>';
+        fb+='<tr><td>'+nm+'</td><td><span class="muted">'+f.id+'</span></td><td>'+tag+'</td><td>'+(f.seen||"未记录")+'</td><td style="text-align:right">'+favBtnHtml(f.id,"pend")+'</td><td class="note-td" data-note-id="'+f.id+'"><span class="note-ico-m" data-note-id="'+f.id+'" title="备注">📝</span></td>';
       });
       fb+='</tbody></table></div>';
       p.innerHTML=fb;
@@ -2456,7 +2457,7 @@ function renderFav(){
       h+='<td data-label="规模"><span class="num">'+fmt(r.scale)+'</span></td>';
       h+='<td data-label="预估流通"><span class="num">'+(c.estFloat!=null?c.estFloat:'-')+'<span class="muted" style="font-size:10px;font-weight:400"> 预</span></span></td>';
       h+='<td data-label="正股走势"><div class="cb-kline cb-kline-pc" data-sc="'+cbkNormCode(r.stockCode||r.code||"")+'" data-sn="'+cbkEsc(r.stockName||r.name||"")+'"></div></td>';
-      h+='<td style="text-align:right">'+favBtnHtml(id,r._kind)+'</td><td class="note-td" data-note-id="'+id+'"><span class="note-ico-m" title="备注">📝</span></td>';
+      h+='<td style="text-align:right">'+favBtnHtml(id,r._kind)+'</td><td class="note-td" data-note-id="'+id+'"><span class="note-ico-m" data-note-id="'+id+'" title="备注">📝</span></td>';
       h+='</tr>';
     });
     h+='</tbody></table></div>';
