@@ -574,7 +574,7 @@ function syncNoteIco(){document.querySelectorAll('.note-col-c,.note-ico-m').forE
 
   <div class="foot">
     数据源：东方财富 + 腾讯行情 + 集思录 · 每日自动更新(9:00/18:00) · 仅供参考，非投资建议
-    <div id="verStamp" style="margin-top:6px;font-size:11px;color:#bbb">版本 v20260728-0135</div>
+    <div id="verStamp" style="margin-top:6px;font-size:11px;color:#bbb">版本 v20260803-notes-cloud</div>
   </div>
   <div class="disclaimer">本工具只用来回测数据，所涉及标的不作推荐，据此买卖，风险自负。</div>
 </div>
@@ -2172,6 +2172,13 @@ async function cloudUsernameExists(username){
   }catch(e){ return false; }
 }
 // 登录后尝试从云端合并当前用户的关注（跨设备同步）
+let lastSyncTs = null;
+function updateSyncDotTitle(){
+  try{
+    var tip = "云端同步已开启（自动多端）" + (lastSyncTs ? " · 上次同步 " + new Date(lastSyncTs).toLocaleTimeString() : "");
+    document.querySelectorAll('.sync-dot').forEach(function(d){ d.title = tip; d.classList.add('on'); d.classList.remove('off'); });
+  }catch(e){}
+}
 async function tryPullCloud(){
   if(!isCloudReady() || !currentUser) return;
   const u = getCur(); const users = loadUsers(); const rec = users[u];
@@ -2197,7 +2204,8 @@ async function tryPullCloud(){
       const us = loadUsers(); if(us[u]){ const ln=(us[u].notes)||{}; let nc=false; for(const k in cloudNotes){ if(!(k in ln)){ ln[k]=cloudNotes[k]; nc=true; } } if(nc){ us[u].notes=ln; saveUsers(us); } }
     }
   }
-  syncNoteIco(); // 自动拉取（登录/页面加载/切回前台）后刷新备注图标，避免手机端"数据到了但图标不亮"
+  syncNoteIco();
+  lastSyncTs = Date.now(); updateSyncDotTitle(); // 记录上次同步时间，便于用户确认自动同步真的在发生
 }
 // 手动立即同步（点头像旁 ☁️ 触发）
 async function manualCloudSync(){
@@ -2206,8 +2214,9 @@ async function manualCloudSync(){
   const ok = await syncPushToCloud();
   await tryPullCloud();
   if(activeTab === "fav") renderFav();
-  syncNoteIco(); // 同步完成后全 tab 刷新备注图标（覆盖 has 状态）
-  toast(ok ? "☁️ 同步完成" : "⚠️ 云端同步失败，请检查网络");
+  syncNoteIco();
+  if(ok){ lastSyncTs = Date.now(); updateSyncDotTitle(); toast("☁️ 同步完成 ✓ " + new Date().toLocaleTimeString()); }
+  else { toast("⚠️ 同步失败：检查网络，或退出重新登录后再试"); }
 }
 function onSyncDotClick(){
   if(isCloudReady()) manualCloudSync();
@@ -2896,7 +2905,7 @@ setInterval(()=>setTime("数据更新"), 30000);
 (function(){
   try{
     var v=document.getElementById('verStamp');
-    if(v){ var m=v.textContent.match(/v[\d-]+ \(([a-f0-9]+)\)/); if(m){ document.title='cb-ration '+m[1]; } }
+    if(v){ var t=v.textContent.replace(/版本 /,'').trim(); var m=v.textContent.match(/v[\d-]+ \(([a-f0-9]+)\)/); document.title = m ? ('cb-ration '+m[1]) : ('cb-ration '+t); }
   }catch(e){}
 })();
 
