@@ -2295,7 +2295,6 @@ function renderFav(){
         const id=getRowId(r,"pend");
         h+='<div class="cb-item" data-i="'+i+'" data-kind="pend">';
         h+='<div class="cb-name"><span class="n">'+(r.name||"-")+'</span><span class="c">'+(r.code||"")+'</span>'+favBtnHtml(id,"pend")+'</div>';
-        if(ib)h+='<div class="idx-badges">'+(ib||'')+'</div>';
         // 3列×2行：配售 | 规模 | 状态 | 所需资金 | 流通 | 日期（恢复状态和日期独立位）
         const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
         h+='<div class="cb-stats">';
@@ -2325,7 +2324,6 @@ function renderFav(){
         const id=getRowId(r,"progress");
         h+='<div class="cb-item" data-i="'+i+'" data-kind="progress">';
         h+='<div class="cb-name"><span class="n">'+(r.stockName||r.name||"-")+'</span><span class="c">'+(r.code||r.stockCode||"")+'</span>'+favBtnHtml(id,"progress")+'</div>';
-        if(ib)h+='<div class="idx-badges">'+(ib||'')+'</div>';
         // 3列×2行（与审核进度Tab统一，标签隐藏占位）
         const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
         h+='<div class="cb-stats">';
