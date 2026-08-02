@@ -477,26 +477,6 @@ table td[data-label="进展日期"],table th[data-label="进展日期"]{white-sp
 .kline-pop .kline-review .line{font-size:13px}
 .kline-pop .kline-review .sum{font-size:13px}
 }
-
-/* ===== 我的关注·备注功能 ===== */
-.note-col-c{font-size:14px;color:#cfd4db;cursor:pointer;transition:.15s}
-.note-col-c:hover{color:#ea580c}
-.note-col-c.has{color:#ea580c}
-.note-ico-m{font-size:14px;color:#cfd4db;cursor:pointer;margin-left:8px;transition:.15s;vertical-align:middle}
-.note-ico-m:hover{color:#ea580c}
-.note-ico-m.has{color:#ea580c}
-.noteMask{position:fixed;inset:0;background:rgba(31,41,55,.5);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:300;padding:18px}
-.noteMask.show{display:flex}
-.noteModal{background:#fff;border-radius:14px;width:420px;max-width:100%;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.25);animation:noteAuthIn .22s ease-out}
-@keyframes noteAuthIn{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
-.nm-h{background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;padding:15px 18px;font-weight:800;font-size:15px;display:flex;justify-content:space-between;align-items:center}
-.nm-h button{background:rgba(255,255,255,.22);border:none;color:#fff;width:26px;height:26px;border-radius:50%;font-size:18px;cursor:pointer;line-height:1}
-.nm-b{padding:16px 18px}
-#noteTa{width:100%;height:96px;border:1.5px solid #ececef;border-radius:11px;padding:11px 14px;font-size:14px;outline:none;resize:vertical;font-family:inherit;line-height:1.5}
-#noteTa:focus{border-color:#f97316;box-shadow:0 0 0 3px rgba(249,115,22,.15)}
-.nm-f{padding:0 18px 18px;display:flex;justify-content:flex-end;gap:10px}
-.nm-del{background:none;border:1px solid #fecaca;color:#dc2626;padding:9px 16px;border-radius:10px;font-weight:700;cursor:pointer;font-size:13px}
-.nm-save{background:linear-gradient(135deg,#f97316,#ea580c);border:none;color:#fff;padding:9px 20px;border-radius:10px;font-weight:700;cursor:pointer;font-size:13px}
 </style>
 </head>
 <body>
@@ -720,8 +700,8 @@ const KLINE_SNAPSHOT={"300181":[{"date":"2026-05-06","close":15.22},{"date":"202
 const SNAPSHOT_PROGRESS=[
 {"stockCode":"300453","stockName":"三鑫医疗","code":"123280","name":"三鑫转债","progress":"90","progress_nm":"2026-08-04申购 申购代码370453","scale":5.3,"convertPrice":9.72,"price":9.74,"perPre":1.0154,"apply10":985,"ration_rt":null,"rating_cd":"AA-","progress_full":"2025-08-09 董事会预案\n2025-08-27 股东大会通过\n2025-10-29 交易所受理\n2026-04-24 上市委通过\n2026-06-05 同意注册","accept_date":"2025-10-29","progress_dt":"2026-08-04","_c":{"cv":100.20576131687243,"needShares":985,"needMoney":9593.9,"baiyuan":10.425051334702259,"price":9.74,"estFloat":3.71}},
 {"stockCode":"301626","stockName":"苏州天脉","code":"123279","name":"天脉转债","progress":"90","progress_nm":"2026-08-03申购 申购代码371626","scale":7.86,"convertPrice":267.33,"price":225,"perPre":6.7946,"apply10":148,"ration_rt":null,"rating_cd":"AA","progress_full":"2025-10-29 董事会预案\n2025-11-13 股东大会通过\n2025-12-11 交易所受理\n2026-04-24 上市委通过\n2026-06-26 同意注册","accept_date":"2025-12-11","progress_dt":"2026-08-03","_c":{"cv":84.16563797553586,"needShares":148,"needMoney":33300,"baiyuan":3.0198222222222224,"price":225,"estFloat":3.72}},
-{"stockCode":"300697","stockName":"电工合金","code":"123278","name":"合金转债","progress":"90","progress_nm":"2026-07-30申购 申购代码370697","scale":5.45,"convertPrice":13.98,"price":13.09,"perPre":1.2597,"apply10":794,"ration_rt":null,"rating_cd":"AA-","progress_full":"2025-08-29 董事会预案\n2025-12-05 股东大会通过\n2025-12-31 交易所受理\n2026-05-13 上市委通过\n2026-07-03 同意注册","accept_date":"2025-12-31","progress_dt":"2026-07-30","_c":{"cv":93.63376251788269,"needShares":794,"needMoney":10393.46,"baiyuan":9.623376623376624,"price":13.09,"estFloat":2.11}},
-{"stockCode":"603067","stockName":"振华股份","code":"113709","name":"振26转债","progress":"90","progress_nm":"2026-07-30申购 申购代码754067","scale":8.78,"convertPrice":40.33,"price":31.14,"perPre":1.162,"apply10":861,"ration_rt":null,"rating_cd":"AA","progress_full":"2026-01-05 董事会预案\n2026-01-21 股东大会通过\n2026-04-08 交易所受理\n2026-06-02 上市委通过\n2026-06-30 同意注册","accept_date":"2026-04-08","progress_dt":"2026-07-30","_c":{"cv":77.21299280932308,"needShares":861,"needMoney":26811.54,"baiyuan":3.7315350032113033,"price":31.14,"estFloat":5.07}},
+{"stockCode":"300697","stockName":"电工合金","code":"123278","name":"合金转债","progress":"90","progress_nm":"2026-07-30申购 申购代码370697","scale":5.45,"convertPrice":13.98,"price":13.09,"perPre":1.2597,"apply10":794,"ration_rt":"87.320","rating_cd":"AA-","progress_full":"2025-08-29 董事会预案\n2025-12-05 股东大会通过\n2025-12-31 交易所受理\n2026-05-13 上市委通过\n2026-07-03 同意注册","accept_date":"2025-12-31","progress_dt":"2026-07-30","_c":{"cv":93.63376251788269,"needShares":794,"needMoney":10393.46,"baiyuan":9.623376623376624,"price":13.09,"estFloat":2.11}},
+{"stockCode":"603067","stockName":"振华股份","code":"113709","name":"振26转债","progress":"90","progress_nm":"2026-07-30申购 申购代码754067","scale":8.78,"convertPrice":40.33,"price":31.14,"perPre":1.162,"apply10":861,"ration_rt":"77.170","rating_cd":"AA","progress_full":"2026-01-05 董事会预案\n2026-01-21 股东大会通过\n2026-04-08 交易所受理\n2026-06-02 上市委通过\n2026-06-30 同意注册","accept_date":"2026-04-08","progress_dt":"2026-07-30","_c":{"cv":77.21299280932308,"needShares":861,"needMoney":26811.54,"baiyuan":3.7315350032113033,"price":31.14,"estFloat":5.07}},
 {"stockCode":"688686","stockName":"奥普特","code":"118075","name":"奥普转债","progress":"90","progress_nm":"2026-07-29申购 申购代码718686","scale":12.7,"convertPrice":150.03,"price":103.9,"perPre":10.396,"apply10":97,"ration_rt":"87.660","rating_cd":"AA","progress_full":"2026-02-10 董事会预案\n2026-02-26 股东大会通过\n2026-04-04 交易所受理\n2026-05-29 上市委通过\n2026-06-30 同意注册","accept_date":"2026-04-04","progress_dt":"2026-07-29","_c":{"cv":69.25281610344598,"needShares":97,"needMoney":10078.300000000001,"baiyuan":10.005774783445622,"price":103.9,"estFloat":3.53}},
 {"stockCode":"300815","stockName":"玉禾田","code":"123277","name":"玉禾转债","progress":"90","progress_nm":"2026-07-29申购 申购代码370815","scale":15,"convertPrice":16.35,"price":15.27,"perPre":3.7632,"apply10":266,"ration_rt":"82.270","rating_cd":"AA","progress_full":"2024-08-30 董事会预案\n2024-09-18 股东大会通过\n2025-10-20 交易所受理\n2026-03-05 上市委通过\n2026-04-22 同意注册","accept_date":"2025-10-20","progress_dt":"2026-07-29","_c":{"cv":93.39449541284402,"needShares":266,"needMoney":4061.8199999999997,"baiyuan":24.644400785854618,"price":15.27,"estFloat":8.56}},
 {"stockCode":"688278","stockName":"特宝生物","code":"118074","name":"特宝转债","progress":"90","progress_nm":"2026-07-28申购 申购代码718278","scale":15.33,"convertPrice":58.56,"price":58.35,"perPre":3.857,"apply10":260,"ration_rt":"93.320","rating_cd":"AA+","progress_full":"2026-01-27 董事会预案\n2026-02-12 股东大会通过\n2026-04-24 交易所受理\n2026-05-27 上市委通过\n2026-06-26 同意注册","accept_date":"2026-04-24","progress_dt":"2026-07-28","_c":{"cv":99.64139344262296,"needShares":260,"needMoney":15171,"baiyuan":6.610111396743788,"price":58.35,"estFloat":6.47}},
@@ -1134,7 +1114,7 @@ function renderPend(){
   h+='</tbody></table></div>';
   p.innerHTML=h;
   p.querySelectorAll("tr.clickable").forEach(tr=>tr.onclick=(e)=>{
-    if(e.target.classList.contains("fav-btn")||e.target.closest(".note-col-c,.note-ico-m"))return;
+    if(e.target.classList.contains("fav-btn"))return;
     openDetail(rows[+tr.dataset.i],"pend");
   });
   p.querySelectorAll("thead th[data-sf]").forEach(th=>th.onclick=()=>{
@@ -1142,7 +1122,7 @@ function renderPend(){
     pendSort={field:f, dir:pendSort.field===f?-pendSort.dir:1};
     renderPend();
   });
-  bindFavBtns(p);syncNoteIco();
+  bindFavBtns(p);
 }
 function stageTagOf(r){
   // 待发债阶段标签：申购(未到申购日) / 待上市(已过申购日、等待上市) / 待发行 / 待发(兜底)
@@ -1420,7 +1400,7 @@ function renderProgress(){
   h+='</tbody></table></div>';
   p.innerHTML=h;
   p.querySelectorAll("tr.clickable").forEach(tr=>tr.onclick=(e)=>{
-    if(e.target.classList.contains("fav-btn")||e.target.closest(".note-col-c,.note-ico-m"))return;
+    if(e.target.classList.contains("fav-btn"))return;
     openDetail(rows[+tr.dataset.i],"progress");
   });
   p.querySelectorAll("thead th[data-sf]").forEach(th=>th.onclick=()=>{
@@ -1428,7 +1408,7 @@ function renderProgress(){
     progSort={field:f, dir:progSort.field===f?-progSort.dir:1};
     renderProgress();
   });
-  bindFavBtns(p);syncNoteIco();
+  bindFavBtns(p);
 }
 // 记录打开详情前的来源Tab（用于返回时恢复）
 var _detailSourceTab=null;
@@ -2287,7 +2267,7 @@ function renderFav(){
       const pr=progressOfId(f.id);
       const tag=pr?('<span class="tag tag-s'+pr+'">'+(PROG_LABEL[pr]||pr)+'</span>'):'<span class="tag tag-slist">数据源无</span>';
       fallback+='<div class="cb-item" data-i="'+i+'" data-kind="fallback">';
-      fallback+='<div class="cb-name"><span class="n">'+nm+'</span><span class="c">'+f.id+'</span><button class="fav-btn active" data-fav="'+f.id+'" data-kind="pend">♥</button><span class="note-ico-m" data-note-id="'+f.id+'">📝</span></div>';
+      fallback+='<div class="cb-name"><span class="n">'+nm+'</span><span class="c">'+f.id+'</span><button class="fav-btn active" data-fav="'+f.id+'" data-kind="pend">♥</button></div>';
       fallback+='<div class="cb-stats">';
       fallback+='<span class="s"><span class="l">阶段</span><span class="v">'+tag+'</span></span>';
       fallback+='<span class="s"><span class="l">关注ID</span><span class="v">'+f.id+'</span></span>';
@@ -2297,7 +2277,7 @@ function renderFav(){
     });
     fallback+='</div>';
     p.innerHTML=fallback;
-    bindFavBtns(p);syncNoteIco();
+    bindFavBtns(p);
     return;
   }
   // 按类型分组：待发/审核中
@@ -2320,7 +2300,7 @@ function renderFav(){
         const shortD=dStr!=="-"?dStr.slice(0,10):"-";
         const id=getRowId(r,"pend");
         h+='<div class="cb-item" data-i="'+i+'" data-kind="pend">';
-        h+='<div class="cb-name"><span class="n">'+(r.name||"-")+'</span><span class="c">'+(r.code||"")+'</span>'+favBtnHtml(id,"pend")+'<span class="note-ico-m" data-note-id="'+id+'">📝</span></div>';
+        h+='<div class="cb-name"><span class="n">'+(r.name||"-")+'</span><span class="c">'+(r.code||"")+'</span>'+favBtnHtml(id,"pend")+'</div>';
         // 3列×2行：配售 | 规模 | 状态 | 所需资金 | 流通 | 日期（恢复状态和日期独立位）
         const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
         h+='<div class="cb-stats">';
@@ -2349,7 +2329,7 @@ function renderFav(){
         const shortD=dStr!=="-"?dStr.slice(0,10):"-";
         const id=getRowId(r,"progress");
         h+='<div class="cb-item" data-i="'+i+'" data-kind="progress">';
-        h+='<div class="cb-name"><span class="n">'+(r.stockName||r.name||"-")+'</span><span class="c">'+(r.code||r.stockCode||"")+'</span>'+favBtnHtml(id,"progress")+'<span class="note-ico-m" data-note-id="'+id+'">📝</span></div>';
+        h+='<div class="cb-name"><span class="n">'+(r.stockName||r.name||"-")+'</span><span class="c">'+(r.code||r.stockCode||"")+'</span>'+favBtnHtml(id,"progress")+'</div>';
         // 3列×2行（与审核进度Tab统一，标签隐藏占位）
         const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
         h+='<div class="cb-stats">';
@@ -2375,16 +2355,16 @@ function renderFav(){
     if(!rows.length){
       // PC端同样的兜底：关注的债匹配不到时，按 favorites id 直接展示
       let fb='<div class="card"><div class="empty" style="padding:18px 12px">⚠️ 当前数据源未匹配到这 '+currentUser.favorites.length+' 条关注（可能已下市/退市/数据源延迟）</div>';
-      fb+='<div class="card"><table><thead><tr><th>名称</th><th>关注ID</th><th>阶段</th><th>已记录进度</th><th>操作</th><th style="text-align:center;width:46px">备</th></tr></thead><tbody>';
+      fb+='<div class="card"><table><thead><tr><th>名称</th><th>关注ID</th><th>阶段</th><th>已记录进度</th><th>操作</th></tr></thead><tbody>';
       currentUser.favorites.forEach(f=>{
         const nm=nameOfId(f.id);
         const pr=progressOfId(f.id);
         const tag=pr?('<span class="tag tag-s'+pr+'">'+(PROG_LABEL[pr]||pr)+'</span>'):'<span class="muted">-</span>';
-        fb+='<tr><td>'+nm+'</td><td><span class="muted">'+f.id+'</span></td><td>'+tag+'</td><td>'+(f.seen||"未记录")+'</td><td style="text-align:right">'+favBtnHtml(f.id,"pend")+'</td><td style="text-align:center">'+noteColHtml(f.id)+'</td></tr>';
+        fb+='<tr><td>'+nm+'</td><td><span class="muted">'+f.id+'</span></td><td>'+tag+'</td><td>'+(f.seen||"未记录")+'</td><td style="text-align:right">'+favBtnHtml(f.id,"pend")+'</td></tr>';
       });
       fb+='</tbody></table></div>';
       p.innerHTML=fb;
-      bindFavBtns(p);syncNoteIco();
+      bindFavBtns(p);
       return;
     }
     rows=doSort(rows,favSort);
@@ -2403,7 +2383,7 @@ function renderFav(){
     h+='<th data-sf="scale">规模(亿) '+(fs.field==="scale"?arrow(fs.dir):'')+'</th>';
     h+='<th data-sf="estFloat">预估流通(亿) '+(fs.field==="estFloat"?arrow(fs.dir):'')+'</th>';
     h+='<th style="width:160px">正股近3月走势</th>';
-    h+='<th>操作</th><th style="text-align:center;min-width:46px;width:46px">备</th>';
+    h+='<th>操作</th>';
     h+='</tr></thead><tbody>';
     rows.forEach((r,i)=>{
       const c=r._c||{};
@@ -2431,13 +2411,13 @@ function renderFav(){
       h+='<td data-label="规模"><span class="num">'+fmt(r.scale)+'</span></td>';
       h+='<td data-label="预估流通"><span class="num">'+(c.estFloat!=null?c.estFloat:'-')+'<span class="muted" style="font-size:10px;font-weight:400"> 预</span></span></td>';
       h+='<td data-label="正股走势"><div class="cb-kline cb-kline-pc" data-sc="'+cbkNormCode(r.stockCode||r.code||"")+'" data-sn="'+cbkEsc(r.stockName||r.name||"")+'"></div></td>';
-      h+='<td style="text-align:right">'+favBtnHtml(id,r._kind)+'</td><td style="text-align:center">'+noteColHtml(id)+'</td>';
+      h+='<td style="text-align:right">'+favBtnHtml(id,r._kind)+'</td>';
       h+='</tr>';
     });
     h+='</tbody></table></div>';
     p.innerHTML=h;
     p.querySelectorAll("tr.clickable").forEach(tr=>tr.onclick=(e)=>{
-      if(e.target.classList.contains("fav-btn")||e.target.closest(".note-col-c,.note-ico-m"))return;
+      if(e.target.classList.contains("fav-btn"))return;
       openDetail(rows[+tr.dataset.i],tr.dataset.kind);
     });
     p.querySelectorAll("thead th[data-sf]").forEach(th=>th.onclick=()=>{
@@ -2450,7 +2430,7 @@ function renderFav(){
       renderFav();
     });
     p.querySelectorAll(".cb-kline-pc").forEach(el=>cbkLoadReview(el, el.getAttribute("data-sc"), el.getAttribute("data-sn"), {mini:true}));
-    bindFavBtns(p);syncNoteIco();
+    bindFavBtns(p);
     // PC端:把"全部阶段"那行 chips 从 favPanel 内部挪到 view-fav 搜索框上方（飞哥要求位置对调）
     // 关键：view-fav 内部上次残留的 .chips 容器必须先清掉，否则每次 renderFav 都会多出一排（飞哥反馈"表头变3排"）
     const viewFavEl=$("#view-fav");
@@ -2468,12 +2448,12 @@ function renderFav(){
   p.querySelectorAll(".cb-kline").forEach(el=>cbkLoadReview(el, el.getAttribute("data-sc"), el.getAttribute("data-sn")));
   // 绑定点击事件（手机端）
   p.querySelectorAll(".cb-item").forEach(el=>el.onclick=(e)=>{
-    if(e.target.classList.contains("fav-btn")||e.target.closest(".note-col-c,.note-ico-m"))return;
+    if(e.target.classList.contains("fav-btn"))return;
     const kind=el.dataset.kind;
     const rows=kind==="pend"?pendRows:progRows;
     openDetail(rows[+el.dataset.i],kind);
   });
-  bindFavBtns(p);syncNoteIco();
+  bindFavBtns(p);
   // 手机端「我的关注」排序条：点击切换排序字段/方向，触发重渲染（吸顶）
   p.querySelectorAll(".sort-btn").forEach(btn=>btn.onclick=()=>{
     if(!recordUsage())return;
@@ -2516,7 +2496,7 @@ renderPend=function(){
       }
     }
   });
-  bindFavBtns(p);syncNoteIco();
+  bindFavBtns(p);
 };
 
 const _origRenderProgress=renderProgress;
@@ -2555,7 +2535,7 @@ renderProgress=function(){
       }
     }
   });
-  bindFavBtns(p);syncNoteIco();
+  bindFavBtns(p);
 };
 
 // ==================== 手机端底部筛选排序Sheet（审核进度Tab） ====================
@@ -3092,36 +3072,6 @@ async function cbkLoadReview(el,code,name,opts){
   }
 }
 
-</script>
-
-<!-- 备注弹框 -->
-<div class="noteMask" id="noteMask">
-  <div class="noteModal">
-    <div class="nm-h"><span id="nmTitle">备注</span><button id="nmClose">×</button></div>
-    <div class="nm-b"><textarea id="noteTa" placeholder="写点什么…（例如：等配债、关注转股价值变化）"></textarea></div>
-    <div class="nm-f"><button id="noteDel" class="nm-del">删除</button><button id="noteSave" class="nm-save">保存</button></div>
-  </div>
-</div>
-
-<script>
-
-function getNote(id){try{return localStorage.getItem('cbnote_'+id)||'';}catch(e){return '';}}
-function setNote(id,t){try{if(t)localStorage.setItem('cbnote_'+id,t);else localStorage.removeItem('cbnote_'+id);}catch(e){}}
-function noteColHtml(id){return '<span class="note-col-c" data-note-id="'+id+'">📝</span>';}
-function syncNoteIco(){document.querySelectorAll('.note-col-c,.note-ico-m').forEach(function(el){var t=getNote(el.dataset.noteId);el.classList.toggle('has',!!t);});}
-var _noteCurId=null,_noteCurName='';
-var _noteMask=document.getElementById('noteMask'),_noteTa=document.getElementById('noteTa'),_noteTitle=document.getElementById('nmTitle');
-function openNote(id,name){_noteCurId=id;_noteCurName=name||'';_noteTa.value=getNote(id)||'';_noteTitle.textContent='备注 · '+(_noteCurName||id);_noteMask.classList.add('show');setTimeout(function(){_noteTa.focus();},50);}
-function closeNote(){_noteMask.classList.remove('show');_noteCurId=null;}
-function saveNote(){if(_noteCurId!==null){setNote(_noteCurId,_noteTa.value.trim());}closeNote();syncNoteIco();}
-function delNote(){if(_noteCurId!==null){setNote(_noteCurId,'');}closeNote();syncNoteIco();}
-document.addEventListener('click',function(e){
-  var ent=e.target.closest('.note-col-c,.note-ico-m');
-  if(ent){var id=ent.dataset.noteId;var host=ent.closest('tr.clickable,.cb-item');var nm=host?(host.querySelector('.name,.n')||{}).textContent||'':'';openNote(id,nm);return;}
-  if(e.target.id==='nmClose'||e.target===_noteMask){closeNote();}
-  if(e.target.id==='noteSave'){saveNote();}
-  if(e.target.id==='noteDel'){delNote();}
-});
 </script>
 </body>
 </html>
