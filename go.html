@@ -2188,6 +2188,7 @@ async function tryPullCloud(){
       const us = loadUsers(); if(us[u]){const ln=(us[u].notes)||{};let nc=false;for(const k in cloud.notes){if(!(k in ln)){ln[k]=cloud.notes[k];nc=true;}}if(nc){us[u].notes=ln;saveUsers(us);}}
     }
   }
+  syncNoteIco(); // 自动拉取（登录/页面加载/切回前台）后刷新备注图标，避免手机端"数据到了但图标不亮"
 }
 // 手动立即同步（点头像旁 ☁️ 触发）
 async function manualCloudSync(){
