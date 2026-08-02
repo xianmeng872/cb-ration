@@ -511,8 +511,9 @@ table td[data-label="进展日期"],table th[data-label="进展日期"]{white-sp
 </style>
 
 <script>
-function getNote(id){try{return localStorage.getItem('cbnote_'+id)||'';}catch(e){return '';}}
-function setNote(id,t){try{if(t)localStorage.setItem('cbnote_'+id,t);else localStorage.removeItem('cbnote_'+id);}catch(e){}}
+function getNote(id){try{if(currentUser){const u=getCur();if(u){const us=loadUsers();const rec=us[u];if(rec){if(!rec.notes)rec.notes={};return rec.notes[id]||'';}}}return localStorage.getItem('cbnote_'+id)||'';}catch(e){return '';}}
+function setNote(id,t){try{if(currentUser){const u=getCur();if(u){const us=loadUsers();if(!us[u])return;if(!us[u].notes)us[u].notes={};if(t)us[u].notes[id]=t;else delete us[u].notes[id];saveUsers(us);currentUser=fetchCurrentUser();}}else{if(t)localStorage.setItem('cbnote_'+id,t);else localStorage.removeItem('cbnote_'+id);}}catch(e){}}
+function migrateLocalNotes(){try{if(!currentUser)return;const u=getCur();if(!u)return;const us=loadUsers();if(!us[u])return;if(!us[u].notes)us[u].notes={};let ch=false;for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.indexOf('cbnote_')===0){const code=k.slice(7),val=localStorage.getItem(k);if(val&&!(code in us[u].notes)){us[u].notes[code]=val;ch=true;}localStorage.removeItem(k);}}if(ch){saveUsers(us);currentUser=fetchCurrentUser();}}catch(e){}}
 function syncNoteIco(){document.querySelectorAll('.note-col-c,.note-ico-m').forEach(function(el){var t=getNote(el.dataset.noteId);el.classList.toggle('has',!!t);});}
 </script>
 </head>
@@ -1860,7 +1861,7 @@ async function doAuth(){
         if(rec){
           // 登录：本地与云端合并（云端空不覆盖本地，避免刷新后关注被清空）
           const localFav = users[u] ? (users[u].favorites||[]) : [];
-          users[u]={password:p,securityCode:rec.securityCode||"",favorites:mergeFavorites(localFav, rec.favorites||[]),usageCount:rec.usageCount||0,unlocked:!!rec.unlocked,inviteCode:rec.inviteCode||""};saveUsers(users);
+          users[u]={password:p,securityCode:rec.securityCode||"",favorites:mergeFavorites(localFav, rec.favorites||[]),notes:{},usageCount:rec.usageCount||0,unlocked:!!rec.unlocked,inviteCode:rec.inviteCode||""};saveUsers(users);
         }else{showAuthError("用户名或密码错误");return;}
       }else if(isGistReady()){
         const cloud=await syncPullFromGist();
@@ -1881,7 +1882,7 @@ async function doAuth(){
         const cloud=await syncPullFromGist();
         if(cloud&&cloud.users&&cloud.users[u]){showAuthError("该用户名已被注册");return;}
       }
-      users[u]={password:p,securityCode:sec,favorites:[]};
+      users[u]={password:p,securityCode:sec,favorites:[],notes:{}};
       saveUsers(users);
       finishAuth(u,users,"注册成功，已自动登录（请牢记安全码）");
     }else if(authMode==="forgot"){
@@ -1919,6 +1920,7 @@ async function doAuth(){
 function finishAuth(u,users,msg){
   saveCur(u);
   currentUser=fetchCurrentUser();
+  migrateLocalNotes();
   showAuthModal(false);renderUserArea();
   if(activeTab==="pend")renderPend();
   if(activeTab==="progress")renderProgress();
@@ -2017,6 +2019,7 @@ async function tryPullGist(){
         currentUser.favorites=merged;
         const users=loadUsers();const u=getCur();
         if(users[u]) users[u].favorites=merged;
+        if(cu.notes){users[u].notes=Object.assign({},users[u].notes||{},cu.notes);saveUsers(users);}
         saveUsers(users);
         renderFav();
         toast("☁️ 已从云端同步 "+merged.length+" 条关注");
@@ -2140,7 +2143,7 @@ async function syncPushToCloud(){
   try{
     const t = cfAuthToken(u, rec.password || "");
     const recUsage = rec || {};
-    const body = JSON.stringify({ securityCode: rec.securityCode || "", favorites: rec.favorites || [], usageCount: recUsage.usageCount||0, unlocked: !!recUsage.unlocked, inviteCode: recUsage.inviteCode||"" });
+    const body = JSON.stringify({ securityCode: rec.securityCode || "", favorites: rec.favorites || [], notes: rec.notes || {}, usageCount: recUsage.usageCount||0, unlocked: !!recUsage.unlocked, inviteCode: recUsage.inviteCode||"" });
     const res = await fetch(CF_SYNC_BASE + "/api/sync?u=" + encodeURIComponent(u) + "&t=" + t, {method:"POST", headers:{"Content-Type":"application/json"}, body});
     return res.ok;
   }catch(e){ console.warn("Cloud推送失败:", e.message); return false; }
@@ -2171,13 +2174,18 @@ async function tryPullCloud(){
   const u = getCur(); const users = loadUsers(); const rec = users[u];
   if(!rec) return;
   const cloud = await syncPullFromCloud(u, rec.password || "");
-  if(cloud && cloud.favorites){
-    const merged = mergeFavorites(currentUser.favorites || [], cloud.favorites);
-    const changed = merged.length !== (currentUser.favorites||[]).length || JSON.stringify(merged) !== JSON.stringify(currentUser.favorites||[]);
-    if(changed){
-      currentUser.favorites = merged;
-      const us = loadUsers(); if(us[u]) us[u].favorites = merged; saveUsers(us);
-      renderFav(); toast("☁️ 已从云端同步 " + merged.length + " 条关注");
+  if(cloud && (cloud.favorites||cloud.notes)){
+    if(cloud.favorites){
+      const merged = mergeFavorites(currentUser.favorites || [], cloud.favorites);
+      const changed = merged.length !== (currentUser.favorites||[]).length || JSON.stringify(merged) !== JSON.stringify(currentUser.favorites||[]);
+      if(changed){
+        currentUser.favorites = merged;
+        const us = loadUsers(); if(us[u]) us[u].favorites = merged; saveUsers(us);
+        renderFav(); toast("☁️ 已从云端同步 " + merged.length + " 条关注");
+      }
+    }
+    if(cloud.notes){
+      const us = loadUsers(); if(us[u]){const ln=(us[u].notes)||{};let nc=false;for(const k in cloud.notes){if(!(k in ln)){ln[k]=cloud.notes[k];nc=true;}}if(nc){us[u].notes=ln;saveUsers(us);}}
     }
   }
 }
@@ -3126,8 +3134,8 @@ var _noteCurId=null,_noteCurName='';
 var _noteMask=document.getElementById('noteMask'),_noteTa=document.getElementById('noteTa'),_noteTitle=document.getElementById('nmTitle');
 function openNote(id,name){_noteCurId=id;_noteCurName=name||'';_noteTa.value=getNote(id)||'';_noteTitle.textContent='备注 · '+(_noteCurName||id);_noteMask.classList.add('show');setTimeout(function(){_noteTa.focus();},50);}
 function closeNote(){_noteMask.classList.remove('show');_noteCurId=null;}
-function saveNote(){if(_noteCurId!==null){setNote(_noteCurId,_noteTa.value.trim());}closeNote();syncNoteIco();}
-function delNote(){if(_noteCurId!==null){setNote(_noteCurId,'');}closeNote();syncNoteIco();}
+function saveNote(){if(_noteCurId!==null){setNote(_noteCurId,_noteTa.value.trim());}closeNote();syncNoteIco();if(currentUser)scheduleSyncPush();}
+function delNote(){if(_noteCurId!==null){setNote(_noteCurId,'');}closeNote();syncNoteIco();if(currentUser)scheduleSyncPush();}
 document.addEventListener('click',function(e){
   var ent=e.target.closest('.note-col-c,.note-ico-m');
   if(ent){var id=ent.dataset.noteId;var host=ent.closest('tr.clickable,.cb-item');var nm=host?(host.querySelector('.name,.n')||{}).textContent||'':'';openNote(id,nm);return;}
@@ -3135,6 +3143,7 @@ document.addEventListener('click',function(e){
   if(e.target.id==='noteSave'){saveNote();}
   if(e.target.id==='noteDel'){delNote();}
 });
+migrateLocalNotes();
 syncNoteIco();
 </script>
 </body>
