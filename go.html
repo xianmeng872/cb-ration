@@ -2900,9 +2900,9 @@ function cbkBuildReview(data,name,code){
   if(ma20v==null||ma60v==null){maRel='均线样本不足';maCls='flat';}
   else if(ma20v>ma60v){maRel='20日线在60日线上方(多头)';maCls='up';}
   else{maRel='20日线在60日线下方(空头)';maCls='down';}
-  const dir3m=isFinite(chg3m)?(chg3m>=0?'up':'down'):'flat';  const idxBadges=cbkIdxBadges(code);
+  const dir3m=isFinite(chg3m)?(chg3m>=0?'up':'down'):'flat';
   const sum='<span class="tag '+(dir3m==='up'?'up-bg':dir3m==='down'?'down-bg':'flat-bg')+'">近3月'+cbkFmtPct(chg3m)+'</span>'+cbkEsc(name)+trendWord+'，当前'+posWord+'，整体'+(maCls==='up'?'偏强':maCls==='down'?'偏弱':'中性')+'。';
-
+  const idxBadges=cbkIdxBadges(code);
   const lines=[
     '<div class="line">区间最高 <b class="up">¥'+cbkFmtPrice(max)+'</b> ｜ 最低 <b class="down">¥'+cbkFmtPrice(min)+'</b></div>',
     '<div class="line">最新收盘 <b class="'+(dir3m==='up'?'up':(dir3m==='down'?'down':'flat'))+'">¥'+cbkFmtPrice(last)+'</b>，'+posWord+'</div>',
@@ -3036,7 +3036,7 @@ async function cbkLoadReview(el,code,name,opts){
       wrap.appendChild(box);wrap.appendChild(tag);
       el.innerHTML='';el.appendChild(wrap);
       cbkRenderMiniSVG(box,data);
-      let rev; try{rev=cbkBuildReview(data,name,code);}catch(e2){rev={sum:'近3月点评 '+cbkIdxBadges(code),lines:['<div class="line">数据不足，暂无法生成点评</div>']};}
+      let rev; try{rev=cbkBuildReview(data,name,code);}catch(e2){rev={sum:'近3月点评',lines:['<div class="line">数据不足，暂无法生成点评</div>']};}
       wrap.addEventListener('mouseenter',function(){if(cbkHideTimer){clearTimeout(cbkHideTimer);cbkHideTimer=null;}cbkShowPop(wrap,rev);});
       wrap.addEventListener('mouseleave',function(){cbkHideTimer=setTimeout(cbkHidePop,160);});
       wrap.addEventListener('click',function(e){e.stopPropagation();cbkShowPop(wrap,rev);});
