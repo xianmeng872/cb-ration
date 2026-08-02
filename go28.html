@@ -1692,7 +1692,7 @@ function fetchCurrentUser(){
   const users=loadUsers();
   const user=users[u];
   if(!user){saveCur(null);return null;}
-  return {username:u,favorites:(user.favorites||[]).map(f=>typeof f==="string"?{id:f,seen:""}:f)};
+  return {username:u,favorites:(user.favorites||[]).filter(f=>(f&&f.id)!==NOTE_CARRIER_ID).map(f=>typeof f==="string"?{id:f,seen:""}:f)};
 }
 
 // 卡通头像：根据用户名稳定分配相同卡通形象（DiceBear Adventurer 风格）
@@ -2097,6 +2097,7 @@ function createGistMask(){
 // 鉴权：用 sha256(用户名|密码|固定盐) 作为令牌，云端不存明文密码；按用户名分 key 存储，各用户数据隔离。
 const CF_SYNC_BASE = "https://cb-ration-sync-cb-ration-sync-lvfqccjwzs.cn-shenzhen.fcapp.run"; // ← 阿里云FC跨云同步（函数计算+腾讯云COS），原Cloudflare Worker国内不可达
 const CF_SALT = "cb-ration-cloud-sync-v1-fixed-salt-do-not-leak";
+const NOTE_CARRIER_ID = "__cb_notes_carrier__"; // 云端白名单不含 notes 字段，把全部备注JSON编码进favorites隐藏元素的note子字段，零部署跨端同步
 
 // 纯 JS SHA-256（兼容 http 环境，不依赖 crypto.subtle）
 function _cfSha256Hex(str){
@@ -2143,7 +2144,9 @@ async function syncPushToCloud(){
   try{
     const t = cfAuthToken(u, rec.password || "");
     const recUsage = rec || {};
-    const body = JSON.stringify({ securityCode: rec.securityCode || "", favorites: rec.favorites || [], notes: rec.notes || {}, usageCount: recUsage.usageCount||0, unlocked: !!recUsage.unlocked, inviteCode: recUsage.inviteCode||"" });
+    const pureFavs = (rec.favorites||[]).filter(f=>f.id!==NOTE_CARRIER_ID);
+    const notesCarrier = { id: NOTE_CARRIER_ID, seen: "", note: JSON.stringify(rec.notes||{}) };
+    const body = JSON.stringify({ securityCode: rec.securityCode || "", favorites: pureFavs.concat([notesCarrier]), notes: rec.notes || {}, usageCount: recUsage.usageCount||0, unlocked: !!recUsage.unlocked, inviteCode: recUsage.inviteCode||"" });
     const res = await fetch(CF_SYNC_BASE + "/api/sync?u=" + encodeURIComponent(u) + "&t=" + t, {method:"POST", headers:{"Content-Type":"application/json"}, body});
     return res.ok;
   }catch(e){ console.warn("Cloud推送失败:", e.message); return false; }
@@ -2174,18 +2177,24 @@ async function tryPullCloud(){
   const u = getCur(); const users = loadUsers(); const rec = users[u];
   if(!rec) return;
   const cloud = await syncPullFromCloud(u, rec.password || "");
-  if(cloud && (cloud.favorites||cloud.notes)){
-    if(cloud.favorites){
-      const merged = mergeFavorites(currentUser.favorites || [], cloud.favorites);
-      const changed = merged.length !== (currentUser.favorites||[]).length || JSON.stringify(merged) !== JSON.stringify(currentUser.favorites||[]);
-      if(changed){
-        currentUser.favorites = merged;
-        const us = loadUsers(); if(us[u]) us[u].favorites = merged; saveUsers(us);
-        renderFav(); toast("☁️ 已从云端同步 " + merged.length + " 条关注");
-      }
+  if(cloud && cloud.favorites){
+    // 从云端 favorites 提取备注载体（隐藏特殊元素），剩余为纯关注
+    let cloudNotes = {};
+    const pureCloudFavs = cloud.favorites.filter(function(f){
+      if(f && f.id===NOTE_CARRIER_ID){ try{ const n=JSON.parse(f.note||"{}"); if(n&&typeof n==="object") cloudNotes=n; }catch(e){} return false; }
+      return true;
+    });
+    const localFavs = (currentUser.favorites||[]).filter(f=>f.id!==NOTE_CARRIER_ID);
+    const merged = mergeFavorites(localFavs, pureCloudFavs);
+    const changed = merged.length !== localFavs.length || JSON.stringify(merged) !== JSON.stringify(localFavs);
+    if(changed){
+      currentUser.favorites = merged;
+      const us = loadUsers(); if(us[u]) us[u].favorites = merged; saveUsers(us);
+      renderFav(); toast("☁️ 已从云端同步 " + merged.length + " 条关注");
     }
-    if(cloud.notes){
-      const us = loadUsers(); if(us[u]){const ln=(us[u].notes)||{};let nc=false;for(const k in cloud.notes){if(!(k in ln)){ln[k]=cloud.notes[k];nc=true;}}if(nc){us[u].notes=ln;saveUsers(us);}}
+    // 合并云端备注到本地（只补不删）
+    if(Object.keys(cloudNotes).length){
+      const us = loadUsers(); if(us[u]){ const ln=(us[u].notes)||{}; let nc=false; for(const k in cloudNotes){ if(!(k in ln)){ ln[k]=cloudNotes[k]; nc=true; } } if(nc){ us[u].notes=ln; saveUsers(us); } }
     }
   }
   syncNoteIco(); // 自动拉取（登录/页面加载/切回前台）后刷新备注图标，避免手机端"数据到了但图标不亮"
