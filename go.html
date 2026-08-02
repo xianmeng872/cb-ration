@@ -2866,8 +2866,6 @@ function cbkBuildReview(data,name){
   const closes=clean.map(d=>d.close),dates=clean.map(d=>d.date);
   const last=closes[closes.length-1],first=closes[0];
   const chg3m=cbkPct(last,first);
-  const max=Math.max.apply(null,closes),min=Math.min.apply(null,closes);
-  const maxDate=dates[closes.indexOf(max)],minDate=dates[closes.indexOf(min)];
   const ma20=cbkSma(closes,20),ma60=cbkSma(closes,60);
   const ma20v=ma20[ma20.length-1],ma60v=ma60[ma60.length-1];
   const i20=Math.max(0,closes.length-20),i5=Math.max(0,closes.length-5);
@@ -2886,7 +2884,6 @@ function cbkBuildReview(data,name){
   const dir3m=isFinite(chg3m)?(chg3m>=0?'up':'down'):'flat';
   const sum='<span class="tag '+(dir3m==='up'?'up-bg':dir3m==='down'?'down-bg':'flat-bg')+'">近3月'+cbkFmtPct(chg3m)+'</span>'+cbkEsc(name)+trendWord+'，当前'+posWord+'，整体'+(maCls==='up'?'偏强':maCls==='down'?'偏弱':'中性')+'。';
   const lines=[
-    '<div class="line">区间最高 <b class="up">¥'+cbkFmtPrice(max)+'</b>('+maxDate+') ｜ 最低 <b class="down">¥'+cbkFmtPrice(min)+'</b>('+minDate+')</div>',
     '<div class="line">最新收盘 <b class="'+(dir3m==='up'?'up':(dir3m==='down'?'down':'flat'))+'">¥'+cbkFmtPrice(last)+'</b>，相对20日线 '+posWord+'</div>',
     '<div class="line">20日均线 <b>¥'+(ma20v!=null?cbkFmtPrice(ma20v):'--')+'</b> ｜ 60日均线 <b>¥'+(ma60v!=null?cbkFmtPrice(ma60v):'--')+'</b>：'+maRel+'</div>',
     '<div class="line">近20日 <span class="'+(isFinite(chg20)?(chg20>=0?'up':'down'):'flat')+'">'+cbkFmtPct(chg20)+'</span> ｜ 近5日 <span class="'+(isFinite(chg5)?(chg5>=0?'up':'down'):'flat')+'">'+cbkFmtPct(chg5)+'</span></div>',
