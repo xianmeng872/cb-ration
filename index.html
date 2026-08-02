@@ -482,7 +482,7 @@ table td[data-label="进展日期"],table th[data-label="进展日期"]{white-sp
 .note-col-c{font-size:14px;color:#cfd4db;cursor:pointer;transition:.15s}
 .note-col-c:hover{color:#ea580c}
 .note-col-c.has{color:#ea580c}
-.note-ico-m{font-size:14px;color:#cfd4db;cursor:pointer;margin-left:8px;transition:.15s;vertical-align:middle}
+.note-ico-m{display:inline-block;font-size:14px;color:#a3a8b3;cursor:pointer;margin-left:4px;transition:.15s;vertical-align:middle;opacity:.75}
 .note-ico-m:hover{color:#ea580c}
 .note-ico-m.has{color:#ea580c}
 .noteMask{position:fixed;inset:0;background:rgba(31,41,55,.5);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:300;padding:18px}
@@ -502,7 +502,6 @@ table td[data-label="进展日期"],table th[data-label="进展日期"]{white-sp
 <script>
 function getNote(id){try{return localStorage.getItem('cbnote_'+id)||'';}catch(e){return '';}}
 function setNote(id,t){try{if(t)localStorage.setItem('cbnote_'+id,t);else localStorage.removeItem('cbnote_'+id);}catch(e){}}
-function noteColHtml(id){return '<span class="note-col-c" data-note-id="'+id+'">📝</span>';}
 function syncNoteIco(){document.querySelectorAll('.note-col-c,.note-ico-m').forEach(function(el){var t=getNote(el.dataset.noteId);el.classList.toggle('has',!!t);});}
 </script>
 </head>
@@ -1136,7 +1135,7 @@ function renderPend(){
     h+='<td data-label="百元含权"><span class="num">'+(c.baiyuan!=null?fmt(c.baiyuan):"…")+'</span></td>';
     h+='<td data-label="规模"><span class="num">'+fmt(r.scale)+'</span></td>';
     h+='<td data-label="预估流通"><span class="num">'+(c.estFloat!=null?c.estFloat:'-')+'<span class="muted" style="font-size:10px;font-weight:400"> 预</span></span></td>';
-    h+='<td style="text-align:right">'+favBtnHtml(id,"pend")+'</td>';
+    h+='<td style="text-align:right">'+favBtnHtml(id,"pend")+'<span class="note-ico-m" data-note-id="'+id+'">📝</span></td>';
   });
   h+='</tbody></table></div>';
   p.innerHTML=h;
@@ -1421,7 +1420,7 @@ function renderProgress(){
     h+='<td data-label="百元含权"><span class="num">'+(c.baiyuan!=null?fmt(c.baiyuan):"…")+'</span></td>';
     h+='<td data-label="规模"><span class="num">'+fmt(r.scale)+'</span></td>';
     h+='<td data-label="预估流通"><span class="num">'+(c.estFloat!=null?c.estFloat:'-')+'<span class="muted" style="font-size:10px;font-weight:400"> 预</span></span></td>';
-    h+='<td style="text-align:right">'+favBtnHtml(id,"progress")+'</td>';
+    h+='<td style="text-align:right">'+favBtnHtml(id,"progress")+'<span class="note-ico-m" data-note-id="'+id+'">📝</span></td>';
     h+='</tr>';
   });
   h+='</tbody></table></div>';
@@ -2382,12 +2381,12 @@ function renderFav(){
     if(!rows.length){
       // PC端同样的兜底：关注的债匹配不到时，按 favorites id 直接展示
       let fb='<div class="card"><div class="empty" style="padding:18px 12px">⚠️ 当前数据源未匹配到这 '+currentUser.favorites.length+' 条关注（可能已下市/退市/数据源延迟）</div>';
-      fb+='<div class="card"><table><thead><tr><th>名称</th><th>关注ID</th><th>阶段</th><th>已记录进度</th><th>操作</th><th style="text-align:center;width:46px">备</th></tr></thead><tbody>';
+      fb+='<div class="card"><table><thead><tr><th>名称</th><th>关注ID</th><th>阶段</th><th>已记录进度</th><th style="text-align:right">操作</th></tr></thead><tbody>';
       currentUser.favorites.forEach(f=>{
         const nm=nameOfId(f.id);
         const pr=progressOfId(f.id);
         const tag=pr?('<span class="tag tag-s'+pr+'">'+(PROG_LABEL[pr]||pr)+'</span>'):'<span class="muted">-</span>';
-        fb+='<tr><td>'+nm+'</td><td><span class="muted">'+f.id+'</span></td><td>'+tag+'</td><td>'+(f.seen||"未记录")+'</td><td style="text-align:right">'+favBtnHtml(f.id,"pend")+'</td><td style="text-align:center">'+noteColHtml(f.id)+'</td></tr>';
+        fb+='<tr><td>'+nm+'</td><td><span class="muted">'+f.id+'</span></td><td>'+tag+'</td><td>'+(f.seen||"未记录")+'</td><td style="text-align:right">'+favBtnHtml(f.id,"pend")+'<span class="note-ico-m" data-note-id="'+f.id+'">📝</span></td>';
       });
       fb+='</tbody></table></div>';
       p.innerHTML=fb;
@@ -2410,7 +2409,7 @@ function renderFav(){
     h+='<th data-sf="scale">规模(亿) '+(fs.field==="scale"?arrow(fs.dir):'')+'</th>';
     h+='<th data-sf="estFloat">预估流通(亿) '+(fs.field==="estFloat"?arrow(fs.dir):'')+'</th>';
     h+='<th style="width:160px">正股近3月走势</th>';
-    h+='<th>操作</th><th style="text-align:center;min-width:46px;width:46px">备</th>';
+    h+='<th style="text-align:right">操作</th>';
     h+='</tr></thead><tbody>';
     rows.forEach((r,i)=>{
       const c=r._c||{};
@@ -2438,7 +2437,7 @@ function renderFav(){
       h+='<td data-label="规模"><span class="num">'+fmt(r.scale)+'</span></td>';
       h+='<td data-label="预估流通"><span class="num">'+(c.estFloat!=null?c.estFloat:'-')+'<span class="muted" style="font-size:10px;font-weight:400"> 预</span></span></td>';
       h+='<td data-label="正股走势"><div class="cb-kline cb-kline-pc" data-sc="'+cbkNormCode(r.stockCode||r.code||"")+'" data-sn="'+cbkEsc(r.stockName||r.name||"")+'"></div></td>';
-      h+='<td style="text-align:right">'+favBtnHtml(id,r._kind)+'</td><td style="text-align:center">'+noteColHtml(id)+'</td>';
+      h+='<td style="text-align:right">'+favBtnHtml(id,r._kind)+'<span class="note-ico-m" data-note-id="'+id+'">📝</span></td>';
       h+='</tr>';
     });
     h+='</tbody></table></div>';
