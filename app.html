@@ -512,10 +512,11 @@ table td[data-label="进展日期"],table th[data-label="进展日期"]{white-sp
 
 <script>
 function getNote(id){try{const u=getCur();if(u){const us=loadUsers();const rec=us[u];if(rec){if(!rec.notes)rec.notes={};const v=getNoteText(rec.notes[id]);if(v)return v;}}return localStorage.getItem('cbnote_'+id)||'';}catch(e){return '';}}
-function setNote(id,t){try{const now=Date.now();const u=getCur();if(u){const us=loadUsers();if(us[u]){if(!us[u].notes)us[u].notes={};if(t)us[u].notes[id]={text:t,ts:now};else us[u].notes[id]={deleted:true,ts:now};saveUsers(us);if(currentUser)currentUser=fetchCurrentUser();if(currentUser)scheduleSyncPush();return;}}if(t)localStorage.setItem('cbnote_'+id,t);else localStorage.removeItem('cbnote_'+id);}catch(e){}}
+function setNote(id,t){try{const now=Date.now();const u=getCur();if(u){const us=loadUsers();if(us[u]){if(!us[u].notes)us[u].notes={};if(t)us[u].notes[id]={text:t,ts:now};else us[u].notes[id]={deleted:true,ts:now};try{saveUsers(us);}catch(e){}if(currentUser)currentUser=fetchCurrentUser();if(currentUser)scheduleSyncPush();return;}}if(t)localStorage.setItem('cbnote_'+id,t);else localStorage.removeItem('cbnote_'+id);}catch(e){}}
 function migrateLocalNotes(){try{if(!currentUser)return;const u=getCur();if(!u)return;const us=loadUsers();if(!us[u])return;if(!us[u].notes)us[u].notes={};let ch=false;for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.indexOf('cbnote_')===0){const code=k.slice(7),val=localStorage.getItem(k);if(val&&!(code in us[u].notes)){us[u].notes[code]=val;ch=true;}localStorage.removeItem(k);}}if(ch){saveUsers(us);currentUser=fetchCurrentUser();}}catch(e){}}
 function syncNoteIco(){document.querySelectorAll('.note-col-c,.note-ico-m').forEach(function(el){var t=getNote(el.dataset.noteId);el.classList.toggle('has',!!t);});}
 </script>
+<style id="noteKbFix">.noteMask{overflow-y:auto !important;-webkit-overflow-scrolling:touch}.noteModal{margin:auto !important;max-height:calc(100vh - 32px)}#noteTa{font-size:16px}</style>
 </head>
 <body>
 <div class="hero">
@@ -3020,7 +3021,7 @@ setInterval(()=>setTime("数据更新"), 30000);
 // 把版本号同步到浏览器标签标题，方便一眼判断是否加载了最新页
 (function(){
   try{
-    var VER='v20260803-sync9'; document.title='cb-ration '+VER;
+    var VER='v20260803-sync10'; document.title='cb-ration '+VER;
 }catch(e){}
 })();
 
@@ -3281,5 +3282,6 @@ document.addEventListener('click',function(e){
 migrateLocalNotes();
 syncNoteIco();
 </script>
+<script>(function(){try{var m=document.getElementById('noteMask');var ta=document.getElementById('noteTa');function adj(){try{var vv=window.visualViewport; if(!vv||!m) return;var kb=window.innerHeight - vv.height - vv.offsetTop;m.style.paddingBottom = (kb>0 ? (kb+18) : 18) + 'px';if(ta) setTimeout(function(){ try{ta.scrollIntoView({block:'center'});}catch(e){} }, 120);}catch(e){}}if(window.visualViewport){ window.visualViewport.addEventListener('resize',adj); window.visualViewport.addEventListener('scroll',adj); }if(ta){ ta.addEventListener('focus',function(){ setTimeout(adj,300); }); }window.addEventListener('resize',adj);}catch(e){}})();</script>
 </body>
 </html>
