@@ -2197,7 +2197,7 @@ async function cloudUsernameExists(username){
 let lastSyncTs = null;
 function updateSyncDotTitle(){
   try{
-    var tip = "云端同步已开启（自动多端）" + (lastSyncTs ? " · 上次同步 " + new Date(lastSyncTs).toLocaleTimeString() : "");
+    var tip = "云端同步已开启（账号：" + (getCur()||"未登录") + "）" + (lastSyncTs ? " · 上次同步 " + new Date(lastSyncTs).toLocaleTimeString() : "");
     document.querySelectorAll('.sync-dot').forEach(function(d){ d.title = tip; d.classList.add('on'); d.classList.remove('off'); });
   }catch(e){}
 }
@@ -2919,14 +2919,22 @@ async function initApp(){
 document.addEventListener("click",function(){var d=document.getElementById("pcUDrop");if(d)d.classList.remove("show");});
 // 【增强】页面从后台切回前台时，若已登录则重新拉取云端关注，保证另一端更新后即时同步
 document.addEventListener("visibilitychange",function(){
-  if(document.visibilityState==="visible" && currentUser && isCloudReady()){ tryPullCloud(); }
+  if(!currentUser || !isCloudReady()) return;
+  if(document.visibilityState==="hidden"){
+    // 切走/关页面时若有未发出的防抖推送，立即发出，避免"加完就走"丢同步
+    if(_syncTimer){ clearTimeout(_syncTimer); _syncTimer=null; syncPushToCloud(); }
+  } else {
+    tryPullCloud();
+  }
 });
 initApp();
+// 【同步增强】每20秒自动从云端拉取一次，解决"页面常开不刷新看不到另一端更新"
+setInterval(function(){ if(currentUser && isCloudReady()) tryPullCloud(); }, 20000);
 setInterval(()=>setTime("数据更新"), 30000);
 // 把版本号同步到浏览器标签标题，方便一眼判断是否加载了最新页
 (function(){
   try{
-    var VER='v20260803-notes-cloud'; document.title='cb-ration '+VER;
+    var VER='v20260803-sync2'; document.title='cb-ration '+VER;
 }catch(e){}
 })();
 
