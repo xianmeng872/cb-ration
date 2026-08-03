@@ -26,6 +26,58 @@
   }
  },
  {
+  "stockCode": "605123",
+  "stockName": "派克新材",
+  "code": "111026",
+  "name": "派克转债",
+  "progress": "90",
+  "progress_nm": "2026-08-06申购 申购代码713123",
+  "scale": 15.8,
+  "convertPrice": 81.8,
+  "price": 79.17,
+  "perPre": 13.039,
+  "apply10": 77,
+  "ration_rt": null,
+  "rating_cd": "AA",
+  "progress_full": "2026-01-31 董事会预案\n2026-03-03 股东大会通过\n2026-04-29 交易所受理\n2026-06-12 上市委通过\n2026-07-29 同意注册",
+  "accept_date": "2026-04-29",
+  "progress_dt": "2026-08-06",
+  "_c": {
+   "cv": 96.78484107579463,
+   "needShares": 77,
+   "needMoney": 6096.09,
+   "baiyuan": 16.469622331691294,
+   "price": 79.17,
+   "estFloat": 7.36
+  }
+ },
+ {
+  "stockCode": "688605",
+  "stockName": "先锋精科",
+  "code": "118076",
+  "name": "先锋转债",
+  "progress": "90",
+  "progress_nm": "2026-08-06申购 申购代码718605",
+  "scale": 7.5,
+  "convertPrice": 86.4,
+  "price": 64.25,
+  "perPre": 3.705,
+  "apply10": 270,
+  "ration_rt": null,
+  "rating_cd": "AA",
+  "progress_full": "2026-03-04 董事会预案\n2026-03-20 股东大会通过\n2026-05-01 交易所受理\n2026-06-04 上市委通过\n2026-07-18 同意注册",
+  "accept_date": "2026-05-01",
+  "progress_dt": "2026-08-06",
+  "_c": {
+   "cv": 74.36342592592592,
+   "needShares": 270,
+   "needMoney": 17347.5,
+   "baiyuan": 5.766536964980545,
+   "price": 64.25,
+   "estFloat": 3.84
+  }
+ },
+ {
   "stockCode": "300453",
   "stockName": "三鑫医疗",
   "code": "123280",
@@ -63,7 +115,7 @@
   "price": 205.5,
   "perPre": 6.7946,
   "apply10": 148,
-  "ration_rt": null,
+  "ration_rt": "79.640",
   "rating_cd": "AA",
   "progress_full": "2025-10-29 董事会预案\n2025-11-13 股东大会通过\n2025-12-11 交易所受理\n2026-04-24 上市委通过\n2026-06-26 同意注册",
   "accept_date": "2025-12-11",
@@ -286,29 +338,29 @@
   }
  },
  {
-  "stockCode": "605123",
-  "stockName": "派克新材",
+  "stockCode": "000887",
+  "stockName": "中鼎股份",
   "code": "",
   "name": "",
   "progress": "90",
   "progress_nm": "同意注册",
-  "scale": 15.8,
-  "convertPrice": 81.6,
-  "price": 79.17,
+  "scale": 19.2,
+  "convertPrice": 18.36,
+  "price": 17.29,
   "perPre": null,
-  "apply10": 77,
+  "apply10": 686,
   "ration_rt": null,
   "rating_cd": null,
-  "progress_full": "2026-01-31 董事会预案\n2026-03-03 股东大会通过\n2026-04-29 交易所受理\n2026-06-12 上市委通过\n2026-07-29 同意注册",
-  "accept_date": "2026-04-29",
-  "progress_dt": "2026-07-29",
+  "progress_full": "2025-12-03 董事会预案\n2025-12-25 股东大会通过\n2026-04-27 交易所受理\n2026-06-23 上市委通过\n2026-07-28 同意注册",
+  "accept_date": "2026-04-27",
+  "progress_dt": "2026-07-28",
   "_c": {
-   "cv": 97.02205882352942,
-   "needShares": 77,
-   "needMoney": 6096.09,
-   "baiyuan": 16.403957290656795,
-   "price": 79.17,
-   "estFloat": 7.36
+   "cv": 94.17211328976035,
+   "needShares": 686,
+   "needMoney": 11860.939999999999,
+   "baiyuan": 8.431034976991706,
+   "price": 17.29,
+   "estFloat": 11.43
   }
  },
  {
@@ -335,32 +387,6 @@
    "baiyuan": 17.32405687834354,
    "price": 33.56,
    "estFloat": 1.75
-  }
- },
- {
-  "stockCode": "000887",
-  "stockName": "中鼎股份",
-  "code": "",
-  "name": "",
-  "progress": "90",
-  "progress_nm": "同意注册",
-  "scale": 19.2,
-  "convertPrice": 18.36,
-  "price": 17.29,
-  "perPre": null,
-  "apply10": 686,
-  "ration_rt": null,
-  "rating_cd": null,
-  "progress_full": "2025-12-03 董事会预案\n2025-12-25 股东大会通过\n2026-04-27 交易所受理\n2026-06-23 上市委通过\n2026-07-28 同意注册",
-  "accept_date": "2026-04-27",
-  "progress_dt": "2026-07-28",
-  "_c": {
-   "cv": 94.17211328976035,
-   "needShares": 686,
-   "needMoney": 11860.939999999999,
-   "baiyuan": 8.431034976991706,
-   "price": 17.29,
-   "estFloat": 11.43
   }
  },
  {
@@ -416,29 +442,29 @@
   }
  },
  {
-  "stockCode": "688605",
-  "stockName": "先锋精科",
+  "stockCode": "301565",
+  "stockName": "中仑新材",
   "code": "",
   "name": "",
   "progress": "90",
   "progress_nm": "同意注册",
-  "scale": 7.5,
-  "convertPrice": 86.4,
-  "price": 64.25,
+  "scale": 10.68,
+  "convertPrice": 19.36,
+  "price": 20.68,
   "perPre": null,
-  "apply10": 270,
+  "apply10": 375,
   "ration_rt": null,
   "rating_cd": null,
-  "progress_full": "2026-03-04 董事会预案\n2026-03-20 股东大会通过\n2026-05-01 交易所受理\n2026-06-04 上市委通过\n2026-07-18 同意注册",
-  "accept_date": "2026-05-01",
-  "progress_dt": "2026-07-18",
+  "progress_full": "2025-09-12 董事会预案\n2025-09-29 股东大会通过\n2025-10-30 交易所受理\n2026-06-05 上市委通过\n2026-07-16 同意注册",
+  "accept_date": "2025-10-30",
+  "progress_dt": "2026-07-16",
   "_c": {
-   "cv": 74.36342592592592,
-   "needShares": 270,
-   "needMoney": 17347.5,
-   "baiyuan": 5.7645193831964265,
-   "price": 64.25,
-   "estFloat": 3.84
+   "cv": 106.81818181818181,
+   "needShares": 375,
+   "needMoney": 7755,
+   "baiyuan": 12.894906511927786,
+   "price": 20.68,
+   "estFloat": 3.6
   }
  },
  {
@@ -465,32 +491,6 @@
    "baiyuan": 11.22485632183908,
    "price": 6.96,
    "estFloat": 7.34
-  }
- },
- {
-  "stockCode": "301565",
-  "stockName": "中仑新材",
-  "code": "",
-  "name": "",
-  "progress": "90",
-  "progress_nm": "同意注册",
-  "scale": 10.68,
-  "convertPrice": 19.36,
-  "price": 20.68,
-  "perPre": null,
-  "apply10": 375,
-  "ration_rt": null,
-  "rating_cd": null,
-  "progress_full": "2025-09-12 董事会预案\n2025-09-29 股东大会通过\n2025-10-30 交易所受理\n2026-06-05 上市委通过\n2026-07-16 同意注册",
-  "accept_date": "2025-10-30",
-  "progress_dt": "2026-07-16",
-  "_c": {
-   "cv": 106.81818181818181,
-   "needShares": 375,
-   "needMoney": 7755,
-   "baiyuan": 12.894906511927786,
-   "price": 20.68,
-   "estFloat": 3.6
   }
  },
  {
