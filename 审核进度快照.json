@@ -1,5 +1,31 @@
 [
  {
+  "stockCode": "603019",
+  "stockName": "中科曙光",
+  "code": "113708",
+  "name": "曙26转债",
+  "progress": "90",
+  "progress_nm": "2026-08-06上市",
+  "scale": 80,
+  "convertPrice": 108.89,
+  "price": 83.69,
+  "perPre": 5.47,
+  "apply10": 183,
+  "ration_rt": "50.890",
+  "rating_cd": "AAA",
+  "progress_full": "2026-02-10 董事会预案\n2026-03-26 股东大会通过\n2026-04-25 交易所受理\n2026-05-29 上市委通过\n2026-06-30 同意注册",
+  "accept_date": "2026-04-25",
+  "progress_dt": "2026-08-06",
+  "_c": {
+   "cv": 76.85737900633667,
+   "needShares": 183,
+   "needMoney": 15315.27,
+   "baiyuan": 6.5360258095351895,
+   "price": 83.69,
+   "estFloat": 68.26
+  }
+ },
+ {
   "stockCode": "300453",
   "stockName": "三鑫医疗",
   "code": "123280",
@@ -257,32 +283,6 @@
    "baiyuan": 7.771512954759029,
    "price": 74.49,
    "estFloat": 2.56
-  }
- },
- {
-  "stockCode": "603019",
-  "stockName": "中科曙光",
-  "code": "113708",
-  "name": "曙26转债",
-  "progress": "90",
-  "progress_nm": "2026-07-15申购 申购代码754019",
-  "scale": 80,
-  "convertPrice": 108.89,
-  "price": 83.69,
-  "perPre": 5.47,
-  "apply10": 183,
-  "ration_rt": "50.890",
-  "rating_cd": "AAA",
-  "progress_full": "2026-02-10 董事会预案\n2026-03-26 股东大会通过\n2026-04-25 交易所受理\n2026-05-29 上市委通过\n2026-06-30 同意注册",
-  "accept_date": "2026-04-25",
-  "progress_dt": "2026-07-15",
-  "_c": {
-   "cv": 76.85737900633667,
-   "needShares": 183,
-   "needMoney": 15315.27,
-   "baiyuan": 6.5360258095351895,
-   "price": 83.69,
-   "estFloat": 68.26
   }
  },
  {
