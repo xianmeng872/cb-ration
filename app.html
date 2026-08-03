@@ -2056,7 +2056,7 @@ async function tryPullGist(){
         }
       }
       // 备注合并独立：只改备注、没改关注时也能同步（不受 favorites 变化限制）
-      if(cu.notes||(users[u]&&users[u].notes)){users[u].notes=mergeNotes(users[u].notes||{},cu.notes||{});saveUsers(users);syncNoteIco();}
+      if(cu.notes||(users[u]&&users[u].notes)){users[u].notes=mergeNotesPull(users[u].notes||{},cu.notes||{}, (+localStorage.getItem("cb_lastpush_"+u))||0);saveUsers(users);syncNoteIco();}
     }
   }
 }
@@ -2170,6 +2170,20 @@ function cfAuthToken(username, password){ return _cfSha256Hex(username + "|" + p
 function isCloudReady(){ return !!CF_SYNC_BASE && /^https?:\/\//.test(CF_SYNC_BASE); }
 
 // 推送当前用户的记录（安全码+关注）到云端
+function mergeNotesPull(local, remote, lastPush){
+  const merged={};
+  const keys=new Set([...Object.keys(local||{}), ...Object.keys(remote||{})]);
+  for(const k of keys){
+    const le=normNoteEntry(local&&local[k]);
+    const re=normNoteEntry(remote&&remote[k]);
+    // 保护“本机刚编辑、尚未推送”的备注：用本机时钟比较 le.ts 与 lastPush（同钟，不受双机时间差影响），避免“保存即被云端旧值覆盖”
+    if(le && (le.text || le.deleted) && le.ts && lastPush && le.ts > lastPush){ merged[k]=le; continue; }
+    if(re){ merged[k]=re; continue; }   // 云端(另一端)优先，实现手机↔电脑双向同步
+    if(le){ merged[k]=le; }
+  }
+  return merged;
+}
+
 async function syncPushToCloud(){
   if(!isCloudReady() || !currentUser) return false;
   const u = getCur(); const users = loadUsers(); const rec = users[u];
@@ -2204,6 +2218,7 @@ async function syncPushToCloud(){
     const url = CF_SYNC_BASE + "/api/sync?u=" + encodeURIComponent(u) + "&t=" + t;
     let res = await fetch(url, {method:"POST", headers:{"Content-Type":"application/json"}, body});
     if(!res.ok){ await new Promise(r=>setTimeout(r,1500)); res = await fetch(url, {method:"POST", headers:{"Content-Type":"application/json"}, body}); }
+    if(res.ok){ try{ localStorage.setItem("cb_lastpush_"+u, String(Date.now())); }catch(e){} }
     return res.ok;
   }catch(e){ console.warn("Cloud推送失败:", e.message); return false; }
 }
@@ -2263,7 +2278,8 @@ async function tryPullCloud(){
     // 否则每次拉云端都把本地备注清空 -> 手机端备注保存后消失、改/删被云端覆盖。
     const _us = loadUsers(); const _localNotes = (_us[u] && _us[u].notes) || {};
     if(Object.keys(cloudNotes).length || Object.keys(_localNotes).length){
-      const mergedNotes = mergeNotes(_localNotes, cloudNotes);
+      const _lp = (+localStorage.getItem("cb_lastpush_"+u)) || 0;
+      const mergedNotes = mergeNotesPull(_localNotes, cloudNotes, _lp);
       currentUser.notes = mergedNotes;
       const us = loadUsers(); if(us[u]){ us[u].notes = mergedNotes; saveUsers(us); }
     }
@@ -3004,7 +3020,7 @@ setInterval(()=>setTime("数据更新"), 30000);
 // 把版本号同步到浏览器标签标题，方便一眼判断是否加载了最新页
 (function(){
   try{
-    var VER='v20260803-sync8'; document.title='cb-ration '+VER;
+    var VER='v20260803-sync9'; document.title='cb-ration '+VER;
 }catch(e){}
 })();
 
