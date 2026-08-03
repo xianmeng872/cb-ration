@@ -1750,7 +1750,7 @@ function renderUserArea(){
 }
 
 function updateFavTab(){
-  const count=currentUser?currentUser.favorites.length:0;
+  const count=currentUser?currentUser.favorites.filter(f=>!f.del).length:0;
   $("#favCount").textContent=count;
 }
 
@@ -1961,11 +1961,17 @@ function gistHeaders(){
   return{"Authorization":"Bearer "+t,"Accept":"application/vnd.github.v3+json","Content-Type":"application/json"};
 }
 function isGistReady(){return!!getGistToken();}
-// 合并关注列表（云端优先，保留本地新关注的）
+// 合并关注列表（按最新操作时间戳合并，删除也会传播）
+function normFav(f){ if(!f) return null; if(typeof f==="string") return {id:f,seen:"",del:false,ts:0}; return {id:f.id,seen:f.seen||"",del:!!f.del,ts:f.ts||0}; }
 function mergeFavorites(local, remote){
-  if(!remote||!remote.length) return local;
-  const map=new Map(local.map(f=>[f.id,f]));
-  remote.forEach(r=>{if(!map.has(r.id)) map.set(r.id,r); else{const existing=map.get(r.id);if(r.seen&&(!existing.seen||r.seen>existing.seen)) existing.seen=r.seen;}});
+  const map=new Map();
+  const add=(f)=>{ const n=normFav(f); if(!n) return; const e=map.get(n.id);
+    if(!e){ map.set(n.id,n); }
+    else if(n.ts>=e.ts){ map.set(n.id,n); }                                  // 最新操作（含删除）覆盖
+    else if(n.seen && (!e.seen || n.seen>e.seen)){ e.seen=n.seen; }          // 旧操作仅补进度
+  };
+  (local||[]).forEach(add);
+  (remote||[]).forEach(add);
   return Array.from(map.values());
 }
 // 推送完整账号库到 Gist（含账号+关注，实现跨设备登录）
@@ -2012,15 +2018,18 @@ async function tryPullGist(){
   if(cloud&&cloud.users){
     const cu=cloud.users[currentUser.username];
     if(cu&&cu.favorites){
+      const before=(currentUser.favorites||[]).filter(f=>!f.del).map(f=>f.id).sort().join(",");
       const merged=mergeFavorites(currentUser.favorites||[],cu.favorites);
-      if(merged.length!==(currentUser.favorites||[]).length){
+      const after=merged.filter(f=>!f.del).map(f=>f.id).sort().join(",");
+      if(before!==after || merged.length!==(currentUser.favorites||[]).length){
         currentUser.favorites=merged;
         const users=loadUsers();const u=getCur();
         if(users[u]) users[u].favorites=merged;
         if(cu.notes){users[u].notes=Object.assign({},users[u].notes||{},cu.notes);saveUsers(users);}
         saveUsers(users);
+        updateFavTab();
         renderFav();
-        toast("☁️ 已从云端同步 "+merged.length+" 条关注");
+        toast("☁️ 已从云端同步 "+merged.filter(f=>!f.del).length+" 条关注");
       }
     }
   }
@@ -2216,11 +2225,14 @@ async function tryPullCloud(){
     });
     const localFavs = (currentUser.favorites||[]).filter(f=>f.id!==NOTE_CARRIER_ID);
     const merged = mergeFavorites(localFavs, pureCloudFavs);
-    const changed = merged.length !== localFavs.length || JSON.stringify(merged) !== JSON.stringify(localFavs);
+    const before=(localFavs||[]).filter(f=>!f.del).map(f=>f.id).sort().join(",");
+    const after=merged.filter(f=>!f.del).map(f=>f.id).sort().join(",");
+    const changed = before!==after || merged.length!==localFavs.length;
     if(changed){
       currentUser.favorites = merged;
       const us = loadUsers(); if(us[u]) us[u].favorites = merged; saveUsers(us);
-      renderFav(); toast("☁️ 已从云端同步 " + merged.length + " 条关注");
+      updateFavTab();
+      renderFav(); toast("☁️ 已从云端同步 " + merged.filter(f=>!f.del).length + " 条关注");
     }
     // 合并云端备注到本地（只补不删）
     if(Object.keys(cloudNotes).length){
@@ -2265,7 +2277,7 @@ async function forcePushAccount(){
 
 // 唯一ID：待发债用code，审核进度用stockCode
 function getRowId(r,kind){return kind==="pend"?(r.code||"pend_"+r.stockCode):(r.stockCode||"prog_"+(r.code||""));}
-function isFav(id){return currentUser&&currentUser.favorites.some(f=>f.id===id);}
+function isFav(id){return currentUser&&currentUser.favorites.some(f=>f.id===id&&!f.del);}
 async function toggleFav(id,kind){
   if(!currentUser){toast("请先登录后再关注");showAuthModal(true);return;}
   try{
@@ -2275,8 +2287,15 @@ async function toggleFav(id,kind){
     let favs=users[u].favorites||[];
     const idx=favs.findIndex(f=>f.id===id);
     let added=false;
-    if(idx>=0){favs.splice(idx,1);added=false;}
-    else{favs.push({id,seen:""});added=true;}
+    const now=Date.now();
+    if(idx>=0){
+      const f=favs[idx];
+      if(typeof f==="string") favs[idx]={id:f,seen:"",del:true,ts:now};
+      else { f.del=true; f.ts=now; }
+      added=false;
+    }else{
+      favs.push({id,seen:"",del:false,ts:now});added=true;
+    }
     users[u].favorites=favs;
     saveUsers(users);
     // 更新内存中的 currentUser
@@ -2298,6 +2317,7 @@ async function checkProgress(){
   if(!currentUser || !currentUser.favorites || !currentUser.favorites.length) return;
   const updates=[], msgs=[];
   currentUser.favorites.forEach(f=>{
+    if(f.del||!f.id) return;
     const now=progressOfId(f.id);
     if(f.seen && f.seen!==now && now){
       msgs.push("「"+nameOfId(f.id)+"」已更新为【"+(PROG_LABEL[now]||now)+"】");
@@ -2357,7 +2377,7 @@ function renderFav(){
     ...PEND.map(r=>({...r,_kind:"pend"})),
     ...PROGRESS.map(r=>({...r,_kind:"progress"}))
   ];
-  let rows=all.filter(r=>currentUser.favorites.some(f=>f.id===getRowId(r,r._kind)));
+  let rows=all.filter(r=>currentUser.favorites.some(f=>f.id===getRowId(r,r._kind)&&!f.del));
   if(favKeyword){
     const q=favKeyword.toLowerCase();
     rows=rows.filter(r=>(r.name||"").toLowerCase().includes(q)||(r.code||"").includes(q)||(r.stockName||"").toLowerCase().includes(q)||(r.stockCode||"").includes(q));
@@ -2925,6 +2945,7 @@ async function initApp(){
   if(activeTab==="progress")renderProgress();
   // 【修复】已登录则主动从云端拉取最新关注，解决刷新/换设备后不同步
   if(currentUser && isCloudReady()){ tryPullCloud(); }
+  else if(currentUser && isGistReady()){ tryPullGist(); }
 
   // 延迟加载实时数据（给页面渲染留时间）
   setTimeout(()=>{
@@ -2937,22 +2958,22 @@ async function initApp(){
 document.addEventListener("click",function(){var d=document.getElementById("pcUDrop");if(d)d.classList.remove("show");});
 // 【增强】页面从后台切回前台时，若已登录则重新拉取云端关注，保证另一端更新后即时同步
 document.addEventListener("visibilitychange",function(){
-  if(!currentUser || !isCloudReady()) return;
+  if(!currentUser) return;
   if(document.visibilityState==="hidden"){
     // 切走/关页面时若有未发出的防抖推送，立即发出，避免"加完就走"丢同步
-    if(_syncTimer){ clearTimeout(_syncTimer); _syncTimer=null; syncPushToCloud(); }
+    if(_syncTimer){ clearTimeout(_syncTimer); _syncTimer=null; if(isCloudReady()) syncPushToCloud(); else if(isGistReady()) syncPushToGist(); }
   } else {
-    tryPullCloud();
+    if(isCloudReady()) tryPullCloud(); else if(isGistReady()) tryPullGist();
   }
 });
 initApp();
 // 【同步增强】每20秒自动从云端拉取一次，解决"页面常开不刷新看不到另一端更新"
-setInterval(function(){ if(currentUser && isCloudReady()) tryPullCloud(); }, 20000);
+setInterval(function(){ if(!currentUser) return; if(isCloudReady()) tryPullCloud(); else if(isGistReady()) tryPullGist(); }, 20000);
 setInterval(()=>setTime("数据更新"), 30000);
 // 把版本号同步到浏览器标签标题，方便一眼判断是否加载了最新页
 (function(){
   try{
-    var VER='v20260803-login2'; document.title='cb-ration '+VER;
+    var VER='v20260803-sync3'; document.title='cb-ration '+VER;
 }catch(e){}
 })();
 
