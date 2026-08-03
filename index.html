@@ -2291,8 +2291,8 @@ async function toggleFav(id,kind){
     if(idx>=0){
       const f=favs[idx];
       if(typeof f==="string") favs[idx]={id:f,seen:"",del:true,ts:now};
+      else if(f.del){ f.del=false; f.ts=now; added=true; }
       else { f.del=true; f.ts=now; }
-      added=false;
     }else{
       favs.push({id,seen:"",del:false,ts:now});added=true;
     }
@@ -2973,7 +2973,7 @@ setInterval(()=>setTime("数据更新"), 30000);
 // 把版本号同步到浏览器标签标题，方便一眼判断是否加载了最新页
 (function(){
   try{
-    var VER='v20260803-sync3'; document.title='cb-ration '+VER;
+    var VER='v20260803-sync4'; document.title='cb-ration '+VER;
 }catch(e){}
 })();
 
