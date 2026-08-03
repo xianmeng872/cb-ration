@@ -1764,6 +1764,7 @@ function showUserMenu(){
     const avatarUrl=cartoonAvatarUrl(currentUser.username);
     header.innerHTML='<span class="um-avatar" style="overflow:hidden"><img src="'+avatarUrl+'" style="width:100%;height:100%;border-radius:50%" alt="" referrerpolicy="no-referrer"></span><span class="um-name">'+currentUser.username+'</span>';
     body.innerHTML='<button class="user-menu-item" onclick="document.getElementById(\'userMenuMask\').style.display=\'none\';onSyncDotClick();">☁️ 云端同步设置</button>'
+      +'<button class="user-menu-item" onclick="document.getElementById(\'userMenuMask\').style.display=\'none\';forcePushAccount();">🔄 强制本账号同步到云端</button>'
       +'<div class="user-menu-divider"></div>'
       +'<button class="user-menu-item danger" id="menuLogout">🚪 退出登录</button>';
     $("#menuLogout").onclick=()=>{
@@ -1924,7 +1925,7 @@ function finishAuth(u,users,msg){
   if(activeTab==="fav")renderFav();
   if(isCloudReady()){
     if(authMode==="login") tryPullCloud();
-    else scheduleSyncPush();
+    else { scheduleSyncPush(); syncPushToCloud().then(function(ok){ if(ok) console.log("✅ 注册账号已即时同步云端"); else console.warn("注册即时推送失败，将在下次同步重试"); }); }
   }else if(isGistReady()){
     if(authMode==="login") tryPullGist();
     else scheduleSyncPush();
@@ -2226,6 +2227,11 @@ async function tryPullCloud(){
       const us = loadUsers(); if(us[u]){ const ln=(us[u].notes)||{}; let nc=false; for(const k in cloudNotes){ if(!(k in ln)){ ln[k]=cloudNotes[k]; nc=true; } } if(nc){ us[u].notes=ln; saveUsers(us); } }
     }
   }
+ else {
+    // 【修复·账号跨设备登录】本机已登录但云端查不到该账号记录：注册时的云端推送可能未成功，
+    // 这里自动把本机账号补推到云端，使其他设备能用同一账号登录（自愈）。
+    try{ await syncPushToCloud(); }catch(e){ console.warn("账号自愈推送失败", e.message); }
+  }
   syncNoteIco();
   lastSyncTs = Date.now(); updateSyncDotTitle(); // 记录上次同步时间，便于用户确认自动同步真的在发生
 }
@@ -2243,6 +2249,18 @@ async function manualCloudSync(){
 function onSyncDotClick(){
   if(isCloudReady()) manualCloudSync();
   else showGistSettings();
+}
+// 强制把本机当前账号（含关注/备注）同步到云端，解决"手机注册了但电脑登不上/不同步"
+async function forcePushAccount(){
+  if(!currentUser){ toast("请先登录"); return; }
+  const u=getCur(); const users=loadUsers(); const rec=users[u];
+  if(!rec){ toast("本机无账号记录"); return; }
+  toast("☁️ 正在把本账号同步到云端…");
+  try{
+    const ok=await syncPushToCloud();
+    if(ok) toast("✅ 已同步到云端，其他设备现在可用同一账号登录");
+    else toast("❌ 同步失败，检查网络或稍后重试");
+  }catch(e){ toast("❌ 同步失败："+e.message); }
 }
 
 // 唯一ID：待发债用code，审核进度用stockCode
@@ -2934,7 +2952,7 @@ setInterval(()=>setTime("数据更新"), 30000);
 // 把版本号同步到浏览器标签标题，方便一眼判断是否加载了最新页
 (function(){
   try{
-    var VER='v20260803-sync2'; document.title='cb-ration '+VER;
+    var VER='v20260803-login2'; document.title='cb-ration '+VER;
 }catch(e){}
 })();
 
