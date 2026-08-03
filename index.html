@@ -1715,7 +1715,7 @@ function fetchCurrentUser(){
   const users=loadUsers();
   const user=users[u];
   if(!user){saveCur(null);return null;}
-  return {username:u,favorites:(user.favorites||[]).filter(f=>(f&&f.id)!==NOTE_CARRIER_ID).map(f=>typeof f==="string"?{id:f,seen:""}:f)};
+  return {username:u,notes:(user.notes||{}),favorites:(user.favorites||[]).filter(f=>(f&&f.id)!==NOTE_CARRIER_ID).map(f=>typeof f==="string"?{id:f,seen:""}:f)};
 }
 
 // 卡通头像：根据用户名稳定分配相同卡通形象（DiceBear Adventurer 风格）
@@ -2259,8 +2259,11 @@ async function tryPullCloud(){
       renderFav(); toast("☁️ 已从云端同步 " + merged.filter(f=>!f.del).length + " 条关注");
     }
     // 合并云端备注到本地（按时间戳合并，删除也传播）
-    if(Object.keys(cloudNotes).length || Object.keys((currentUser.notes)||{}).length){
-      const mergedNotes = mergeNotes(currentUser.notes||{}, cloudNotes);
+    // 【修复 sync6】必须用真正的本地备注(us[u].notes)做合并，不能再用 currentUser.notes(恒为undefined)，
+    // 否则每次拉云端都把本地备注清空 -> 手机端备注保存后消失、改/删被云端覆盖。
+    const _us = loadUsers(); const _localNotes = (_us[u] && _us[u].notes) || {};
+    if(Object.keys(cloudNotes).length || Object.keys(_localNotes).length){
+      const mergedNotes = mergeNotes(_localNotes, cloudNotes);
       currentUser.notes = mergedNotes;
       const us = loadUsers(); if(us[u]){ us[u].notes = mergedNotes; saveUsers(us); }
     }
@@ -3001,7 +3004,7 @@ setInterval(()=>setTime("数据更新"), 30000);
 // 把版本号同步到浏览器标签标题，方便一眼判断是否加载了最新页
 (function(){
   try{
-    var VER='v20260803-sync5'; document.title='cb-ration '+VER;
+    var VER='v20260803-sync6'; document.title='cb-ration '+VER;
 }catch(e){}
 })();
 
