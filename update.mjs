@@ -167,7 +167,12 @@ async function fetchSinaKline(stockCode) {
   const re = /const SNAPSHOT_PROGRESS=\[[\s\S]*?\];/;
   if (!re.test(html)) { console.error('HTML 未找到 SNAPSHOT_PROGRESS'); process.exit(1); }
   const lit = '[\n' + filtered.map(o => JSON.stringify(o)).join(',\n') + '\n]';
-  html = html.replace(re, 'const SNAPSHOT_PROGRESS=' + lit + ';');
+  const _oldProgLen = (html.match(re) || [''])[0].length;
+  if (lit.length > _oldProgLen * 3 || lit.length > 2 * 1024 * 1024) {
+    console.error('⚠️ SNAPSHOT_PROGRESS 体积异常(' + lit.length + 'B, 原' + _oldProgLen + 'B)，保留原快照避免撑爆页面');
+  } else {
+    html = html.replace(re, 'const SNAPSHOT_PROGRESS=' + lit + ';');
+  }
 
   // ===== 2. 待发债（读现有 SNAPSHOT_PEND，补 estFloat） =====
   const pendMatch = html.match(/const SNAPSHOT_PEND=(\[[\s\S]*?\]);/);
@@ -214,7 +219,13 @@ async function fetchSinaKline(stockCode) {
     await sleep(150);
   }
   const klineLit = JSON.stringify(klineData);
-  html = html.replace(/const KLINE_SNAPSHOT=\{[\s\S]*?\};/, 'const KLINE_SNAPSHOT=' + klineLit + ';');
+  const _klineRe = /const KLINE_SNAPSHOT=\{[\s\S]*?\};/;
+  const _oldKlineLen = (html.match(_klineRe) || [''])[0].length;
+  if (klineLit.length > _oldKlineLen * 2.5 || klineLit.length > 1.5 * 1024 * 1024) {
+    console.error('⚠️ K线体积异常(' + klineLit.length + 'B, 原' + _oldKlineLen + 'B)，保留原快照避免撑爆页面');
+  } else {
+    html = html.replace(_klineRe, 'const KLINE_SNAPSHOT=' + klineLit + ';');
+  }
   fs.writeFileSync(KLINE_OUT, JSON.stringify(klineData, null, 1));
   console.log('日K抓取完成：成功 ' + klineOk + ' 只，失败 ' + klineFail + ' 只');
 
