@@ -511,8 +511,8 @@ table td[data-label="进展日期"],table th[data-label="进展日期"]{white-sp
 </style>
 
 <script>
-function getNote(id){try{if(currentUser){const u=getCur();if(u){const us=loadUsers();const rec=us[u];if(rec){if(!rec.notes)rec.notes={};return getNoteText(rec.notes[id]);}}}return localStorage.getItem('cbnote_'+id)||'';}catch(e){return '';}}
-function setNote(id,t){try{const now=Date.now();if(currentUser){const u=getCur();if(u){const us=loadUsers();if(!us[u])return;if(!us[u].notes)us[u].notes={};if(t)us[u].notes[id]={text:t,ts:now};else us[u].notes[id]={text:'',ts:now};saveUsers(us);currentUser=fetchCurrentUser();}}else{if(t)localStorage.setItem('cbnote_'+id,t);else localStorage.removeItem('cbnote_'+id);}}catch(e){}}
+function getNote(id){try{const u=getCur();if(u){const us=loadUsers();const rec=us[u];if(rec){if(!rec.notes)rec.notes={};const v=getNoteText(rec.notes[id]);if(v)return v;}}return localStorage.getItem('cbnote_'+id)||'';}catch(e){return '';}}
+function setNote(id,t){try{const now=Date.now();const u=getCur();if(u){const us=loadUsers();if(us[u]){if(!us[u].notes)us[u].notes={};if(t)us[u].notes[id]={text:t,ts:now};else us[u].notes[id]={text:'',ts:now};saveUsers(us);if(currentUser)currentUser=fetchCurrentUser();if(currentUser)scheduleSyncPush();return;}}if(t)localStorage.setItem('cbnote_'+id,t);else localStorage.removeItem('cbnote_'+id);}catch(e){}}
 function migrateLocalNotes(){try{if(!currentUser)return;const u=getCur();if(!u)return;const us=loadUsers();if(!us[u])return;if(!us[u].notes)us[u].notes={};let ch=false;for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.indexOf('cbnote_')===0){const code=k.slice(7),val=localStorage.getItem(k);if(val&&!(code in us[u].notes)){us[u].notes[code]=val;ch=true;}localStorage.removeItem(k);}}if(ch){saveUsers(us);currentUser=fetchCurrentUser();}}catch(e){}}
 function syncNoteIco(){document.querySelectorAll('.note-col-c,.note-ico-m').forEach(function(el){var t=getNote(el.dataset.noteId);el.classList.toggle('has',!!t);});}
 </script>
@@ -2043,20 +2043,21 @@ async function tryPullGist(){
   const cloud=await syncPullFromGist();
   if(cloud&&cloud.users){
     const cu=cloud.users[currentUser.username];
-    if(cu&&cu.favorites){
-      const before=(currentUser.favorites||[]).filter(f=>!f.del).map(f=>f.id).sort().join(",");
-      const merged=mergeFavorites(currentUser.favorites||[],cu.favorites);
-      const after=merged.filter(f=>!f.del).map(f=>f.id).sort().join(",");
-      if(before!==after || merged.length!==(currentUser.favorites||[]).length){
-        currentUser.favorites=merged;
-        const users=loadUsers();const u=getCur();
-        if(users[u]) users[u].favorites=merged;
-        if(cu.notes||users[u].notes){users[u].notes=mergeNotes(users[u].notes||{},cu.notes||{});saveUsers(users);}
-        saveUsers(users);
-        updateFavTab();
-        renderFav();
-        toast("☁️ 已从云端同步 "+merged.filter(f=>!f.del).length+" 条关注");
+    if(cu){
+      const users=loadUsers();const u=getCur();
+      if(cu.favorites){
+        const before=(currentUser.favorites||[]).filter(f=>!f.del).map(f=>f.id).sort().join(",");
+        const merged=mergeFavorites(currentUser.favorites||[],cu.favorites);
+        const after=merged.filter(f=>!f.del).map(f=>f.id).sort().join(",");
+        if(before!==after || merged.length!==(currentUser.favorites||[]).length){
+          currentUser.favorites=merged;
+          if(users[u]) users[u].favorites=merged;
+          updateFavTab();renderFav();
+          toast("☁️ 已从云端同步 "+merged.filter(f=>!f.del).length+" 条关注");
+        }
       }
+      // 备注合并独立：只改备注、没改关注时也能同步（不受 favorites 变化限制）
+      if(cu.notes||(users[u]&&users[u].notes)){users[u].notes=mergeNotes(users[u].notes||{},cu.notes||{});saveUsers(users);syncNoteIco();}
     }
   }
 }
@@ -3004,7 +3005,7 @@ setInterval(()=>setTime("数据更新"), 30000);
 // 把版本号同步到浏览器标签标题，方便一眼判断是否加载了最新页
 (function(){
   try{
-    var VER='v20260803-sync6'; document.title='cb-ration '+VER;
+    var VER='v20260803-sync7'; document.title='cb-ration '+VER;
 }catch(e){}
 })();
 
