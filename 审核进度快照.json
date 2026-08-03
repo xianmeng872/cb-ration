@@ -8,7 +8,7 @@
   "progress_nm": "2026-08-04申购 申购代码370453",
   "scale": 5.3,
   "convertPrice": 9.72,
-  "price": 9.75,
+  "price": 9.79,
   "perPre": 1.0154,
   "apply10": 985,
   "ration_rt": null,
@@ -17,11 +17,11 @@
   "accept_date": "2025-10-29",
   "progress_dt": "2026-08-04",
   "_c": {
-   "cv": 100.30864197530865,
+   "cv": 100.72016460905348,
    "needShares": 985,
-   "needMoney": 9603.75,
-   "baiyuan": 10.414358974358976,
-   "price": 9.75,
+   "needMoney": 9643.15,
+   "baiyuan": 10.371807967313586,
+   "price": 9.79,
    "estFloat": 3.71
   }
  },
@@ -34,11 +34,7 @@
   "progress_nm": "2026-08-03申购 申购代码371626",
   "scale": 7.86,
   "convertPrice": 267.33,
-<<<<<<< Updated upstream
-  "price": 211,
-=======
-  "price": 210.66,
->>>>>>> Stashed changes
+  "price": 205.8,
   "perPre": 6.7946,
   "apply10": 148,
   "ration_rt": null,
@@ -47,19 +43,11 @@
   "accept_date": "2025-12-11",
   "progress_dt": "2026-08-03",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 78.92866494594696,
+   "cv": 76.9835035349568,
    "needShares": 148,
-   "needMoney": 31228,
-   "baiyuan": 3.2201895734597157,
-   "price": 211,
-=======
-   "cv": 78.80148131522837,
-   "needShares": 148,
-   "needMoney": 31177.68,
-   "baiyuan": 3.2253868793316247,
-   "price": 210.66,
->>>>>>> Stashed changes
+   "needMoney": 30458.4,
+   "baiyuan": 3.3015549076773567,
+   "price": 205.8,
    "estFloat": 3.72
   }
  },
@@ -72,11 +60,7 @@
   "progress_nm": "2026-07-30申购 申购代码370697",
   "scale": 5.45,
   "convertPrice": 13.98,
-<<<<<<< Updated upstream
-  "price": 13.24,
-=======
-  "price": 13.23,
->>>>>>> Stashed changes
+  "price": 13.19,
   "perPre": 1.2597,
   "apply10": 794,
   "ration_rt": "87.320",
@@ -85,19 +69,11 @@
   "accept_date": "2025-12-31",
   "progress_dt": "2026-07-30",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 94.70672389127324,
+   "cv": 94.34907010014305,
    "needShares": 794,
-   "needMoney": 10512.56,
-   "baiyuan": 9.514350453172206,
-   "price": 13.24,
-=======
-   "cv": 94.63519313304721,
-   "needShares": 794,
-   "needMoney": 10504.62,
-   "baiyuan": 9.52154195011338,
-   "price": 13.23,
->>>>>>> Stashed changes
+   "needMoney": 10472.859999999999,
+   "baiyuan": 9.550416982562547,
+   "price": 13.19,
    "estFloat": 2.11
   }
  },
@@ -110,11 +86,7 @@
   "progress_nm": "2026-07-30申购 申购代码754067",
   "scale": 8.78,
   "convertPrice": 40.33,
-<<<<<<< Updated upstream
-  "price": 30.81,
-=======
-  "price": 30.8,
->>>>>>> Stashed changes
+  "price": 32.08,
   "perPre": 1.162,
   "apply10": 861,
   "ration_rt": "77.170",
@@ -123,19 +95,11 @@
   "accept_date": "2026-04-08",
   "progress_dt": "2026-07-30",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 76.39474336722043,
+   "cv": 79.54376394743367,
    "needShares": 861,
-   "needMoney": 26527.41,
-   "baiyuan": 3.7715027588445307,
-   "price": 30.81,
-=======
-   "cv": 76.36994792958096,
-   "needShares": 861,
-   "needMoney": 26518.8,
-   "baiyuan": 3.7727272727272725,
-   "price": 30.8,
->>>>>>> Stashed changes
+   "needMoney": 27620.879999999997,
+   "baiyuan": 3.6221945137157108,
+   "price": 32.08,
    "estFloat": 5.07
   }
  },
@@ -148,15 +112,7 @@
   "progress_nm": "2026-07-29申购 申购代码718686",
   "scale": 12.7,
   "convertPrice": 150.03,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  "price": 103.37,
-=======
-  "price": 103.4,
->>>>>>> Stashed changes
-=======
-  "price": 103.4,
->>>>>>> Stashed changes
+  "price": 102.63,
   "perPre": 10.396,
   "apply10": 97,
   "ration_rt": "87.660",
@@ -165,27 +121,11 @@
   "accept_date": "2026-04-04",
   "progress_dt": "2026-07-29",
   "_c": {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-   "cv": 68.89955342264881,
+   "cv": 68.40631873625274,
    "needShares": 97,
-   "needMoney": 10026.890000000001,
-   "baiyuan": 10.057076521234402,
-   "price": 103.37,
-=======
-   "cv": 68.91954942344864,
-   "needShares": 97,
-   "needMoney": 10029.800000000001,
-   "baiyuan": 10.054158607350098,
-   "price": 103.4,
->>>>>>> Stashed changes
-=======
-   "cv": 68.91954942344864,
-   "needShares": 97,
-   "needMoney": 10029.800000000001,
-   "baiyuan": 10.054158607350098,
-   "price": 103.4,
->>>>>>> Stashed changes
+   "needMoney": 9955.109999999999,
+   "baiyuan": 10.12959173730878,
+   "price": 102.63,
    "estFloat": 3.53
   }
  },
@@ -198,11 +138,7 @@
   "progress_nm": "2026-07-29申购 申购代码370815",
   "scale": 15,
   "convertPrice": 16.35,
-<<<<<<< Updated upstream
-  "price": 16.71,
-=======
-  "price": 16.74,
->>>>>>> Stashed changes
+  "price": 16.29,
   "perPre": 3.7632,
   "apply10": 266,
   "ration_rt": "82.270",
@@ -211,19 +147,11 @@
   "accept_date": "2025-10-20",
   "progress_dt": "2026-07-29",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 102.20183486238533,
+   "cv": 99.63302752293576,
    "needShares": 266,
-   "needMoney": 4444.860000000001,
-   "baiyuan": 22.520646319569117,
-   "price": 16.71,
-=======
-   "cv": 102.38532110091741,
-   "needShares": 266,
-   "needMoney": 4452.839999999999,
-   "baiyuan": 22.480286738351257,
-   "price": 16.74,
->>>>>>> Stashed changes
+   "needMoney": 4333.139999999999,
+   "baiyuan": 23.101289134438307,
+   "price": 16.29,
    "estFloat": 8.56
   }
  },
@@ -236,7 +164,7 @@
   "progress_nm": "2026-07-28申购 申购代码718278",
   "scale": 15.33,
   "convertPrice": 58.56,
-  "price": 58.57,
+  "price": 58.4,
   "perPre": 3.857,
   "apply10": 260,
   "ration_rt": "93.320",
@@ -245,11 +173,11 @@
   "accept_date": "2026-04-24",
   "progress_dt": "2026-07-28",
   "_c": {
-   "cv": 100.01707650273224,
+   "cv": 99.72677595628414,
    "needShares": 260,
-   "needMoney": 15228.2,
-   "baiyuan": 6.58528256786751,
-   "price": 58.57,
+   "needMoney": 15184,
+   "baiyuan": 6.604452054794521,
+   "price": 58.4,
    "estFloat": 6.47
   }
  },
@@ -262,15 +190,7 @@
   "progress_nm": "2026-07-24申购 申购代码071202",
   "scale": 3.8,
   "convertPrice": 13.76,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  "price": 12.61,
-=======
-  "price": 12.62,
->>>>>>> Stashed changes
-=======
-  "price": 12.62,
->>>>>>> Stashed changes
+  "price": 12.73,
   "perPre": 2.2911,
   "apply10": 437,
   "ration_rt": "90.970",
@@ -279,27 +199,11 @@
   "accept_date": "2025-08-01",
   "progress_dt": "2026-07-24",
   "_c": {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-   "cv": 91.64244186046511,
+   "cv": 92.51453488372093,
    "needShares": 437,
-   "needMoney": 5510.57,
-   "baiyuan": 18.16891356066614,
-   "price": 12.61,
-=======
-   "cv": 91.71511627906976,
-   "needShares": 437,
-   "needMoney": 5514.94,
-   "baiyuan": 18.15451664025357,
-   "price": 12.62,
->>>>>>> Stashed changes
-=======
-   "cv": 91.71511627906976,
-   "needShares": 437,
-   "needMoney": 5514.94,
-   "baiyuan": 18.15451664025357,
-   "price": 12.62,
->>>>>>> Stashed changes
+   "needMoney": 5563.01,
+   "baiyuan": 17.997643362136685,
+   "price": 12.73,
    "estFloat": 1.32
   }
  },
@@ -312,11 +216,7 @@
   "progress_nm": "2026-07-24申购 申购代码733642",
   "scale": 20,
   "convertPrice": 8.74,
-<<<<<<< Updated upstream
-  "price": 8.51,
-=======
-  "price": 8.5,
->>>>>>> Stashed changes
+  "price": 8.46,
   "perPre": 0.408,
   "apply10": 2451,
   "ration_rt": "71.130",
@@ -325,19 +225,11 @@
   "accept_date": "2025-10-16",
   "progress_dt": "2026-07-24",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 97.36842105263158,
+   "cv": 96.79633867276888,
    "needShares": 2451,
-   "needMoney": 20858.01,
-   "baiyuan": 4.794359576968272,
-   "price": 8.51,
-=======
-   "cv": 97.25400457665904,
-   "needShares": 2451,
-   "needMoney": 20833.5,
-   "baiyuan": 4.8,
-   "price": 8.5,
->>>>>>> Stashed changes
+   "needMoney": 20735.460000000003,
+   "baiyuan": 4.822695035460992,
+   "price": 8.46,
    "estFloat": 7.39
   }
  },
@@ -350,15 +242,7 @@
   "progress_nm": "2026-07-17申购 申购代码718480",
   "scale": 5.519,
   "convertPrice": 88.16,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  "price": 73.36,
-=======
-  "price": 73.28,
->>>>>>> Stashed changes
-=======
-  "price": 73.2,
->>>>>>> Stashed changes
+  "price": 72.64,
   "perPre": 5.789,
   "apply10": 173,
   "ration_rt": "80.390",
@@ -367,27 +251,11 @@
   "accept_date": "2026-04-03",
   "progress_dt": "2026-07-17",
   "_c": {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-   "cv": 83.21234119782216,
+   "cv": 82.39564428312161,
    "needShares": 173,
-   "needMoney": 12691.28,
-   "baiyuan": 7.891221374045801,
-   "price": 73.36,
-=======
-   "cv": 83.12159709618875,
-   "needShares": 173,
-   "needMoney": 12677.44,
-   "baiyuan": 7.8998362445414845,
-   "price": 73.28,
->>>>>>> Stashed changes
-=======
-   "cv": 83.03085299455536,
-   "needShares": 173,
-   "needMoney": 12663.6,
-   "baiyuan": 7.908469945355191,
-   "price": 73.2,
->>>>>>> Stashed changes
+   "needMoney": 12566.72,
+   "baiyuan": 7.969438325991189,
+   "price": 72.64,
    "estFloat": 2.56
   }
  },
@@ -400,11 +268,7 @@
   "progress_nm": "2026-07-15申购 申购代码754019",
   "scale": 80,
   "convertPrice": 108.89,
-<<<<<<< Updated upstream
-  "price": 83.65,
-=======
-  "price": 83.55,
->>>>>>> Stashed changes
+  "price": 83.5,
   "perPre": 5.47,
   "apply10": 183,
   "ration_rt": "50.890",
@@ -413,19 +277,11 @@
   "accept_date": "2026-04-25",
   "progress_dt": "2026-07-15",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 76.82064468729911,
+   "cv": 76.68289099090826,
    "needShares": 183,
-   "needMoney": 15307.95,
-   "baiyuan": 6.539151225343693,
-   "price": 83.65,
-=======
-   "cv": 76.7288088897052,
-   "needShares": 183,
-   "needMoney": 15289.65,
-   "baiyuan": 6.546977857570317,
-   "price": 83.55,
->>>>>>> Stashed changes
+   "needMoney": 15280.5,
+   "baiyuan": 6.550898203592815,
+   "price": 83.5,
    "estFloat": 68.26
   }
  },
@@ -438,15 +294,7 @@
   "progress_nm": "同意注册",
   "scale": 15.8,
   "convertPrice": 83.01,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  "price": 78.84,
-=======
-  "price": 78.83,
->>>>>>> Stashed changes
-=======
-  "price": 78.83,
->>>>>>> Stashed changes
+  "price": 79,
   "perPre": null,
   "apply10": 77,
   "ration_rt": null,
@@ -455,27 +303,11 @@
   "accept_date": "2026-04-29",
   "progress_dt": "2026-07-29",
   "_c": {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-   "cv": 94.97650885435489,
+   "cv": 95.1692567160583,
    "needShares": 77,
-   "needMoney": 6070.68,
-   "baiyuan": 16.472619212345236,
-   "price": 78.84,
-=======
-   "cv": 94.96446211299843,
-   "needShares": 77,
-   "needMoney": 6069.91,
-   "baiyuan": 16.474708850707835,
-   "price": 78.83,
->>>>>>> Stashed changes
-=======
-   "cv": 94.96446211299843,
-   "needShares": 77,
-   "needMoney": 6069.91,
-   "baiyuan": 16.474708850707835,
-   "price": 78.83,
->>>>>>> Stashed changes
+   "needMoney": 6083,
+   "baiyuan": 16.43925694558606,
+   "price": 79,
    "estFloat": 7.36
   }
  },
@@ -488,7 +320,7 @@
   "progress_nm": "同意注册",
   "scale": 6.08,
   "convertPrice": 32.68,
-  "price": 32.9,
+  "price": 33.06,
   "perPre": null,
   "apply10": 172,
   "ration_rt": null,
@@ -497,11 +329,11 @@
   "accept_date": "2026-01-05",
   "progress_dt": "2026-07-28",
   "_c": {
-   "cv": 100.67319461444309,
+   "cv": 101.16279069767442,
    "needShares": 172,
-   "needMoney": 5658.8,
-   "baiyuan": 17.67159115006715,
-   "price": 32.9,
+   "needMoney": 5686.320000000001,
+   "baiyuan": 17.586066208022057,
+   "price": 33.06,
    "estFloat": 1.75
   }
  },
@@ -514,7 +346,7 @@
   "progress_nm": "同意注册",
   "scale": 19.2,
   "convertPrice": 18.4,
-  "price": 17.29,
+  "price": 17.31,
   "perPre": null,
   "apply10": 686,
   "ration_rt": null,
@@ -523,11 +355,11 @@
   "accept_date": "2026-04-27",
   "progress_dt": "2026-07-28",
   "_c": {
-   "cv": 93.96739130434783,
+   "cv": 94.07608695652175,
    "needShares": 686,
-   "needMoney": 11860.939999999999,
-   "baiyuan": 8.431034976991706,
-   "price": 17.29,
+   "needMoney": 11874.66,
+   "baiyuan": 8.42129374651569,
+   "price": 17.31,
    "estFloat": 11.43
   }
  },
@@ -540,11 +372,7 @@
   "progress_nm": "同意注册",
   "scale": 7.6,
   "convertPrice": 34.36,
-<<<<<<< Updated upstream
-  "price": 28,
-=======
-  "price": 27.96,
->>>>>>> Stashed changes
+  "price": 27.76,
   "perPre": null,
   "apply10": 195,
   "ration_rt": null,
@@ -553,19 +381,11 @@
   "accept_date": "2025-12-31",
   "progress_dt": "2026-07-27",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 81.49010477299186,
+   "cv": 80.79161816065192,
    "needShares": 195,
-   "needMoney": 5460,
-   "baiyuan": 18.315018315018314,
-   "price": 28,
-=======
-   "cv": 81.37369033760187,
-   "needShares": 195,
-   "needMoney": 5452.2,
-   "baiyuan": 18.341220057958253,
-   "price": 27.96,
->>>>>>> Stashed changes
+   "needMoney": 5413.200000000001,
+   "baiyuan": 18.473361412842678,
+   "price": 27.76,
    "estFloat": 3.24
   }
  },
@@ -578,11 +398,7 @@
   "progress_nm": "同意注册",
   "scale": 5.5,
   "convertPrice": 79.46,
-<<<<<<< Updated upstream
-  "price": 72.34,
-=======
-  "price": 72.32,
->>>>>>> Stashed changes
+  "price": 72.23,
   "perPre": null,
   "apply10": 138,
   "ration_rt": null,
@@ -591,19 +407,11 @@
   "accept_date": "2026-02-12",
   "progress_dt": "2026-07-27",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 91.03951673798139,
+   "cv": 90.90108230556257,
    "needShares": 138,
-   "needMoney": 9982.92,
-   "baiyuan": 10.017109222552119,
-   "price": 72.34,
-=======
-   "cv": 91.01434684117795,
-   "needShares": 138,
-   "needMoney": 9980.16,
-   "baiyuan": 10.019879440810568,
-   "price": 72.32,
->>>>>>> Stashed changes
+   "needMoney": 9967.74,
+   "baiyuan": 10.032364407578848,
+   "price": 72.23,
    "estFloat": 2.14
   }
  },
@@ -616,42 +424,20 @@
   "progress_nm": "同意注册",
   "scale": 10,
   "convertPrice": 6.85,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  "price": 6.95,
-=======
-  "price": 6.96,
->>>>>>> Stashed changes
-=======
-  "price": 6.96,
->>>>>>> Stashed changes
+  "price": 6.98,
   "perPre": null,
-  "apply10": 1281,
+  "apply10": 1279,
   "ration_rt": null,
   "rating_cd": null,
   "progress_full": "2024-11-22 董事会预案\n2024-12-11 股东大会通过\n2026-01-23 交易所受理\n2026-06-05 上市委通过\n2026-07-16 同意注册",
   "accept_date": "2026-01-23",
   "progress_dt": "2026-07-16",
   "_c": {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-   "cv": 101.45985401459853,
-   "needShares": 1281,
-   "needMoney": 8902.95,
-   "baiyuan": 11.23223201298446,
-   "price": 6.95,
-=======
-=======
->>>>>>> Stashed changes
-   "cv": 101.6058394160584,
-   "needShares": 1280,
-   "needMoney": 8908.8,
-   "baiyuan": 11.22485632183908,
-   "price": 6.96,
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
+   "cv": 101.89781021897812,
+   "needShares": 1279,
+   "needMoney": 8927.42,
+   "baiyuan": 11.201444538287658,
+   "price": 6.98,
    "estFloat": 7.34
   }
  },
@@ -664,7 +450,7 @@
   "progress_nm": "同意注册",
   "scale": 10.68,
   "convertPrice": 19.57,
-  "price": 20.1,
+  "price": 20.44,
   "perPre": null,
   "apply10": 375,
   "ration_rt": null,
@@ -673,11 +459,11 @@
   "accept_date": "2025-10-30",
   "progress_dt": "2026-07-16",
   "_c": {
-   "cv": 102.70822687787431,
+   "cv": 104.44557996934083,
    "needShares": 375,
-   "needMoney": 7537.500000000001,
-   "baiyuan": 13.266998341625204,
-   "price": 20.1,
+   "needMoney": 7665.000000000001,
+   "baiyuan": 13.046314416177427,
+   "price": 20.44,
    "estFloat": 3.6
   }
  },
@@ -690,11 +476,7 @@
   "progress_nm": "同意注册",
   "scale": 10.23,
   "convertPrice": 13.65,
-<<<<<<< Updated upstream
-  "price": 12.9,
-=======
-  "price": 12.89,
->>>>>>> Stashed changes
+  "price": 12.95,
   "perPre": null,
   "apply10": 303,
   "ration_rt": null,
@@ -703,19 +485,11 @@
   "accept_date": "2026-01-21",
   "progress_dt": "2026-05-21",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 94.5054945054945,
+   "cv": 94.87179487179486,
    "needShares": 303,
-   "needMoney": 3908.7000000000003,
-   "baiyuan": 25.58395374421163,
-   "price": 12.9,
-=======
-   "cv": 94.43223443223442,
-   "needShares": 303,
-   "needMoney": 3905.67,
-   "baiyuan": 25.603801652469357,
-   "price": 12.89,
->>>>>>> Stashed changes
+   "needMoney": 3923.85,
+   "baiyuan": 25.485174000025488,
+   "price": 12.95,
    "estFloat": 6.11
   }
  },
@@ -728,15 +502,7 @@
   "progress_nm": "同意注册",
   "scale": 10,
   "convertPrice": 46.53,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  "price": 40.18,
-=======
-  "price": 40.14,
->>>>>>> Stashed changes
-=======
-  "price": 40.1,
->>>>>>> Stashed changes
+  "price": 39.9,
   "perPre": null,
   "apply10": 318,
   "ration_rt": null,
@@ -745,27 +511,11 @@
   "accept_date": "2025-10-11",
   "progress_dt": "2026-04-02",
   "_c": {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-   "cv": 86.35289060820975,
+   "cv": 85.75112830431979,
    "needShares": 318,
-   "needMoney": 12777.24,
-   "baiyuan": 7.826416346566239,
-   "price": 40.18,
-=======
-   "cv": 86.26692456479691,
-   "needShares": 318,
-   "needMoney": 12764.52,
-   "baiyuan": 7.834215465994805,
-   "price": 40.14,
->>>>>>> Stashed changes
-=======
-   "cv": 86.18095852138406,
-   "needShares": 318,
-   "needMoney": 12751.800000000001,
-   "baiyuan": 7.842030144763877,
-   "price": 40.1,
->>>>>>> Stashed changes
+   "needMoney": 12688.199999999999,
+   "baiyuan": 7.8813385665421425,
+   "price": 39.9,
    "estFloat": 3.64
   }
  },
@@ -778,46 +528,20 @@
   "progress_nm": "上市委通过",
   "scale": 5.25,
   "convertPrice": 45.74,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  "price": 32.58,
-=======
-  "price": 32.57,
->>>>>>> Stashed changes
+  "price": 31.85,
   "perPre": null,
-  "apply10": 766,
-=======
-  "price": 32.52,
-  "perPre": null,
-  "apply10": 767,
->>>>>>> Stashed changes
+  "apply10": 768,
   "ration_rt": null,
   "rating_cd": null,
   "progress_full": "2025-11-15 董事会预案\n2025-12-02 股东大会通过\n2026-04-25 交易所受理\n2026-07-29 上市委通过",
   "accept_date": "2026-04-25",
   "progress_dt": "2026-07-29",
   "_c": {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-   "cv": 71.22868386532575,
+   "cv": 69.63270660253608,
    "needShares": 768,
-   "needMoney": 25021.44,
-   "baiyuan": 3.9965725393902187,
-   "price": 32.58,
-=======
-   "cv": 71.20682116309575,
-   "needShares": 766,
-   "needMoney": 24948.62,
-   "baiyuan": 4.0082377301830725,
-   "price": 32.57,
->>>>>>> Stashed changes
-=======
-   "cv": 71.09750765194578,
-   "needShares": 767,
-   "needMoney": 24942.840000000004,
-   "baiyuan": 4.009166558419169,
-   "price": 32.52,
->>>>>>> Stashed changes
+   "needMoney": 24460.800000000003,
+   "baiyuan": 4.0881737310308734,
+   "price": 31.85,
    "estFloat": 2.65
   }
  },
@@ -830,7 +554,7 @@
   "progress_nm": "上市委通过",
   "scale": 9.6,
   "convertPrice": 7.61,
-  "price": 7.47,
+  "price": 7.58,
   "perPre": null,
   "apply10": 583,
   "ration_rt": null,
@@ -839,11 +563,11 @@
   "accept_date": "2026-03-26",
   "progress_dt": "2026-07-27",
   "_c": {
-   "cv": 98.16031537450722,
+   "cv": 99.60578186596584,
    "needShares": 583,
-   "needMoney": 4355.01,
-   "baiyuan": 22.962059788611274,
-   "price": 7.47,
+   "needMoney": 4419.14,
+   "baiyuan": 22.628837285082614,
+   "price": 7.58,
    "estFloat": 4.68
   }
  },
@@ -856,20 +580,20 @@
   "progress_nm": "上市委通过",
   "scale": 10,
   "convertPrice": 5.16,
-  "price": 5.58,
+  "price": 5.55,
   "perPre": null,
-  "apply10": 1472,
+  "apply10": 1473,
   "ration_rt": null,
   "rating_cd": null,
   "progress_full": "2026-03-14 董事会预案\n2026-04-02 股东大会通过\n2026-04-15 交易所受理\n2026-07-24 上市委通过",
   "accept_date": "2026-04-15",
   "progress_dt": "2026-07-24",
   "_c": {
-   "cv": 108.13953488372093,
-   "needShares": 1472,
-   "needMoney": 8213.76,
-   "baiyuan": 12.174692223780584,
-   "price": 5.58,
+   "cv": 107.55813953488371,
+   "needShares": 1473,
+   "needMoney": 8175.15,
+   "baiyuan": 12.232191458260708,
+   "price": 5.55,
    "estFloat": 4.22
   }
  },
@@ -882,7 +606,7 @@
   "progress_nm": "上市委通过",
   "scale": 8.49,
   "convertPrice": 61.8,
-  "price": 55.92,
+  "price": 56.05,
   "perPre": null,
   "apply10": 212,
   "ration_rt": null,
@@ -891,11 +615,11 @@
   "accept_date": "2025-07-25",
   "progress_dt": "2026-07-24",
   "_c": {
-   "cv": 90.48543689320388,
+   "cv": 90.69579288025889,
    "needShares": 212,
-   "needMoney": 11855.04,
-   "baiyuan": 8.435230922881745,
-   "price": 55.92,
+   "needMoney": 11882.599999999999,
+   "baiyuan": 8.41566660495178,
+   "price": 56.05,
    "estFloat": 6.21
   }
  },
@@ -908,44 +632,20 @@
   "progress_nm": "上市委通过",
   "scale": 8,
   "convertPrice": 23.36,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  "price": 19.99,
-=======
-  "price": 19.97,
->>>>>>> Stashed changes
-=======
-  "price": 19.97,
->>>>>>> Stashed changes
+  "price": 19.82,
   "perPre": null,
-  "apply10": 506,
+  "apply10": 507,
   "ration_rt": null,
   "rating_cd": null,
   "progress_full": "2025-09-04 董事会预案\n2025-09-20 股东大会通过\n2025-10-30 交易所受理\n2026-07-24 上市委通过",
   "accept_date": "2025-10-30",
   "progress_dt": "2026-07-24",
   "_c": {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-   "cv": 85.5736301369863,
-   "needShares": 506,
-   "needMoney": 10114.939999999999,
-   "baiyuan": 9.886366107955164,
-   "price": 19.99,
-=======
-   "cv": 85.48801369863014,
-   "needShares": 506,
-   "needMoney": 10104.82,
-   "baiyuan": 9.89626732589002,
-   "price": 19.97,
->>>>>>> Stashed changes
-=======
-   "cv": 85.48801369863014,
+   "cv": 84.84589041095892,
    "needShares": 507,
-   "needMoney": 10124.789999999999,
-   "baiyuan": 9.876748060947438,
-   "price": 19.97,
->>>>>>> Stashed changes
+   "needMoney": 10048.74,
+   "baiyuan": 9.951496406514648,
+   "price": 19.82,
    "estFloat": 2.18
   }
  },
@@ -958,32 +658,20 @@
   "progress_nm": "上市委通过",
   "scale": 5.75,
   "convertPrice": 15.89,
-<<<<<<< Updated upstream
-  "price": 16.64,
-=======
-  "price": 16.65,
->>>>>>> Stashed changes
+  "price": 16.5,
   "perPre": null,
-  "apply10": 472,
+  "apply10": 471,
   "ration_rt": null,
   "rating_cd": null,
   "progress_full": "2025-04-22 董事会预案\n2025-05-08 股东大会通过\n2025-12-04 交易所受理\n2026-07-13 上市委通过",
   "accept_date": "2025-12-04",
   "progress_dt": "2026-07-13",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 104.71994965387034,
+   "cv": 103.8388923851479,
    "needShares": 471,
-   "needMoney": 7837.4400000000005,
-   "baiyuan": 12.75926833251674,
-   "price": 16.64,
-=======
-   "cv": 104.78288231592194,
-   "needShares": 472,
-   "needMoney": 7858.799999999999,
-   "baiyuan": 12.72458899577544,
-   "price": 16.65,
->>>>>>> Stashed changes
+   "needMoney": 7771.5,
+   "baiyuan": 12.86752879109567,
+   "price": 16.5,
    "estFloat": 2.15
   }
  },
@@ -996,26 +684,20 @@
   "progress_nm": "上市委通过",
   "scale": 30,
   "convertPrice": 3.76,
-  "price": 3.93,
+  "price": 3.96,
   "perPre": null,
-  "apply10": 536,
+  "apply10": 537,
   "ration_rt": null,
   "rating_cd": null,
   "progress_full": "2025-01-11 董事会预案\n2025-05-09 股东大会通过\n2026-05-23 交易所受理\n2026-07-11 上市委通过",
   "accept_date": "2026-05-23",
   "progress_dt": "2026-07-11",
   "_c": {
-   "cv": 104.52127659574468,
-<<<<<<< Updated upstream
+   "cv": 105.31914893617022,
    "needShares": 537,
-   "needMoney": 2110.4100000000003,
-   "baiyuan": 47.384157580754454,
-=======
-   "needShares": 536,
-   "needMoney": 2106.48,
-   "baiyuan": 47.47256085982302,
->>>>>>> Stashed changes
-   "price": 3.93,
+   "needMoney": 2126.52,
+   "baiyuan": 47.025186689991166,
+   "price": 3.96,
    "estFloat": 14.32
   }
  },
@@ -1028,11 +710,7 @@
   "progress_nm": "上市委通过",
   "scale": 3.7,
   "convertPrice": 31.74,
-<<<<<<< Updated upstream
-  "price": 26.36,
-=======
-  "price": 26.35,
->>>>>>> Stashed changes
+  "price": 26.38,
   "perPre": null,
   "apply10": 487,
   "ration_rt": null,
@@ -1041,19 +719,11 @@
   "accept_date": "2026-02-09",
   "progress_dt": "2026-07-02",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 83.04977945809703,
+   "cv": 83.11279143037177,
    "needShares": 487,
-   "needMoney": 12837.32,
-   "baiyuan": 7.789787899655067,
-   "price": 26.36,
-=======
-   "cv": 83.01827347195967,
-   "needShares": 487,
-   "needMoney": 12832.45,
-   "baiyuan": 7.79274417589782,
-   "price": 26.35,
->>>>>>> Stashed changes
+   "needMoney": 12847.06,
+   "baiyuan": 7.783882071073069,
+   "price": 26.38,
    "estFloat": 1.91
   }
  },
@@ -1066,11 +736,7 @@
   "progress_nm": "上市委通过",
   "scale": 6.5,
   "convertPrice": 47.77,
-<<<<<<< Updated upstream
-  "price": 41.39,
-=======
-  "price": 41.35,
->>>>>>> Stashed changes
+  "price": 40.53,
   "perPre": null,
   "apply10": 267,
   "ration_rt": null,
@@ -1079,19 +745,11 @@
   "accept_date": "2025-10-27",
   "progress_dt": "2026-06-26",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 86.6443374502826,
+   "cv": 84.84404437931757,
    "needShares": 267,
-   "needMoney": 11051.130000000001,
-   "baiyuan": 9.04884839830859,
-   "price": 41.39,
-=======
-   "cv": 86.56060288884237,
-   "needShares": 267,
-   "needMoney": 11040.45,
-   "baiyuan": 9.057601818766445,
-   "price": 41.35,
->>>>>>> Stashed changes
+   "needMoney": 10821.51,
+   "baiyuan": 9.240854557266037,
+   "price": 40.53,
    "estFloat": 3.62
   }
  },
@@ -1104,15 +762,7 @@
   "progress_nm": "上市委通过",
   "scale": 6.86,
   "convertPrice": 27.41,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  "price": 26.68,
-=======
-  "price": 26.67,
->>>>>>> Stashed changes
-=======
-  "price": 26.67,
->>>>>>> Stashed changes
+  "price": 26.65,
   "perPre": null,
   "apply10": 306,
   "ration_rt": null,
@@ -1121,27 +771,11 @@
   "accept_date": "2025-12-19",
   "progress_dt": "2026-06-23",
   "_c": {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-   "cv": 97.33673841663627,
+   "cv": 97.22728931047062,
    "needShares": 306,
-   "needMoney": 8164.08,
-   "baiyuan": 12.248777571998314,
-   "price": 26.68,
-=======
-   "cv": 97.30025538124772,
-   "needShares": 306,
-   "needMoney": 8161.02,
-   "baiyuan": 12.253370289498125,
-   "price": 26.67,
->>>>>>> Stashed changes
-=======
-   "cv": 97.30025538124772,
-   "needShares": 306,
-   "needMoney": 8161.02,
-   "baiyuan": 12.253370289498125,
-   "price": 26.67,
->>>>>>> Stashed changes
+   "needMoney": 8154.9,
+   "baiyuan": 12.262566064574672,
+   "price": 26.65,
    "estFloat": 4.02
   }
  },
@@ -1154,11 +788,7 @@
   "progress_nm": "上市委通过",
   "scale": 18.8,
   "convertPrice": 110.6,
-<<<<<<< Updated upstream
-  "price": 92.09,
-=======
-  "price": 92,
->>>>>>> Stashed changes
+  "price": 91.4,
   "perPre": null,
   "apply10": 130,
   "ration_rt": null,
@@ -1167,19 +797,11 @@
   "accept_date": "2026-02-26",
   "progress_dt": "2026-06-23",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 83.26401446654612,
+   "cv": 82.64014466546114,
    "needShares": 130,
-   "needMoney": 11971.7,
-   "baiyuan": 8.353032568473985,
-   "price": 92.09,
-=======
-   "cv": 83.18264014466547,
-   "needShares": 130,
-   "needMoney": 11960,
-   "baiyuan": 8.361204013377927,
-   "price": 92,
->>>>>>> Stashed changes
+   "needMoney": 11882,
+   "baiyuan": 8.41609156707625,
+   "price": 91.4,
    "estFloat": 11.76
   }
  },
@@ -1192,32 +814,20 @@
   "progress_nm": "上市委通过",
   "scale": 5.5,
   "convertPrice": 92.14,
-<<<<<<< Updated upstream
-  "price": 69,
-=======
-  "price": 68.99,
->>>>>>> Stashed changes
+  "price": 67.58,
   "perPre": null,
-  "apply10": 182,
+  "apply10": 183,
   "ration_rt": null,
   "rating_cd": null,
   "progress_full": "2026-01-31 董事会预案\n2026-02-28 股东大会通过\n2026-04-29 交易所受理\n2026-06-17 上市委通过",
   "accept_date": "2026-04-29",
   "progress_dt": "2026-06-17",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 74.88604297807684,
-   "needShares": 182,
-   "needMoney": 12558,
-   "baiyuan": 7.963051441312311,
-   "price": 69,
-=======
-   "cv": 74.87518992836986,
-   "needShares": 182,
-   "needMoney": 12556.179999999998,
-   "baiyuan": 7.964205674018691,
-   "price": 68.99,
->>>>>>> Stashed changes
+   "cv": 73.34490991968742,
+   "needShares": 183,
+   "needMoney": 12367.14,
+   "baiyuan": 8.085943880315092,
+   "price": 67.58,
    "estFloat": 1.53
   }
  },
@@ -1230,15 +840,7 @@
   "progress_nm": "上市委通过",
   "scale": 7.5,
   "convertPrice": 87.74,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  "price": 66.38,
-=======
-  "price": 66.41,
->>>>>>> Stashed changes
-=======
-  "price": 66.31,
->>>>>>> Stashed changes
+  "price": 64.98,
   "perPre": null,
   "apply10": 270,
   "ration_rt": null,
@@ -1247,27 +849,11 @@
   "accept_date": "2026-05-01",
   "progress_dt": "2026-06-04",
   "_c": {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-   "cv": 75.65534533850011,
+   "cv": 74.05972190563028,
    "needShares": 270,
-   "needMoney": 17922.6,
-   "baiyuan": 5.579547610279759,
-   "price": 66.38,
-=======
-   "cv": 75.68953726920446,
-   "needShares": 270,
-   "needMoney": 17930.7,
-   "baiyuan": 5.577027109928782,
-   "price": 66.41,
->>>>>>> Stashed changes
-=======
-   "cv": 75.57556416685662,
-   "needShares": 270,
-   "needMoney": 17903.7,
-   "baiyuan": 5.585437646966828,
-   "price": 66.31,
->>>>>>> Stashed changes
+   "needMoney": 17544.600000000002,
+   "baiyuan": 5.69975947015036,
+   "price": 64.98,
    "estFloat": 3.84
   }
  },
@@ -1280,11 +866,7 @@
   "progress_nm": "交易所受理",
   "scale": 10,
   "convertPrice": 13.53,
-<<<<<<< Updated upstream
-  "price": 14.29,
-=======
-  "price": 14.3,
->>>>>>> Stashed changes
+  "price": 14.23,
   "perPre": null,
   "apply10": 568,
   "ration_rt": null,
@@ -1293,19 +875,11 @@
   "accept_date": "2026-08-01",
   "progress_dt": "2026-08-01",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 105.61714708056171,
+   "cv": 105.17368810051737,
    "needShares": 568,
-   "needMoney": 8116.719999999999,
-   "baiyuan": 12.320247587695524,
-   "price": 14.29,
-=======
-   "cv": 105.69105691056913,
-   "needShares": 568,
-   "needMoney": 8122.400000000001,
-   "baiyuan": 12.311632029941888,
-   "price": 14.3,
->>>>>>> Stashed changes
+   "needMoney": 8082.64,
+   "baiyuan": 12.37219522334287,
+   "price": 14.23,
    "estFloat": 3.27
   }
  },
@@ -1318,11 +892,7 @@
   "progress_nm": "交易所受理",
   "scale": 8.5,
   "convertPrice": 347.9,
-<<<<<<< Updated upstream
-  "price": 252.5,
-=======
-  "price": 252.29,
->>>>>>> Stashed changes
+  "price": 245.29,
   "perPre": null,
   "apply10": 103,
   "ration_rt": null,
@@ -1331,19 +901,11 @@
   "accept_date": "2026-07-31",
   "progress_dt": "2026-07-31",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 72.57832710549009,
+   "cv": 70.50589249784421,
    "needShares": 103,
-   "needMoney": 26007.5,
-   "baiyuan": 3.8450446986446214,
-   "price": 252.5,
-=======
-   "cv": 72.51796493245186,
-   "needShares": 103,
-   "needMoney": 25985.87,
-   "baiyuan": 3.84824521942117,
-   "price": 252.29,
->>>>>>> Stashed changes
+   "needMoney": 25264.87,
+   "baiyuan": 3.9580650919636633,
+   "price": 245.29,
    "estFloat": 4.78
   }
  },
@@ -1356,20 +918,20 @@
   "progress_nm": "交易所受理",
   "scale": 27.3,
   "convertPrice": 10.28,
-  "price": 10.83,
+  "price": 10.95,
   "perPre": null,
-  "apply10": 770,
+  "apply10": 771,
   "ration_rt": null,
   "rating_cd": null,
   "progress_full": "2026-06-03 董事会预案\n2026-06-19 股东大会通过\n2026-07-03 交易所受理",
   "accept_date": "2026-07-03",
   "progress_dt": "2026-07-03",
   "_c": {
-   "cv": 105.35019455252919,
-   "needShares": 770,
-   "needMoney": 8339.1,
-   "baiyuan": 11.991701742394262,
-   "price": 10.83,
+   "cv": 106.51750972762646,
+   "needShares": 771,
+   "needMoney": 8442.449999999999,
+   "baiyuan": 11.844902842184437,
+   "price": 10.95,
    "estFloat": 11.61
   }
  },
@@ -1382,32 +944,20 @@
   "progress_nm": "交易所受理",
   "scale": 6,
   "convertPrice": 22.1,
-<<<<<<< Updated upstream
-  "price": 21.22,
-=======
-  "price": 21.24,
->>>>>>> Stashed changes
+  "price": 21.19,
   "perPre": null,
-  "apply10": 434,
+  "apply10": 433,
   "ration_rt": null,
   "rating_cd": null,
   "progress_full": "2026-02-13 董事会预案\n2026-05-12 股东大会通过\n2026-06-23 交易所受理",
   "accept_date": "2026-06-23",
   "progress_dt": "2026-06-23",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 96.0180995475113,
-   "needShares": 434,
-   "needMoney": 9209.48,
-   "baiyuan": 10.858376368698341,
-   "price": 21.22,
-=======
-   "cv": 96.10859728506786,
-   "needShares": 434,
-   "needMoney": 9218.16,
-   "baiyuan": 10.84815190884081,
-   "price": 21.24,
->>>>>>> Stashed changes
+   "cv": 95.88235294117648,
+   "needShares": 433,
+   "needMoney": 9175.27,
+   "baiyuan": 10.898861831858898,
+   "price": 21.19,
    "estFloat": 5.13
   }
  },
@@ -1420,11 +970,7 @@
   "progress_nm": "交易所受理",
   "scale": 43.5,
   "convertPrice": 15.23,
-<<<<<<< Updated upstream
-  "price": 16.33,
-=======
-  "price": 16.34,
->>>>>>> Stashed changes
+  "price": 16.37,
   "perPre": null,
   "apply10": 355,
   "ration_rt": null,
@@ -1433,19 +979,11 @@
   "accept_date": "2026-06-22",
   "progress_dt": "2026-06-22",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 107.22258699934339,
+   "cv": 107.48522652659224,
    "needShares": 355,
-   "needMoney": 5797.15,
-   "baiyuan": 17.249855532459915,
-   "price": 16.33,
-=======
-   "cv": 107.28824688115562,
-   "needShares": 355,
-   "needMoney": 5800.7,
-   "baiyuan": 17.239298705328665,
-   "price": 16.34,
->>>>>>> Stashed changes
+   "needMoney": 5811.35,
+   "baiyuan": 17.20770561057241,
+   "price": 16.37,
    "estFloat": 26.8
   }
  },
@@ -1458,11 +996,7 @@
   "progress_nm": "交易所受理",
   "scale": 10.55,
   "convertPrice": 15.49,
-<<<<<<< Updated upstream
-  "price": 16.65,
-=======
-  "price": 16.61,
->>>>>>> Stashed changes
+  "price": 16.71,
   "perPre": null,
   "apply10": 449,
   "ration_rt": null,
@@ -1471,19 +1005,11 @@
   "accept_date": "2026-06-12",
   "progress_dt": "2026-06-12",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 107.48870238863782,
+   "cv": 107.87604906391222,
    "needShares": 449,
-   "needMoney": 7475.849999999999,
-   "baiyuan": 13.376405358587988,
-   "price": 16.65,
-=======
-   "cv": 107.23047127178825,
-   "needShares": 449,
-   "needMoney": 7457.889999999999,
-   "baiyuan": 13.40861825529741,
-   "price": 16.61,
->>>>>>> Stashed changes
+   "needMoney": 7502.79,
+   "baiyuan": 13.328375177767203,
+   "price": 16.71,
    "estFloat": 3.27
   }
  },
@@ -1496,11 +1022,7 @@
   "progress_nm": "交易所受理",
   "scale": 11.8,
   "convertPrice": 62.18,
-<<<<<<< Updated upstream
-  "price": 58.02,
-=======
-  "price": 57.92,
->>>>>>> Stashed changes
+  "price": 57.57,
   "perPre": null,
   "apply10": 109,
   "ration_rt": null,
@@ -1509,19 +1031,11 @@
   "accept_date": "2026-06-11",
   "progress_dt": "2026-06-11",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 93.3097458990029,
+   "cv": 92.5860405275008,
    "needShares": 109,
-   "needMoney": 6324.18,
-   "baiyuan": 15.812326657369017,
-   "price": 58.02,
-=======
-   "cv": 93.14892248311355,
-   "needShares": 109,
-   "needMoney": 6313.28,
-   "baiyuan": 15.839626945106188,
-   "price": 57.92,
->>>>>>> Stashed changes
+   "needMoney": 6275.13,
+   "baiyuan": 15.935924833429745,
+   "price": 57.57,
    "estFloat": 5.51
   }
  },
@@ -1534,15 +1048,7 @@
   "progress_nm": "交易所受理",
   "scale": 12,
   "convertPrice": 38.28,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  "price": 40.12,
-=======
-  "price": 40.1,
->>>>>>> Stashed changes
-=======
-  "price": 40.14,
->>>>>>> Stashed changes
+  "price": 40.03,
   "perPre": null,
   "apply10": 334,
   "ration_rt": null,
@@ -1551,27 +1057,11 @@
   "accept_date": "2026-06-08",
   "progress_dt": "2026-06-08",
   "_c": {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-   "cv": 104.80668756530824,
+   "cv": 104.57157784743991,
    "needShares": 334,
-   "needMoney": 13400.08,
-   "baiyuan": 7.462642014077528,
-   "price": 40.12,
-=======
-   "cv": 104.75444096133751,
-   "needShares": 334,
-   "needMoney": 13393.4,
-   "baiyuan": 7.466364030044648,
-   "price": 40.1,
->>>>>>> Stashed changes
-=======
-   "cv": 104.85893416927901,
-   "needShares": 334,
-   "needMoney": 13406.76,
-   "baiyuan": 7.458923707144754,
-   "price": 40.14,
->>>>>>> Stashed changes
+   "needMoney": 13370.02,
+   "baiyuan": 7.479420374838631,
+   "price": 40.03,
    "estFloat": 3.27
   }
  },
@@ -1584,15 +1074,7 @@
   "progress_nm": "交易所受理",
   "scale": 3.2,
   "convertPrice": 25.85,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  "price": 22.64,
-=======
-  "price": 22.65,
->>>>>>> Stashed changes
-=======
-  "price": 22.65,
->>>>>>> Stashed changes
+  "price": 22.6,
   "perPre": null,
   "apply10": 422,
   "ration_rt": null,
@@ -1601,25 +1083,11 @@
   "accept_date": "2026-06-05",
   "progress_dt": "2026-06-05",
   "_c": {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-   "cv": 87.58220502901354,
+   "cv": 87.4274661508704,
    "needShares": 422,
-   "needMoney": 9554.08,
-   "baiyuan": 10.466732537303434,
-   "price": 22.64,
-=======
-=======
->>>>>>> Stashed changes
-   "cv": 87.62088974854932,
-   "needShares": 421,
-   "needMoney": 9535.65,
-   "baiyuan": 10.486962084388585,
-   "price": 22.65,
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
+   "needMoney": 9537.2,
+   "baiyuan": 10.485257727634945,
+   "price": 22.6,
    "estFloat": 1.77
   }
  },
@@ -1632,7 +1100,7 @@
   "progress_nm": "交易所受理",
   "scale": 30,
   "convertPrice": 15.05,
-  "price": 14.37,
+  "price": 14.36,
   "perPre": null,
   "apply10": 511,
   "ration_rt": null,
@@ -1641,11 +1109,11 @@
   "accept_date": "2026-06-03",
   "progress_dt": "2026-06-03",
   "_c": {
-   "cv": 95.48172757475082,
+   "cv": 95.41528239202657,
    "needShares": 511,
-   "needMoney": 7343.07,
-   "baiyuan": 13.618282271583956,
-   "price": 14.37,
+   "needMoney": 7337.96,
+   "baiyuan": 13.627765755059988,
+   "price": 14.36,
    "estFloat": 15.34
   }
  },
@@ -1658,11 +1126,7 @@
   "progress_nm": "交易所受理",
   "scale": 3.06,
   "convertPrice": 19.37,
-<<<<<<< Updated upstream
-  "price": 17.2,
-=======
-  "price": 17.19,
->>>>>>> Stashed changes
+  "price": 17.26,
   "perPre": null,
   "apply10": 551,
   "ration_rt": null,
@@ -1671,19 +1135,11 @@
   "accept_date": "2026-06-02",
   "progress_dt": "2026-06-02",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 88.7971089313371,
+   "cv": 89.10686628807434,
    "needShares": 551,
-   "needMoney": 9477.199999999999,
-   "baiyuan": 10.551639724813237,
-   "price": 17.2,
-=======
-   "cv": 88.74548270521426,
-   "needShares": 551,
-   "needMoney": 9471.69,
-   "baiyuan": 10.55777796781778,
-   "price": 17.19,
->>>>>>> Stashed changes
+   "needMoney": 9510.26,
+   "baiyuan": 10.514959633069967,
+   "price": 17.26,
    "estFloat": 0.94
   }
  },
@@ -1696,32 +1152,20 @@
   "progress_nm": "交易所受理",
   "scale": 7.48,
   "convertPrice": 22.56,
-<<<<<<< Updated upstream
-  "price": 21.35,
-=======
-  "price": 21.34,
->>>>>>> Stashed changes
+  "price": 21.5,
   "perPre": null,
-  "apply10": 562,
+  "apply10": 564,
   "ration_rt": null,
   "rating_cd": null,
   "progress_full": "2024-09-21 董事会预案\n2024-10-12 股东大会通过\n2026-05-06 交易所受理",
   "accept_date": "2026-05-06",
   "progress_dt": "2026-05-06",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 94.63652482269505,
-   "needShares": 562,
-   "needMoney": 11998.7,
-   "baiyuan": 8.334236208922633,
-   "price": 21.35,
-=======
-   "cv": 94.5921985815603,
-   "needShares": 562,
-   "needMoney": 11993.08,
-   "baiyuan": 8.338141661691576,
-   "price": 21.34,
->>>>>>> Stashed changes
+   "cv": 95.30141843971631,
+   "needShares": 564,
+   "needMoney": 12126,
+   "baiyuan": 8.246742536698003,
+   "price": 21.5,
    "estFloat": 3.94
   }
  },
@@ -1734,7 +1178,7 @@
   "progress_nm": "交易所受理",
   "scale": 12.7,
   "convertPrice": 18.83,
-  "price": 20.06,
+  "price": 19.88,
   "perPre": null,
   "apply10": 356,
   "ration_rt": null,
@@ -1743,11 +1187,11 @@
   "accept_date": "2026-04-29",
   "progress_dt": "2026-04-29",
   "_c": {
-   "cv": 106.53212958045673,
+   "cv": 105.57620817843866,
    "needShares": 356,
-   "needMoney": 7141.36,
-   "baiyuan": 14.002935015179183,
-   "price": 20.06,
+   "needMoney": 7077.28,
+   "baiyuan": 14.129722153143582,
+   "price": 19.88,
    "estFloat": 8.24
   }
  },
@@ -1760,32 +1204,20 @@
   "progress_nm": "交易所受理",
   "scale": 2.3,
   "convertPrice": 20.02,
-<<<<<<< Updated upstream
-  "price": 18.46,
-=======
-  "price": 18.47,
->>>>>>> Stashed changes
+  "price": 18.54,
   "perPre": null,
-  "apply10": 528,
+  "apply10": 527,
   "ration_rt": null,
   "rating_cd": null,
   "progress_full": "2026-03-27 董事会预案\n2026-04-16 股东大会通过\n2026-04-28 交易所受理",
   "accept_date": "2026-04-28",
   "progress_dt": "2026-04-28",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 92.20779220779221,
+   "cv": 92.6073926073926,
    "needShares": 527,
-   "needMoney": 9728.42,
-   "baiyuan": 10.279161467124156,
-   "price": 18.46,
-=======
-   "cv": 92.25774225774227,
-   "needShares": 528,
-   "needMoney": 9752.16,
-   "baiyuan": 10.254138570326985,
-   "price": 18.47,
->>>>>>> Stashed changes
+   "needMoney": 9770.58,
+   "baiyuan": 10.234806940836675,
+   "price": 18.54,
    "estFloat": 1.08
   }
  },
@@ -1798,20 +1230,20 @@
   "progress_nm": "交易所受理",
   "scale": 4.3,
   "convertPrice": 27.22,
-  "price": 25.74,
+  "price": 25.81,
   "perPre": null,
-  "apply10": 375,
+  "apply10": 376,
   "ration_rt": null,
   "rating_cd": null,
   "progress_full": "2026-03-04 董事会预案\n2026-03-20 股东大会通过\n2026-04-25 交易所受理",
   "accept_date": "2026-04-25",
   "progress_dt": "2026-04-25",
   "_c": {
-   "cv": 94.56282145481264,
-   "needShares": 375,
-   "needMoney": 9652.5,
-   "baiyuan": 10.360010360010358,
-   "price": 25.74,
+   "cv": 94.81998530492285,
+   "needShares": 376,
+   "needMoney": 9704.56,
+   "baiyuan": 10.30443420412672,
+   "price": 25.81,
    "estFloat": 1.74
   }
  },
@@ -1824,7 +1256,7 @@
   "progress_nm": "交易所受理",
   "scale": 5.2,
   "convertPrice": 21.39,
-  "price": 22.88,
+  "price": 22.87,
   "perPre": null,
   "apply10": 263,
   "ration_rt": null,
@@ -1833,11 +1265,11 @@
   "accept_date": "2026-04-24",
   "progress_dt": "2026-04-24",
   "_c": {
-   "cv": 106.96587190275828,
+   "cv": 106.91912108461898,
    "needShares": 263,
-   "needMoney": 6017.44,
-   "baiyuan": 16.61836262596719,
-   "price": 22.88,
+   "needMoney": 6014.81,
+   "baiyuan": 16.62562907224002,
+   "price": 22.87,
    "estFloat": 1.86
   }
  },
@@ -1850,32 +1282,20 @@
   "progress_nm": "交易所受理",
   "scale": 2.45,
   "convertPrice": 13.17,
-<<<<<<< Updated upstream
-  "price": 13.42,
-=======
-  "price": 13.4,
->>>>>>> Stashed changes
+  "price": 13.48,
   "perPre": null,
-  "apply10": 1274,
+  "apply10": 1275,
   "ration_rt": null,
   "rating_cd": null,
   "progress_full": "2026-01-09 董事会预案\n2026-01-26 股东大会通过\n2026-04-20 交易所受理",
   "accept_date": "2026-04-20",
   "progress_dt": "2026-04-20",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 101.89825360668185,
-   "needShares": 1274,
-   "needMoney": 17097.079999999998,
-   "baiyuan": 5.848951984783366,
-   "price": 13.42,
-=======
-   "cv": 101.7463933181473,
-   "needShares": 1276,
-   "needMoney": 17098.4,
-   "baiyuan": 5.848500444486033,
-   "price": 13.4,
->>>>>>> Stashed changes
+   "cv": 102.3538344722855,
+   "needShares": 1275,
+   "needMoney": 17187,
+   "baiyuan": 5.818351079304126,
+   "price": 13.48,
    "estFloat": 1.29
   }
  },
@@ -1888,32 +1308,20 @@
   "progress_nm": "交易所受理",
   "scale": 10,
   "convertPrice": 99.15,
-<<<<<<< Updated upstream
-  "price": 69.09,
-=======
-  "price": 69,
->>>>>>> Stashed changes
+  "price": 68.39,
   "perPre": null,
-  "apply10": 375,
+  "apply10": 374,
   "ration_rt": null,
   "rating_cd": null,
   "progress_full": "2025-11-25 董事会预案\n2026-02-25 股东大会通过\n2026-04-10 交易所受理",
   "accept_date": "2026-04-10",
   "progress_dt": "2026-04-10",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 69.68229954614222,
-   "needShares": 375,
-   "needMoney": 25908.75,
-   "baiyuan": 3.8596999083321264,
-   "price": 69.09,
-=======
-   "cv": 69.59152798789712,
-   "needShares": 375,
-   "needMoney": 25875,
-   "baiyuan": 3.8647342995169076,
-   "price": 69,
->>>>>>> Stashed changes
+   "cv": 68.97629853756933,
+   "needShares": 374,
+   "needMoney": 25577.86,
+   "baiyuan": 3.9096312201255303,
+   "price": 68.39,
    "estFloat": 5.13
   }
  },
@@ -1926,15 +1334,7 @@
   "progress_nm": "交易所受理",
   "scale": 6.2,
   "convertPrice": 16.11,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  "price": 15.71,
-=======
-  "price": 15.7,
->>>>>>> Stashed changes
-=======
-  "price": 15.7,
->>>>>>> Stashed changes
+  "price": 15.67,
   "perPre": null,
   "apply10": 359,
   "ration_rt": null,
@@ -1943,27 +1343,11 @@
   "accept_date": "2026-04-02",
   "progress_dt": "2026-04-02",
   "_c": {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-   "cv": 97.51707014276847,
+   "cv": 97.26877715704532,
    "needShares": 359,
-   "needMoney": 5639.89,
-   "baiyuan": 17.730842268200266,
-   "price": 15.71,
-=======
-   "cv": 97.45499689633768,
-   "needShares": 359,
-   "needMoney": 5636.3,
-   "baiyuan": 17.7421357983074,
-   "price": 15.7,
->>>>>>> Stashed changes
-=======
-   "cv": 97.45499689633768,
-   "needShares": 359,
-   "needMoney": 5636.3,
-   "baiyuan": 17.7421357983074,
-   "price": 15.7,
->>>>>>> Stashed changes
+   "needMoney": 5625.53,
+   "baiyuan": 17.776102873862552,
+   "price": 15.67,
    "estFloat": 1.86
   }
  },
@@ -1976,32 +1360,20 @@
   "progress_nm": "交易所受理",
   "scale": 6.97,
   "convertPrice": 30.36,
-<<<<<<< Updated upstream
-  "price": 19.05,
-=======
-  "price": 18.98,
->>>>>>> Stashed changes
+  "price": 18.57,
   "perPre": null,
-  "apply10": 398,
+  "apply10": 399,
   "ration_rt": null,
   "rating_cd": null,
   "progress_full": "2025-12-16 董事会预案\n2026-01-12 股东大会通过\n2026-03-11 交易所受理",
   "accept_date": "2026-03-11",
   "progress_dt": "2026-03-11",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 62.74703557312253,
-   "needShares": 398,
-   "needMoney": 7581.900000000001,
-   "baiyuan": 13.189306110605521,
-   "price": 19.05,
-=======
-   "cv": 62.516469038208164,
+   "cv": 61.16600790513834,
    "needShares": 399,
-   "needMoney": 7573.02,
-   "baiyuan": 13.204771676292944,
-   "price": 18.98,
->>>>>>> Stashed changes
+   "needMoney": 7409.43,
+   "baiyuan": 13.49631483123533,
+   "price": 18.57,
    "estFloat": 4.81
   }
  },
@@ -2014,7 +1386,7 @@
   "progress_nm": "交易所受理",
   "scale": 13.71,
   "convertPrice": 14.34,
-  "price": 14.42,
+  "price": 14.4,
   "perPre": null,
   "apply10": 512,
   "ration_rt": null,
@@ -2023,11 +1395,11 @@
   "accept_date": "2026-02-27",
   "progress_dt": "2026-02-27",
   "_c": {
-   "cv": 100.557880055788,
+   "cv": 100.418410041841,
    "needShares": 512,
-   "needMoney": 7383.04,
-   "baiyuan": 13.544556171983357,
-   "price": 14.42,
+   "needMoney": 7372.8,
+   "baiyuan": 13.563368055555555,
+   "price": 14.4,
    "estFloat": 11.17
   }
  },
@@ -2040,11 +1412,7 @@
   "progress_nm": "交易所受理",
   "scale": 10,
   "convertPrice": 29.87,
-<<<<<<< Updated upstream
-  "price": 22.43,
-=======
-  "price": 22.38,
->>>>>>> Stashed changes
+  "price": 22.19,
   "perPre": null,
   "apply10": 687,
   "ration_rt": null,
@@ -2053,19 +1421,11 @@
   "accept_date": "2026-01-09",
   "progress_dt": "2026-01-09",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 75.0920656176766,
+   "cv": 74.2885838634081,
    "needShares": 687,
-   "needMoney": 15409.41,
-   "baiyuan": 6.489541131036166,
-   "price": 22.43,
-=======
-   "cv": 74.92467358553732,
-   "needShares": 688,
-   "needMoney": 15397.439999999999,
-   "baiyuan": 6.494586113016189,
-   "price": 22.38,
->>>>>>> Stashed changes
+   "needMoney": 15244.53,
+   "baiyuan": 6.559729949037458,
+   "price": 22.19,
    "estFloat": 5.77
   }
  },
@@ -2078,20 +1438,20 @@
   "progress_nm": "交易所受理",
   "scale": 12.86,
   "convertPrice": 27.92,
-  "price": 27.9,
+  "price": 28,
   "perPre": null,
-  "apply10": 452,
+  "apply10": 453,
   "ration_rt": null,
   "rating_cd": null,
   "progress_full": "2025-06-24 董事会预案\n2025-09-17 股东大会通过\n2025-12-09 交易所受理",
   "accept_date": "2025-12-09",
   "progress_dt": "2025-12-09",
   "_c": {
-   "cv": 99.92836676217763,
-   "needShares": 452,
-   "needMoney": 12610.8,
-   "baiyuan": 7.9297110413296545,
-   "price": 27.9,
+   "cv": 100.2865329512894,
+   "needShares": 453,
+   "needMoney": 12684,
+   "baiyuan": 7.883948281299276,
+   "price": 28,
    "estFloat": 5.07
   }
  },
@@ -2104,7 +1464,7 @@
   "progress_nm": "交易所受理",
   "scale": 80,
   "convertPrice": 20.1,
-  "price": 21.37,
+  "price": 21.24,
   "perPre": null,
   "apply10": 632,
   "ration_rt": null,
@@ -2113,11 +1473,11 @@
   "accept_date": "2025-09-27",
   "progress_dt": "2025-09-27",
   "_c": {
-   "cv": 106.318407960199,
+   "cv": 105.67164179104476,
    "needShares": 632,
-   "needMoney": 13505.84,
-   "baiyuan": 7.404204403428443,
-   "price": 21.37,
+   "needMoney": 13423.679999999998,
+   "baiyuan": 7.449522038666,
+   "price": 21.24,
    "estFloat": 65.57
   }
  },
@@ -2130,20 +1490,20 @@
   "progress_nm": "交易所受理",
   "scale": 9.56,
   "convertPrice": 7.81,
-  "price": 8.06,
+  "price": 8.11,
   "perPre": null,
-  "apply10": 2337,
+  "apply10": 2336,
   "ration_rt": null,
   "rating_cd": null,
   "progress_full": "2023-06-21 董事会预案\n2023-07-07 股东大会通过\n2025-06-26 交易所受理",
   "accept_date": "2025-06-26",
   "progress_dt": "2025-06-26",
   "_c": {
-   "cv": 103.2010243277849,
-   "needShares": 2337,
-   "needMoney": 18836.22,
-   "baiyuan": 5.308920791963568,
-   "price": 8.06,
+   "cv": 103.84122919334186,
+   "needShares": 2336,
+   "needMoney": 18944.96,
+   "baiyuan": 5.278448727260443,
+   "price": 8.11,
    "estFloat": 8.72
   }
  },
@@ -2156,7 +1516,7 @@
   "progress_nm": "股东大会通过",
   "scale": 14,
   "convertPrice": 53.5,
-  "price": 47.26,
+  "price": 48.01,
   "perPre": null,
   "apply10": 74,
   "ration_rt": null,
@@ -2165,11 +1525,11 @@
   "accept_date": null,
   "progress_dt": "2026-07-31",
   "_c": {
-   "cv": 88.33644859813083,
+   "cv": 89.73831775700934,
    "needShares": 74,
-   "needMoney": 3497.24,
-   "baiyuan": 28.59397696469216,
-   "price": 47.26,
+   "needMoney": 3552.74,
+   "baiyuan": 28.147289134583453,
+   "price": 48.01,
    "estFloat": 4.07
   }
  },
@@ -2182,11 +1542,7 @@
   "progress_nm": "股东大会通过",
   "scale": 14.36,
   "convertPrice": 82.03,
-<<<<<<< Updated upstream
-  "price": 65.63,
-=======
-  "price": 65.6,
->>>>>>> Stashed changes
+  "price": 64.37,
   "perPre": null,
   "apply10": 86,
   "ration_rt": null,
@@ -2195,19 +1551,11 @@
   "accept_date": null,
   "progress_dt": "2026-07-21",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 80.00731439717175,
+   "cv": 78.47129099110082,
    "needShares": 86,
-   "needMoney": 5644.179999999999,
-   "baiyuan": 17.717365498619817,
-   "price": 65.63,
-=======
-   "cv": 79.97074241131293,
-   "needShares": 86,
-   "needMoney": 5641.599999999999,
-   "baiyuan": 17.72546795235394,
-   "price": 65.6,
->>>>>>> Stashed changes
+   "needMoney": 5535.820000000001,
+   "baiyuan": 18.064171161634587,
+   "price": 64.37,
    "estFloat": 8.79
   }
  },
@@ -2220,20 +1568,20 @@
   "progress_nm": "股东大会通过",
   "scale": 11.8,
   "convertPrice": 18.11,
-  "price": 19.25,
+  "price": 19.19,
   "perPre": null,
-  "apply10": 582,
+  "apply10": 581,
   "ration_rt": null,
   "rating_cd": null,
   "progress_full": "2026-07-04 董事会预案\n2026-07-20 股东大会通过",
   "accept_date": null,
   "progress_dt": "2026-07-20",
   "_c": {
-   "cv": 106.29486471562673,
-   "needShares": 582,
-   "needMoney": 11203.5,
-   "baiyuan": 8.92578212165841,
-   "price": 19.25,
+   "cv": 105.96355604638323,
+   "needShares": 581,
+   "needMoney": 11149.390000000001,
+   "baiyuan": 8.969100551689374,
+   "price": 19.19,
    "estFloat": 7.88
   }
  },
@@ -2246,11 +1594,7 @@
   "progress_nm": "股东大会通过",
   "scale": 12,
   "convertPrice": 24.19,
-<<<<<<< Updated upstream
-  "price": 19.43,
-=======
   "price": 19.44,
->>>>>>> Stashed changes
   "perPre": null,
   "apply10": 312,
   "ration_rt": null,
@@ -2259,19 +1603,11 @@
   "accept_date": null,
   "progress_dt": "2026-06-23",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 80.32244729226953,
-   "needShares": 312,
-   "needMoney": 6062.16,
-   "baiyuan": 16.49577048444779,
-   "price": 19.43,
-=======
    "cv": 80.36378668871434,
    "needShares": 312,
    "needMoney": 6065.280000000001,
    "baiyuan": 16.487285005803525,
    "price": 19.44,
->>>>>>> Stashed changes
    "estFloat": 6.73
   }
  },
@@ -2284,7 +1620,7 @@
   "progress_nm": "股东大会通过",
   "scale": 25,
   "convertPrice": 25.87,
-  "price": 26.61,
+  "price": 26.59,
   "perPre": null,
   "apply10": 189,
   "ration_rt": null,
@@ -2293,11 +1629,11 @@
   "accept_date": null,
   "progress_dt": "2026-06-17",
   "_c": {
-   "cv": 102.86045612678778,
+   "cv": 102.78314650173945,
    "needShares": 189,
-   "needMoney": 5029.29,
-   "baiyuan": 19.883522326213043,
-   "price": 26.61,
+   "needMoney": 5025.51,
+   "baiyuan": 19.898477965420426,
+   "price": 26.59,
    "estFloat": 7.42
   }
  },
@@ -2310,7 +1646,7 @@
   "progress_nm": "股东大会通过",
   "scale": 4.78,
   "convertPrice": 11.62,
-  "price": 11.01,
+  "price": 11.05,
   "perPre": null,
   "apply10": 887,
   "ration_rt": null,
@@ -2319,11 +1655,11 @@
   "accept_date": null,
   "progress_dt": "2026-06-16",
   "_c": {
-   "cv": 94.75043029259898,
+   "cv": 95.09466437177282,
    "needShares": 887,
-   "needMoney": 9765.869999999999,
-   "baiyuan": 10.239743105324974,
-   "price": 11.01,
+   "needMoney": 9801.35,
+   "baiyuan": 10.20267616195728,
+   "price": 11.05,
    "estFloat": 1.94
   }
  },
@@ -2336,15 +1672,7 @@
   "progress_nm": "股东大会通过",
   "scale": 25,
   "convertPrice": 27.83,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  "price": 27.02,
-=======
-  "price": 27.03,
->>>>>>> Stashed changes
-=======
-  "price": 27.02,
->>>>>>> Stashed changes
+  "price": 26.92,
   "perPre": null,
   "apply10": 613,
   "ration_rt": null,
@@ -2353,25 +1681,11 @@
   "accept_date": null,
   "progress_dt": "2026-06-02",
   "_c": {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
->>>>>>> Stashed changes
-   "cv": 97.08947179302912,
+   "cv": 96.73014732303271,
    "needShares": 613,
-   "needMoney": 16563.26,
-   "baiyuan": 6.037458809437274,
-   "price": 27.02,
-<<<<<<< Updated upstream
-=======
-   "cv": 97.12540424002876,
-   "needShares": 614,
-   "needMoney": 16596.420000000002,
-   "baiyuan": 6.025395838379602,
-   "price": 27.03,
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
+   "needMoney": 16501.960000000003,
+   "baiyuan": 6.059886219576342,
+   "price": 26.92,
    "estFloat": 9.98
   }
  },
@@ -2384,7 +1698,7 @@
   "progress_nm": "股东大会通过",
   "scale": 4.73,
   "convertPrice": 25.46,
-  "price": 25.44,
+  "price": 25.48,
   "perPre": null,
   "apply10": 220,
   "ration_rt": null,
@@ -2393,11 +1707,11 @@
   "accept_date": null,
   "progress_dt": "2026-05-27",
   "_c": {
-   "cv": 99.92144540455617,
+   "cv": 100.07855459544383,
    "needShares": 220,
-   "needMoney": 5596.8,
-   "baiyuan": 17.86735277301315,
-   "price": 25.44,
+   "needMoney": 5605.6,
+   "baiyuan": 17.839303553589268,
+   "price": 25.48,
    "estFloat": 3.13
   }
  },
@@ -2410,15 +1724,7 @@
   "progress_nm": "股东大会通过",
   "scale": 20,
   "convertPrice": 148.5,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  "price": 107.56,
-=======
-  "price": 107.74,
->>>>>>> Stashed changes
-=======
-  "price": 107.53,
->>>>>>> Stashed changes
+  "price": 105.15,
   "perPre": null,
   "apply10": 85,
   "ration_rt": null,
@@ -2427,27 +1733,11 @@
   "accept_date": null,
   "progress_dt": "2026-05-23",
   "_c": {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-   "cv": 72.43097643097643,
+   "cv": 70.8080808080808,
    "needShares": 85,
-   "needMoney": 9142.6,
-   "baiyuan": 10.937807625839477,
-   "price": 107.56,
-=======
-   "cv": 72.55218855218854,
-   "needShares": 85,
-   "needMoney": 9157.9,
-   "baiyuan": 10.919533954290833,
-   "price": 107.74,
->>>>>>> Stashed changes
-=======
-   "cv": 72.41077441077441,
-   "needShares": 85,
-   "needMoney": 9140.05,
-   "baiyuan": 10.940859185671851,
-   "price": 107.53,
->>>>>>> Stashed changes
+   "needMoney": 8937.75,
+   "baiyuan": 11.188498223825906,
+   "price": 105.15,
    "estFloat": 14.55
   }
  },
@@ -2460,15 +1750,7 @@
   "progress_nm": "股东大会通过",
   "scale": 14.8,
   "convertPrice": 70.55,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  "price": 62.96,
-=======
-  "price": 62.93,
->>>>>>> Stashed changes
-=======
-  "price": 62.92,
->>>>>>> Stashed changes
+  "price": 62.97,
   "perPre": null,
   "apply10": 165,
   "ration_rt": null,
@@ -2477,27 +1759,11 @@
   "accept_date": null,
   "progress_dt": "2026-05-21",
   "_c": {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-   "cv": 89.24167257264351,
+   "cv": 89.25584691708008,
    "needShares": 165,
-   "needMoney": 10388.4,
-   "baiyuan": 9.626121443148126,
-   "price": 62.96,
-=======
-   "cv": 89.19914953933382,
-   "needShares": 165,
-   "needMoney": 10383.45,
-   "baiyuan": 9.630710409353345,
-   "price": 62.93,
->>>>>>> Stashed changes
-=======
-   "cv": 89.18497519489725,
-   "needShares": 165,
-   "needMoney": 10381.800000000001,
-   "baiyuan": 9.632241037199714,
-   "price": 62.92,
->>>>>>> Stashed changes
+   "needMoney": 10390.05,
+   "baiyuan": 9.624592759418867,
+   "price": 62.97,
    "estFloat": 10.25
   }
  },
@@ -2510,11 +1776,7 @@
   "progress_nm": "股东大会通过",
   "scale": 8,
   "convertPrice": 23.22,
-<<<<<<< Updated upstream
-  "price": 23.66,
-=======
-  "price": 23.67,
->>>>>>> Stashed changes
+  "price": 23.61,
   "perPre": null,
   "apply10": 465,
   "ration_rt": null,
@@ -2523,19 +1785,11 @@
   "accept_date": null,
   "progress_dt": "2026-05-20",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 101.89491817398795,
+   "cv": 101.6795865633075,
    "needShares": 465,
-   "needMoney": 11001.9,
-   "baiyuan": 9.08933911415301,
-   "price": 23.66,
-=======
-   "cv": 101.93798449612403,
-   "needShares": 465,
-   "needMoney": 11006.550000000001,
-   "baiyuan": 9.085499089178715,
-   "price": 23.67,
->>>>>>> Stashed changes
+   "needMoney": 10978.65,
+   "baiyuan": 9.108588032226184,
+   "price": 23.61,
    "estFloat": 4.41
   }
  },
@@ -2548,11 +1802,7 @@
   "progress_nm": "股东大会通过",
   "scale": 8.01,
   "convertPrice": 20.22,
-<<<<<<< Updated upstream
-  "price": 20.2,
-=======
-  "price": 20.18,
->>>>>>> Stashed changes
+  "price": 20.19,
   "perPre": null,
   "apply10": 638,
   "ration_rt": null,
@@ -2561,19 +1811,11 @@
   "accept_date": null,
   "progress_dt": "2026-05-20",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 99.90108803165182,
+   "cv": 99.85163204747775,
    "needShares": 638,
-   "needMoney": 12887.6,
-   "baiyuan": 7.759396629318104,
-   "price": 20.2,
-=======
-   "cv": 99.80217606330366,
-   "needShares": 638,
-   "needMoney": 12874.84,
-   "baiyuan": 7.76708681428274,
-   "price": 20.18,
->>>>>>> Stashed changes
+   "needMoney": 12881.220000000001,
+   "baiyuan": 7.763239817346492,
+   "price": 20.19,
    "estFloat": 5.1
   }
  },
@@ -2586,11 +1828,7 @@
   "progress_nm": "股东大会通过",
   "scale": 11.5,
   "convertPrice": 125.89,
-<<<<<<< Updated upstream
-  "price": 100.66,
-=======
-  "price": 100.71,
->>>>>>> Stashed changes
+  "price": 99,
   "perPre": null,
   "apply10": 106,
   "ration_rt": null,
@@ -2599,19 +1837,11 @@
   "accept_date": null,
   "progress_dt": "2026-05-19",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 79.95869409802208,
+   "cv": 78.64008261180395,
    "needShares": 106,
-   "needMoney": 10669.96,
-   "baiyuan": 9.372106362160684,
-   "price": 100.66,
-=======
-   "cv": 79.99841131146238,
-   "needShares": 105,
-   "needMoney": 10574.55,
-   "baiyuan": 9.456667186783363,
-   "price": 100.71,
->>>>>>> Stashed changes
+   "needMoney": 10494,
+   "baiyuan": 9.529254812273681,
+   "price": 99,
    "estFloat": 3.88
   }
  },
@@ -2624,7 +1854,7 @@
   "progress_nm": "股东大会通过",
   "scale": 6.17,
   "convertPrice": 50.46,
-  "price": 36.55,
+  "price": 36.37,
   "perPre": null,
   "apply10": 219,
   "ration_rt": null,
@@ -2633,11 +1863,11 @@
   "accept_date": null,
   "progress_dt": "2026-05-19",
   "_c": {
-   "cv": 72.43361078081648,
+   "cv": 72.07689258818866,
    "needShares": 219,
-   "needMoney": 8004.45,
-   "baiyuan": 12.493050740525584,
-   "price": 36.55,
+   "needMoney": 7965.03,
+   "baiyuan": 12.554880521479518,
+   "price": 36.37,
    "estFloat": 1.76
   }
  },
@@ -2650,11 +1880,7 @@
   "progress_nm": "股东大会通过",
   "scale": 5.9,
   "convertPrice": 22.7,
-<<<<<<< Updated upstream
-  "price": 21.84,
-=======
-  "price": 21.81,
->>>>>>> Stashed changes
+  "price": 21.62,
   "perPre": null,
   "apply10": 411,
   "ration_rt": null,
@@ -2663,19 +1889,11 @@
   "accept_date": null,
   "progress_dt": "2026-05-18",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 96.2114537444934,
+   "cv": 95.24229074889868,
    "needShares": 411,
-   "needMoney": 8976.24,
-   "baiyuan": 11.140522089427199,
-   "price": 21.84,
-=======
-   "cv": 96.07929515418502,
-   "needShares": 411,
-   "needMoney": 8963.91,
-   "baiyuan": 11.155846053786798,
-   "price": 21.81,
->>>>>>> Stashed changes
+   "needMoney": 8885.82,
+   "baiyuan": 11.253885403935708,
+   "price": 21.62,
    "estFloat": 3.74
   }
  },
@@ -2688,11 +1906,7 @@
   "progress_nm": "股东大会通过",
   "scale": 5.14,
   "convertPrice": 78.53,
-<<<<<<< Updated upstream
-  "price": 50.86,
-=======
-  "price": 50.7,
->>>>>>> Stashed changes
+  "price": 49.59,
   "perPre": null,
   "apply10": 239,
   "ration_rt": null,
@@ -2701,19 +1915,11 @@
   "accept_date": null,
   "progress_dt": "2026-05-16",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 64.7650579396409,
+   "cv": 63.14784158920158,
    "needShares": 239,
-   "needMoney": 12155.539999999999,
-   "baiyuan": 8.226701569819193,
-   "price": 50.86,
-=======
-   "cv": 64.56131414745957,
-   "needShares": 239,
-   "needMoney": 12117.300000000001,
-   "baiyuan": 8.252663547159845,
-   "price": 50.7,
->>>>>>> Stashed changes
+   "needMoney": 11852.01,
+   "baiyuan": 8.437387413611699,
+   "price": 49.59,
    "estFloat": 3.29
   }
  },
@@ -2726,15 +1932,7 @@
   "progress_nm": "股东大会通过",
   "scale": 10,
   "convertPrice": 10.97,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  "price": 10.92,
-=======
   "price": 10.91,
->>>>>>> Stashed changes
-=======
-  "price": 10.91,
->>>>>>> Stashed changes
   "perPre": null,
   "apply10": 646,
   "ration_rt": null,
@@ -2743,27 +1941,11 @@
   "accept_date": null,
   "progress_dt": "2026-05-16",
   "_c": {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-   "cv": 99.54421148587055,
-   "needShares": 646,
-   "needMoney": 7054.32,
-   "baiyuan": 14.175710770138016,
-   "price": 10.92,
-=======
    "cv": 99.45305378304467,
    "needShares": 646,
    "needMoney": 7047.86,
    "baiyuan": 14.188704088900746,
    "price": 10.91,
->>>>>>> Stashed changes
-=======
-   "cv": 99.45305378304467,
-   "needShares": 646,
-   "needMoney": 7047.86,
-   "baiyuan": 14.188704088900746,
-   "price": 10.91,
->>>>>>> Stashed changes
    "estFloat": 4.69
   }
  },
@@ -2776,15 +1958,7 @@
   "progress_nm": "股东大会通过",
   "scale": 8.2,
   "convertPrice": 12.18,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  "price": 12.3,
-=======
-  "price": 12.31,
->>>>>>> Stashed changes
-=======
-  "price": 12.31,
->>>>>>> Stashed changes
+  "price": 12.33,
   "perPre": null,
   "apply10": 451,
   "ration_rt": null,
@@ -2793,27 +1967,11 @@
   "accept_date": null,
   "progress_dt": "2026-05-15",
   "_c": {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-   "cv": 100.98522167487684,
+   "cv": 101.23152709359606,
    "needShares": 451,
-   "needMoney": 5547.3,
-   "baiyuan": 18.026787806680726,
-   "price": 12.3,
-=======
-   "cv": 101.0673234811166,
-   "needShares": 451,
-   "needMoney": 5551.81,
-   "baiyuan": 18.012143787341422,
-   "price": 12.31,
->>>>>>> Stashed changes
-=======
-   "cv": 101.0673234811166,
-   "needShares": 451,
-   "needMoney": 5551.81,
-   "baiyuan": 18.012143787341422,
-   "price": 12.31,
->>>>>>> Stashed changes
+   "needMoney": 5560.83,
+   "baiyuan": 17.982927009097562,
+   "price": 12.33,
    "estFloat": 2.9
   }
  },
@@ -2852,15 +2010,7 @@
   "progress_nm": "股东大会通过",
   "scale": 22,
   "convertPrice": 35.86,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  "price": 31.53,
-=======
-  "price": 31.52,
->>>>>>> Stashed changes
-=======
-  "price": 31.52,
->>>>>>> Stashed changes
+  "price": 31.32,
   "perPre": null,
   "apply10": 233,
   "ration_rt": null,
@@ -2869,25 +2019,11 @@
   "accept_date": null,
   "progress_dt": "2026-05-09",
   "_c": {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-   "cv": 87.92526491912996,
+   "cv": 87.33965421081986,
    "needShares": 233,
-   "needMoney": 7346.490000000001,
-   "baiyuan": 13.611942573936668,
-   "price": 31.53,
-=======
-=======
->>>>>>> Stashed changes
-   "cv": 87.89737869492471,
-   "needShares": 233,
-   "needMoney": 7344.16,
-   "baiyuan": 13.616261083636521,
-   "price": 31.52,
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
+   "needMoney": 7297.56,
+   "baiyuan": 13.70321038812973,
+   "price": 31.32,
    "estFloat": 13.98
   }
  },
@@ -2900,15 +2036,7 @@
   "progress_nm": "股东大会通过",
   "scale": 12.4,
   "convertPrice": 12,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  "price": 12.47,
-=======
-  "price": 12.48,
->>>>>>> Stashed changes
-=======
-  "price": 12.48,
->>>>>>> Stashed changes
+  "price": 12.45,
   "perPre": null,
   "apply10": 720,
   "ration_rt": null,
@@ -2917,25 +2045,11 @@
   "accept_date": null,
   "progress_dt": "2026-03-25",
   "_c": {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-   "cv": 103.91666666666669,
+   "cv": 103.74999999999999,
    "needShares": 720,
-   "needMoney": 8978.4,
-   "baiyuan": 11.137841931747303,
-   "price": 12.47,
-=======
-=======
->>>>>>> Stashed changes
-   "cv": 104,
-   "needShares": 719,
-   "needMoney": 8973.12,
-   "baiyuan": 11.144395706287222,
-   "price": 12.48,
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
+   "needMoney": 8964,
+   "baiyuan": 11.155734047300312,
+   "price": 12.45,
    "estFloat": 2.7
   }
  },
@@ -2948,20 +2062,20 @@
   "progress_nm": "股东大会通过",
   "scale": 5,
   "convertPrice": 13.72,
-  "price": 13.4,
+  "price": 13.37,
   "perPre": null,
-  "apply10": 1123,
+  "apply10": 1124,
   "ration_rt": null,
   "rating_cd": null,
   "progress_full": "2026-01-08 董事会预案\n2026-01-24 股东大会通过",
   "accept_date": null,
   "progress_dt": "2026-01-24",
   "_c": {
-   "cv": 97.667638483965,
-   "needShares": 1123,
-   "needMoney": 15048.2,
-   "baiyuan": 6.64531306069829,
-   "price": 13.4,
+   "cv": 97.44897959183673,
+   "needShares": 1124,
+   "needMoney": 15027.88,
+   "baiyuan": 6.654298543773307,
+   "price": 13.37,
    "estFloat": 1.26
   }
  },
@@ -2974,15 +2088,7 @@
   "progress_nm": "股东大会通过",
   "scale": 8,
   "convertPrice": 27.43,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  "price": 33.08,
-=======
-  "price": 33.06,
->>>>>>> Stashed changes
-=======
-  "price": 33.01,
->>>>>>> Stashed changes
+  "price": 32.4,
   "perPre": null,
   "apply10": 640,
   "ration_rt": null,
@@ -2991,27 +2097,11 @@
   "accept_date": null,
   "progress_dt": "2025-11-07",
   "_c": {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-   "cv": 120.59788552679547,
+   "cv": 118.11884797666788,
    "needShares": 640,
-   "needMoney": 21171.199999999997,
-   "baiyuan": 4.723397823458283,
-   "price": 33.08,
-=======
-   "cv": 120.52497265767408,
-   "needShares": 639,
-   "needMoney": 21125.34,
-   "baiyuan": 4.733651624068536,
-   "price": 33.06,
->>>>>>> Stashed changes
-=======
-   "cv": 120.34269048487059,
-   "needShares": 640,
-   "needMoney": 21126.399999999998,
-   "baiyuan": 4.733414116934263,
-   "price": 33.01,
->>>>>>> Stashed changes
+   "needMoney": 20736,
+   "baiyuan": 4.822530864197531,
+   "price": 32.4,
    "estFloat": 5.51
   }
  },
@@ -3024,32 +2114,20 @@
   "progress_nm": "股东大会通过",
   "scale": 5.78,
   "convertPrice": 39.48,
-<<<<<<< Updated upstream
-  "price": 33.86,
-=======
-  "price": 33.87,
->>>>>>> Stashed changes
+  "price": 33.34,
   "perPre": null,
-  "apply10": 324,
+  "apply10": 323,
   "ration_rt": null,
   "rating_cd": null,
   "progress_full": "2025-08-02 董事会预案\n2025-08-19 股东大会通过",
   "accept_date": null,
   "progress_dt": "2025-08-19",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 85.76494427558258,
+   "cv": 84.44782168186426,
    "needShares": 323,
-   "needMoney": 10936.78,
-   "baiyuan": 9.143459043703906,
-   "price": 33.86,
-=======
-   "cv": 85.790273556231,
-   "needShares": 324,
-   "needMoney": 10973.88,
-   "baiyuan": 9.112547248557485,
-   "price": 33.87,
->>>>>>> Stashed changes
+   "needMoney": 10768.820000000002,
+   "baiyuan": 9.286068482897848,
+   "price": 33.34,
    "estFloat": 4.66
   }
  },
@@ -3062,11 +2140,7 @@
   "progress_nm": "股东大会通过",
   "scale": 19.67,
   "convertPrice": 207.25,
-<<<<<<< Updated upstream
-  "price": 149.57,
-=======
-  "price": 149.32,
->>>>>>> Stashed changes
+  "price": 146.31,
   "perPre": null,
   "apply10": 142,
   "ration_rt": null,
@@ -3075,19 +2149,11 @@
   "accept_date": null,
   "progress_dt": "2025-06-16",
   "_c": {
-<<<<<<< Updated upstream
-   "cv": 72.16887816646562,
+   "cv": 70.59589867310012,
    "needShares": 142,
-   "needMoney": 21238.94,
-   "baiyuan": 4.708332901736151,
-   "price": 149.57,
-=======
-   "cv": 72.04825090470446,
-   "needShares": 142,
-   "needMoney": 21203.44,
-   "baiyuan": 4.716215859313395,
-   "price": 149.32,
->>>>>>> Stashed changes
+   "needMoney": 20776.02,
+   "baiyuan": 4.813241419675183,
+   "price": 146.31,
    "estFloat": 11.34
   }
  },
@@ -3100,7 +2166,7 @@
   "progress_nm": "股东大会通过",
   "scale": 80,
   "convertPrice": 3.54,
-  "price": 3.71,
+  "price": 3.73,
   "perPre": null,
   "apply10": 556,
   "ration_rt": null,
@@ -3109,11 +2175,11 @@
   "accept_date": null,
   "progress_dt": "2025-05-31",
   "_c": {
-   "cv": 104.80225988700565,
+   "cv": 105.36723163841808,
    "needShares": 556,
-   "needMoney": 2062.7599999999998,
-   "baiyuan": 48.47873722585274,
-   "price": 3.71,
+   "needMoney": 2073.88,
+   "baiyuan": 48.218797616062645,
+   "price": 3.73,
    "estFloat": 31.31
   }
  },
@@ -3126,7 +2192,7 @@
   "progress_nm": "董事会预案",
   "scale": 6.3,
   "convertPrice": 51.49,
-  "price": 45.47,
+  "price": 45.32,
   "perPre": null,
   "apply10": 198,
   "ration_rt": null,
@@ -3135,11 +2201,11 @@
   "accept_date": null,
   "progress_dt": "2026-07-24",
   "_c": {
-   "cv": 88.30840939988347,
+   "cv": 88.01709069722276,
    "needShares": 198,
-   "needMoney": 9003.06,
-   "baiyuan": 11.107334617341214,
-   "price": 45.47,
+   "needMoney": 8973.36,
+   "baiyuan": 11.144097640125883,
+   "price": 45.32,
    "estFloat": 3.41
   }
  },
@@ -3152,7 +2218,7 @@
   "progress_nm": "董事会预案",
   "scale": 4.5,
   "convertPrice": 31.73,
-  "price": 30.33,
+  "price": 30.51,
   "perPre": null,
   "apply10": 209,
   "ration_rt": null,
@@ -3161,11 +2227,11 @@
   "accept_date": null,
   "progress_dt": "2026-07-08",
   "_c": {
-   "cv": 95.58777182477151,
+   "cv": 96.15505830444376,
    "needShares": 209,
-   "needMoney": 6338.969999999999,
-   "baiyuan": 15.775433548352494,
-   "price": 30.33,
+   "needMoney": 6376.59,
+   "baiyuan": 15.682363143937433,
+   "price": 30.51,
    "estFloat": 1.38
   }
  },
@@ -3178,15 +2244,7 @@
   "progress_nm": "董事会预案",
   "scale": 36,
   "convertPrice": 173.11,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  "price": 139.78,
-=======
-  "price": 139.68,
->>>>>>> Stashed changes
-=======
-  "price": 139.49,
->>>>>>> Stashed changes
+  "price": 139.12,
   "perPre": null,
   "apply10": 119,
   "ration_rt": null,
@@ -3195,27 +2253,11 @@
   "accept_date": null,
   "progress_dt": "2026-06-23",
   "_c": {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-   "cv": 80.74634625382704,
+   "cv": 80.36508578360579,
    "needShares": 119,
-   "needMoney": 16633.82,
-   "baiyuan": 6.01184815033468,
-   "price": 139.78,
-=======
-   "cv": 80.68857951591474,
-   "needShares": 119,
-   "needMoney": 16621.920000000002,
-   "baiyuan": 6.016152165333487,
-   "price": 139.68,
->>>>>>> Stashed changes
-=======
-   "cv": 80.57882271388135,
-   "needShares": 119,
-   "needMoney": 16599.31,
-   "baiyuan": 6.024346795137871,
-   "price": 139.49,
->>>>>>> Stashed changes
+   "needMoney": 16555.28,
+   "baiyuan": 6.04036899406111,
+   "price": 139.12,
    "estFloat": 11.77
   }
  },
@@ -3228,44 +2270,20 @@
   "progress_nm": "董事会预案",
   "scale": 48,
   "convertPrice": 5.61,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  "price": 5.97,
-=======
-  "price": 5.96,
->>>>>>> Stashed changes
-=======
-  "price": 5.95,
->>>>>>> Stashed changes
+  "price": 5.9,
   "perPre": null,
-  "apply10": 735,
+  "apply10": 736,
   "ration_rt": null,
   "rating_cd": null,
   "progress_full": "2025-08-29 董事会预案",
   "accept_date": null,
   "progress_dt": "2025-08-29",
   "_c": {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-   "cv": 106.41711229946522,
-   "needShares": 735,
-   "needMoney": 4387.95,
-   "baiyuan": 22.789685388393213,
-   "price": 5.97,
-=======
-   "cv": 106.23885918003563,
-   "needShares": 735,
-   "needMoney": 4380.6,
-   "baiyuan": 22.827923115554945,
-   "price": 5.96,
->>>>>>> Stashed changes
-=======
-   "cv": 106.06060606060606,
+   "cv": 105.16934046345811,
    "needShares": 736,
-   "needMoney": 4379.2,
-   "baiyuan": 22.835221044939715,
-   "price": 5.95,
->>>>>>> Stashed changes
+   "needMoney": 4342.400000000001,
+   "baiyuan": 23.028739867354457,
+   "price": 5.9,
    "estFloat": 19.86
   }
  }
