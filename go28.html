@@ -1171,7 +1171,11 @@ function stageTagOf(r){
 }
 
 function progressLabel(r){
-  if(r.progress==="90") return (r.progress_nm&&r.progress_nm.indexOf("申购")>=0)?"已排期申购":"同意注册";
+  if(r.progress==="90"){
+    if(r.progress_nm && r.progress_nm.indexOf("申购")>=0) return "已排期申购";
+    if(r.progress_nm && r.progress_nm.indexOf("上市")>=0) return "待上市";
+    return "同意注册";
+  }
   if(r.progress==="80") return "上市委通过";
   if(r.progress==="50") return "交易所受理";
   if(r.progress==="20") return "股东大会通过";
@@ -1199,12 +1203,12 @@ function progressBarHtml(kind,r){
   }
   return '<div class="cb-progress"><span class="'+cls+'"></span></div>';
 }
-// 审核进度只显示「还在审批中」的：排除已上市(99)和已排期申购(90含"申购")
+// 审核进度只显示「还在审批中」的：排除已上市(99)和已到申购/上市阶段(90含"申购"或"上市")
 function filterProgressRaw(arr){
   return arr.filter(r=>{
     if(r.progress==="99") return false; // 已上市
-    // 已到申购进度：从审核进度剔除（申购债统一归到「待发债」）
-    if(r.progress==="90" && r.progress_nm && r.progress_nm.indexOf("申购")>=0) return false;
+    // 已到申购/上市进度：从审核进度剔除（申购/上市债统一归到「待发债」或已无操作价值）
+    if(r.progress==="90" && r.progress_nm && (r.progress_nm.indexOf("申购")>=0 || r.progress_nm.indexOf("上市")>=0)) return false;
     return true;
   });
 }
