@@ -512,7 +512,7 @@ table td[data-label="进展日期"],table th[data-label="进展日期"]{white-sp
 
 <script>
 function getNote(id){try{const u=getCur();if(u){const us=loadUsers();const rec=us[u];if(rec){if(!rec.notes)rec.notes={};const v=getNoteText(rec.notes[id]);if(v)return v;}}return localStorage.getItem('cbnote_'+id)||'';}catch(e){return '';}}
-function setNote(id,t){try{const now=Date.now();const u=getCur();if(u){const us=loadUsers();if(us[u]){if(!us[u].notes)us[u].notes={};if(t)us[u].notes[id]={text:t,ts:now};else us[u].notes[id]={text:'',ts:now};saveUsers(us);if(currentUser)currentUser=fetchCurrentUser();if(currentUser)scheduleSyncPush();return;}}if(t)localStorage.setItem('cbnote_'+id,t);else localStorage.removeItem('cbnote_'+id);}catch(e){}}
+function setNote(id,t){try{const now=Date.now();const u=getCur();if(u){const us=loadUsers();if(us[u]){if(!us[u].notes)us[u].notes={};if(t)us[u].notes[id]={text:t,ts:now};else us[u].notes[id]={deleted:true,ts:now};saveUsers(us);if(currentUser)currentUser=fetchCurrentUser();if(currentUser)scheduleSyncPush();return;}}if(t)localStorage.setItem('cbnote_'+id,t);else localStorage.removeItem('cbnote_'+id);}catch(e){}}
 function migrateLocalNotes(){try{if(!currentUser)return;const u=getCur();if(!u)return;const us=loadUsers();if(!us[u])return;if(!us[u].notes)us[u].notes={};let ch=false;for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.indexOf('cbnote_')===0){const code=k.slice(7),val=localStorage.getItem(k);if(val&&!(code in us[u].notes)){us[u].notes[code]=val;ch=true;}localStorage.removeItem(k);}}if(ch){saveUsers(us);currentUser=fetchCurrentUser();}}catch(e){}}
 function syncNoteIco(){document.querySelectorAll('.note-col-c,.note-ico-m').forEach(function(el){var t=getNote(el.dataset.noteId);el.classList.toggle('has',!!t);});}
 </script>
@@ -1697,9 +1697,8 @@ function mergeNotes(local, remote){
   for(const k of keys){
     const le=normNoteEntry(local&&local[k]);
     const re=normNoteEntry(remote&&remote[k]);
-    if(!le){ merged[k]=re; continue; }
-    if(!re){ merged[k]=le; continue; }
-    merged[k]=(le.ts||0)>=(re.ts||0)?le:re;
+    if(le && (le.text || le.deleted)){ merged[k]=le; continue; }
+    if(re){ merged[k]=re; continue; }
   }
   return merged;
 }
@@ -3005,7 +3004,7 @@ setInterval(()=>setTime("数据更新"), 30000);
 // 把版本号同步到浏览器标签标题，方便一眼判断是否加载了最新页
 (function(){
   try{
-    var VER='v20260803-sync7'; document.title='cb-ration '+VER;
+    var VER='v20260803-sync8'; document.title='cb-ration '+VER;
 }catch(e){}
 })();
 
