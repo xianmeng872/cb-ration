@@ -2419,6 +2419,10 @@ function renderFav(){
     p.innerHTML='<div class="card"><div class="empty">请先登录后查看关注列表</div></div>';
     return;
   }
+  if(!currentUser.favorites || !currentUser.favorites.length){
+    p.innerHTML='<div class="card"><div class="empty">还没有关注的转债，点击卡片右上角的 ☆ 加入关注</div></div>';
+    return;
+  }
   // 合并所有数据
   const all=[
     ...PEND.map(r=>({...r,_kind:"pend"})),
@@ -2430,26 +2434,8 @@ function renderFav(){
     rows=rows.filter(r=>(r.name||"").toLowerCase().includes(q)||(r.code||"").includes(q)||(r.stockName||"").toLowerCase().includes(q)||(r.stockCode||"").includes(q));
   }
   if(!rows.length){
-    // 兜底：关注的债在 PEND/PROGRESS 里都匹配不到（数据源未及时更新/已退市/已下市），
-    // 用 favorites 数组 + nameOfId/progressOfId 构造简化列表，至少让飞哥能看到他点过关注的东西
-    let fallback='<div class="card"><div class="empty" style="padding:18px 12px">⚠️ 当前数据源未匹配到这 '+currentUser.favorites.length+' 条关注（可能已下市/退市/数据源延迟）<br><span style="font-size:11px;color:#9ca3af">下方按关注ID直接展示，不依赖行情数据</span></div>';
-    fallback+='<div class="cb-list">';
-    currentUser.favorites.forEach((f,i)=>{
-      const nm=nameOfId(f.id);
-      const pr=progressOfId(f.id);
-      const tag=pr?('<span class="tag tag-s'+pr+'">'+(PROG_LABEL[pr]||pr)+'</span>'):'<span class="tag tag-slist">数据源无</span>';
-      fallback+='<div class="cb-item" data-i="'+i+'" data-kind="fallback">';
-      fallback+='<div class="cb-name"><span class="n">'+nm+'</span><span class="c">'+f.id+'</span><button class="fav-btn active" data-fav="'+f.id+'" data-kind="pend">♥</button><span class="note-ico-m" data-note-id="'+f.id+'" title="备注">📝</span></div>';
-      fallback+='<div class="cb-stats">';
-      fallback+='<span class="s"><span class="l">阶段</span><span class="v">'+tag+'</span></span>';
-      fallback+='<span class="s"><span class="l">关注ID</span><span class="v">'+f.id+'</span></span>';
-      fallback+='<span class="s"><span class="l">已记录进度</span><span class="v">'+(f.seen||"未记录")+'</span></span>';
-      fallback+='</div>';
-      fallback+='</div>';
-    });
-    fallback+='</div>';
-    p.innerHTML=fallback;
-    bindFavBtns(p);syncNoteIco();
+    // 数据源未匹配到任何有效关注：按飞哥要求，直接空白提示，不再展示历史/失效的关注列表
+    p.innerHTML='<div class="card"><div class="empty">还没有关注的转债，点击卡片右上角的 ☆ 加入关注</div></div>';
     return;
   }
   // 按类型分组：待发/审核中
@@ -2525,18 +2511,8 @@ function renderFav(){
       rows=rows.filter(r=> r._kind==="progress" && String(r.progress)===FAV_FILTER);
     }
     if(!rows.length){
-      // PC端同样的兜底：关注的债匹配不到时，按 favorites id 直接展示
-      let fb='<div class="card"><div class="empty" style="padding:18px 12px">⚠️ 当前数据源未匹配到这 '+currentUser.favorites.length+' 条关注（可能已下市/退市/数据源延迟）</div>';
-      fb+='<div class="card"><table><thead><tr><th>名称</th><th>关注ID</th><th>阶段</th><th>已记录进度</th><th style="text-align:right">操作</th><th class="note-th">备</th></tr></thead><tbody>';
-      currentUser.favorites.forEach(f=>{
-        const nm=nameOfId(f.id);
-        const pr=progressOfId(f.id);
-        const tag=pr?('<span class="tag tag-s'+pr+'">'+(PROG_LABEL[pr]||pr)+'</span>'):'<span class="muted">-</span>';
-        fb+='<tr><td>'+nm+'</td><td><span class="muted">'+f.id+'</span></td><td>'+tag+'</td><td>'+(f.seen||"未记录")+'</td><td style="text-align:right">'+favBtnHtml(f.id,"pend")+'</td><td class="note-td" data-note-id="'+f.id+'"><span class="note-ico-m" data-note-id="'+f.id+'" title="备注">📝</span></td>';
-      });
-      fb+='</tbody></table></div>';
-      p.innerHTML=fb;
-      bindFavBtns(p);syncNoteIco();
+      // PC端：到达这里说明已通过数据源匹配，只是当前筛选条件无结果
+      p.innerHTML='<div class="card"><div class="empty">'+(favKeyword||(FAV_FILTER!=="all")?"无匹配筛选条件的关注":"还没有关注的转债，点击卡片右上角的 ☆ 加入关注")+'</div></div>';
       return;
     }
     rows=doSort(rows,favSort);
