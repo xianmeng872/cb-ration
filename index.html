@@ -1067,7 +1067,7 @@ function renderPend(){
   // 已过申购日（待上市）、公布上市、手动待发行 一律不在待发债列表显示；数据仍保留在 PEND，不丢。
   rows = rows.filter(r => r.stage === '申购' && r.publicStart && r.publicStart.slice(0,10) >= todayStr());
   if(keyword){const q=keyword.toLowerCase();rows=rows.filter(r=>(r.name||"").toLowerCase().includes(q)||(r.code||"").includes(q)||(r.stockName||"").toLowerCase().includes(q)||(r.stockCode||"").includes(q));}
-  if(!rows.length){p.innerHTML='<div class="card"><div class="empty">'+(keyword?"无匹配":"加载失败或暂无待发")+'</div></div>';return;}
+  if(!rows.length){let _msg=keyword?"无匹配":(PEND&&PEND.length?"今日无待申购转债（数据正常，暂无申购中的标的）":"数据加载失败，请刷新页面");p.innerHTML='<div class="card"><div class="empty">'+_msg+'</div></div>';return;}
   rows=doSort(rows,pendSort);
   const ps=pendSort;
 
@@ -1531,7 +1531,7 @@ async function loadAll(){
     const t=todayStr();
     const visible=PEND.filter(r=>r.stage==='申购' && r.publicStart && r.publicStart.slice(0,10)>=t);
     const hit=visible.filter(r=>r._c&&r._c.cv!=null).length;
-    toast(hit>0?("✅ 待发债 "+visible.length+" 只（"+hit+"/"+visible.length+" 已刷新实时价）"):"⚠️ 实时价拉取失败，已用快照价");
+    if(!visible.length){toast("ℹ️ 当前无待申购转债，无需刷新实时价（已用快照价）");}else if(hit>0){toast("✅ 待发债 "+visible.length+" 只（"+hit+"/"+visible.length+" 已刷新实时价）");}else{toast("⚠️ 实时价拉取失败，已用快照价");}
   }catch(e){console.error("刷新失败(非致命)，使用快照数据:",e.message);}
   finally{btn.disabled=false;btn.textContent="↻ 刷新实时";}
 }
