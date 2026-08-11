@@ -1002,7 +1002,10 @@ function wgHmacSha1(keyStr,msgStr){
 }
 /* COS 前端签名（wgCosAuth/wgCosReq）已移除：签名逻辑迁移到阿里云 FC 后端 /api/wg，前端不再持有腾讯云密钥 */
 async function wgApiReq(method,body){
-  const url=WG_API+'?t='+encodeURIComponent(wgToken||'');
+  const params=new URLSearchParams();
+  if(wgUser) params.set('u',wgUser);
+  if(wgToken) params.set('t',wgToken);
+  const url=WG_API+'?'+params.toString();
   const init={method,headers:{'Content-Type':'application/json'}};
   if(body!==undefined) init.body=typeof body==='string'?body:JSON.stringify(body);
   const r=await fetch(url,init);
@@ -1016,8 +1019,11 @@ async function wgCosGet(key){
 }
 async function wgCosPut(key,obj){await wgApiReq('POST',obj);return {status:200};}
 async function wgSyncGet(){
-  try{const raw=await wgApiReq('GET');if(!raw)return {grids:[]};const o=JSON.parse(raw);return {grids:o.grids||[]};}
-  catch(e){const c=JSON.parse(localStorage.getItem('wg_cache_v1')||'null');return c?{grids:c.grids||[]}:{grids:[]};}
+  try{const raw=await wgApiReq('GET');if(!raw)throw new Error('empty');const o=JSON.parse(raw);
+    const cloud=(o&&o.data&&Array.isArray(o.data.grids))?o.data.grids:(o&&Array.isArray(o.grids)?o.grids:null);
+    if(cloud)return {grids:cloud};
+    const c=JSON.parse(localStorage.getItem('wg_cache_v1')||'null');return {grids:(c&&c.grids)||[]};}
+  catch(e){const c=JSON.parse(localStorage.getItem('wg_cache_v1')||'null');return {grids:(c&&c.grids)||[]};}
 }
 async function wgSyncPut(obj){try{await wgApiReq('POST',obj);}catch(e){}}
 
