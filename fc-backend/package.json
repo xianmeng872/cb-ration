@@ -1,0 +1,9 @@
+{
+  "name": "cb-ration-sync",
+  "version": "1.0.0",
+  "description": "cb-ration 云端同步后端 (阿里云FC)",
+  "main": "index.js",
+  "dependencies": {
+    "cos-nodejs-sdk-v5": "*"
+  }
+}
