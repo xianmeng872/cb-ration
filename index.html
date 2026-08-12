@@ -18,6 +18,11 @@
   .login-btn{padding:8px 18px;border:1px solid #d7dee8;border-radius:22px;background:#fff;color:#475067;font-size:13px;cursor:pointer;transition:.25s}
   .login-btn:hover{border-color:#5573a8;color:#5573a8}
   .login-btn.on{border-color:#f97316;color:#f97316}
+  .user-area{display:flex;align-items:center;gap:10px;font-size:13px;color:#475067}
+  .user-area .uname{display:flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid #d7dee8;border-radius:20px;background:#fff;color:#475067;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .user-area .uname svg{width:14px;height:14px;flex-shrink:0}
+  .user-area .logout{color:#9aa4b2;cursor:pointer;font-size:12px}
+  .user-area .logout:hover{color:#d33a3a}
   .wrap{max-width:1080px;margin:0 auto;padding:120px 28px 80px}
   .lead{text-align:center;margin-bottom:56px}
   .eyebrow{font-size:12px;letter-spacing:4px;color:#9aa4b2;text-transform:uppercase;margin-bottom:14px}
@@ -83,7 +88,9 @@
 <body>
 <div class="top">
   <div class="logo">ADILE</div>
-  <button id="login-btn" class="login-btn">登录 / 注册</button>
+  <div id="user-area" class="user-area">
+    <button id="login-btn" class="login-btn">登录 / 注册</button>
+  </div>
 </div>
 <div class="wrap">
   <div class="lead">
@@ -128,12 +135,22 @@ async function wgCosPut(key,obj){const r=await wgApiReq('POST',obj);if(r.status>
 async function wgSyncGet(){try{const r=await wgApiReq('GET');if(r.status===404)throw new Error('not found');if(r.status>=400)throw new Error('GET '+r.status);const o=JSON.parse(r.text);const cloud=(o&&o.data&&Array.isArray(o.data.grids))?o.data.grids:(o&&Array.isArray(o.grids)?o.grids:null);if(cloud)return {grids:cloud};const c=JSON.parse(localStorage.getItem('wg_cache_v1')||'null');return {grids:(c&&c.grids)||[]};}catch(e){const c=JSON.parse(localStorage.getItem('wg_cache_v1')||'null');return {grids:(c&&c.grids)||[]};}}
 async function wgSyncPut(obj){try{await wgApiReq('POST',obj);}catch(e){}}
 function wgCacheSave(g){try{localStorage.setItem('wg_cache_v1',JSON.stringify({user:CBAuth.getUser(),grids:g||[]}));}catch(e){}}
-function setLoginState(){const btn=document.getElementById('login-btn');const ob=document.getElementById('logout-btn');if(CBAuth.isLoggedIn()){btn.textContent='已登录: '+CBAuth.getUser();btn.classList.add('on');if(ob)ob.style.display='';}else{btn.textContent='登录 / 注册';btn.classList.remove('on');if(ob)ob.style.display='none';}}
-async function refreshAfterAuth(){wgUser=CBAuth.getUser();try{const d=await wgSyncGet();wgGrids=d.grids||[];wgOnline=true;}catch(e){wgOnline=false;}wgCacheSave(wgGrids);setLoginState();if(typeof wgRenderLib==='function')wgRenderLib();if(typeof wgSetBar==='function')wgSetBar();}
-CBAuth.init({apiBase:'https://cb-ration-sync-cb-ration-sync-lvfqccjwzs.cn-shenzhen.fcapp.run',onLogin:refreshAfterAuth,onLogout:function(){wgUser=null;wgGrids=[];wgOnline=false;wgCacheSave([]);setLoginState();if(typeof wgRenderLib==='function')wgRenderLib();}});
-document.getElementById('login-btn').onclick=()=>CBAuth.showAuth();
-(function ensureLogoutBtn(){const lb=document.getElementById('login-btn');if(!lb||document.getElementById('logout-btn'))return;const ob=document.createElement('button');ob.id='logout-btn';ob.className='login-btn';ob.textContent='退出';ob.style.display='none';ob.style.marginLeft='8px';ob.addEventListener('click',e=>{e.stopPropagation();CBAuth.logout();});lb.parentNode.insertBefore(ob,lb.nextSibling);})();
-setLoginState();
+function renderUserArea(){
+  const box=document.getElementById('user-area');
+  if(!box)return;
+  if(CBAuth.isLoggedIn()){
+    const u=CBAuth.getUser()||'';
+    box.innerHTML='<span class="uname" title="'+u+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg><span>'+u+'</span></span><span class="logout">退出</span>';
+    box.querySelector('.logout').onclick=()=>CBAuth.logout();
+    box.querySelector('.uname').onclick=()=>CBAuth.showAuth();
+  }else{
+    box.innerHTML='<button id="login-btn" class="login-btn">登录 / 注册</button>';
+    document.getElementById('login-btn').onclick=()=>CBAuth.showAuth();
+  }
+}
+async function refreshAfterAuth(){wgUser=CBAuth.getUser();try{const d=await wgSyncGet();wgGrids=d.grids||[];wgOnline=true;}catch(e){wgOnline=false;}wgCacheSave(wgGrids);renderUserArea();if(typeof wgRenderLib==='function')wgRenderLib();if(typeof wgSetBar==='function')wgSetBar();}
+CBAuth.init({apiBase:'https://cb-ration-sync-cb-ration-sync-lvfqccjwzs.cn-shenzhen.fcapp.run',onLogin:refreshAfterAuth,onLogout:function(){wgUser=null;wgGrids=[];wgOnline=false;wgCacheSave([]);renderUserArea();if(typeof wgRenderLib==='function')wgRenderLib();}});
+renderUserArea();
 if(CBAuth.isLoggedIn()){refreshAfterAuth();}
 </script>
 </body>

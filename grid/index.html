@@ -165,6 +165,8 @@
     background:#fff; border:1px solid var(--line); border-radius:12px; padding:10px 16px; margin-bottom:14px;}
   .account-bar .wg-state{font-size:13px; color:var(--sub);}
   .account-bar .wg-state b{color:var(--brand);}
+  .account-bar .wg-state b[data-sync="cloud"]::after{content:'（云端同步）'; font-weight:400; font-size:11px; color:var(--sub); margin-left:4px;}
+  .account-bar .wg-state b[data-sync="local"]::after{content:'（本地缓存）'; font-weight:400; font-size:11px; color:#9aa4b2; margin-left:4px;}
   .wg-actions{display:flex; gap:8px; flex-wrap:wrap;}
   .btn.sm{padding:7px 14px; font-size:13px; border-radius:9px;}
   .btn.ghost{background:#fff; color:var(--brand); border:1px solid var(--brand);}
@@ -193,13 +195,99 @@
   .modal-acts{display:flex; gap:10px; margin-top:6px;}
   .modal-acts .btn{flex:1;}
   .modal-x{position:absolute; top:8px; right:14px; border:none; background:none; font-size:22px; color:#9aa6b8; cursor:pointer; line-height:1;}
+
+  @media(max-width:680px){
+    body{padding:18px 12px 60px;}
+    .wrap{padding:0 4px;}
+    header h1{font-size:22px; margin-bottom:6px;}
+    header h1::before{width:6px; height:22px; margin-right:10px;}
+    header p{font-size:13px; line-height:1.5;}
+    .panel{padding:16px; border-radius:14px; margin-top:16px;}
+    .panel:hover{transform:none; box-shadow:0 1px 2px rgba(16,31,60,.03), 0 10px 28px rgba(16,31,60,.04);}
+    .search input{min-width:0; padding:11px 13px; font-size:14px;}
+    .btn{padding:11px 20px; font-size:14px;}
+    .examples{font-size:12px;}
+    .examples button{padding:4px 10px; font-size:11px;}
+
+    /* 顶部账号栏手机端紧凑 */
+    .account-bar{padding:8px 12px; border-radius:10px; margin-bottom:12px; gap:8px;}
+    .account-bar .wg-state{font-size:12px;}
+    .account-bar .wg-state .wg-state-label{display:none;}
+    .account-bar .wg-state b{max-width:90px; overflow:hidden; text-overflow:ellipsis; display:inline-block; vertical-align:bottom;}
+    .account-bar .wg-state b::after{display:none;}
+    .wg-actions{gap:6px;}
+    .btn.sm{padding:5px 10px; font-size:12px; border-radius:8px;}
+    #wg-lib-btn{padding:5px 8px !important; font-size:0 !important;}
+    #wg-lib-btn::after{content:'方案库'; font-size:12px;}
+    #wg-logout-btn.btn.ghost{border:none; padding:5px 8px; color:#9aa6b8; background:transparent;}
+
+    /* 结果区手机端紧凑 */
+    .base-info{gap:10px;}
+    .base-info .name{font-size:18px;}
+    .base-info .code{font-size:12px; margin-left:4px;}
+    .base-info .tag{font-size:11px; padding:2px 7px; margin-left:4px;}
+    .base-info .price{font-size:24px; margin-left:0;}
+    .base-info .price small{font-size:12px;}
+    .score-head{gap:12px; margin-bottom:8px;}
+    .sec-title{font-size:11px; letter-spacing:1px; margin-bottom:12px;}
+    .gauge .num{font-size:32px;}
+    .gauge .verdict{padding:4px 10px; font-size:12px;}
+    .bar-row{font-size:12px; margin:9px 0; gap:8px;}
+    .bar-row .lab{width:60px;}
+    .bar-row .wt{width:32px; font-size:10px;}
+    .bar-row .val{width:28px;}
+    .bar-track{height:6px;}
+    .risk-summary{padding:10px 12px; font-size:11px;}
+    .score-foot{font-size:10px; margin-top:10px;}
+
+    .data-grid{grid-template-columns:repeat(2,1fr); gap:8px;}
+    .data-cell{padding:10px; border-radius:10px;}
+    .data-cell .k{font-size:11px;}
+    .data-cell .v{font-size:16px;}
+
+    .bond-box{padding:12px;}
+    .bond-box summary{font-size:13px;}
+    .bond-fields{gap:10px; margin-top:10px;}
+    .bond-fields label{font-size:11px; gap:3px;}
+    .bond-fields input{width:100%; padding:7px 9px; font-size:13px;}
+    .bond-fields .btn{align-self:stretch !important; width:100%; margin-top:4px;}
+
+    .grid-params{grid-template-columns:repeat(2,1fr); gap:8px;}
+    .gp-cell{padding:10px; border-radius:10px;}
+    .gp-cell .k{font-size:11px;}
+    .gp-cell .v{font-size:15px;}
+    .gp-cell input{padding:6px 8px; font-size:14px;}
+    .param-reason{font-size:11px; padding:10px 12px; line-height:1.7;}
+    .param-reason li{margin-bottom:4px;}
+
+    .strat{padding:12px 14px;}
+    .strat h4{font-size:13px; margin-bottom:8px;}
+    .strat-dir{font-size:12px; padding:8px 10px; margin-bottom:8px;}
+    .strat-param{font-size:11px; padding:8px 10px; margin-bottom:10px;}
+    .strat ul{font-size:12px; line-height:1.7;}
+
+    table.lv{font-size:11px;}
+    table.lv th,table.lv td{padding:7px 8px;}
+    table.lv .logic{font-size:10px; max-width:120px;}
+
+    .risk{padding:12px 14px;}
+    .risk h4{font-size:13px;}
+    .risk ul{font-size:12px; line-height:1.65;}
+    footer{font-size:11px; margin-top:28px;}
+
+    .plan-row{padding:8px 12px;}
+    .plan-meta{font-size:12px;}
+    .plan-time{font-size:10px;}
+    .mini{padding:4px 9px; font-size:11px;}
+    .modal-box{padding:22px 20px; width:300px;}
+  }
 </style>
 </head>
 <body>
 <div class="bg-deco"></div>
 <div class="wrap">
   <div class="account-bar">
-    <span class="wg-state">云端账号：<b id="wg-user">未登录</b></span>
+    <span class="wg-state"><span class="wg-state-label">云端账号：</span><b id="wg-user">未登录</b></span>
     <span class="wg-actions">
       <button class="btn sm" id="wg-login-btn">登录 / 注册</button>
       <button class="btn sm hidden" id="wg-lib-btn">我的方案库</button>
@@ -1017,14 +1105,17 @@ function wgCacheLoad(){try{const r=localStorage.getItem('wg_cache_v1');return r?
 function wgCacheClear(){try{localStorage.removeItem('wg_cache_v1');}catch(e){}}
 
 function wgSetBar(){
+  const userEl=$('#wg-user');
   if(wgUser){
-    $('#wg-user').textContent=wgUser+(wgOnline?'（云端同步）':'（本地缓存）');
+    userEl.textContent=wgUser;
+    userEl.dataset.sync=wgOnline?'cloud':'local';
     $('#wg-login-btn').classList.add('hidden');
     $('#wg-lib-btn').classList.remove('hidden');
     $('#wg-logout-btn').classList.remove('hidden');
     $('#plan-lib').classList.remove('hidden');
   }else{
-    $('#wg-user').textContent='未登录';
+    userEl.textContent='未登录';
+    userEl.dataset.sync='';
     $('#wg-login-btn').classList.remove('hidden');
     $('#wg-lib-btn').classList.add('hidden');
     $('#wg-logout-btn').classList.add('hidden');
