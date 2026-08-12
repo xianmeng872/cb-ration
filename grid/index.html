@@ -49,12 +49,6 @@
   .btn:hover{filter:brightness(1.05); transform:translateY(-1px); box-shadow:0 5px 14px rgba(85,115,168,.22);}
   .btn:disabled{opacity:.55; cursor:not-allowed; transform:none; box-shadow:none;}
   .btn:active{transform:translateY(0) scale(.97);}
-  .examples{margin-top:14px; font-size:13px; color:var(--sub);}
-  .examples button{
-    background:#fff; color:var(--sub); border:1px solid #dfe4ea; border-radius:18px;
-    padding:5px 12px; margin:5px 6px 0 0; cursor:pointer; font-size:12px; transition:.12s;
-  }
-  .examples button:hover{background:#f4f6f9; color:var(--ink); border-color:#d0d7e0;}
   .status{margin-top:16px; font-size:14px; padding:12px 16px; border-radius:10px; display:none;}
   .status.load{background:#eef4ff; color:#3451b2; display:block;}
   .status.err{background:#fff0f0; color:var(--bad); display:block;}
@@ -207,8 +201,6 @@
     .panel:hover{transform:none; box-shadow:0 1px 2px rgba(16,31,60,.03), 0 10px 28px rgba(16,31,60,.04);}
     .search input{min-width:0; padding:11px 13px; font-size:14px;}
     .btn{padding:11px 20px; font-size:14px;}
-    .examples{font-size:12px;}
-    .examples button{padding:4px 10px; font-size:11px;}
 
     /* 顶部账号栏手机端紧凑 */
     .account-bar{padding:8px 12px; border-radius:10px; margin-bottom:12px; gap:8px;}
@@ -305,14 +297,6 @@
     <div class="search">
       <input id="code" placeholder="输入代码，如 160632（酒LOF） / 113610（灵康转债） / 600519（茅台）" autocomplete="off">
       <button class="btn" id="go">开 测</button>
-    </div>
-    <div class="examples">
-      快速示例：
-      <button data-c="160632">酒LOF 160632</button>
-      <button data-c="113610">灵康转债 113610</button>
-      <button data-c="510300">沪深300ETF 510300</button>
-      <button data-c="600519">贵州茅台 600519</button>
-      <button data-c="300750">宁德时代 300750</button>
     </div>
     <div class="status" id="status"></div>
   </div>
@@ -943,9 +927,6 @@ function setStatus(cls, msg){
 /* ---------- 交互 ---------- */
 $('#go').addEventListener('click', run);
 $('#code').addEventListener('keydown', e=>{ if(e.key==='Enter') run(); });
-document.querySelectorAll('.examples button').forEach(b=>{
-  b.addEventListener('click', ()=>{ $('#code').value=b.dataset.c; run(); });
-});
 // 实时重算：间距 / 每格投入
 function reCalc(){
   if(!STATE.m) return;
