@@ -1,0 +1,13 @@
+# 依赖（仅本地打包 FC 用，不进仓库/不进 Pages）
+node_modules/
+*/node_modules/
+
+# 部署脚本生成的本地密钥/产物
+.auth_secret
+admin_pass.txt
+fc_url.txt
+
+# 本地测试产物
+_test_backend.cjs
+_mock_fc.cjs
+_e2e_test.cjs

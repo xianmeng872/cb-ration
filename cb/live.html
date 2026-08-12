@@ -548,6 +548,7 @@
   </div>
 </div>
 
+<script src="../auth-client.js"></script>
 <script>
 const EM_URL="https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPT_BOND_CB_LIST&pageSize=1000&columns=ALL&sortColumns=PUBLIC_START_DATE&sortDirection=desc&source=WEB&client=WEB";
 const LABEL={code:"转债代码",name:"转债名称",stockCode:"正股代码",stockName:"正股名称",convertPrice:"转股价",price:"正股实时价",
@@ -1336,35 +1337,16 @@ document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
 });
 
 // ==================== 用户认证 & 关注功能（后端版） ====================
-const TOKEN_KEY="cb_ration_token";
 let currentUser=null; // { username, favorites: [] }
 let MOBILE_LAYOUT = 'card'; // card, list, bar, fold
 let favKeyword="";
 let authMode="login";
 
-// 存/取 token
-function getToken(){return localStorage.getItem(TOKEN_KEY)||"";}
-function saveToken(t){t?localStorage.setItem(TOKEN_KEY,t):localStorage.removeItem(TOKEN_KEY);}
-
-// 封装 API 请求
-async function api(path,options={}){
-  const headers={"Content-Type":"application/json",...(options.headers||{})};
-  const token=getToken();
-  if(token)headers["Authorization"]="Bearer "+token;
-  const res=await fetch(path,{...options,headers});
-  const data=await res.json();
-  if(!res.ok)throw new Error(data.error||"请求失败");
-  return data;
-}
-
-// 获取当前用户（从 localStorage 读取，不再依赖后端）
+// 当前用户：登录态来自 CBAuth（阿里云真账号），收藏来自云端缓存
 function fetchCurrentUser(){
-  const u=getCur();
-  if(!u)return null;
-  const users=loadUsers();
-  const user=users[u];
-  if(!user){saveCur(null);return null;}
-  return {username:u,favorites:(user.favorites||[]).map(f=>typeof f==="string"?{id:f,seen:""}:f)};
+  if(!CBAuth.isLoggedIn()) return null;
+  const u=CBAuth.getUser();
+  return {username:u, favorites:(window.__cbFavCache||[])};
 }
 
 // Emoji头像池：根据用户名稳定分配，每次登录同一用户显示相同表情
@@ -1381,25 +1363,15 @@ function renderUserArea(){
   const um=$("#userAreaMobile"); // 手机端 hero-right 内（圆钮）
   if(currentUser){
     const em=emojiAvatar(currentUser.username);
-    const syncReady=isGistReady();
-    const syncDot=syncReady
-      ? '<span class="sync-dot on" title="云端同步已开启">☁️</span>'
-      : '<span class="sync-dot off" title="未开启云端同步">☁️</span>';
-    // PC端：完整用户信息条
+    const syncDot='<span class="sync-dot on" title="云端同步已开启">☁️</span>';
     ua.innerHTML='<span class="user-info"><span class="avatar">'+em+'</span><span class="uname">'+currentUser.username+'</span>'+syncDot+'</span><button class="btn-logout" id="btnLogout">退出</button>';
-    $("#btnLogout").onclick=()=>{
-      currentUser=null;saveToken(null);
-      renderUserArea();updateFavTab();
-      if(activeTab==="fav"){activeTab="pend";$("#tab-pend").click();}
-      toast("已退出登录");
-    };
+    $("#btnLogout").onclick=logoutUser;
     const sd=ua.querySelector(".sync-dot");
-    if(sd) sd.onclick=(e)=>{e.stopPropagation();showGistSettings();};
-    // 手机端：仅显示头像圆钮（点击弹用户菜单）
+    if(sd) sd.onclick=(e)=>{e.stopPropagation();cbManualSync();};
     um.innerHTML='<span class="avatar-btn logged-in" id="avatarBtn" title="'+currentUser.username+'">'+em+'</span>'+syncDot;
     $("#avatarBtn").onclick=(e)=>{e.stopPropagation();showUserMenu();};
     const sdm=um.querySelector(".sync-dot");
-    if(sdm) sdm.onclick=(e)=>{e.stopPropagation();showGistSettings();};
+    if(sdm) sdm.onclick=(e)=>{e.stopPropagation();cbManualSync();};
     $("#tab-fav").style.display="";
   }else{
     ua.innerHTML='<button class="btn-login" id="btnLogin">登录 / 注册</button>';
@@ -1422,25 +1394,29 @@ function showUserMenu(){
   const header=$("#userMenuHeader");
   const body=$("#userMenuBody");
   if(currentUser){
-    // 已登录：显示头像+用户名 + 菜单项
     const em=emojiAvatar(currentUser.username);
     header.innerHTML='<span class="um-avatar">'+em+'</span><span class="um-name">'+currentUser.username+'</span>';
-    body.innerHTML='<button class="user-menu-item" onclick="document.getElementById(\'userMenuMask\').style.display=\'none\';showGistSettings();">☁️ 云端同步设置</button>'
+    body.innerHTML='<button class="user-menu-item" onclick="document.getElementById(\'userMenuMask\').style.display=\'none\';cbManualSync();">☁️ 云端同步</button>'
       +'<div class="user-menu-divider"></div>'
       +'<button class="user-menu-item danger" id="menuLogout">🚪 退出登录</button>';
     $("#menuLogout").onclick=()=>{
       document.getElementById('userMenuMask').style.display='none';
-      currentUser=null;saveCur(null);
-      renderUserArea();updateFavTab();
-      if(activeTab==="fav"){activeTab="pend";$("#tab-pend").click();}
-      toast("已退出登录");
+      logoutUser();
     };
   }else{
-    // 未登录：显示登录/注册入口
     header.innerHTML='<span class="um-avatar">👤</span><span class="um-name" style="color:#9ca3af">未登录</span>';
     body.innerHTML='<button class="user-menu-item" onclick="document.getElementById(\'userMenuMask\').style.display=\'none\';showAuthModal(true);">🔑 登录 / 注册</button>';
   }
   mask.style.display='flex';
+}
+
+// 退出登录（统一走 CBAuth）
+function logoutUser(){
+  currentUser=null; window.__cbFavCache=[];
+  CBAuth.logout();
+  renderUserArea();updateFavTab();
+  if(activeTab==="fav"){activeTab="pend";$("#tab-pend").click();}
+  toast("已退出登录");
 }
 
 function showAuthModal(show){
@@ -1506,95 +1482,82 @@ async function doAuth(){
   const p=$("#authPass").value;
   if(u.length<3){showAuthError("用户名至少3位");return;}
   if(u.length>20){showAuthError("用户名最多20位");return;}
-  $("#authSubmit").disabled=true;
-  showAuthError("");
+  $("#authSubmit").disabled=true; showAuthError("");
   try{
-    let users=loadUsers();
+    let res;
     if(authMode==="login"){
       if(p.length<4){showAuthError("密码至少4位");return;}
-      // 登录：先查本地
-      if(users[u]&&users[u].password===p){
-        // 本地验证通过
-      }else if(isGistReady()){
-        const cloud=await syncPullFromGist();
-        if(cloud&&cloud.users&&cloud.users[u]&&cloud.users[u].password===p){
-          users[u]=cloud.users[u];saveUsers(users);
-        }else{showAuthError("用户名或密码错误");return;}
-      }else{showAuthError("用户名或密码错误");return;}
-      finishAuth(u,users,"登录成功，欢迎回来 "+u);
+      res=await CBAuth.login(u,p);
     }else if(authMode==="register"){
       if(p.length<4){showAuthError("密码至少4位");return;}
       const sec=$("#authSec").value.trim();
       if(!sec||sec.length<4){showAuthError("安全码至少4位");return;}
       if(sec.length>6){showAuthError("安全码最多6位");return;}
-      if(users[u]){showAuthError("该用户名已被注册");return;}
-      if(isGistReady()){
-        const cloud=await syncPullFromGist();
-        if(cloud&&cloud.users&&cloud.users[u]){showAuthError("该用户名已被注册");return;}
-      }
-      users[u]={password:p,securityCode:sec,favorites:[]};
-      saveUsers(users);
-      finishAuth(u,users,"注册成功，已自动登录（请牢记安全码）");
+      res=await CBAuth.register(u,p,sec);
     }else if(authMode==="forgot"){
-      // 忘记密码：验证用户名+安全码 → 设新密码
-      if(!users[u]){showAuthError("用户名不存在");return;}
       const sec=$("#authSec").value.trim();
       if(!sec){showAuthError("请输入安全码");return;}
-      if(users[u].securityCode!==sec){
-        // 尝试云端安全码
-        let matched=false;
-        if(isGistReady()){
-          const cloud=await syncPullFromGist();
-          if(cloud&&cloud.users&&cloud.users[u]&&cloud.users[u].securityCode===sec){
-            matched=true;
-          }
-        }
-        if(!matched){showAuthError("安全码不正确");return;}
-      }
       const np=$("#authNewPass").value;
       if(np.length<4){showAuthError("新密码至少4位");return;}
-      users[u].password=np;
-      saveUsers(users);
-      if(isGistReady())scheduleSyncPush();
-      showAuthModal(false);
-      setAuthMode("login");
-      $("#authUser").value=u;
-      toast("✅ 密码重置成功，请用新密码登录");
+      res=await CBAuth.forgot(u,sec,np);
+      if(res.ok){ showAuthModal(false); setAuthMode("login"); $("#authUser").value=u; toast("✅ 密码重置成功，请用新密码登录"); $("#authSubmit").disabled=false; return; }
     }
-  }catch(e){
-    showAuthError(e.message);
-  }finally{
-    $("#authSubmit").disabled=false;
-  }
+    if(!res||!res.ok){ showAuthError(res?res.error:"操作失败"); return; }
+    await finishAuth(u);
+  }catch(e){ showAuthError(e.message); }
+  finally{ $("#authSubmit").disabled=false; }
 }
-function finishAuth(u,users,msg){
-  saveCur(u);
-  currentUser=fetchCurrentUser();
-  showAuthModal(false);renderUserArea();
+async function finishAuth(u){
+  showAuthModal(false);
+  currentUser={username:u, favorites:[]};
+  const d=await cbLoad();
+  if(d&&d.cbFavorites){ window.__cbFavCache=d.cbFavorites; currentUser.favorites=d.cbFavorites; }
+  renderUserArea();updateFavTab();
   if(activeTab==="pend")renderPend();
   if(activeTab==="progress")renderProgress();
   if(activeTab==="fav")renderFav();
-  if(isGistReady()){
-    if(authMode==="login") tryPullGist();
-    else scheduleSyncPush();
-  }
-  toast("✅ "+msg);
-  if(!isGistReady()){
-    setTimeout(()=>toast("💡 点头像旁 ☁️ 开启云端同步"), 1300);
-  }
+  toast("✅ 欢迎，"+u);
 }
 
-// ==================== localStorage 用户系统 ====================
+// ==================== localStorage 用户系统（保留以兼容旧逻辑，新账号统一走阿里云） ====================
 const USERS_KEY="cb_ration_users", CUR_KEY="cb_ration_cur";
 function loadUsers(){try{return JSON.parse(localStorage.getItem(USERS_KEY)||"{}");}catch(e){return{};}}
 function saveUsers(o){localStorage.setItem(USERS_KEY,JSON.stringify(o));}
 function saveCur(u){u?localStorage.setItem(CUR_KEY,u):localStorage.removeItem(CUR_KEY);}
 function getCur(){return localStorage.getItem(CUR_KEY)||"";}
-function syncSeen(updates){
-  const u=getCur();if(!u)return;
-  const users=loadUsers();if(!users[u])return;
-  updates.forEach(up=>{const f=(users[u].favorites||[]).find(x=>x.id===up.id);if(f)f.seen=up.seen;});
-  saveUsers(users);
+
+// ==================== 云端收藏（阿里云 wg/<username>.json 的 cbFavorites 字段） ====================
+async function cbLoad(){
+  if(!CBAuth.isLoggedIn()) return null;
+  try{ const r=await CBAuth.api('/wg',{method:'GET'}); if(r.status===200&&r.data&&r.data.data) return r.data.data; return null; }
+  catch(e){ return null; }
+}
+let _cbSaveTimer=null;
+async function cbSaveFavs(favs){
+  if(!CBAuth.isLoggedIn()) return false;
+  try{ const r=await CBAuth.api('/wg',{method:'POST',body:{cbFavorites:favs}}); return r.status===200; }
+  catch(e){ return false; }
+}
+function cbScheduleSave(favs){
+  if(_cbSaveTimer) clearTimeout(_cbSaveTimer);
+  _cbSaveTimer=setTimeout(()=>{ cbSaveFavs(favs); }, 800);
+}
+async function cbManualSync(){
+  if(!CBAuth.isLoggedIn()){ toast("请先登录"); return; }
+  toast("☁️ 同步中...");
+  const d=await cbLoad();
+  if(d&&d.cbFavorites){ window.__cbFavCache=d.cbFavorites; if(currentUser) currentUser.favorites=d.cbFavorites; }
+  if(activeTab==="fav") renderFav();
+  toast("☁️ 同步完成");
+}
+// 进度提醒：更新 seen 并落盘到云端
+async function syncSeen(updates){
+  if(!CBAuth.isLoggedIn()) return;
+  let favs=(window.__cbFavCache||[]).slice();
+  updates.forEach(up=>{ const f=favs.find(x=>x.id===up.id); if(f) f.seen=up.seen; });
+  window.__cbFavCache=favs;
+  if(currentUser) currentUser.favorites=favs;
+  cbScheduleSave(favs);
 }
 
 // ==================== GitHub Gist 云端同步 ====================
@@ -1740,30 +1703,22 @@ function createGistMask(){
 function getRowId(r,kind){return kind==="pend"?(r.code||"pend_"+r.stockCode):(r.stockCode||"prog_"+(r.code||""));}
 function isFav(id){return currentUser&&currentUser.favorites.some(f=>f.id===id);}
 async function toggleFav(id,kind){
-  if(!currentUser){toast("请先登录后再关注");showAuthModal(true);return;}
+  if(!CBAuth.isLoggedIn()){toast("请先登录后再关注");showAuthModal(true);return;}
   try{
-    const users=loadUsers();
-    const u=getCur();
-    if(!u||!users[u])return;
-    let favs=users[u].favorites||[];
+    let favs=(window.__cbFavCache||[]).slice();
     const idx=favs.findIndex(f=>f.id===id);
     let added=false;
     if(idx>=0){favs.splice(idx,1);added=false;}
     else{favs.push({id,seen:""});added=true;}
-    users[u].favorites=favs;
-    saveUsers(users);
-    // 更新内存中的 currentUser
-    currentUser=fetchCurrentUser();
+    window.__cbFavCache=favs;
+    if(currentUser) currentUser.favorites=favs;
     toast(added?"⭐ 已加入关注":"已取消关注");
     updateFavTab();
     if(activeTab==="pend")renderPend();
     if(activeTab==="progress")renderProgress();
     if(activeTab==="fav")renderFav();
-    // 触发云端同步（如果配置了Token）
-    scheduleSyncPush();
-  }catch(e){
-    toast("操作失败: "+e.message);
-  }
+    cbScheduleSave(favs);
+  }catch(e){ toast("操作失败: "+e.message); }
 }
 
 // 进度变化提醒：对比关注转债当前进度与上次记录，有推进则提示（打开App/进入关注Tab时触发）
@@ -2225,8 +2180,15 @@ async function initApp(){
   PROGRESS=SNAPSHOT_PROGRESS.map(r=>{ const cc=r._c; return {...r, _c: cc&&cc.price!=null?compute(r,cc.price):(cc||null)}; });
   renderProgress();
 
-  // 从 localStorage 读取登录状态（同步，即时完成）
-  currentUser=fetchCurrentUser();
+  // 阿里云真账号初始化 + 登录态恢复（拉取云端收藏）
+  CBAuth.init({apiBase:'https://cb-ration-sync-cb-ration-sync-lvfqccjwzs.cn-shenzhen.fcapp.run'});
+  if(CBAuth.isLoggedIn()){
+    currentUser=fetchCurrentUser();
+    const d=await cbLoad();
+    if(d&&d.cbFavorites){ window.__cbFavCache=d.cbFavorites; currentUser.favorites=d.cbFavorites; }
+  }else{
+    currentUser=null;
+  }
   renderUserArea();
   if(activeTab==="pend")renderPend();
   if(activeTab==="progress")renderProgress();

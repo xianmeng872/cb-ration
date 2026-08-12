@@ -107,19 +107,11 @@
   </div>
   <footer>ADILE · 投资工具站 · 同一账号双端同步</footer>
 </div>
-<div id="login-modal" class="modal hidden">
-  <div class="box">
-    <h3>ADILE 账号</h3>
-    <input id="lu" placeholder="账号" autocomplete="username">
-    <input id="lp" type="password" placeholder="密码" autocomplete="current-password">
-    <div class="acts"><button id="login-do">登录</button><button id="register-do">注册</button></div>
-    <div id="msg"></div>
-  </div>
-</div>
+<!-- 登录/注册弹窗由 auth-client.js 动态注入 -->
+<script src="auth-client.js"></script>
 <script>
 const WG_API="https://cb-ration-sync-cb-ration-sync-lvfqccjwzs.cn-shenzhen.fcapp.run/api/wg";
-const WG_SALT="wg-grid-sync-v1-fixed-salt-do-not-leak";
-let wgToken=null,wgUser=null;
+let wgUser=null,wgGrids=[],wgOnline=false;
 function wgUtf8(s){const b=[];for(let i=0;i<s.length;i++){let c=s.charCodeAt(i);if(c<0x80)b.push(c);else if(c<0x800)b.push(0xc0|(c>>6),0x80|(c&0x3f));else if(c<0x10000)b.push(0xe0|(c>>12),0x80|((c>>6)&0x3f),0x80|(c&0x3f));else{c-=0x10000;b.push(0xf0|(c>>18),0x80|((c>>12)&0x3f),0x80|((c>>6)&0x3f),0x80|(c&0x3f));}}return b;}
 function wgRrot(x,n){return((x>>>n)|(x<<(32-n)))>>>0;}
 function wgShr(x,n){return(x>>>n)>>>0;}
@@ -130,23 +122,18 @@ function wgSha1Bytes(msg){if(typeof msg==='string')msg=wgUtf8(msg);msg=msg.slice
 function wgSha1Bytes20(msg){const w=wgSha1Bytes(msg);const out=[];for(const word of w)out.push((word>>>24)&0xff,(word>>>16)&0xff,(word>>>8)&0xff,word&0xff);return out;}
 function wgHmacSha1(keyStr,msgStr){let key=wgUtf8(keyStr);if(key.length>64)key=wgSha1Bytes20(key);const k=new Array(64).fill(0);for(let i=0;i<key.length;i++)k[i]=key[i];const ipad=new Array(64),opad=new Array(64);for(let i=0;i<64;i++){ipad[i]=k[i]^0x36;opad[i]=k[i]^0x5c;}const inner=ipad.concat(wgUtf8(msgStr));const innerHash=wgSha1Bytes20(inner);const outer=opad.concat(innerHash);return wgSha1Bytes20(outer).map(v=>v.toString(16).padStart(2,'0')).join('');}
 // 签名逻辑已迁移到后端（阿里云 FC /api/wg），前端不再持有腾讯云密钥
-async function wgApiReq(method,body){const params=new URLSearchParams();if(wgUser)params.set('u',wgUser);if(wgToken)params.set('t',wgToken);const url=WG_API+'?'+params.toString();const headers={'Content-Type':'application/json'};const init={method,headers};if(body!==undefined){init.body=typeof body==='string'?body:JSON.stringify(body);}const r=await fetch(url,init);return{status:r.status,text:await r.text()};}
+async function wgApiReq(method,body){const headers={'Content-Type':'application/json'};const t=CBAuth.getToken();if(t)headers['Authorization']='Bearer '+t;const init={method,headers};if(body!==undefined){init.body=typeof body==='string'?body:JSON.stringify(body);}const r=await fetch(WG_API,init);return{status:r.status,text:await r.text()};}
 async function wgCosGet(key){const r=await wgApiReq('GET');if(r.status===404)return null;if(r.status>=400)throw new Error('GET '+r.status);return r.text;}
 async function wgCosPut(key,obj){const r=await wgApiReq('POST',obj);if(r.status>=400)throw new Error('PUT '+r.status);return r;}
 async function wgSyncGet(){try{const r=await wgApiReq('GET');if(r.status===404)throw new Error('not found');if(r.status>=400)throw new Error('GET '+r.status);const o=JSON.parse(r.text);const cloud=(o&&o.data&&Array.isArray(o.data.grids))?o.data.grids:(o&&Array.isArray(o.grids)?o.grids:null);if(cloud)return {grids:cloud};const c=JSON.parse(localStorage.getItem('wg_cache_v1')||'null');return {grids:(c&&c.grids)||[]};}catch(e){const c=JSON.parse(localStorage.getItem('wg_cache_v1')||'null');return {grids:(c&&c.grids)||[]};}}
 async function wgSyncPut(obj){try{await wgApiReq('POST',obj);}catch(e){}}
-function wgCacheSave(u,t,g){try{localStorage.setItem('wg_cache_v1',JSON.stringify({user:u,token:t,grids:g||[]}));}catch(e){}}
-function setLoginState(){const c=JSON.parse(localStorage.getItem('wg_cache_v1')||'null');const btn=document.getElementById('login-btn');if(c&&c.token){btn.textContent='已登录: '+c.user;btn.classList.add('on');}else{btn.textContent='登录 / 注册';btn.classList.remove('on');}}
-function openModal(){document.getElementById('login-modal').classList.remove('hidden');setTimeout(()=>document.getElementById('lu').focus(),50);}
-function closeModal(){document.getElementById('login-modal').classList.add('hidden');document.getElementById('lp').value='';}
-document.getElementById('login-btn').onclick=openModal;
-document.getElementById('login-modal').onclick=(e)=>{if(e.target.id==='login-modal')closeModal();};
-document.getElementById('login-do').onclick=doLogin;
-document.getElementById('register-do').onclick=doRegister;
-async function doLogin(){const u=document.getElementById('lu').value.trim(),p=document.getElementById('lp').value;const msg=document.getElementById('msg');if(!u||!p){msg.textContent='请输入账号和密码';return;}wgToken=await wgSha256(u+'|'+p+'|'+WG_SALT);wgUser=u;try{const d=await wgSyncGet();wgCacheSave(wgUser,wgToken,d.grids||[]);msg.textContent='登录成功';setLoginState();setTimeout(closeModal,700);}catch(e){wgCacheSave(wgUser,wgToken,[]);setLoginState();closeModal();}}
-async function doRegister(){const u=document.getElementById('lu').value.trim(),p=document.getElementById('lp').value;const msg=document.getElementById('msg');if(!u||!p){msg.textContent='请输入账号和密码';return;}wgToken=await wgSha256(u+'|'+p+'|'+WG_SALT);wgUser=u;try{await wgSyncPut({grids:[]});wgCacheSave(wgUser,wgToken,[]);msg.textContent='注册成功，多端通用';setLoginState();setTimeout(closeModal,700);}catch(e){wgCacheSave(wgUser,wgToken,[]);setLoginState();closeModal();}}
+function wgCacheSave(g){try{localStorage.setItem('wg_cache_v1',JSON.stringify({user:CBAuth.getUser(),grids:g||[]}));}catch(e){}}
+function setLoginState(){const btn=document.getElementById('login-btn');if(CBAuth.isLoggedIn()){btn.textContent='已登录: '+CBAuth.getUser();btn.classList.add('on');}else{btn.textContent='登录 / 注册';btn.classList.remove('on');}}
+async function refreshAfterAuth(){wgUser=CBAuth.getUser();try{const d=await wgSyncGet();wgGrids=d.grids||[];wgOnline=true;}catch(e){wgOnline=false;}wgCacheSave(wgGrids);setLoginState();if(typeof wgRenderLib==='function')wgRenderLib();if(typeof wgSetBar==='function')wgSetBar();}
+CBAuth.init({apiBase:'https://cb-ration-sync-cb-ration-sync-lvfqccjwzs.cn-shenzhen.fcapp.run',onLogin:refreshAfterAuth,onLogout:function(){wgUser=null;wgGrids=[];wgOnline=false;wgCacheSave([]);setLoginState();if(typeof wgRenderLib==='function')wgRenderLib();}});
+document.getElementById('login-btn').onclick=()=>CBAuth.showAuth();
 setLoginState();
-(function restoreWg(){try{const c=JSON.parse(localStorage.getItem('wg_cache_v1')||'null');if(c&&c.token){wgUser=c.user;wgToken=c.token;}}catch(e){}})();
+if(CBAuth.isLoggedIn()){refreshAfterAuth();}
 </script>
 </body>
 </html>

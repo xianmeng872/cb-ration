@@ -327,21 +327,9 @@
   </footer>
 </div>
 
-<!-- 登录 / 注册 弹窗 -->
-<div class="modal hidden" id="wg-modal">
-  <div class="modal-box">
-    <button class="modal-x" id="wg-modal-x">×</button>
-    <h3>登录 / 注册</h3>
-    <p class="modal-tip">简单账号密码即可。方案按账号隔离、云端保存、多端同步（电脑 / 手机通用）。</p>
-    <label>账号<input id="wg-u" placeholder="自定义账号，如 feige" autocomplete="off"></label>
-    <label>密码<input id="wg-p" type="password" placeholder="设置或输入密码" autocomplete="off"></label>
-    <div class="modal-acts">
-      <button class="btn" id="wg-do-login">登录</button>
-      <button class="btn ghost" id="wg-do-reg">注册</button>
-    </div>
-  </div>
-</div>
+<!-- 登录/注册弹窗由 auth-client.js 动态注入 -->
 
+<script src="../auth-client.js"></script>
 <script>
 "use strict";
 const $ = s => document.querySelector(s);
@@ -908,7 +896,7 @@ $('#g-buy').addEventListener('input', reCalc);
 /* ========== 云端方案库：签名逻辑已迁移到后端（阿里云 FC /api/wg），前端不再持有腾讯云密钥 ========== */
 const WG_API="https://cb-ration-sync-cb-ration-sync-lvfqccjwzs.cn-shenzhen.fcapp.run/api/wg";
 const WG_SALT = "wg-grid-sync-v1-fixed-salt-do-not-leak";
-let wgToken=null, wgUser=null, wgGrids=[], wgOnline=false;
+let wgUser=null, wgGrids=[], wgOnline=false;
 
 /* 纯 JS SHA-256（UTF-8 安全，离线 / file:// 可用，不依赖 crypto.subtle） */
 function wgUtf8(str){const b=[];for(let i=0;i<str.length;i++){let c=str.charCodeAt(i);
@@ -1001,13 +989,11 @@ function wgHmacSha1(keyStr,msgStr){
 }
 /* COS 前端签名（wgCosAuth/wgCosReq）已移除：签名逻辑迁移到阿里云 FC 后端 /api/wg，前端不再持有腾讯云密钥 */
 async function wgApiReq(method,body){
-  const params=new URLSearchParams();
-  if(wgUser) params.set('u',wgUser);
-  if(wgToken) params.set('t',wgToken);
-  const url=WG_API+'?'+params.toString();
-  const init={method,headers:{'Content-Type':'application/json'}};
+  const headers={'Content-Type':'application/json'};
+  const t=CBAuth.getToken(); if(t)headers['Authorization']='Bearer '+t;
+  const init={method,headers:headers};
   if(body!==undefined) init.body=typeof body==='string'?body:JSON.stringify(body);
-  const r=await fetch(url,init);
+  const r=await fetch(WG_API,init);
   const text=await r.text();
   if(r.status>=400) throw new Error('WG '+r.status+' '+(text||'').slice(0,120));
   return text;
@@ -1026,7 +1012,7 @@ async function wgSyncGet(){
 }
 async function wgSyncPut(obj){try{await wgApiReq('POST',obj);}catch(e){}}
 
-function wgCacheSave(){try{localStorage.setItem('wg_cache_v1',JSON.stringify({user:wgUser,token:wgToken,grids:wgGrids}));}catch(e){}}
+function wgCacheSave(){try{localStorage.setItem('wg_cache_v1',JSON.stringify({user:CBAuth.getUser(),grids:wgGrids}));}catch(e){}}
 function wgCacheLoad(){try{const r=localStorage.getItem('wg_cache_v1');return r?JSON.parse(r):null;}catch(e){return null;}}
 function wgCacheClear(){try{localStorage.removeItem('wg_cache_v1');}catch(e){}}
 
@@ -1046,38 +1032,18 @@ function wgSetBar(){
   }
 }
 function wgMsg(m,cls){setStatus(cls||'ok',m);}
-function wgOpenModal(){$('#wg-modal').classList.remove('hidden');setTimeout(()=>$('#wg-u').focus(),50);}
-function wgCloseModal(){$('#wg-modal').classList.add('hidden');$('#wg-p').value='';}
+// 登录/注册/找回统一走 auth-client.js（阿里云真账号）
+function wgOpenModal(){ CBAuth.showAuth(); }
 
-async function wgLogin(){
-  const u=$('#wg-u').value.trim(),p=$('#wg-p').value;
-  if(!u||!p){wgMsg('请输入账号和密码','err');return;}
-  wgToken=await wgSha256(u+'|'+p+'|'+WG_SALT);wgUser=u;
-  try{
-    const d=await wgSyncGet();wgGrids=d.grids||[];wgOnline=true;wgCacheSave();wgSetBar();wgRenderLib();wgCloseModal();
-    wgMsg('登录成功，已同步 '+wgGrids.length+' 个方案');
-  }catch(e){
-    const c=wgCacheLoad();
-    if(c&&c.token===wgToken){wgGrids=c.grids||[];}else{wgGrids=[];}
-    wgOnline=false;wgCacheSave();wgSetBar();wgRenderLib();wgCloseModal();
-    wgMsg('云端读取失败，已用本地缓存：'+(e.message||e),'err');
-  }
-}
-async function wgRegister(){
-  const u=$('#wg-u').value.trim(),p=$('#wg-p').value;
-  if(!u||!p){wgMsg('请输入账号和密码','err');return;}
-  wgToken=await wgSha256(u+'|'+p+'|'+WG_SALT);wgUser=u;
-  try{
-    const d=await wgSyncGet();
-    if(d&&d.grids){wgGrids=d.grids;wgOnline=true;wgCacheSave();wgSetBar();wgRenderLib();wgCloseModal();wgMsg('该账号已存在，已为你登录');return;}
-  }catch(e){/* 404 -> 新账号 */}
-  try{
-    await wgSyncPut({grids:[]});wgGrids=[];wgOnline=true;wgCacheSave();wgSetBar();wgRenderLib();wgCloseModal();
-    wgMsg('注册成功，方案将云端同步（多端通用）');
-  }catch(e){wgMsg('注册失败：'+(e.message||e),'err');}
+async function wgAfterAuth(){
+  wgUser=CBAuth.getUser();
+  try{ const d=await wgSyncGet(); wgGrids=d.grids||[]; wgOnline=true; }
+  catch(e){ wgOnline=false; }
+  wgCacheSave(); wgSetBar(); wgRenderLib();
 }
 function wgLogout(){
-  wgToken=null;wgUser=null;wgGrids=[];wgOnline=false;wgCacheClear();
+  CBAuth.logout();
+  wgUser=null;wgGrids=[];wgOnline=false;wgCacheClear();
   wgSetBar();$('#plan-list').innerHTML='';wgMsg('已退出登录');
 }
 async function wgSaveCurrent(){
@@ -1123,24 +1089,17 @@ function wgRenderLib(){
 }
 
 $('#wg-login-btn').addEventListener('click',wgOpenModal);
-$('#wg-modal-x').addEventListener('click',wgCloseModal);
-$('#wg-do-login').addEventListener('click',wgLogin);
-$('#wg-do-reg').addEventListener('click',wgRegister);
 $('#wg-logout-btn').addEventListener('click',wgLogout);
 $('#wg-save-btn').addEventListener('click',wgSaveCurrent);
 $('#wg-lib-btn').addEventListener('click',()=>{$('#plan-lib').scrollIntoView({behavior:'smooth'});});
-$('#wg-p').addEventListener('keydown',e=>{if(e.key==='Enter')wgLogin();});
-$('#wg-u').addEventListener('keydown',e=>{if(e.key==='Enter')$('#wg-p').focus();});
-window.addEventListener('click',e=>{if(e.target.id==='wg-modal')wgCloseModal();});
+CBAuth.init({apiBase:'https://cb-ration-sync-cb-ration-sync-lvfqccjwzs.cn-shenzhen.fcapp.run',
+  onLogin:wgAfterAuth,
+  onLogout:function(){wgUser=null;wgGrids=[];wgOnline=false;wgCacheClear();wgSetBar();$('#plan-list').innerHTML='';}});
+// 启动：已登录则后台拉取云端方案
+if(CBAuth.isLoggedIn()){ wgAfterAuth(); }
 
-/* 启动：本地缓存优先恢复，后台尝试云端同步 */
+/* 启动：本地缓存优先渲染，已登录则后台拉取云端方案 */
 (function wgInit(){
-  const c=wgCacheLoad();
-  if(c&&c.token){
-    wgUser=c.user;wgToken=c.token;wgGrids=c.grids||[];
-    wgSyncGet().then(d=>{wgGrids=d.grids||[];wgOnline=true;wgCacheSave();wgSetBar();wgRenderLib();})
-      .catch(()=>{wgOnline=false;wgSetBar();wgRenderLib();});
-  }
   wgSetBar();wgRenderLib();
 })();
 </script>
