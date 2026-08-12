@@ -3233,9 +3233,11 @@ async function cbkLoadReview(el,code,name,opts){
 // ===== 门户统一账号(CBAuth)叠加层：门户登录态自动同步到本页（不改动原页本地/Gist/云端收藏逻辑）=====
 function cbAdoptCloudUser(username){
   if(!username){ cbDropCloudUser(); return; }
-  // 以云端用户名为准，复用本地该用户的收藏/备注（兼容旧数据），并写入本地当前用户键
+  // 以云端用户名为准，写入本地当前用户键；若本地已有该用户的收藏/备注则合并（兼容旧数据）
   saveCur(username);
-  currentUser=fetchCurrentUser();
+  const users=loadUsers();
+  const rec=users[username];
+  currentUser={username:username, favorites:(rec&&rec.favorites)||[], notes:(rec&&rec.notes)||{}};
   renderUserArea(); updateFavTab();
   if(activeTab==="fav") renderFav();
   if(activeTab==="pend") renderPend();
