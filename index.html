@@ -128,10 +128,11 @@ async function wgCosPut(key,obj){const r=await wgApiReq('POST',obj);if(r.status>
 async function wgSyncGet(){try{const r=await wgApiReq('GET');if(r.status===404)throw new Error('not found');if(r.status>=400)throw new Error('GET '+r.status);const o=JSON.parse(r.text);const cloud=(o&&o.data&&Array.isArray(o.data.grids))?o.data.grids:(o&&Array.isArray(o.grids)?o.grids:null);if(cloud)return {grids:cloud};const c=JSON.parse(localStorage.getItem('wg_cache_v1')||'null');return {grids:(c&&c.grids)||[]};}catch(e){const c=JSON.parse(localStorage.getItem('wg_cache_v1')||'null');return {grids:(c&&c.grids)||[]};}}
 async function wgSyncPut(obj){try{await wgApiReq('POST',obj);}catch(e){}}
 function wgCacheSave(g){try{localStorage.setItem('wg_cache_v1',JSON.stringify({user:CBAuth.getUser(),grids:g||[]}));}catch(e){}}
-function setLoginState(){const btn=document.getElementById('login-btn');if(CBAuth.isLoggedIn()){btn.textContent='已登录: '+CBAuth.getUser();btn.classList.add('on');}else{btn.textContent='登录 / 注册';btn.classList.remove('on');}}
+function setLoginState(){const btn=document.getElementById('login-btn');const ob=document.getElementById('logout-btn');if(CBAuth.isLoggedIn()){btn.textContent='已登录: '+CBAuth.getUser();btn.classList.add('on');if(ob)ob.style.display='';}else{btn.textContent='登录 / 注册';btn.classList.remove('on');if(ob)ob.style.display='none';}}
 async function refreshAfterAuth(){wgUser=CBAuth.getUser();try{const d=await wgSyncGet();wgGrids=d.grids||[];wgOnline=true;}catch(e){wgOnline=false;}wgCacheSave(wgGrids);setLoginState();if(typeof wgRenderLib==='function')wgRenderLib();if(typeof wgSetBar==='function')wgSetBar();}
 CBAuth.init({apiBase:'https://cb-ration-sync-cb-ration-sync-lvfqccjwzs.cn-shenzhen.fcapp.run',onLogin:refreshAfterAuth,onLogout:function(){wgUser=null;wgGrids=[];wgOnline=false;wgCacheSave([]);setLoginState();if(typeof wgRenderLib==='function')wgRenderLib();}});
 document.getElementById('login-btn').onclick=()=>CBAuth.showAuth();
+(function ensureLogoutBtn(){const lb=document.getElementById('login-btn');if(!lb||document.getElementById('logout-btn'))return;const ob=document.createElement('button');ob.id='logout-btn';ob.className='login-btn';ob.textContent='退出';ob.style.display='none';ob.style.marginLeft='8px';ob.addEventListener('click',e=>{e.stopPropagation();CBAuth.logout();});lb.parentNode.insertBefore(ob,lb.nextSibling);})();
 setLoginState();
 if(CBAuth.isLoggedIn()){refreshAfterAuth();}
 </script>

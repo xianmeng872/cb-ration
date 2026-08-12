@@ -1509,14 +1509,27 @@ async function doAuth(){
 }
 async function finishAuth(u){
   showAuthModal(false);
-  currentUser={username:u, favorites:[]};
-  const d=await cbLoad();
-  if(d&&d.cbFavorites){ window.__cbFavCache=d.cbFavorites; currentUser.favorites=d.cbFavorites; }
+  toast("✅ 欢迎，"+u);
+  // UI 刷新（拉云端收藏 + 渲染）统一交给 onLogin 回调 cbSyncLogin 处理
+}
+
+// 跨标签页同步 & 统一登录回调：本页登录、或别的标签页登录/退出时，自动跟随刷新
+async function cbSyncLogin(u){
+  showAuthModal(false);
+  currentUser={username:u, favorites:(currentUser&&currentUser.favorites)||[]};
+  try{
+    const d=await cbLoad();
+    if(d&&d.cbFavorites){ window.__cbFavCache=d.cbFavorites; currentUser.favorites=d.cbFavorites; }
+  }catch(e){}
   renderUserArea();updateFavTab();
+  if(activeTab==="fav")renderFav();
   if(activeTab==="pend")renderPend();
   if(activeTab==="progress")renderProgress();
-  if(activeTab==="fav")renderFav();
-  toast("✅ 欢迎，"+u);
+}
+function cbSyncLogout(){
+  currentUser=null; window.__cbFavCache=[];
+  renderUserArea();updateFavTab();
+  if(activeTab==="fav"){activeTab="pend";const t=$("#tab-pend");if(t)t.click();}
 }
 
 // ==================== localStorage 用户系统（保留以兼容旧逻辑，新账号统一走阿里云） ====================
@@ -2181,7 +2194,9 @@ async function initApp(){
   renderProgress();
 
   // 阿里云真账号初始化 + 登录态恢复（拉取云端收藏）
-  CBAuth.init({apiBase:'https://cb-ration-sync-cb-ration-sync-lvfqccjwzs.cn-shenzhen.fcapp.run'});
+  CBAuth.init({apiBase:'https://cb-ration-sync-cb-ration-sync-lvfqccjwzs.cn-shenzhen.fcapp.run',
+    onLogin: cbSyncLogin,
+    onLogout: cbSyncLogout});
   if(CBAuth.isLoggedIn()){
     currentUser=fetchCurrentUser();
     const d=await cbLoad();

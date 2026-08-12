@@ -16,7 +16,21 @@
       this._onLogin = opts.onLogin || null;
       this._onLogout = opts.onLogout || null;
       this._buildUI();
+      this._bindStorage();
       return this;
+    },
+
+    // 跨标签页同步：其他标签页登录/退出后，本页自动跟随（storage 事件仅在「其他」标签修改时触发）
+    _bindStorage: function () {
+      if (this._storageBound) return;
+      this._storageBound = true;
+      var self = this;
+      window.addEventListener('storage', function (e) {
+        if (e.key !== LS_TOKEN && e.key !== LS_USER) return;
+        var t = self.getToken(), u = self.getUser();
+        if (t && u) { if (self._onLogin) self._onLogin(u); }
+        else { if (self._onLogout) self._onLogout(); }
+      });
     },
 
     getToken: function () { try { return localStorage.getItem(LS_TOKEN) || ''; } catch (e) { return ''; } },
