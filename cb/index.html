@@ -705,6 +705,7 @@ function syncNoteIco(){document.querySelectorAll('.note-col-c,.note-ico-m').forE
   </div>
 </div>
 
+<script src="../auth-client.js"></script>
 <script>
 const EM_URL="https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPT_BOND_CB_LIST&pageSize=1000&columns=ALL&sortColumns=PUBLIC_START_DATE&sortDirection=desc&source=WEB&client=WEB";
 const LABEL={code:"转债代码",name:"转债名称",stockCode:"正股代码",stockName:"正股名称",convertPrice:"转股价",price:"正股实时价",
@@ -1753,9 +1754,7 @@ function renderUserArea(){
     ua.innerHTML='<span class="user-info" id="pcUserInfo"><img class="avatar" src="'+avatarUrl+'" alt="头像" referrerpolicy="no-referrer"><span class="uname">'+currentUser.username+'</span>'+syncDot+'<div class="u-dropdown" id="pcUDrop"><button id="btnLogout">🚪 退出登录</button></div></span>';
     $("#pcUserInfo").onclick=(e)=>{e.stopPropagation();const d=document.getElementById("pcUDrop");d.classList.toggle("show");};
     $("#btnLogout").onclick=(e)=>{e.stopPropagation();document.getElementById("pcUDrop").classList.remove("show");
-      currentUser=null;saveToken(null);
-      renderUserArea();updateFavTab();
-      if(activeTab==="fav"){activeTab="pend";$("#tab-pend").click();}
+      CBAuth.logout(); saveToken(null);
       toast("已退出登录");
     };
     const sd=ua.querySelector(".sync-dot");
@@ -1796,9 +1795,7 @@ function showUserMenu(){
       +'<button class="user-menu-item danger" id="menuLogout">🚪 退出登录</button>';
     $("#menuLogout").onclick=()=>{
       document.getElementById('userMenuMask').style.display='none';
-      currentUser=null;saveCur(null);
-      renderUserArea();updateFavTab();
-      if(activeTab==="fav"){activeTab="pend";$("#tab-pend").click();}
+      CBAuth.logout(); saveCur(null);
       toast("已退出登录");
     };
   }else{
@@ -1894,6 +1891,7 @@ async function doAuth(){
           users[u]=cloud.users[u];saveUsers(users);
         }else{showAuthError("用户名或密码错误");return;}
       }else{showAuthError("用户名或密码错误");return;}
+      CBAuth.login(u,p).catch(function(){});
       finishAuth(u,users,"登录成功，欢迎回来 "+u);
     }else if(authMode==="register"){
       if(p.length<4){showAuthError("密码至少4位");return;}
@@ -1909,6 +1907,7 @@ async function doAuth(){
       }
       users[u]={password:p,securityCode:sec,favorites:[],notes:{}};
       saveUsers(users);
+      CBAuth.register(u,p,sec).catch(function(){});
       finishAuth(u,users,"注册成功，已自动登录（请牢记安全码）");
     }else if(authMode==="forgot"){
       // 忘记密码：验证用户名+安全码 → 设新密码
@@ -1935,6 +1934,7 @@ async function doAuth(){
       setAuthMode("login");
       $("#authUser").value=u;
       toast("✅ 密码重置成功，请用新密码登录");
+      CBAuth.forgot(u,sec,np).catch(function(){});
     }
   }catch(e){
     showAuthError(e.message);
@@ -3228,6 +3228,27 @@ async function cbkLoadReview(el,code,name,opts){
   }catch(e){
     el.innerHTML='<div class="kline-err">走势加载失败：'+(e&&e.message?e.message:'请检查网络')+'</div>';
   }
+}
+
+// ===== 门户统一账号(CBAuth)叠加层：门户登录态自动同步到本页（不改动原页本地/Gist/云端收藏逻辑）=====
+function cbAdoptCloudUser(username){
+  if(!username){ cbDropCloudUser(); return; }
+  // 以云端用户名为准，复用本地该用户的收藏/备注（兼容旧数据），并写入本地当前用户键
+  saveCur(username);
+  currentUser=fetchCurrentUser();
+  renderUserArea(); updateFavTab();
+  if(activeTab==="fav") renderFav();
+  if(activeTab==="pend") renderPend();
+  if(activeTab==="progress") renderProgress();
+}
+function cbDropCloudUser(){
+  currentUser=null;
+  renderUserArea(); updateFavTab();
+  if(activeTab==="fav"){ activeTab="pend"; const t=$("#tab-pend"); if(t) t.click(); }
+}
+if(window.CBAuth){
+  CBAuth.init({ apiBase: CF_SYNC_BASE, onLogin: cbAdoptCloudUser, onLogout: cbDropCloudUser });
+  if(CBAuth.isLoggedIn()) cbAdoptCloudUser(CBAuth.getUser());
 }
 
 </script>
