@@ -153,6 +153,7 @@
   table.lv th:first-child{border-radius:10px 0 0 0;} table.lv th:last-child{border-radius:0 10px 0 0;}
   table.lv td.logic{text-align:left; color:var(--sub); font-size:12px; line-height:1.5; max-width:230px;}
   table.lv th:last-child{text-align:left;}
+  .lv-wrap{overflow-x:auto; -webkit-overflow-scrolling:touch;}
 
   .risk{background:#f8fafc; border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-top:8px;}
   .risk h4{margin:0 0 8px; color:var(--ink); font-size:14px;}
@@ -266,9 +267,10 @@
     .strat-param{font-size:11px; padding:8px 10px; margin-bottom:10px;}
     .strat ul{font-size:12px; line-height:1.7;}
 
-    table.lv{font-size:11px;}
-    table.lv th,table.lv td{padding:7px 8px;}
-    table.lv .logic{font-size:10px; max-width:120px;}
+    .lv-wrap{margin:0 -12px; padding:0 12px;}
+    table.lv{min-width:640px; white-space:nowrap; font-size:11px;}
+    table.lv th,table.lv td{padding:7px 10px; white-space:nowrap;}
+    table.lv td.logic{white-space:normal; font-size:10px; max-width:150px; min-width:120px;}
 
     .risk{padding:12px 14px;}
     .risk h4{font-size:13px;}
@@ -397,10 +399,12 @@
     <!-- 档位表 -->
     <div class="panel">
       <p class="sec-title">网格档位表</p>
-      <table class="lv" id="lv-table">
-        <thead><tr><th>档位</th><th>目标价</th><th>触发价</th><th>操作</th><th>数量</th><th>金额</th><th>操作逻辑</th></tr></thead>
-        <tbody></tbody>
-      </table>
+      <div class="lv-wrap">
+        <table class="lv" id="lv-table">
+          <thead><tr><th>档位</th><th>目标价</th><th>触发价</th><th>操作</th><th>数量</th><th>金额</th><th>操作逻辑</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
 
     <!-- 风险提示 -->

@@ -142,7 +142,8 @@ function renderUserArea(){
     const u=CBAuth.getUser()||'';
     box.innerHTML='<span class="uname" title="'+u+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg><span>'+u+'</span></span><span class="logout">退出</span>';
     box.querySelector('.logout').onclick=()=>CBAuth.logout();
-    box.querySelector('.uname').onclick=()=>CBAuth.showAuth();
+    // 已登录时点击用户名本身不再弹登录框，避免误触重新登录导致"不同步"错觉
+    box.querySelector('.uname').onclick=(e)=>{ e.stopPropagation(); };
   }else{
     box.innerHTML='<button id="login-btn" class="login-btn">登录 / 注册</button>';
     document.getElementById('login-btn').onclick=()=>CBAuth.showAuth();
