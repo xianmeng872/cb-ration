@@ -1264,12 +1264,20 @@ function progressBarHtml(kind,r){
   }
   return '<div class="cb-progress"><span class="'+cls+'"></span></div>';
 }
-// 审核进度只显示「还在审批中」的：排除已上市(99)和已到申购/上市阶段(90含"申购"或"上市")
+// 审核进度只显示「还在审批中」的：排除已上市(99)、已到申购/上市阶段(90含"申购"或"上市")、
+// 以及已经出现在「待发债/待申购」Tab 中的债（避免同一只震裕/丰茂在两个 Tab 重复出现）。
 function filterProgressRaw(arr){
+  const inPend=new Set();
+  (typeof PEND !== 'undefined' && PEND || []).forEach(r=>{
+    if(r.code) inPend.add(r.code);
+    if(r.stockCode) inPend.add(r.stockCode);
+  });
   return arr.filter(r=>{
     if(r.progress==="99") return false; // 已上市
     // 已到申购/上市进度：从审核进度剔除（申购/上市债统一归到「待发债」或已无操作价值）
     if(r.progress==="90" && r.progress_nm && (r.progress_nm.indexOf("申购")>=0 || r.progress_nm.indexOf("上市")>=0)) return false;
+    // 已经出现在待发债 Tab 的，不再重复显示在审核进度
+    if(inPend.size && (inPend.has(r.code)||inPend.has(r.stockCode))) return false;
     return true;
   });
 }
@@ -1614,6 +1622,7 @@ async function loadAll(){
     };
     await Promise.all(PEND.map(refreshOne));
     renderPend();
+    renderProgress(); // 待发债更新后，审核进度也去重（避免同一债在 progress Tab 重复出现）
     setTime("待发债实时");
     const t=todayStr();
     const visible=PEND.filter(r=>r.stage==='申购' && r.publicStart && r.publicStart.slice(0,10)>=t);
@@ -1650,6 +1659,7 @@ async function loadAll(){
       if(!touched.length) return;
       await Promise.all(touched.map(refreshOne));
       renderPend();
+      renderProgress(); // 集思录异步增强后，审核进度同步去重
       setTime("待发债实时");
     }).catch(e=>console.warn("集思录待发新债增强失败(已用快照/东财):",(e&&e.message)||e));
   }catch(e){console.error("刷新失败(非致命)，使用快照数据:",e.message);}
