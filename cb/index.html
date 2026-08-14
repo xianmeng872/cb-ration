@@ -718,6 +718,10 @@ let favSort={field:"progress",dir:-1}, FAV_FILTER="all";
 const FAV_CHIP_DEFAULT_FIELD="progress";
 let _detailPushed=false; // 详情打开时压入的历史状态标记（用于拦截手机系统返回手势，使其只关详情不退出整页）
 const SNAPSHOT_PEND=[
+// 以下 2 只为「已发行公告、申购日已定」的待申购债（2026-08-14 据集思录 pre_list + 发行公告核对写入，离线兜底用；
+// 页面加载后会被集思录 pre_list 实时数据覆盖更新）
+{"_auto":true,"code":"123282","name":"震裕转02","stockCode":"300953","stockName":"震裕科技","convertPrice":104.85,"perPre":7.7324,"scale":18.8,"publicStart":"2026-08-17 00:00:00","recordDate":"2026-08-14","applyCode":"370953","rationCode":"380953","listDate":"","stage":"申购","apply10":130,"rating_cd":"AA-","_jslPrice":105.95,"_c":{"price":105.95}},
+{"_auto":true,"code":"123283","name":"丰茂转债","stockCode":"301459","stockName":"丰茂股份","convertPrice":35.59,"perPre":5.8347,"scale":6.075,"publicStart":"2026-08-18 00:00:00","recordDate":"2026-08-17","applyCode":"371459","rationCode":"381459","listDate":"","stage":"申购","apply10":172,"rating_cd":"AA-","_jslPrice":37.28,"_c":{"price":37.28}},
 {"_auto":true,"code":"110103","name":"申能转债","stockCode":"600642","stockName":"申能股份","convertPrice":8.74,"perPre":0.408,"scale":20,"publicStart":"2026-07-24 00:00:00","listDate":"","stage":"申购","apply10":2451,"rating_cd":"AAA","_c":{"cv":95.766590389016,"needShares":2451,"needMoney":20514.87,"baiyuan":4.874551971326165,"price":8.37,"estFloat":7.39}},
 {"_auto":true,"code":"111026","name":"派克转债","stockCode":"605123","stockName":"派克新材","convertPrice":81.8,"perPre":13.039,"scale":15.8,"publicStart":"2026-08-06 00:00:00","listDate":"","stage":"申购","apply10":77,"rating_cd":"AA","_c":{"cv":97.62836185819071,"needShares":77,"needMoney":6149.22,"baiyuan":16.32732281492612,"price":79.86,"estFloat":7.36}},
 {"_auto":true,"code":"113709","name":"振26转债","stockCode":"603067","stockName":"振华股份","convertPrice":40.33,"perPre":1.162,"scale":8.78,"publicStart":"2026-07-30 00:00:00","listDate":"","stage":"申购","apply10":861,"rating_cd":"AA","_c":{"cv":87.57748574262337,"needShares":861,"needMoney":30410.52,"baiyuan":3.289920724801812,"price":35.32,"estFloat":5.07}},
@@ -859,40 +863,57 @@ async function fetchList(){
     stage:o.PUBLIC_START_DATE?"申购":"待发行"
   }));
 }
-// 集思录待发债（含"核准待发/申购日未定"，东财 RPT_BOND_CB_LIST 不含这类）
+// 集思录「待发新债」pre_list：唯一能拿到**申购日**的公开源（东财 RPT_BOND_CB_LIST 常滞后 1~2 天，
+// 已发行公告、申购日已定的新债它可能还没收录；集思录 cb_list_new 是行情表，未上市条目 apply_cd 恒为 null，也拿不到申购日）。
+// pre_list 字段：apply_date 申购日 / record_dt 股权登记日 / ration 每股配售元面值 / apply10 每10张需股数 /
+//               convert_price 转股价 / amount 规模(亿) / rating_cd 评级 / apply_cd 申购代码 / ration_cd 配售代码。
 // 浏览器直连集思录有 CORS 限制，走代理：优先自家 FC 后端 /api/jisilu（部署后最稳），回退公开代理 allorigins。
+const JSL_PRE_URL="https://www.jisilu.cn/data/cbnew/pre_list/?___jsl=LST___";
 const JSL_ENDPOINTS=[
   "https://cb-ration-sync-cb-ration-sync-lvfqccjwzs.cn-shenzhen.fcapp.run/api/jisilu",
-  "https://api.allorigins.win/raw?url="+encodeURIComponent("https://www.jisilu.cn/data/cbnew/cb_list_new/?___jsl=LST___")
+  "https://api.allorigins.win/raw?url="+encodeURIComponent(JSL_PRE_URL),
+  "https://api.codetabs.com/v1/proxy?quest="+encodeURIComponent(JSL_PRE_URL)
 ];
 async function fetchJisiluPend(){
-  let lastErr=null;
   for(const url of JSL_ENDPOINTS){
     try{
-      const j=await (await fetch(url,{cache:"no-store"})).json();
+      // 必须带超时：FC 未部署时返 401、公开代理常 522 挂住，无超时会拖死整个待发债渲染
+      const ac=("AbortController" in window)?new AbortController():null;
+      const timer=ac?setTimeout(()=>ac.abort(),6000):null;
+      let j;
+      try{ j=await (await fetch(url,{cache:"no-store",signal:ac?ac.signal:undefined})).json(); }
+      finally{ if(timer)clearTimeout(timer); }
       const rows=(j&&j.rows)||[];
-      if(!rows.length){ lastErr=new Error("空数据"); continue; }
+      if(!rows.length) continue;
       const out=[];
       for(const r of rows){
         const c=r.cell||{};
-        if(c.list_dt) continue;          // 已上市跳过
-        if(c.apply_cd) continue;          // 已定申购日由东财覆盖，避免重复
-        const code=(c.bond_id||"").trim();
-        const stockCode=(c.stock_id||"").trim();
-        if(!code && !stockCode) continue;
+        if(c.list_date) continue;                          // 已定上市日 → 不是待申购/待发
+        const code=String(c.bond_id||"").trim();
+        const stockCode=String(c.stock_id||"").trim();
+        if(!stockCode) continue;
+        const ap=String(c.apply_date||"").trim();          // 申购日，空=核准待发(申购日未定)
+        const num=v=>(v!=null&&v!==""&&!isNaN(Number(v)))?Number(v):null;
         out.push({
           _jsl:true,
-          code, name:(c.bond_nm||"").trim(),
-          stockCode, stockName:(c.stock_nm||"").trim(),
-          convertPrice:(c.convert_price!=null?Number(c.convert_price):null),
-          scale:(c.curr_iss_amt!=null?Number(c.curr_iss_amt):(c.orig_iss_amt!=null?Number(c.orig_iss_amt):null)),
-          publicStart:"", listDate:"",
-          rating_cd:(c.rating_cd||"").trim(),
-          stage:"核准待发"
+          code, name:String(c.bond_nm||"").trim(),
+          stockCode, stockName:String(c.stock_nm||"").trim(),
+          convertPrice:num(c.convert_price),
+          perPre:num(c.ration),                            // 每股配售元面值
+          apply10:num(c.apply10),                          // 每 10 张需持股数
+          scale:num(c.amount),                             // 发行规模(亿)
+          publicStart:ap?(ap+" 00:00:00"):"",
+          recordDate:String(c.record_dt||"").trim(),        // 股权登记日 = 抢权最后买入日
+          applyCode:String(c.apply_cd||"").trim(),
+          rationCode:String(c.ration_cd||"").trim(),
+          listDate:"",
+          rating_cd:String(c.rating_cd||"").trim(),
+          _jslPrice:num(c.price),                           // 集思录正股价，实时价拉不到时兜底
+          stage:ap?"申购":"核准待发"
         });
       }
-      return out;
-    }catch(e){ lastErr=e; console.warn("集思录代理失败:",url,(e&&e.message)||e); }
+      if(out.length) return out;
+    }catch(e){ console.warn("集思录代理失败:",url,(e&&e.message)||e); }
   }
   return []; // 全部失败返回空，由快照兜底
 }
@@ -1566,41 +1587,44 @@ async function loadAll(){
         merged.push({...p, publicStart:dt, stage:"申购", _estFloat:(p._c&&p._c.estFloat!=null)?p._c.estFloat:null});
       }
     });
-    // 核准待发(申购日未定)债并入待发债：① 先用快照PROGRESS里"同意注册且无申购日"的(永远可靠、离线可用)
-    // ② 再尝试集思录实时(FC后端优先→公开代理回退)，补充快照之外的更新标的；按 stockCode/code 去重。
-    (async function addKhdaifa(){
-      const have=new Set();
-      merged.forEach(m=>{ if(m.code)have.add(m.code); if(m.stockCode)have.add(m.stockCode); });
-      const pushOne=(o)=>{
-        if((o.code&&have.has(o.code))||(o.stockCode&&have.has(o.stockCode))) return;
-        // 优先按 stockCode 匹配（核准待发债 code 为空，不能用空 code 误配首个空 code 条目）
-        const pm=PROGRESS.find(p=>(o.stockCode&&p.stockCode===o.stockCode)||(o.code&&p.code===o.code));
-        if(pm){
-          if(pm.apply10!=null) o.apply10=pm.apply10;
-          if(pm.perPre!=null) o.perPre=pm.perPre;
-          if(pm._c&&pm._c.estFloat!=null) o._estFloat=pm._c.estFloat;
-          if(pm._kline) o._kline=pm._kline;
-        }
-        merged.push(o);
-        if(o.code)have.add(o.code);
-        if(o.stockCode)have.add(o.stockCode);
-      };
-      // ① 快照核准待发（PROGRESS 中 progress=90 且进度名不含"申购"/"上市"）
-      PROGRESS.forEach(p=>{
-        if(p.progress!=="90") return;
-        const nm=p.progress_nm||"";
-        if(nm.indexOf("申购")>=0||nm.indexOf("上市")>=0) return;
-        pushOne({_snap:true, code:p.code||"", name:p.name||"", stockCode:p.stockCode||"", stockName:p.stockName||"",
-          convertPrice:p.convertPrice, scale:p.scale, publicStart:"", listDate:"", rating_cd:p.rating_cd||"", stage:"核准待发"});
-      });
-      // ② 集思录实时（失败则空，不影响快照结果）
-      let jslList=[];
-      try{ jslList=await fetchJisiluPend(); }catch(e){ console.warn("集思录待发债拉取失败(用快照):",(e&&e.message)||e); }
-      jslList.forEach(pushOne);
-    })();
+    // 待发债数据源补强：① 快照PROGRESS里"同意注册但申购日未定"(离线可靠) ② 集思录 pre_list 实时(唯一含申购日的源)
+    // 【关键】东财 RPT_BOND_CB_LIST 对刚发行公告的新债常滞后 1~2 天（如丰茂 8-13 发公告、申购日 8-18，东财到 8-14 仍未收录），
+    // 故集思录 pre_list 的申购日/登记日/配售参数**优先覆盖**东财与快照。此处必须 await，否则实时数据赶不上 renderPend。
+    const have=new Map();  // stockCode -> merged 中的对象（核准待发债 code 常为空，只能按 stockCode 索引）
+    merged.forEach(m=>{ if(m.stockCode)have.set(m.stockCode,m); });
+    const fillFromProgress=(o)=>{
+      const pm=PROGRESS.find(p=>(o.stockCode&&p.stockCode===o.stockCode)||(o.code&&p.code===o.code));
+      if(pm){
+        if(o.apply10==null&&pm.apply10!=null) o.apply10=pm.apply10;
+        if(o.perPre==null&&pm.perPre!=null) o.perPre=pm.perPre;
+        if(pm._c&&pm._c.estFloat!=null) o._estFloat=pm._c.estFloat;
+        if(pm._kline) o._kline=pm._kline;
+      }
+      return o;
+    };
+    // ① 快照核准待发（PROGRESS 中 progress=90 且进度名不含"申购"/"上市"）
+    PROGRESS.forEach(p=>{
+      if(p.progress!=="90") return;
+      const nm=p.progress_nm||"";
+      if(nm.indexOf("申购")>=0||nm.indexOf("上市")>=0) return;
+      if(p.stockCode&&have.has(p.stockCode)) return;
+      const o=fillFromProgress({_snap:true, code:p.code||"", name:p.name||"", stockCode:p.stockCode||"", stockName:p.stockName||"",
+        convertPrice:p.convertPrice, scale:p.scale, publicStart:"", listDate:"", rating_cd:p.rating_cd||"", stage:"核准待发"});
+      merged.push(o); if(o.stockCode)have.set(o.stockCode,o);
+    });
     PEND=merged;
     // 价格刷新(腾讯<script>注入，file:// 可用)；东财列表失败也不影响实时价
-    await Promise.all(PEND.map(async r=>{try{const q=await fetchPrice(r.stockCode);if(q){if(!r.stockName)r.stockName=q.name;const oldF=r._estFloat!=null?r._estFloat:(r._c&&r._c.estFloat!=null?r._c.estFloat:null);r._c=compute(r,q.price);if(oldF!=null)r._c.estFloat=oldF;}}catch(e){r._c=r._c||{};}}));
+    // 腾讯价拉不到时用集思录正股价兜底，保证新并入的待申购债配售数据不空白
+    const refreshOne=async r=>{
+      const oldF=r._estFloat!=null?r._estFloat:(r._c&&r._c.estFloat!=null?r._c.estFloat:null);
+      try{
+        const q=await fetchPrice(r.stockCode);
+        if(q){ if(!r.stockName)r.stockName=q.name; r._c=compute(r,q.price); if(oldF!=null)r._c.estFloat=oldF; return; }
+      }catch(e){}
+      if(r._jslPrice!=null){ r._c=compute(r,r._jslPrice); if(oldF!=null)r._c.estFloat=oldF; }
+      else r._c=r._c||{};
+    };
+    await Promise.all(PEND.map(refreshOne));
     renderPend();
     setTime("待发债实时");
     const t=todayStr();
@@ -1608,6 +1632,39 @@ async function loadAll(){
     const hit=visible.filter(r=>r._c&&r._c.cv!=null).length;
     const khdCnt=PEND.filter(r=>r.stage==='核准待发').length;
     if(!visible.length){toast(khdCnt>0?("ℹ️ 当前无可申购转债；另有 "+khdCnt+" 只核准待发（申购日未定）"):"ℹ️ 当前无待申购转债，无需刷新实时价（已用快照价）");}else if(hit>0){toast("✅ 待申购 "+visible.length+" 只（"+hit+"/"+visible.length+" 已刷新实时价）"+(khdCnt>0?("；"+khdCnt+" 只核准待发"):""));}else{toast("⚠️ 实时价拉取失败，已用快照价");}
+    // ② 集思录 pre_list 异步增强（**不阻塞首屏**：代理可能 401/522 拖到 6 秒超时，绝不能挡住上面的渲染）
+    // 拿到后用它的申购日/登记日/配售参数补齐或覆盖（东财对新发公告债常滞后 1~2 天），再增量重渲染。
+    fetchJisiluPend().then(async jslList=>{
+      if(!jslList||!jslList.length) return;
+      const touched=[];
+      for(const o of jslList){
+        const ex=o.stockCode?have.get(o.stockCode):null;
+        if(ex){
+          let chg=false;
+          if(o.publicStart&&ex.publicStart!==o.publicStart){ ex.publicStart=o.publicStart; ex.stage="申购"; chg=true; }
+          if(o.recordDate&&ex.recordDate!==o.recordDate){ ex.recordDate=o.recordDate; chg=true; }
+          if(o.applyCode&&!ex.applyCode){ ex.applyCode=o.applyCode; chg=true; }
+          if(o.rationCode&&!ex.rationCode){ ex.rationCode=o.rationCode; chg=true; }
+          if(o.apply10!=null&&ex.apply10!==o.apply10){ ex.apply10=o.apply10; chg=true; }
+          if(o.perPre!=null&&ex.perPre!==o.perPre){ ex.perPre=o.perPre; chg=true; }
+          if(o.convertPrice!=null&&ex.convertPrice!==o.convertPrice){ ex.convertPrice=o.convertPrice; chg=true; }
+          if(o.scale!=null&&ex.scale!==o.scale){ ex.scale=o.scale; chg=true; }
+          if(o.code&&!ex.code){ ex.code=o.code; chg=true; }
+          if(o.name&&!ex.name){ ex.name=o.name; chg=true; }
+          if(o.rating_cd&&!ex.rating_cd){ ex.rating_cd=o.rating_cd; chg=true; }
+          if(o._jslPrice!=null&&ex._jslPrice==null) ex._jslPrice=o._jslPrice;
+          if(chg) touched.push(ex);
+        }else{
+          const n=fillFromProgress(o);
+          merged.push(n); if(n.stockCode)have.set(n.stockCode,n);
+          touched.push(n);
+        }
+      }
+      if(!touched.length) return;
+      await Promise.all(touched.map(refreshOne));
+      renderPend();
+      setTime("待发债实时");
+    }).catch(e=>console.warn("集思录待发新债增强失败(已用快照/东财):",(e&&e.message)||e));
   }catch(e){console.error("刷新失败(非致命)，使用快照数据:",e.message);}
   finally{btn.disabled=false;btn.textContent="↻ 刷新实时";}
 }

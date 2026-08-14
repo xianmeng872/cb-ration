@@ -281,12 +281,18 @@ exports.handler = async function (req, resp, context) {
       return send(resp, 405, { error: 'method not allowed' }, origin);
     }
 
-    // ============ /api/jisilu：代理集思录待发债列表 ============
+    // ============ /api/jisilu：代理集思录「待发新债」列表 ============
     // 浏览器直连集思录有 CORS 限制且公开代理不稳，故走自家 FC 后端（服务端抓数+带 CORS 返回）。
-    // 公开可转债行情数据，无需鉴权。返回集思录原始 JSON（含 rows 数组）。
+    // 默认 pre_list = 待发新债表，含 apply_date(申购日)/record_dt(股权登记日)/ration(每股配售元面值)/apply10/convert_price/rating_cd/apply_cd/ration_cd。
+    // 【重要】cb_list_new 是「转债行情表」，其中未上市条目 apply_cd 恒为 null，拿不到申购日，不能用于待申购判断。
+    // 可用 ?src=cb 切到 cb_list_new。公开行情数据，无需鉴权。
     if (path === '/api/jisilu' && method === 'GET') {
       try {
-        const raw = await httpsGet('https://www.jisilu.cn/data/cbnew/cb_list_new/?___jsl=LST___');
+        const src = getQ('src') || 'pre';
+        const jslUrl = src === 'cb'
+          ? 'https://www.jisilu.cn/data/cbnew/cb_list_new/?___jsl=LST___'
+          : 'https://www.jisilu.cn/data/cbnew/pre_list/?___jsl=LST___';
+        const raw = await httpsGet(jslUrl);
         const j = JSON.parse(raw);
         return send(resp, 200, j, origin);
       } catch (e) {
