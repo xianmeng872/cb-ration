@@ -859,6 +859,43 @@ async function fetchList(){
     stage:o.PUBLIC_START_DATE?"申购":"待发行"
   }));
 }
+// 集思录待发债（含"核准待发/申购日未定"，东财 RPT_BOND_CB_LIST 不含这类）
+// 浏览器直连集思录有 CORS 限制，走代理：优先自家 FC 后端 /api/jisilu（部署后最稳），回退公开代理 allorigins。
+const JSL_ENDPOINTS=[
+  "https://cb-ration-sync-cb-ration-sync-lvfqccjwzs.cn-shenzhen.fcapp.run/api/jisilu",
+  "https://api.allorigins.win/raw?url="+encodeURIComponent("https://www.jisilu.cn/data/cbnew/cb_list_new/?___jsl=LST___")
+];
+async function fetchJisiluPend(){
+  let lastErr=null;
+  for(const url of JSL_ENDPOINTS){
+    try{
+      const j=await (await fetch(url,{cache:"no-store"})).json();
+      const rows=(j&&j.rows)||[];
+      if(!rows.length){ lastErr=new Error("空数据"); continue; }
+      const out=[];
+      for(const r of rows){
+        const c=r.cell||{};
+        if(c.list_dt) continue;          // 已上市跳过
+        if(c.apply_cd) continue;          // 已定申购日由东财覆盖，避免重复
+        const code=(c.bond_id||"").trim();
+        const stockCode=(c.stock_id||"").trim();
+        if(!code && !stockCode) continue;
+        out.push({
+          _jsl:true,
+          code, name:(c.bond_nm||"").trim(),
+          stockCode, stockName:(c.stock_nm||"").trim(),
+          convertPrice:(c.convert_price!=null?Number(c.convert_price):null),
+          scale:(c.curr_iss_amt!=null?Number(c.curr_iss_amt):(c.orig_iss_amt!=null?Number(c.orig_iss_amt):null)),
+          publicStart:"", listDate:"",
+          rating_cd:(c.rating_cd||"").trim(),
+          stage:"核准待发"
+        });
+      }
+      return out;
+    }catch(e){ lastErr=e; console.warn("集思录代理失败:",url,(e&&e.message)||e); }
+  }
+  return []; // 全部失败返回空，由快照兜底
+}
 // 腾讯实时价：用 <script> 注入方式(返回 v_xxxx="..." 全局变量)，绕过 file:// 跨域限制，本地双击也能刷新
 function fetchPrice(stockCode){
   return new Promise((resolve)=>{
@@ -1063,9 +1100,14 @@ function isMobile(){return window.matchMedia("(max-width:720px)").matches;}
 function renderPend(){
   const p=$("#panel");
   let rows=PEND;
-  // 只显示当前待申购的债（飞哥 2026-07-31）：stage=申购 且 申购日未到/当天。
+  // 显示待申购(申购日已定且未过) 与 核准待发(申购日未定) 两类；已上市(listDate 非空)不显示。
   // 已过申购日（待上市）、公布上市、手动待发行 一律不在待发债列表显示；数据仍保留在 PEND，不丢。
-  rows = rows.filter(r => r.stage === '申购' && r.publicStart && r.publicStart.slice(0,10) >= todayStr());
+  rows = rows.filter(r => {
+    if(r.listDate) return false;
+    if(r.stage === '申购' && r.publicStart && r.publicStart.slice(0,10) >= todayStr()) return true;
+    if(r.stage === '核准待发') return true;
+    return false;
+  });
   if(keyword){const q=keyword.toLowerCase();rows=rows.filter(r=>(r.name||"").toLowerCase().includes(q)||(r.code||"").includes(q)||(r.stockName||"").toLowerCase().includes(q)||(r.stockCode||"").includes(q));}
   if(!rows.length){let _msg=keyword?"无匹配":(PEND&&PEND.length?"今日无待申购转债（数据正常，暂无申购中的标的）":"数据加载失败，请刷新页面");p.innerHTML='<div class="card"><div class="empty">'+_msg+'</div></div>';return;}
   rows=doSort(rows,pendSort);
@@ -1165,6 +1207,7 @@ function stageTagOf(r){
     return passed ? '<span class="tag tag-slist">待上市</span>' : '<span class="tag tag-sbuy">申购</span>';
   }
   if(r.stage==="待发行") return '<span class="tag tag-slist">待发行</span>';
+  if(r.stage==="核准待发") return '<span class="tag tag-sbuy">核准待发</span>';
   return '<span class="tag tag-slist">'+(r.stage||"待发")+'</span>';
 }
 
@@ -1523,6 +1566,38 @@ async function loadAll(){
         merged.push({...p, publicStart:dt, stage:"申购", _estFloat:(p._c&&p._c.estFloat!=null)?p._c.estFloat:null});
       }
     });
+    // 核准待发(申购日未定)债并入待发债：① 先用快照PROGRESS里"同意注册且无申购日"的(永远可靠、离线可用)
+    // ② 再尝试集思录实时(FC后端优先→公开代理回退)，补充快照之外的更新标的；按 stockCode/code 去重。
+    (async function addKhdaifa(){
+      const have=new Set();
+      merged.forEach(m=>{ if(m.code)have.add(m.code); if(m.stockCode)have.add(m.stockCode); });
+      const pushOne=(o)=>{
+        if((o.code&&have.has(o.code))||(o.stockCode&&have.has(o.stockCode))) return;
+        // 优先按 stockCode 匹配（核准待发债 code 为空，不能用空 code 误配首个空 code 条目）
+        const pm=PROGRESS.find(p=>(o.stockCode&&p.stockCode===o.stockCode)||(o.code&&p.code===o.code));
+        if(pm){
+          if(pm.apply10!=null) o.apply10=pm.apply10;
+          if(pm.perPre!=null) o.perPre=pm.perPre;
+          if(pm._c&&pm._c.estFloat!=null) o._estFloat=pm._c.estFloat;
+          if(pm._kline) o._kline=pm._kline;
+        }
+        merged.push(o);
+        if(o.code)have.add(o.code);
+        if(o.stockCode)have.add(o.stockCode);
+      };
+      // ① 快照核准待发（PROGRESS 中 progress=90 且进度名不含"申购"/"上市"）
+      PROGRESS.forEach(p=>{
+        if(p.progress!=="90") return;
+        const nm=p.progress_nm||"";
+        if(nm.indexOf("申购")>=0||nm.indexOf("上市")>=0) return;
+        pushOne({_snap:true, code:p.code||"", name:p.name||"", stockCode:p.stockCode||"", stockName:p.stockName||"",
+          convertPrice:p.convertPrice, scale:p.scale, publicStart:"", listDate:"", rating_cd:p.rating_cd||"", stage:"核准待发"});
+      });
+      // ② 集思录实时（失败则空，不影响快照结果）
+      let jslList=[];
+      try{ jslList=await fetchJisiluPend(); }catch(e){ console.warn("集思录待发债拉取失败(用快照):",(e&&e.message)||e); }
+      jslList.forEach(pushOne);
+    })();
     PEND=merged;
     // 价格刷新(腾讯<script>注入，file:// 可用)；东财列表失败也不影响实时价
     await Promise.all(PEND.map(async r=>{try{const q=await fetchPrice(r.stockCode);if(q){if(!r.stockName)r.stockName=q.name;const oldF=r._estFloat!=null?r._estFloat:(r._c&&r._c.estFloat!=null?r._c.estFloat:null);r._c=compute(r,q.price);if(oldF!=null)r._c.estFloat=oldF;}}catch(e){r._c=r._c||{};}}));
@@ -1531,7 +1606,8 @@ async function loadAll(){
     const t=todayStr();
     const visible=PEND.filter(r=>r.stage==='申购' && r.publicStart && r.publicStart.slice(0,10)>=t);
     const hit=visible.filter(r=>r._c&&r._c.cv!=null).length;
-    if(!visible.length){toast("ℹ️ 当前无待申购转债，无需刷新实时价（已用快照价）");}else if(hit>0){toast("✅ 待发债 "+visible.length+" 只（"+hit+"/"+visible.length+" 已刷新实时价）");}else{toast("⚠️ 实时价拉取失败，已用快照价");}
+    const khdCnt=PEND.filter(r=>r.stage==='核准待发').length;
+    if(!visible.length){toast(khdCnt>0?("ℹ️ 当前无可申购转债；另有 "+khdCnt+" 只核准待发（申购日未定）"):"ℹ️ 当前无待申购转债，无需刷新实时价（已用快照价）");}else if(hit>0){toast("✅ 待申购 "+visible.length+" 只（"+hit+"/"+visible.length+" 已刷新实时价）"+(khdCnt>0?("；"+khdCnt+" 只核准待发"):""));}else{toast("⚠️ 实时价拉取失败，已用快照价");}
   }catch(e){console.error("刷新失败(非致命)，使用快照数据:",e.message);}
   finally{btn.disabled=false;btn.textContent="↻ 刷新实时";}
 }

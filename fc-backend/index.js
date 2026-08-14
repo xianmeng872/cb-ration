@@ -7,6 +7,7 @@
 'use strict';
 const OSS = require('ali-oss');
 const crypto = require('crypto');
+const https = require('https');
 
 const SALT = process.env.SALT || 'wg-grid-sync-v1-fixed-salt-do-not-leak';
 const OSS_BUCKET = process.env.OSS_BUCKET || '';
@@ -150,6 +151,27 @@ async function putInvites(obj) {
 function safeUser(u) { return /^[a-zA-Z0-9_\-]{1,40}$/.test(u); }
 function isToken(t) { return /^[a-f0-9]{64}$/.test(t); }
 
+// 服务端 HTTPS GET（用于代理集思录等无 CORS 的第三方接口），自动跟随一次重定向
+function httpsGet(url, timeoutMs) {
+  timeoutMs = timeoutMs || 15000;
+  return new Promise((resolve, reject) => {
+    const req = https.get(url, {
+      headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': 'https://www.jisilu.cn/' }
+    }, (res) => {
+      const code = res.statusCode || 0;
+      if (code >= 300 && code < 400 && res.headers.location) {
+        return httpsGet(res.headers.location, timeoutMs).then(resolve, reject);
+      }
+      let data = '';
+      res.setEncoding('utf8');
+      res.on('data', (c) => { data += c; });
+      res.on('end', () => resolve(data));
+    });
+    req.on('error', reject);
+    req.setTimeout(timeoutMs, () => { req.destroy(new Error('jisilu request timeout')); });
+  });
+}
+
 function reqPath(req) {
   if (req.path) return req.path;
   const url = req.url || '';
@@ -257,6 +279,19 @@ exports.handler = async function (req, resp, context) {
         return send(resp, 400, { error: 'unknown action' }, origin);
       }
       return send(resp, 405, { error: 'method not allowed' }, origin);
+    }
+
+    // ============ /api/jisilu：代理集思录待发债列表 ============
+    // 浏览器直连集思录有 CORS 限制且公开代理不稳，故走自家 FC 后端（服务端抓数+带 CORS 返回）。
+    // 公开可转债行情数据，无需鉴权。返回集思录原始 JSON（含 rows 数组）。
+    if (path === '/api/jisilu' && method === 'GET') {
+      try {
+        const raw = await httpsGet('https://www.jisilu.cn/data/cbnew/cb_list_new/?___jsl=LST___');
+        const j = JSON.parse(raw);
+        return send(resp, 200, j, origin);
+      } catch (e) {
+        return send(resp, 502, { error: 'jisilu fetch failed', detail: String((e && e.message) || e) }, origin);
+      }
     }
 
     // ============ /api/sync（/api/wg 同逻辑）：接真账号 token 校验 ============
