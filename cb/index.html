@@ -530,7 +530,7 @@ function syncNoteIco(){document.querySelectorAll('.note-col-c,.note-ico-m').forE
       <button class="btn btn-sm" id="refresh">↻ 刷新</button>
     </div>
   </div>
-  <div class="hero-desc">配债潜伏 · 待发实时 · 审核进度自动更新</div>
+  <div class="hero-desc">配债潜伏 · 待发每日自动同步(4次/日) · 审核进度自动更新</div>
   <div class="bar">
     <span class="time" id="time">加载中…</span>
     <button class="btn btn-sm btn-refresh-bar" id="refreshBar" style="display:none">↻ 刷新实时</button>
@@ -1616,6 +1616,9 @@ async function loadAll(){
       }
       return o;
     };
+    // 所有待发条目都尝试从 PROGRESS 快照补 estFloat（流通值）、apply10、perPre、kline；
+    // 之前漏了对 SNAPSHOT_PEND 原有条目调用，导致震裕/丰茂等明明在 PROGRESS 有 estFloat，待发债 Tab 却显示"-"
+    merged.forEach(fillFromProgress);
     PEND=merged;
     // 价格刷新(腾讯<script>注入，file:// 可用)；东财列表失败也不影响实时价
     // 腾讯价拉不到时用集思录正股价兜底，保证新并入的待申购债配售数据不空白
