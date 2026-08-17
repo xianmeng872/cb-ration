@@ -867,9 +867,15 @@ async function fetchList(){
 // 已发行公告、申购日已定的新债它可能还没收录；集思录 cb_list_new 是行情表，未上市条目 apply_cd 恒为 null，也拿不到申购日）。
 // pre_list 字段：apply_date 申购日 / record_dt 股权登记日 / ration 每股配售元面值 / apply10 每10张需股数 /
 //               convert_price 转股价 / amount 规模(亿) / rating_cd 评级 / apply_cd 申购代码 / ration_cd 配售代码。
-// 浏览器直连集思录有 CORS 限制，走代理：优先自家 FC 后端 /api/jisilu（部署后最稳），回退公开代理 allorigins。
+// 浏览器直连集思录有 CORS 限制，必须走代理。但公开代理实测长期不可靠（allorigins 408/522、corsproxy 403、
+// cors.lol 429、codetabs 522 全挂过），自家 FC 后端需阿里云 AK 部署且当前返 401 —— 靠代理等于没有实时。
+// 【最终方案】GitHub Actions 每天定时（北京 8:30/12:00/17:00/21:00）跑 scripts/fetch_pending.py 抓集思录，
+// 结果提交为同源静态文件 cb/data/pending.json 并由 Pages 发布。同源读取无 CORS、无第三方依赖、必然成功。
+// 代理仅作兜底（万一 Actions 当天没跑或数据文件缺失）。数据文件保持集思录原始 {rows:[{cell}]} 结构，解析逻辑通用。
 const JSL_PRE_URL="https://www.jisilu.cn/data/cbnew/pre_list/?___jsl=LST___";
+let JSL_META={updated:"",src:""};   // 待发债名单的数据生成时间/来源（名单每日同步，价格才是实时）
 const JSL_ENDPOINTS=[
+  "./data/pending.json",                       // ① 同源静态数据（GitHub Actions 定时更新）——主链路
   "https://cb-ration-sync-cb-ration-sync-lvfqccjwzs.cn-shenzhen.fcapp.run/api/jisilu",
   "https://api.allorigins.win/raw?url="+encodeURIComponent(JSL_PRE_URL),
   "https://api.codetabs.com/v1/proxy?quest="+encodeURIComponent(JSL_PRE_URL)
@@ -885,6 +891,8 @@ async function fetchJisiluPend(){
       finally{ if(timer)clearTimeout(timer); }
       const rows=(j&&j.rows)||[];
       if(!rows.length) continue;
+      // 记录数据来源与生成时间，供页面显示「数据何时更新」，避免误以为是逐秒实时
+      JSL_META={ updated:(j&&j.updated)||"", src:(url.indexOf("./data/")===0?"自动同步":"代理直取") };
       const out=[];
       for(const r of rows){
         const c=r.cell||{};
@@ -1661,6 +1669,11 @@ async function loadAll(){
       renderPend();
       renderProgress(); // 集思录异步增强后，审核进度同步去重
       setTime("待发债实时");
+      // 明确告知名单的数据时间：名单每日定时同步，价格才是逐次实时，避免误判为"秒级实时"
+      const t2=todayStr();
+      const vis2=PEND.filter(r=>r.stage==='申购'&&r.publicStart&&r.publicStart.slice(0,10)>=t2);
+      const up=String(JSL_META.updated||"").replace(" (北京时间)","");
+      toast("🔄 名单已同步"+(up?("（数据 "+up+"）"):"")+"：待申购 "+vis2.length+" 只");
     }).catch(e=>console.warn("集思录待发新债增强失败(已用快照/东财):",(e&&e.message)||e));
   }catch(e){console.error("刷新失败(非致命)，使用快照数据:",e.message);}
   finally{btn.disabled=false;btn.textContent="↻ 刷新实时";}

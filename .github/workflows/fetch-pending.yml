@@ -1,0 +1,46 @@
+name: 抓取待发新债数据
+
+on:
+  schedule:
+    # 北京时间 08:30 / 12:00 / 17:00 / 21:00（UTC+8，cron 用 UTC）
+    # 新债发行公告多在盘后或晚间发布，故晚间必抓一次
+    - cron: '30 0 * * *'
+    - cron: '0 4 * * *'
+    - cron: '0 9 * * *'
+    - cron: '0 13 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fetch-pending
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 抓取集思录待发新债
+        run: python scripts/fetch_pending.py
+
+      - name: 有变化才提交（避免无意义提交与重复部署）
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add cb/data/pending.json
+          if git diff --cached --quiet; then
+            echo "数据无变化，跳过提交"
+          else
+            git commit -m "chore(data): 自动更新待发新债数据 [skip ci]"
+            git push
+            echo "已提交并推送，将触发 Pages 重新部署"
+          fi
