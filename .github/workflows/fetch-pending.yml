@@ -10,15 +10,24 @@ on:
     - cron: '0 13 * * *'
   workflow_dispatch:
 
+# contents: 提交数据文件；pages/id-token: 抓完后**自行部署**
+# 【关键】GitHub 为防递归，用 GITHUB_TOKEN 推送的 commit 不会触发 pages.yml 那类 push 型 workflow。
+# 若指望 pages.yml 自动接手，数据会进仓库却永远不上线。故本 workflow 抓完必须自己完成 Pages 部署。
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
+# 与 pages.yml 共用同一 concurrency group，避免两边同时部署 Pages 打架
 concurrency:
-  group: fetch-pending
+  group: pages
   cancel-in-progress: false
 
 jobs:
   fetch:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -32,15 +41,34 @@ jobs:
       - name: 抓取集思录待发新债
         run: python scripts/fetch_pending.py
 
-      - name: 有变化才提交（避免无意义提交与重复部署）
+      - name: 有变化才提交（名单未变则不产生无意义提交）
+        id: commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add cb/data/pending.json
           if git diff --cached --quiet; then
-            echo "数据无变化，跳过提交"
+            echo "名单无变化，跳过提交"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
           else
-            git commit -m "chore(data): 自动更新待发新债数据 [skip ci]"
+            git commit -m "chore(data): 自动更新待发新债名单"
             git push
-            echo "已提交并推送，将触发 Pages 重新部署"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
+
+      # 仅在名单确有变化时才部署：名单没变说明线上已是最新，不必重复部署制造噪音。
+      # 若某次部署异常导致线上落后，可到 Actions 页手动 Run workflow 重跑。
+      - name: Setup Pages
+        if: steps.commit.outputs.changed == 'true'
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        if: steps.commit.outputs.changed == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        if: steps.commit.outputs.changed == 'true'
+        uses: actions/deploy-pages@v4

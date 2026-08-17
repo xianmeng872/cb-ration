@@ -66,14 +66,6 @@ def main():
             continue
         out.append({"cell": {k: c.get(k) for k in KEEP}})
 
-    bj = datetime.now(timezone.utc).astimezone(timezone(timedelta(hours=8)))
-    payload = {
-        "updated": bj.strftime("%Y-%m-%d %H:%M:%S") + " (北京时间)",
-        "source": "jisilu pre_list",
-        "count": len(out),
-        "rows": out,
-    }
-
     applied = [c["cell"] for c in out if c["cell"].get("apply_date")]
     applied.sort(key=lambda x: str(x.get("apply_date") or ""))
     print("未上市债 %d 只，其中已定申购日 %d 只：" % (len(out), len(applied)))
@@ -81,6 +73,44 @@ def main():
         print("   %s %s (%s) 申购日=%s 登记日=%s 每股配=%s" % (
             c.get("bond_id"), c.get("bond_nm"), c.get("stock_nm"),
             c.get("apply_date"), c.get("record_dt"), c.get("ration")))
+
+    # 名单内容没变就保持旧文件原样（含旧 updated），使 git diff 为空 → 不产生无意义提交与重复部署。
+    # 因此 updated 的语义是「名单最后一次发生变化的时间」，不是「最后一次检查时间」。
+    #
+    # 【坑】比对必须排除盘中浮动字段，否则名单永远"不一致"，会每天刷出一堆垃圾提交：
+    #   - price：集思录带的正股价，盘中每分钟都在变（页面真正用的是腾讯实时价，这里只是兜底）。
+    #   - apply10：对「申购日未定」的债是按当前正股价反推的估算值，跟着 price 一起漂；
+    #              对已定申购日的债才是发行公告里的固定值，需要参与比对。
+    old_rows = None
+    if os.path.exists(OUT_PATH):
+        try:
+            with open(OUT_PATH, "r", encoding="utf-8") as f:
+                old_rows = (json.load(f) or {}).get("rows")
+        except Exception:
+            old_rows = None
+
+    def norm(rs):
+        """归一化用于比对：剔除实时浮动字段，只留真正定义名单与配售条件的内容。"""
+        res = []
+        for x in (rs or []):
+            c = dict((x.get("cell") or {}))
+            c.pop("price", None)
+            if not c.get("apply_date"):
+                c.pop("apply10", None)
+            res.append(c)
+        return res
+
+    if norm(old_rows) == norm(out):
+        print("名单关键信息与现有数据一致（仅正股价浮动），保持文件不变，不产生提交")
+        return 0
+
+    bj = datetime.now(timezone.utc).astimezone(timezone(timedelta(hours=8)))
+    payload = {
+        "updated": bj.strftime("%Y-%m-%d %H:%M:%S") + " (北京时间)",
+        "source": "jisilu pre_list",
+        "count": len(out),
+        "rows": out,
+    }
 
     os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
     with open(OUT_PATH, "w", encoding="utf-8") as f:
