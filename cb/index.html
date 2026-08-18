@@ -75,6 +75,12 @@
   .tag-s10{background:#fff;color:#a1a1aa;font-weight:500;font-size:11px;border:1px solid #e5e7eb}
   /* 待发行（待发债Tab，未到申购日） */
   .tag-slist{background:#fff;color:var(--primary);font-weight:700;font-size:12px;border:1.5px solid var(--primary)}
+  /* ===== 进度变化高亮（vs 昨日快照，变化标3天） ===== */
+  .new-dot{display:inline-flex;align-items:center;justify-content:center;min-width:15px;height:15px;padding:0 3px;border-radius:8px;background:#fff;color:var(--primary);font-size:9px;font-weight:800;margin-left:5px;vertical-align:1px;box-shadow:0 1px 2px rgba(249,115,22,.45);animation:newPulse 1.8s ease-in-out infinite;letter-spacing:0}
+  @keyframes newPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+  tr.row-new-progress{position:relative;background:linear-gradient(90deg,rgba(249,115,22,.10),rgba(249,115,22,.02) 65%,transparent)}
+  tr.row-new-progress::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3.5px;background:var(--primary);border-radius:0 3px 3px 0}
+  @media(hover:hover){ tr.row-new-progress.clickable:hover{background:linear-gradient(90deg,rgba(249,115,22,.18),rgba(249,115,22,.05) 65%,transparent)} }
   .empty{text-align:center;color:var(--muted);padding:36px 0}
   .foot{text-align:center;color:var(--muted);font-size:11px;line-height:1.7;padding:16px 8px}
   .foot b{color:var(--ink)}
@@ -219,6 +225,7 @@
     .cb-list{display:flex;flex-direction:column;gap:10px}
     .cb-item{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:12px 13px 10px;box-shadow:0 1px 3px rgba(0,0,0,.04);cursor:pointer;transition:.15s;-webkit-tap-highlight-color:rgba(249,115,22,.08)}
     .cb-item:active{transform:scale(.985);box-shadow:0 1px 6px rgba(0,0,0,.1)}
+    .cb-item.row-new-progress{border:1.5px solid var(--primary);background:linear-gradient(135deg,#fff7ed,#ffffff 70%)}
     .fav-btn{top:8px;right:8px;width:30px;height:30px;font-size:17px}
     /* 审核进度/待发债/关注卡片：爱心图标放右上角 */
     #progressPanel .cb-item .fav-btn,#panel .cb-item .fav-btn,#view-fav .cb-item .fav-btn{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;border:none;background:none;font-size:17px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:none;transition:.2s;z-index:5;color:#d1d5db}
@@ -1239,6 +1246,40 @@ function stageTagOf(r){
   return '<span class="tag tag-slist">'+(r.stage||"待发")+'</span>';
 }
 
+// ===== 进度变化标记（vs 昨日快照，只认阶段变化，新增不标，标3天） =====
+const PROG_SNAP_KEY="cb_progress_snap";
+function todayYMD(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function loadProgSnap(){try{return JSON.parse(localStorage.getItem(PROG_SNAP_KEY)||"{}");}catch(e){return{};}}
+function saveProgSnap(s){try{localStorage.setItem(PROG_SNAP_KEY,JSON.stringify(s));}catch(e){}}
+// 数据就绪后调用一次：对比上次快照，记录「阶段变化」的日期
+function updateProgressSnapshot(list){
+  const snap=loadProgSnap();
+  const map=snap.map||{}, changed=snap.changed||{};
+  const today=todayYMD(), cur={};
+  list.forEach(r=>{
+    const k=r.stockCode||r.code||r.stockName; if(!k) return;
+    cur[k]=String(r.progress);
+    if(map[k]!=null && String(map[k])!==String(r.progress)){
+      changed[k]=today;              // 阶段变了 → 记变化日期
+    } else if(map[k]==null){
+      delete changed[k];             // 新出现的股票：不标
+    }
+  });
+  // 清理已不在列表的记录，避免快照无限膨胀
+  Object.keys(map).forEach(k=>{ if(!(k in cur)){ delete map[k]; delete changed[k]; } });
+  Object.assign(map,cur);
+  saveProgSnap({date:today,map,changed});
+}
+// 渲染时判断：是否显示「新」（变化日距今 ≤2 天 = 共3天窗口）
+function isNewProgress(r){
+  if(!r) return false;
+  const k=r.stockCode||r.code||r.stockName; if(!k) return false;
+  const d=(loadProgSnap().changed||{})[k];
+  if(!d) return false;
+  const diff=(Date.parse(todayYMD())-Date.parse(d))/86400000;
+  return diff>=0 && diff<=2;
+}
+function newBadge(){return '<span class="new-dot">新</span>';}
 function progressLabel(r){
   if(r.progress==="90"){
     if(r.progress_nm && r.progress_nm.indexOf("申购")>=0) return "已排期申购";
@@ -1310,9 +1351,11 @@ function renderProgress(){
         const c=r._c||{};
         const tagCls="tag-s"+r.progress;
         const pl=progressLabel(r);
+        const isNew=isNewProgress(r);
+        const newB=isNew?newBadge():'';
         const mkt=c.market||"";
         const mktTag=mkt?'<span class="mkt-tag">'+mkt+'</span>':"";
-        h+='<div class="cb-item" data-i="'+i+'" data-kind="progress">';
+        h+='<div class="cb-item'+(isNew?' row-new-progress':'')+'" data-i="'+i+'" data-kind="progress">';
         // 第一行：名称+代码+市场标签+★（和待发债cb-name结构一致）
         h+='<div class="cb-name"><span class="n">'+(r.stockName||"-")+'</span><span class="c">'+(r.stockCode||"")+'</span>'+mktTag+favBtnHtml(getRowId(r,"progress"),"progress")+'</div>';
         // 数据区：3列×2行网格（和待发债一致，所有格子标签在上值在下面），中间横线贯穿
@@ -1321,7 +1364,7 @@ function renderProgress(){
         // 第1行：配售 | 规模 | (状态标签：标签文字隐藏，值位置不变)
         h+='<span class="s"><span class="l">配售</span><span class="v hl">'+(c.needShares!=null?shLabel:'-')+'</span></span>';
         h+='<span class="s"><span class="l">规模</span><span class="v">'+(r.scale!=null?fmt(r.scale)+'亿':'-')+'</span></span>';
-        h+='<span class="s"><span class="l" style="visibility:hidden">状态</span><span class="v"><span class="tag '+tagCls+'">'+pl+'</span></span></span>';
+        h+='<span class="s"><span class="l" style="visibility:hidden">状态</span><span class="v"><span class="tag '+tagCls+'">'+pl+newB+'</span></span></span>';
         // 第2行：所需资金 | 预估流通 | 日期(标签文字隐藏，值位置不变)
         h+='<span class="s"><span class="l">所需资金</span><span class="v hl">'+(c.needMoney!=null?fmt(c.needMoney,0)+'元':'-')+'</span></span>';
         h+='<span class="s"><span class="l">预估流通</span><span class="v f">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span>';
@@ -1355,14 +1398,16 @@ function renderProgress(){
         const c=r._c||{};
         const tagCls="tag-s"+r.progress;
         const pl=progressLabel(r);
+        const isNew=isNewProgress(r);
+        const newB=isNew?newBadge():'';
         const mkt=c.market||"";
         const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
-        h+='<div class="cb-item cb-item-list" data-i="'+i+'" data-kind="progress">';
+        h+='<div class="cb-item cb-item-list'+(isNew?' row-new-progress':'')+'" data-i="'+i+'" data-kind="progress">';
         h+='<div class="cb-list-left">';
         h+='<div class="cb-list-icon">'+(mkt==="沪"?"沪":"深")+'</div>';
         h+='</div>';
         h+='<div class="cb-list-body">';
-        h+='<div class="cb-list-top"><span class="cb-list-name">'+(r.stockName||"-")+'</span><span class="tag '+tagCls+'">'+pl+'</span></div>';
+        h+='<div class="cb-list-top"><span class="cb-list-name">'+(r.stockName||"-")+'</span><span class="tag '+tagCls+'">'+pl+newB+'</span></div>';
         h+='<div class="cb-list-mid">'+(r.stockCode||"")+(r.name?(" · "+r.name):"")+'</div>';
         h+='<div class="cb-list-bot">';
         h+='<span class="cb-list-info">'+(c.needShares!=null?shLabel:'-')+' | '+((c.needMoney!=null?fmt(c.needMoney,0)+'元':'-'))+'</span>';
@@ -1387,12 +1432,14 @@ function renderProgress(){
         const c=r._c||{};
         const tagCls="tag-s"+r.progress;
         const pl=progressLabel(r);
+        const isNew=isNewProgress(r);
+        const newB=isNew?newBadge():'';
         const mkt=c.market||"";
         const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
-        h+='<div class="cb-item cb-item-bar" data-i="'+i+'" data-kind="progress">';
+        h+='<div class="cb-item cb-item-bar'+(isNew?' row-new-progress':'')+'" data-i="'+i+'" data-kind="progress">';
         h+='<div class="cb-bar-header">';
         h+='<span class="cb-bar-name">'+(r.stockName||"-")+'</span>';
-        h+='<span class="tag '+tagCls+'">'+pl+'</span>';
+        h+='<span class="tag '+tagCls+'">'+pl+newB+'</span>';
         h+='</div>';
         h+='<div class="cb-bar-data">';
         h+='<div class="cb-bar-row">';
@@ -1425,16 +1472,18 @@ function renderProgress(){
         const c=r._c||{};
         const tagCls="tag-s"+r.progress;
         const pl=progressLabel(r);
+        const isNew=isNewProgress(r);
+        const newB=isNew?newBadge():'';
         const mkt=c.market||"";
         const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
-        h+='<div class="cb-item cb-item-fold" data-i="'+i+'" data-kind="progress">';
+        h+='<div class="cb-item cb-item-fold'+(isNew?' row-new-progress':'')+'" data-i="'+i+'" data-kind="progress">';
         h+='<div class="cb-fold-header" data-fold-i="'+i+'">';
         h+='<div class="cb-fold-left">';
         h+='<span class="cb-fold-name">'+(r.stockName||"-")+'</span>';
         h+='<span class="cb-fold-code">'+(r.stockCode||"")+(r.name?(" · "+r.name):"")+'</span>';
         h+='</div>';
         h+='<div class="cb-fold-right">';
-        h+='<span class="tag '+tagCls+'">'+pl+'</span>';
+        h+='<span class="tag '+tagCls+'">'+pl+newB+'</span>';
         h+=(c.estFloat!=null?'<span class="fold-chip">流通'+c.estFloat+'亿</span>':'')+'<span class="cb-fold-arrow">›</span>';
         h+='</div>';
         h+='</div>';
@@ -1498,10 +1547,11 @@ function renderProgress(){
     const mkt=c.market||"";
     const mktTag=mkt?'<span style="font-size:10px;background:'+(mkt==="沪"?"#fff4ea;color:#ea580c":"#f3f4f6;color:#6b7280")+';padding:1px 6px;border-radius:8px;font-weight:700;margin-left:4px">'+mkt+'</span>':"";
     const tagCls="tag-s"+r.progress;
+    const isNew=isNewProgress(r);
     const id=getRowId(r,"progress");
-    h+='<tr class="clickable" data-i="'+i+'" data-kind="progress">';
+    h+='<tr class="clickable'+(isNew?' row-new-progress':'')+'" data-i="'+i+'" data-kind="progress">';
     h+='<td data-label="正股/转债"><div class="name">'+(r.stockName||"-")+mktTag+'</div><div class="code">'+(r.stockCode||"")+(r.name?(" · "+r.name):"")+'</div></td>';
-    h+='<td data-label="进度"><span class="tag '+tagCls+'">'+progressLabel(r)+'</span></td>';
+    h+='<td data-label="进度"><span class="tag '+tagCls+'">'+progressLabel(r)+(isNew?newBadge():'')+'</span></td>';
     h+='<td data-label="进展日期"><span class="num">'+fmtShortDate(r.progress_dt)+'</span></td>';
     h+='<td data-label="转股价值"><span class="num">'+(c.cv!=null?fmt(c.cv):"…")+'</span></td>';
     const shLabel2=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
@@ -3107,6 +3157,7 @@ async function initApp(){
   PEND=SNAPSHOT_PEND.map(r=>{ const cc=r._c; return {...r, _c: cc&&cc.price!=null?compute(r,cc.price):(cc||null)}; });
   renderPend();
   PROGRESS=SNAPSHOT_PROGRESS.map(r=>{ const cc=r._c; return {...r, _c: cc&&cc.price!=null?compute(r,cc.price):(cc||null)}; });
+  updateProgressSnapshot(PROGRESS);
   renderProgress();
 
   // 从 localStorage 读取登录状态（同步，即时完成）
