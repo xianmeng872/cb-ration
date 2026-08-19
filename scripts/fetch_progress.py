@@ -203,6 +203,9 @@ def main():
         print("[ERROR] HTML 未找到 SNAPSHOT_PROGRESS", file=sys.stderr)
         return 1
     old_arr = json.loads("[" + m.group(1) + "]")
+    # 读取旧的 PROGRESS_CHANGED（广播条"最近变化"数据源，每日维护）
+    m2 = re.search(r"const PROGRESS_CHANGED=(\[.*?\]);", html, re.S)
+    old_changed = json.loads(m2.group(1)) if m2 else []
     old_by_code = {}
     old_sigs = []
     for o in old_arr:
@@ -244,6 +247,22 @@ def main():
     arr.sort(key=lambda o: (order.get(o["progress"], 9), o["stockCode"] or ""))
     lit = "[\n" + ",\n".join(json.dumps(o, ensure_ascii=False, separators=(",", ":")) for o in arr) + "\n]"
     new_html = html[: m.start()] + "const SNAPSHOT_PROGRESS=" + lit + ";" + html[m.end():]
+    # 维护 PROGRESS_CHANGED：对比本次抓取与上一次快照的阶段变化（广播条数据源，不依赖本地 localStorage）
+    new_code_set = {o.get("stockCode") for o in arr}
+    old_prog_map = {o.get("stockCode"): o.get("progress") for o in old_arr}
+    today_str = datetime.now(timezone.utc).astimezone(timezone(timedelta(hours=8))).strftime("%Y-%m-%d")
+    new_changed = []
+    for o in arr:
+        k = o.get("stockCode")
+        if k and k in old_prog_map and str(old_prog_map[k]) != str(o.get("progress")):
+            cd = o.get("progress_dt") or today_str
+            new_changed.append({"stockCode": k, "stockName": o.get("stockName"), "changeDate": cd})
+    for x in old_changed:
+        k = x.get("stockCode")
+        if k in new_code_set and not any(c["stockCode"] == k for c in new_changed):
+            new_changed.append(x)
+    prog_changed_lit = "[" + ",".join(json.dumps(x, ensure_ascii=False) for x in new_changed) + "]"
+    new_html = re.sub(r"const PROGRESS_CHANGED=\[.*?\];", "const PROGRESS_CHANGED=" + prog_changed_lit + ";", new_html, count=1, flags=re.S)
     open(HTML, "w", encoding="utf-8").write(new_html)
 
     # 7. 存档
