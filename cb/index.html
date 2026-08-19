@@ -1273,7 +1273,7 @@ function updateProgressSnapshot(list){
     const k=r.stockCode||r.code||r.stockName; if(!k) return;
     cur[k]=String(r.progress);
     if(map[k]!=null && String(map[k])!==String(r.progress)){
-      changed[k]=today;              // 阶段变了 → 记变化日期
+      changed[k]=r.progress_dt||today; // 阶段变了 → 记官方进度日期（优先用 progress_dt）
     } else if(map[k]==null){
       delete changed[k];             // 新出现的股票：不标
     }
@@ -1307,7 +1307,9 @@ function recentProgressChanges(){
   const out=[];
   (typeof PROGRESS!=="undefined"?PROGRESS:[]).forEach(r=>{
     const k=r.stockCode||r.code||r.stockName; if(!k) return;
-    const d=changed[k]; if(!d) return;
+    let d=changed[k]; if(!d) return;
+    // 校正：首次访问时若把变化日期误记为当天（晚于 progress_dt），回退到官方进度日期
+    if(r.progress_dt && Date.parse(d)>Date.parse(r.progress_dt)) d=r.progress_dt;
     const diff=(Date.parse(today)-Date.parse(d))/86400000;
     if(diff>=0 && diff<=2) out.push({...r,changeDate:d});
   });
