@@ -75,12 +75,21 @@
   .tag-s10{background:#fff;color:#a1a1aa;font-weight:500;font-size:11px;border:1px solid #e5e7eb}
   /* 待发行（待发债Tab，未到申购日） */
   .tag-slist{background:#fff;color:var(--primary);font-weight:700;font-size:12px;border:1.5px solid var(--primary)}
-  /* ===== 进度变化高亮（vs 昨日快照，变化标3天） ===== */
-  .new-dot{display:inline-flex;align-items:center;justify-content:center;min-width:15px;height:15px;padding:0 3px;border-radius:8px;background:#fff;color:var(--primary);font-size:9px;font-weight:800;margin-left:5px;vertical-align:1px;box-shadow:0 1px 2px rgba(249,115,22,.45);animation:newPulse 1.8s ease-in-out infinite;letter-spacing:0}
-  @keyframes newPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
-  tr.row-new-progress{position:relative;background:linear-gradient(90deg,rgba(249,115,22,.10),rgba(249,115,22,.02) 65%,transparent)}
-  tr.row-new-progress::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3.5px;background:var(--primary);border-radius:0 3px 3px 0}
-  @media(hover:hover){ tr.row-new-progress.clickable:hover{background:linear-gradient(90deg,rgba(249,115,22,.18),rgba(249,115,22,.05) 65%,transparent)} }
+  /* ===== 审核进度变化：PC端顶部广播条，手机端隐藏 ===== */
+
+/* ===== 审核进度变化广播条（PC端显示，手机端隐藏） ===== */
+.broadcast-bar{display:none;background:linear-gradient(90deg,#fff4ea,#fff8f5);border-bottom:1px solid #ffdcc3;color:#9a3412;font-size:13px;font-weight:600;padding:8px 16px;align-items:center;gap:10px;overflow:hidden}
+@media(min-width:721px){.broadcast-bar{display:flex}}
+.broadcast-bar .bc-icon{flex-shrink:0;font-size:16px;width:22px;text-align:center}
+.broadcast-bar .bc-wrap{flex:1;position:relative;height:20px;overflow:hidden;mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.broadcast-bar .bc-items{position:absolute;left:0;right:0;top:0;transition:transform .45s ease}
+.broadcast-bar .bc-item{display:flex;align-items:center;height:20px;gap:8px;white-space:nowrap;cursor:pointer;padding-right:20px}
+.broadcast-bar .bc-item:hover{color:#c2410c}
+.broadcast-bar .bc-tag{background:#f97316;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:9px}
+.broadcast-bar .bc-close{flex-shrink:0;background:none;border:none;color:#9ca3af;font-size:18px;cursor:pointer;padding:0 4px;line-height:1}
+.broadcast-bar .bc-close:hover{color:#6b7280}
+tr.bc-flash{animation:bcFlash 1.6s ease-in-out 2}
+@keyframes bcFlash{0%,100%{background:transparent}50%{background:rgba(249,115,22,.18)}}
   .empty{text-align:center;color:var(--muted);padding:36px 0}
   .foot{text-align:center;color:var(--muted);font-size:11px;line-height:1.7;padding:16px 8px}
   .foot b{color:var(--ink)}
@@ -225,7 +234,6 @@
     .cb-list{display:flex;flex-direction:column;gap:10px}
     .cb-item{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:12px 13px 10px;box-shadow:0 1px 3px rgba(0,0,0,.04);cursor:pointer;transition:.15s;-webkit-tap-highlight-color:rgba(249,115,22,.08)}
     .cb-item:active{transform:scale(.985);box-shadow:0 1px 6px rgba(0,0,0,.1)}
-    .cb-item.row-new-progress{border:1.5px solid var(--primary);background:linear-gradient(135deg,#fff7ed,#ffffff 70%)}
     .fav-btn{top:8px;right:8px;width:30px;height:30px;font-size:17px}
     /* 审核进度/待发债/关注卡片：爱心图标放右上角 */
     #progressPanel .cb-item .fav-btn,#panel .cb-item .fav-btn,#view-fav .cb-item .fav-btn{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;border:none;background:none;font-size:17px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:none;transition:.2s;z-index:5;color:#d1d5db}
@@ -542,6 +550,11 @@ function syncNoteIco(){document.querySelectorAll('.note-col-c,.note-ico-m').forE
     <span class="time" id="time">加载中…</span>
     <button class="btn btn-sm btn-refresh-bar" id="refreshBar" style="display:none">↻ 刷新实时</button>
   </div>
+</div>
+<div class="broadcast-bar" id="broadcastBar" style="display:none">
+  <span class="bc-icon">📢</span>
+  <div class="bc-wrap" id="broadcastWrap"><div class="bc-items" id="broadcastItems"></div></div>
+  <button class="bc-close" id="broadcastClose" title="关闭">×</button>
 </div>
 <div class="wrap">
   <div class="tabs">
@@ -1279,7 +1292,72 @@ function isNewProgress(r){
   const diff=(Date.parse(todayYMD())-Date.parse(d))/86400000;
   return diff>=0 && diff<=2;
 }
-function newBadge(){return '<span class="new-dot">新</span>';}
+
+// ===== 审核进度变化广播条 =====
+const BROADCAST_HIDE_KEY="cb_broadcast_hide";
+let _bcTimer=null,_bcIndex=0;
+function fmtBroadcastDate(d){
+  if(!d) return "-";
+  const s=String(d).replace(/-/g,"");
+  if(s.length>=8) return s.slice(4,6)+"-"+s.slice(6,8);
+  return s;
+}
+function recentProgressChanges(){
+  const snap=loadProgSnap(), changed=snap.changed||{}, today=todayYMD();
+  const out=[];
+  (typeof PROGRESS!=="undefined"?PROGRESS:[]).forEach(r=>{
+    const k=r.stockCode||r.code||r.stockName; if(!k) return;
+    const d=changed[k]; if(!d) return;
+    const diff=(Date.parse(today)-Date.parse(d))/86400000;
+    if(diff>=0 && diff<=2) out.push({...r,changeDate:d});
+  });
+  return out;
+}
+function renderBroadcast(){
+  const bar=$("#broadcastBar"); if(!bar) return;
+  const hide=localStorage.getItem(BROADCAST_HIDE_KEY);
+  if(hide && hide===todayYMD()){ bar.style.display="none"; return; }
+  const list=recentProgressChanges();
+  if(!list.length){ bar.style.display="none"; return; }
+  bar.style.display="flex";
+  const wrap=$("#broadcastItems"); if(!wrap) return;
+  wrap.innerHTML=list.map((r,i) => {
+    return '<div class="bc-item" data-idx="'+i+'" data-code="'+(r.stockCode||"-")+'" title="点击跳转到审核进度">'+
+      '<span>'+(r.stockName||"-")+'（'+(r.stockCode||"-")+'）进度变化：'+progressLabel(r)+' · '+fmtBroadcastDate(r.changeDate)+'</span>'+
+      '<span class="bc-tag">新</span>'+
+      '</div>';
+  }).join("");
+  startBroadcast(list.length);
+  // 绑定点击
+  wrap.querySelectorAll(".bc-item").forEach(el=>{
+    el.onclick=()=>{
+      const code=el.dataset.code;
+      $("#tab-progress").click();
+      const input=$("#q2"); if(input){ input.value=code||""; keyword2=code||""; }
+      renderProgress();
+      setTimeout(()=>{
+        const row=document.querySelector('#progressPanel tr.clickable td[data-label="正股/转债"]');
+        if(row){ row.closest("tr")?.scrollIntoView({behavior:"smooth",block:"center"}); row.closest("tr")?.classList.add("bc-flash"); }
+      },80);
+    };
+  });
+}
+function startBroadcast(len){
+  const wrap=$("#broadcastItems"); if(!wrap) return;
+  if(_bcTimer){ clearInterval(_bcTimer); _bcTimer=null; }
+  _bcIndex=0; wrap.style.transform="translateY(0)";
+  if(len<=1) return;
+  _bcTimer=setInterval(()=>{
+    _bcIndex=(_bcIndex+1)%len;
+    wrap.style.transform="translateY("+(-_bcIndex*20)+"px)";
+  },4200);
+}
+function hideBroadcast(){
+  const bar=$("#broadcastBar"); if(!bar) return;
+  bar.style.display="none"; localStorage.setItem(BROADCAST_HIDE_KEY,todayYMD());
+  if(_bcTimer){ clearInterval(_bcTimer); _bcTimer=null; }
+}
+
 function progressLabel(r){
   if(r.progress==="90"){
     if(r.progress_nm && r.progress_nm.indexOf("申购")>=0) return "已排期申购";
@@ -1351,11 +1429,9 @@ function renderProgress(){
         const c=r._c||{};
         const tagCls="tag-s"+r.progress;
         const pl=progressLabel(r);
-        const isNew=isNewProgress(r);
-        const newB=isNew?newBadge():'';
         const mkt=c.market||"";
         const mktTag=mkt?'<span class="mkt-tag">'+mkt+'</span>':"";
-        h+='<div class="cb-item'+(isNew?' row-new-progress':'')+'" data-i="'+i+'" data-kind="progress">';
+        h+='<div class="cb-item'+''+'" data-i="'+i+'" data-kind="progress">';
         // 第一行：名称+代码+市场标签+★（和待发债cb-name结构一致）
         h+='<div class="cb-name"><span class="n">'+(r.stockName||"-")+'</span><span class="c">'+(r.stockCode||"")+'</span>'+mktTag+favBtnHtml(getRowId(r,"progress"),"progress")+'</div>';
         // 数据区：3列×2行网格（和待发债一致，所有格子标签在上值在下面），中间横线贯穿
@@ -1364,7 +1440,7 @@ function renderProgress(){
         // 第1行：配售 | 规模 | (状态标签：标签文字隐藏，值位置不变)
         h+='<span class="s"><span class="l">配售</span><span class="v hl">'+(c.needShares!=null?shLabel:'-')+'</span></span>';
         h+='<span class="s"><span class="l">规模</span><span class="v">'+(r.scale!=null?fmt(r.scale)+'亿':'-')+'</span></span>';
-        h+='<span class="s"><span class="l" style="visibility:hidden">状态</span><span class="v"><span class="tag '+tagCls+'">'+pl+newB+'</span></span></span>';
+        h+='<span class="s"><span class="l" style="visibility:hidden">状态</span><span class="v"><span class="tag '+tagCls+'">'+pl+'</span></span></span>';
         // 第2行：所需资金 | 预估流通 | 日期(标签文字隐藏，值位置不变)
         h+='<span class="s"><span class="l">所需资金</span><span class="v hl">'+(c.needMoney!=null?fmt(c.needMoney,0)+'元':'-')+'</span></span>';
         h+='<span class="s"><span class="l">预估流通</span><span class="v f">'+(c.estFloat!=null?c.estFloat+'亿':'-')+'</span></span>';
@@ -1398,16 +1474,14 @@ function renderProgress(){
         const c=r._c||{};
         const tagCls="tag-s"+r.progress;
         const pl=progressLabel(r);
-        const isNew=isNewProgress(r);
-        const newB=isNew?newBadge():'';
         const mkt=c.market||"";
         const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
-        h+='<div class="cb-item cb-item-list'+(isNew?' row-new-progress':'')+'" data-i="'+i+'" data-kind="progress">';
+        h+='<div class="cb-item cb-item-list'+''+'" data-i="'+i+'" data-kind="progress">';
         h+='<div class="cb-list-left">';
         h+='<div class="cb-list-icon">'+(mkt==="沪"?"沪":"深")+'</div>';
         h+='</div>';
         h+='<div class="cb-list-body">';
-        h+='<div class="cb-list-top"><span class="cb-list-name">'+(r.stockName||"-")+'</span><span class="tag '+tagCls+'">'+pl+newB+'</span></div>';
+        h+='<div class="cb-list-top"><span class="cb-list-name">'+(r.stockName||"-")+'</span><span class="tag '+tagCls+'">'+pl+'</span></div>';
         h+='<div class="cb-list-mid">'+(r.stockCode||"")+(r.name?(" · "+r.name):"")+'</div>';
         h+='<div class="cb-list-bot">';
         h+='<span class="cb-list-info">'+(c.needShares!=null?shLabel:'-')+' | '+((c.needMoney!=null?fmt(c.needMoney,0)+'元':'-'))+'</span>';
@@ -1432,14 +1506,12 @@ function renderProgress(){
         const c=r._c||{};
         const tagCls="tag-s"+r.progress;
         const pl=progressLabel(r);
-        const isNew=isNewProgress(r);
-        const newB=isNew?newBadge():'';
         const mkt=c.market||"";
         const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
-        h+='<div class="cb-item cb-item-bar'+(isNew?' row-new-progress':'')+'" data-i="'+i+'" data-kind="progress">';
+        h+='<div class="cb-item cb-item-bar'+''+'" data-i="'+i+'" data-kind="progress">';
         h+='<div class="cb-bar-header">';
         h+='<span class="cb-bar-name">'+(r.stockName||"-")+'</span>';
-        h+='<span class="tag '+tagCls+'">'+pl+newB+'</span>';
+        h+='<span class="tag '+tagCls+'">'+pl+'</span>';
         h+='</div>';
         h+='<div class="cb-bar-data">';
         h+='<div class="cb-bar-row">';
@@ -1472,18 +1544,16 @@ function renderProgress(){
         const c=r._c||{};
         const tagCls="tag-s"+r.progress;
         const pl=progressLabel(r);
-        const isNew=isNewProgress(r);
-        const newB=isNew?newBadge():'';
         const mkt=c.market||"";
         const shLabel=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
-        h+='<div class="cb-item cb-item-fold'+(isNew?' row-new-progress':'')+'" data-i="'+i+'" data-kind="progress">';
+        h+='<div class="cb-item cb-item-fold'+''+'" data-i="'+i+'" data-kind="progress">';
         h+='<div class="cb-fold-header" data-fold-i="'+i+'">';
         h+='<div class="cb-fold-left">';
         h+='<span class="cb-fold-name">'+(r.stockName||"-")+'</span>';
         h+='<span class="cb-fold-code">'+(r.stockCode||"")+(r.name?(" · "+r.name):"")+'</span>';
         h+='</div>';
         h+='<div class="cb-fold-right">';
-        h+='<span class="tag '+tagCls+'">'+pl+newB+'</span>';
+        h+='<span class="tag '+tagCls+'">'+pl+'</span>';
         h+=(c.estFloat!=null?'<span class="fold-chip">流通'+c.estFloat+'亿</span>':'')+'<span class="cb-fold-arrow">›</span>';
         h+='</div>';
         h+='</div>';
@@ -1547,11 +1617,10 @@ function renderProgress(){
     const mkt=c.market||"";
     const mktTag=mkt?'<span style="font-size:10px;background:'+(mkt==="沪"?"#fff4ea;color:#ea580c":"#f3f4f6;color:#6b7280")+';padding:1px 6px;border-radius:8px;font-weight:700;margin-left:4px">'+mkt+'</span>':"";
     const tagCls="tag-s"+r.progress;
-    const isNew=isNewProgress(r);
     const id=getRowId(r,"progress");
-    h+='<tr class="clickable'+(isNew?' row-new-progress':'')+'" data-i="'+i+'" data-kind="progress">';
+    h+='<tr class="clickable" data-i="'+i+'" data-kind="progress">';
     h+='<td data-label="正股/转债"><div class="name">'+(r.stockName||"-")+mktTag+'</div><div class="code">'+(r.stockCode||"")+(r.name?(" · "+r.name):"")+'</div></td>';
-    h+='<td data-label="进度"><span class="tag '+tagCls+'">'+progressLabel(r)+(isNew?newBadge():'')+'</span></td>';
+    h+='<td data-label="进度"><span class="tag '+tagCls+'">'+progressLabel(r)+'</span></td>';
     h+='<td data-label="进展日期"><span class="num">'+fmtShortDate(r.progress_dt)+'</span></td>';
     h+='<td data-label="转股价值"><span class="num">'+(c.cv!=null?fmt(c.cv):"…")+'</span></td>';
     const shLabel2=(c.isSH&&c.needShares!=null)?(c.needShares+'股(搏)'):(c.needShares!=null?c.needShares+'股':'-');
@@ -3153,11 +3222,14 @@ $("#qfav").addEventListener("input",e=>{favKeyword=e.target.value.trim();renderF
 // 初始化：从 localStorage 加载已登录用户
 async function initApp(){
   setTime("加载中");
+  // 广播条关闭
+  const bcClose=$("#broadcastClose"); if(bcClose) bcClose.onclick=(e)=>{e.stopPropagation();hideBroadcast();};
   // 先渲染数据（不依赖登录状态）
   PEND=SNAPSHOT_PEND.map(r=>{ const cc=r._c; return {...r, _c: cc&&cc.price!=null?compute(r,cc.price):(cc||null)}; });
   renderPend();
   PROGRESS=SNAPSHOT_PROGRESS.map(r=>{ const cc=r._c; return {...r, _c: cc&&cc.price!=null?compute(r,cc.price):(cc||null)}; });
   updateProgressSnapshot(PROGRESS);
+  renderBroadcast();
   renderProgress();
 
   // 从 localStorage 读取登录状态（同步，即时完成）
