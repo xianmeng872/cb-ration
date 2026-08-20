@@ -2979,6 +2979,32 @@ async function initApp(){
   if(currentUser && isCloudReady()){ tryPullCloud(); }
   else if(currentUser && isGistReady()){ tryPullGist(); }
 
+  // 【修复】老用户本地有账号但无云端token（从未走过新版登录弹窗）→ 用本地存的密码自动登录云端，同步立即复活
+  if(currentUser && isCloudReady() && window.CBAuth && !CBAuth.isLoggedIn()){
+    var _au=getCur(),_aus=loadUsers(),_arec=_aus&&_aus[_au];
+    if(_arec && _arec.password){
+      CBAuth.login(_au,_arec.password).then(function(_r){
+        if(_r && _r.ok){
+          renderUserArea();
+          tryPullCloud();
+          scheduleSyncPush();
+        }else{
+          // 云端无该账号或密码不符 → 自动注册迁移，不丢本地数据
+          var _sec=_arec.securityCode||genSecFor(_au);
+          CBAuth.register(_au,_arec.password,_sec).then(function(_r2){
+            if(_r2 && _r2.ok){
+              renderUserArea();
+              scheduleSyncPush();
+              syncPushToCloud().then(function(ok){ if(ok) console.log("✅ 老账号已自动迁移云端，同步已开启"); });
+            }else{
+              console.warn("自动迁移云端失败",_r2&&_r2.error);
+            }
+          });
+        }
+      });
+    }
+  }
+
   // 延迟加载实时数据（给页面渲染留时间）
   setTimeout(()=>{
     loadAll();
