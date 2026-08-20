@@ -2204,9 +2204,12 @@ async function syncPushToCloud(){
     // 【修复·多端不同步根因】云端 POST 是"覆盖写"，若直接用本设备 favorites 覆盖云端，会把另一端关注冲掉。
     // 改为 push 前先 pull 云端最新 -> 本地∪云端合并成全集 -> 再写回，云端始终是全集，多端不再互相覆盖。
     let cloudFavs = [], cloudNotes = {};
+    let pullStatus = 'error';
     try{
-      const cloud = await syncPullFromCloud(u, rec.password || "");
-      if(cloud && cloud.favorites){
+      const pull = await syncPullFromCloud(u, rec.password || "");
+      pullStatus = pull.status;
+      if(pull.status === 'ok' && pull.data && pull.data.favorites){
+        const cloud = pull.data;
         for(let i=0;i<cloud.favorites.length;i++){
           const f = cloud.favorites[i];
           if(!f) continue;
@@ -2223,6 +2226,10 @@ async function syncPushToCloud(){
     }catch(e){}
     const localFavs = (rec.favorites||[]).filter(f=>f.id!==NOTE_CARRIER_ID);
     const merged = mergeFavorites(localFavs, cloudFavs);
+    // 【修复·空覆盖防护】拉取失败或云端已有数据时，本地合并结果为空 → 绝不覆盖云端
+    const _realMerged = merged.filter(f=>f.id!==NOTE_CARRIER_ID);
+    const _hasNotes = rec.notes && Object.keys(rec.notes).length > 0;
+    if(!_realMerged.length && !_hasNotes && pullStatus !== 'notfound'){ return true; }
     rec.favorites = merged; saveUsers(users);
     const notesCarrier = { id: NOTE_CARRIER_ID, seen:"", note: JSON.stringify(rec.notes||{}) };
     const body = JSON.stringify({ securityCode: rec.securityCode||"", favorites: merged.concat([notesCarrier]), notes: rec.notes||{}, usageCount: rec.usageCount||0, unlocked: !!rec.unlocked, inviteCode: rec.inviteCode||"" });
@@ -2235,14 +2242,16 @@ async function syncPushToCloud(){
 }
 // 从云端拉取指定用户的记录（用密码派生令牌鉴权）
 async function syncPullFromCloud(username, password){
-  if(!isCloudReady() || !window.CBAuth || !CBAuth.isLoggedIn()) return null;
+  if(!isCloudReady() || !window.CBAuth || !CBAuth.isLoggedIn()) return {status:'error', code:'noauth'};
   try{
     const res = await CBAuth.api('/api/sync?u=' + encodeURIComponent(username), {method:'GET'});
-    if(res.status === 404 || res.status === 403) return null;
-    if(!res.ok) return null;
+    if(res.status === 404) return {status:'notfound'};
+    if(res.status === 403) return {status:'error', code:'forbidden'};
+    if(!res.ok) return {status:'error', code:'http'+res.status};
     const data = res.data;
-    return data && data.data ? data.data : null;
-  }catch(e){ console.warn("Cloud拉取失败:", e.message); return null; }
+    if(data && data.data) return {status:'ok', data: data.data};
+    return {status:'error', code:'badshape'};
+  }catch(e){ console.warn("Cloud拉取失败:", e.message); return {status:'error', code:'exception'}; }
 }
 // 查询某用户名是否已在云端注册（避免重名）
 async function cloudUsernameExists(username){
@@ -2264,8 +2273,9 @@ async function tryPullCloud(){
   if(!isCloudReady() || !currentUser) return;
   const u = getCur(); const users = loadUsers(); const rec = users[u];
   if(!rec) return;
-  const cloud = await syncPullFromCloud(u, rec.password || "");
-  if(cloud && cloud.favorites){
+  const pull = await syncPullFromCloud(u, rec.password || "");
+  if(pull.status === 'ok' && pull.data && pull.data.favorites){
+    const cloud = pull.data;
     // 从云端 favorites 提取备注载体（隐藏特殊元素），剩余为纯关注
     let cloudNotes = {};
     const pureCloudFavs = cloud.favorites.filter(function(f){
@@ -2294,10 +2304,14 @@ async function tryPullCloud(){
       const us = loadUsers(); if(us[u]){ us[u].notes = mergedNotes; saveUsers(us); }
     }
   }
- else {
-    // 【修复·账号跨设备登录】本机已登录但云端查不到该账号记录：注册时的云端推送可能未成功，
-    // 这里自动把本机账号补推到云端，使其他设备能用同一账号登录（自愈）。
-    try{ await syncPushToCloud(); }catch(e){ console.warn("账号自愈推送失败", e.message); }
+  else if(pull.status === 'notfound'){
+    // 【修复·账号跨设备登录】云端确实查无记录(404)→仅当本地有真实数据时才补推（自愈）；
+    // 拉取失败/鉴权失败等其他状态绝不推送，防止空数据覆盖云端已有内容
+    const _realLocal = (currentUser.favorites||[]).filter(f=>f.id!==NOTE_CARRIER_ID);
+    const _hasNotes = currentUser.notes && Object.keys(currentUser.notes).length > 0;
+    if(_realLocal.length || _hasNotes){
+      try{ await syncPushToCloud(); }catch(e){ console.warn("账号自愈推送失败", e.message); }
+    }
   }
   syncNoteIco();
   lastSyncTs = Date.now(); updateSyncDotTitle(); // 记录上次同步时间，便于用户确认自动同步真的在发生
