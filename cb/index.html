@@ -2044,7 +2044,7 @@ function renderUserArea(){
     ua.innerHTML='<span class="user-info" id="pcUserInfo"><img class="avatar" src="'+avatarUrl+'" alt="头像" referrerpolicy="no-referrer"><span class="uname">'+currentUser.username+'</span>'+syncDot+'<div class="u-dropdown" id="pcUDrop"><button id="btnLogout">🚪 退出登录</button></div></span>';
     $("#pcUserInfo").onclick=(e)=>{e.stopPropagation();const d=document.getElementById("pcUDrop");d.classList.toggle("show");};
     $("#btnLogout").onclick=(e)=>{e.stopPropagation();document.getElementById("pcUDrop").classList.remove("show");
-      currentUser=null;saveToken(null); if(window.CBAuth) CBAuth.logout();
+      currentUser=null;saveToken(null);saveCur(null); if(window.CBAuth) CBAuth.logout();
       renderUserArea();updateFavTab();
       if(activeTab==="fav"){activeTab="pend";$("#tab-pend").click();}
       toast("已退出登录");
@@ -3263,6 +3263,19 @@ async function initApp(){
   updateProgressSnapshot(PROGRESS);
   renderBroadcast();
   renderProgress();
+
+  // 【修复·账号统一】以云端 CBAuth 为唯一登录事实源：门户页/cb页同域共享 cb_auth_token，
+  // 若云端已登录，本地当前用户必须与云端账号一致，否则门户页登录了A、本页却显示B/未登录且同步错位
+  if(window.CBAuth && CBAuth.isLoggedIn()){
+    var _cu=(CBAuth.getUser()||'').trim();
+    var _lc=getCur();
+    if(_cu && _cu!==_lc){
+      saveCur(_cu);
+      var _us=loadUsers();
+      if(!_us[_cu]) _us[_cu]={favorites:[],notes:{}};
+      saveUsers(_us);
+    }
+  }
 
   // 从 localStorage 读取登录状态（同步，即时完成）
   currentUser=fetchCurrentUser();
