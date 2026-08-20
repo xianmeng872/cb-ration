@@ -2235,9 +2235,10 @@ async function syncPushToCloud(){
     const body = JSON.stringify({ securityCode: rec.securityCode||"", favorites: merged.concat([notesCarrier]), notes: rec.notes||{}, usageCount: rec.usageCount||0, unlocked: !!rec.unlocked, inviteCode: rec.inviteCode||"" });
     const _apiPath = '/api/sync?u=' + encodeURIComponent(u);
     let res = await CBAuth.api(_apiPath, {method:'POST', body: body});
-    if(!res.ok){ await new Promise(r=>setTimeout(r,1500)); res = await CBAuth.api(_apiPath, {method:'POST', body: body}); }
-    if(res.ok){ try{ localStorage.setItem("cb_lastpush_"+u, String(Date.now())); }catch(e){} }
-    return res.ok;
+    // 【修复·根因】CBAuth.api 返回 {status,data} 无 ok 字段，必须按 status 判断，否则恒判失败
+    if(res.status !== 200){ await new Promise(r=>setTimeout(r,1500)); res = await CBAuth.api(_apiPath, {method:'POST', body: body}); }
+    if(res.status === 200){ try{ localStorage.setItem("cb_lastpush_"+u, String(Date.now())); }catch(e){} }
+    return res.status === 200;
   }catch(e){ console.warn("Cloud推送失败:", e.message); return false; }
 }
 // 从云端拉取指定用户的记录（用密码派生令牌鉴权）
@@ -2247,7 +2248,7 @@ async function syncPullFromCloud(username, password){
     const res = await CBAuth.api('/api/sync?u=' + encodeURIComponent(username), {method:'GET'});
     if(res.status === 404) return {status:'notfound'};
     if(res.status === 403) return {status:'error', code:'forbidden'};
-    if(!res.ok) return {status:'error', code:'http'+res.status};
+    if(res.status !== 200) return {status:'error', code:'http'+res.status};
     const data = res.data;
     if(data && data.data) return {status:'ok', data: data.data};
     return {status:'error', code:'badshape'};
