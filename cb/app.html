@@ -517,6 +517,7 @@ function migrateLocalNotes(){try{if(!currentUser)return;const u=getCur();if(!u)r
 function syncNoteIco(){document.querySelectorAll('.note-col-c,.note-ico-m').forEach(function(el){var t=getNote(el.dataset.noteId);el.classList.toggle('has',!!t);});}
 </script>
 <style id="noteKbFix">.noteMask{overflow-y:auto !important;-webkit-overflow-scrolling:touch}.noteModal{margin:auto !important;max-height:calc(100vh - 32px)}#noteTa{font-size:16px}</style>
+  <script src="../auth-client.js"></script>
 </head>
 <body>
 <div class="hero">
@@ -1753,7 +1754,7 @@ function renderUserArea(){
     ua.innerHTML='<span class="user-info" id="pcUserInfo"><img class="avatar" src="'+avatarUrl+'" alt="头像" referrerpolicy="no-referrer"><span class="uname">'+currentUser.username+'</span>'+syncDot+'<div class="u-dropdown" id="pcUDrop"><button id="btnLogout">🚪 退出登录</button></div></span>';
     $("#pcUserInfo").onclick=(e)=>{e.stopPropagation();const d=document.getElementById("pcUDrop");d.classList.toggle("show");};
     $("#btnLogout").onclick=(e)=>{e.stopPropagation();document.getElementById("pcUDrop").classList.remove("show");
-      currentUser=null;saveToken(null);
+      currentUser=null;saveToken(null); if(window.CBAuth) CBAuth.logout();
       renderUserArea();updateFavTab();
       if(activeTab==="fav"){activeTab="pend";$("#tab-pend").click();}
       toast("已退出登录");
@@ -1796,7 +1797,7 @@ function showUserMenu(){
       +'<button class="user-menu-item danger" id="menuLogout">🚪 退出登录</button>';
     $("#menuLogout").onclick=()=>{
       document.getElementById('userMenuMask').style.display='none';
-      currentUser=null;saveCur(null);
+      currentUser=null;saveCur(null); if(window.CBAuth) CBAuth.logout();
       renderUserArea();updateFavTab();
       if(activeTab==="fav"){activeTab="pend";$("#tab-pend").click();}
       toast("已退出登录");
@@ -1875,72 +1876,79 @@ async function doAuth(){
   $("#authSubmit").disabled=true;
   showAuthError("");
   try{
-    let users=loadUsers();
+    if(!isCloudReady()){
+      showAuthError("云端未就绪，暂时无法登录（请稍后重试）"); return;
+    }
     if(authMode==="login"){
       if(p.length<4){showAuthError("密码至少4位");return;}
-      // 登录：先查本地
-      if(users[u]&&users[u].password===p){
-        // 本地验证通过
-      }else if(isCloudReady()){
-        const rec=await syncPullFromCloud(u,p);
-        if(rec){
-          // 登录：本地与云端合并（云端空不覆盖本地，避免刷新后关注被清空）
-          const localFav = users[u] ? (users[u].favorites||[]) : [];
-          users[u]={password:p,securityCode:rec.securityCode||"",favorites:mergeFavorites(localFav, rec.favorites||[]),notes:{},usageCount:rec.usageCount||0,unlocked:!!rec.unlocked,inviteCode:rec.inviteCode||""};saveUsers(users);
-        }else{showAuthError("用户名或密码错误");return;}
-      }else if(isGistReady()){
-        const cloud=await syncPullFromGist();
-        if(cloud&&cloud.users&&cloud.users[u]&&cloud.users[u].password===p){
-          users[u]=cloud.users[u];saveUsers(users);
-        }else{showAuthError("用户名或密码错误");return;}
-      }else{showAuthError("用户名或密码错误");return;}
-      finishAuth(u,users,"登录成功，欢迎回来 "+u);
+      const r = await CBAuth.login(u, p);
+      if(r.ok){ await cloudFinishLogin(u, p, false); return; }
+      // 云端登录失败：若本机已有该账号且密码一致，则自动注册上云（老账号迁移，不丢数据）
+      const users=loadUsers();
+      if(users[u] && users[u].password===p){
+        const sec = users[u].securityCode || genSecFor(u);
+        const reg = await CBAuth.register(u, p, sec);
+        if(reg.ok){ await cloudFinishLogin(u, p, true, sec); toast("✅ 已自动把本机账号同步到云端，手机端现在也能登录"); return; }
+      }
+      showAuthError("用户名或密码错误"); return;
     }else if(authMode==="register"){
       if(p.length<4){showAuthError("密码至少4位");return;}
       const sec=$("#authSec").value.trim();
       if(!sec||sec.length<4){showAuthError("安全码至少4位");return;}
       if(sec.length>6){showAuthError("安全码最多6位");return;}
-      if(users[u]){showAuthError("该用户名已被注册");return;}
-      if(isCloudReady()){
-        if(await cloudUsernameExists(u)){showAuthError("该用户名已被注册");return;}
-      }else if(isGistReady()){
-        const cloud=await syncPullFromGist();
-        if(cloud&&cloud.users&&cloud.users[u]){showAuthError("该用户名已被注册");return;}
-      }
-      users[u]={password:p,securityCode:sec,favorites:[],notes:{}};
-      saveUsers(users);
-      finishAuth(u,users,"注册成功，已自动登录（请牢记安全码）");
+      const reg = await CBAuth.register(u, p, sec);
+      if(reg.ok){ await cloudFinishLogin(u, p, true, sec); return; }
+      if(reg.error && reg.error.indexOf("已被注册")>=0){ showAuthError("该用户名已被注册，请直接登录"); return; }
+      showAuthError(reg.error||"注册失败"); return;
     }else if(authMode==="forgot"){
-      // 忘记密码：验证用户名+安全码 → 设新密码
-      if(!users[u]){showAuthError("用户名不存在");return;}
       const sec=$("#authSec").value.trim();
-      if(!sec){showAuthError("请输入安全码");return;}
-      if(users[u].securityCode!==sec){
-        // 尝试云端安全码
-        let matched=false;
-        if(isGistReady()){
-          const cloud=await syncPullFromGist();
-          if(cloud&&cloud.users&&cloud.users[u]&&cloud.users[u].securityCode===sec){
-            matched=true;
-          }
-        }
-        if(!matched){showAuthError("安全码不正确");return;}
-      }
       const np=$("#authNewPass").value;
+      if(!sec){showAuthError("请输入安全码");return;}
       if(np.length<4){showAuthError("新密码至少4位");return;}
-      users[u].password=np;
-      saveUsers(users);
-      if(isGistReady())scheduleSyncPush();
-      showAuthModal(false);
-      setAuthMode("login");
-      $("#authUser").value=u;
-      toast("✅ 密码重置成功，请用新密码登录");
+      const r = await CBAuth.forgot(u, sec, np);
+      if(r.ok){
+        const users=loadUsers(); if(users[u]){ users[u].password=np; saveUsers(users); }
+        showAuthModal(false); setAuthMode("login"); $("#authUser").value=u;
+        toast("✅ 密码重置成功，请用新密码登录");
+      }else{
+        showAuthError(r.error||"重置失败");
+      }
+      return;
     }
   }catch(e){
     showAuthError(e.message);
   }finally{
     $("#authSubmit").disabled=false;
   }
+}
+async function cloudFinishLogin(u, p, isNew, sec){
+  saveCur(u);
+  let users=loadUsers();
+  if(!users[u]) users[u]={favorites:[],notes:{}};
+  users[u].password=p;
+  if(sec) users[u].securityCode=sec;
+  if(!users[u].favorites) users[u].favorites=[];
+  if(!users[u].notes) users[u].notes={};
+  saveUsers(users);
+  currentUser=fetchCurrentUser();
+  migrateLocalNotes();
+  showAuthModal(false); renderUserArea();
+  if(activeTab==="pend")renderPend();
+  if(activeTab==="progress")renderProgress();
+  if(activeTab==="fav")renderFav();
+  if(isCloudReady()){
+    if(isNew){ scheduleSyncPush(); syncPushToCloud().then(ok=>{ if(ok) console.log("✅ 账号数据已同步云端"); }); }
+    else { try{ await tryPullCloud(); }catch(e){} }
+  }
+  toast(isNew?("✅ 注册成功，已登录（请牢记安全码）"):("✅ 登录成功，欢迎回来 "+u));
+}
+function genSecFor(u){
+  let users=loadUsers();
+  if(users[u] && users[u].securityCode) return users[u].securityCode;
+  const s = String(Math.floor(1000 + Math.random()*9000));
+  users[u] = users[u] || {favorites:[],notes:{}};
+  users[u].securityCode = s; saveUsers(users);
+  return s;
 }
 function finishAuth(u,users,msg){
   saveCur(u);
@@ -2190,8 +2198,8 @@ async function syncPushToCloud(){
   if(!isCloudReady() || !currentUser) return false;
   const u = getCur(); const users = loadUsers(); const rec = users[u];
   if(!rec) return false;
+  if(!window.CBAuth || !CBAuth.isLoggedIn()) return false;
   try{
-    const t = cfAuthToken(u, rec.password || "");
     // 【修复·多端不同步根因】云端 POST 是"覆盖写"，若直接用本设备 favorites 覆盖云端，会把另一端关注冲掉。
     // 改为 push 前先 pull 云端最新 -> 本地∪云端合并成全集 -> 再写回，云端始终是全集，多端不再互相覆盖。
     let cloudFavs = [], cloudNotes = {};
@@ -2217,22 +2225,21 @@ async function syncPushToCloud(){
     rec.favorites = merged; saveUsers(users);
     const notesCarrier = { id: NOTE_CARRIER_ID, seen:"", note: JSON.stringify(rec.notes||{}) };
     const body = JSON.stringify({ securityCode: rec.securityCode||"", favorites: merged.concat([notesCarrier]), notes: rec.notes||{}, usageCount: rec.usageCount||0, unlocked: !!rec.unlocked, inviteCode: rec.inviteCode||"" });
-    const url = CF_SYNC_BASE + "/api/sync?u=" + encodeURIComponent(u) + "&t=" + t;
-    let res = await fetch(url, {method:"POST", headers:{"Content-Type":"application/json"}, body});
-    if(!res.ok){ await new Promise(r=>setTimeout(r,1500)); res = await fetch(url, {method:"POST", headers:{"Content-Type":"application/json"}, body}); }
+    const _apiPath = '/api/sync?u=' + encodeURIComponent(u);
+    let res = await CBAuth.api(_apiPath, {method:'POST', body: body});
+    if(!res.ok){ await new Promise(r=>setTimeout(r,1500)); res = await CBAuth.api(_apiPath, {method:'POST', body: body}); }
     if(res.ok){ try{ localStorage.setItem("cb_lastpush_"+u, String(Date.now())); }catch(e){} }
     return res.ok;
   }catch(e){ console.warn("Cloud推送失败:", e.message); return false; }
 }
 // 从云端拉取指定用户的记录（用密码派生令牌鉴权）
 async function syncPullFromCloud(username, password){
-  if(!isCloudReady()) return null;
+  if(!isCloudReady() || !window.CBAuth || !CBAuth.isLoggedIn()) return null;
   try{
-    const t = cfAuthToken(username, password || "");
-    const res = await fetch(CF_SYNC_BASE + "/api/sync?u=" + encodeURIComponent(username) + "&t=" + t, {method:"GET"});
+    const res = await CBAuth.api('/api/sync?u=' + encodeURIComponent(username), {method:'GET'});
     if(res.status === 404 || res.status === 403) return null;
     if(!res.ok) return null;
-    const data = await res.json();
+    const data = res.data;
     return data && data.data ? data.data : null;
   }catch(e){ console.warn("Cloud拉取失败:", e.message); return null; }
 }
@@ -3261,4 +3268,7 @@ syncNoteIco();
 </script>
 <script>(function(){try{var m=document.getElementById('noteMask');var ta=document.getElementById('noteTa');function adj(){try{var vv=window.visualViewport; if(!vv||!m) return;var kb=window.innerHeight - vv.height - vv.offsetTop;m.style.paddingBottom = (kb>0 ? (kb+18) : 18) + 'px';if(ta) setTimeout(function(){ try{ta.scrollIntoView({block:'center'});}catch(e){} }, 120);}catch(e){}}if(window.visualViewport){ window.visualViewport.addEventListener('resize',adj); window.visualViewport.addEventListener('scroll',adj); }if(ta){ ta.addEventListener('focus',function(){ setTimeout(adj,300); }); }window.addEventListener('resize',adj);}catch(e){}})();</script>
 </body>
+  <script>
+  try{ if(window.CBAuth) CBAuth.init({apiBase:(typeof CF_SYNC_BASE!=="undefined"?CF_SYNC_BASE:"")}); }catch(e){ console.warn("CBAuth init 失败", e); }
+  </script>
 </html>
