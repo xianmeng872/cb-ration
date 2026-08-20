@@ -3293,9 +3293,10 @@ async function initApp(){
             }else{
               // 自动注册也被拒（账号已存在）→ 弹登录框让用户手动输入云端那个密码
               toast("⚠️ 自动恢复同步失败，请重新登录（本地密码可能与云端不一致）");
-              try{ document.getElementById("authUser").value = _au; }catch(e){}
-              if(typeof setAuthMode==="function") setAuthMode("login");
+              // 注意：showAuthModal(true) 内部会清空表单字段，所以必须开弹窗后再赋值
               if(typeof showAuthModal==="function") showAuthModal(true);
+              if(typeof setAuthMode==="function") setAuthMode("login");
+              try{ document.getElementById("authUser").value = _au; }catch(e){}
             }
           });
         }
