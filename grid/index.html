@@ -153,14 +153,16 @@
   .risk h4{margin:0 0 8px; color:var(--ink); font-size:14px;}
   .risk ul{margin:0; padding-left:18px; font-size:13px; color:var(--ink); line-height:1.8;}
 
-  /* 暂停/清仓信号（折叠） */
-  .signal-foot{margin:0 0 14px;}
-  .signal-foot summary{list-style:none; cursor:pointer; font-size:11px; color:var(--sub); user-select:none; display:inline-flex; align-items:center; gap:6px;}
-  .signal-foot summary::-webkit-details-marker{display:none;}
-  .signal-foot summary::after{content:'▾'; font-size:10px; transition:transform .18s;}
-  .signal-foot[open] summary::after{transform:rotate(180deg);}
-  .signal-foot summary:hover{color:var(--ink);}
-  .signal-foot .signal-body{background:#fafbfc; border:1px solid var(--line); border-radius:12px; padding:16px; margin-top:10px;}
+  /* 网格纪律悬浮按钮 + 弹出层 */
+  .sig-fab{position:fixed; right:18px; bottom:52px; z-index:98; display:flex; align-items:center; gap:7px; padding:10px 16px; border:none; border-radius:22px; background:var(--brand); color:#fff; font-size:13px; font-weight:600; cursor:pointer; box-shadow:0 4px 14px rgba(16,31,60,.18); transition:transform .15s, box-shadow .15s;}
+  .sig-fab:hover{transform:translateY(-2px); box-shadow:0 6px 18px rgba(16,31,60,.26);}
+  .sig-fab .fab-dot{width:8px; height:8px; border-radius:50%; background:#ffd24d; box-shadow:0 0 0 3px rgba(255,210,77,.22);}
+  .sig-pop{position:fixed; right:18px; bottom:112px; z-index:99; width:min(430px, calc(100vw - 36px)); max-height:min(560px, calc(100vh - 140px)); overflow-y:auto; background:#fff; border:1px solid var(--line); border-radius:14px; box-shadow:0 12px 40px rgba(16,31,60,.16); padding:16px 18px 14px;}
+  .sig-pop[hidden]{display:none;}
+  .sig-pop-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;}
+  .sig-pop-title{font-size:14px; font-weight:700; color:var(--ink);}
+  .sig-pop-close{border:none; background:#eef1f6; color:var(--sub); width:24px; height:24px; border-radius:50%; font-size:13px; cursor:pointer; line-height:1;}
+  .sig-pop-close:hover{background:#dfe4ea; color:var(--ink);}
   .signal-intro{font-size:12px; color:var(--sub); margin-bottom:14px; line-height:1.6;}
   .signal-group{margin-bottom:18px;}
   .signal-group:last-child{margin-bottom:0;}
@@ -419,43 +421,46 @@
     </div>
   </div>
 
-  <details class="signal-foot">
-    <summary>暂停 / 清仓信号（网格纪律）</summary>
-    <div class="signal-body">
-      <div class="signal-intro">网格跑起来后盯紧这几个信号，亮起来就要动手——一条都别侥幸：</div>
-      <div class="signal-group">
-        <h5 class="signal-h5 sig-pause">暂停网格（关掉自动买入，但底仓留着等）</h5>
-        <table class="sig-table">
-          <thead><tr><th style="width:46%">信号</th><th>含义</th></tr></thead>
-          <tbody>
-            <tr><td>均线死叉（5日下穿20日，20日拐头向下）</td><td>中期趋势转弱，别逆势接刀</td></tr>
-            <tr><td>跌破前低（如跌回 0.895 以下）</td><td>反弹失败，新一轮下跌开始</td></tr>
-            <tr><td>网格连续只买不买（3格以上）</td><td>价格单边下行，网格已失灵</td></tr>
-            <tr><td>逼近最大持仓（买满 6500 股）</td><td>子弹打光，没法再摊</td></tr>
-            <tr><td>跌穿下限且停留（0.850 以下待着）</td><td>网眼下方摞弃，接不住</td></tr>
-            <tr><td>下跌放量（跌日成交放大）</td><td>资金在出逃，配合上面任一条更危险</td></tr>
-          </tbody>
-        </table>
-        <div class="signal-tip">上面任一亮起 → <b>暂停网格</b>（关掉自动买入，但底仓留着等）。</div>
-      </div>
-      <div class="signal-group">
-        <h5 class="signal-h5 sig-clear">清仓（暂停信号 + 任一重信号）</h5>
-        <table class="sig-table">
-          <thead><tr><th style="width:46%">重信号</th><th>含义</th></tr></thead>
-          <tbody>
-            <tr><td>长期均线（60日）空头排列</td><td>长期趋势彻底坏，不是短期回调</td></tr>
-            <tr><td>板块逻辑破坏（行业大利空）</td><td>这个标的本身出问题了，不值得留</td></tr>
-            <tr><td>跌破下限后越跌越深、看不到支撑</td><td>接不住，连底仓都危险</td></tr>
-          </tbody>
-        </table>
-        <div class="signal-tip">暂停 + 任一重信号同时出现 → <b>清仓</b>（连底仓一起走）。</div>
-      </div>
-    </div>
-  </details>
-
   <footer>
     本工具仅基于价格 / 成交量走势做网格适配判断，不构成投资建议。转债的到期日、转股价、评级等请以 F10 为准。
   </footer>
+</div>
+
+<!-- 网格纪律悬浮按钮 + 弹出层 -->
+<button class="sig-fab" id="sig-fab"><span class="fab-dot"></span>网格纪律</button>
+<div class="sig-pop" id="sig-pop" hidden>
+  <div class="sig-pop-head">
+    <span class="sig-pop-title">暂停 / 清仓信号</span>
+    <button class="sig-pop-close" id="sig-pop-close">×</button>
+  </div>
+  <div class="signal-intro">网格跑起来后盯紧这几个信号，亮起来就要动手——一条都别侥幸：</div>
+  <div class="signal-group">
+    <h5 class="signal-h5 sig-pause">暂停网格（关掉自动买入，但底仓留着等）</h5>
+    <table class="sig-table">
+      <thead><tr><th style="width:46%">信号</th><th>含义</th></tr></thead>
+      <tbody>
+        <tr><td>均线死叉（5日下穿20日，20日拐头向下）</td><td>中期趋势转弱，别逆势接刀</td></tr>
+        <tr><td>跌破前低（如跌回 0.895 以下）</td><td>反弹失败，新一轮下跌开始</td></tr>
+        <tr><td>网格连续只买不买（3格以上）</td><td>价格单边下行，网格已失灵</td></tr>
+        <tr><td>逼近最大持仓（买满 6500 股）</td><td>子弹打光，没法再摊</td></tr>
+        <tr><td>跌穿下限且停留（0.850 以下待着）</td><td>网眼下方摞弃，接不住</td></tr>
+        <tr><td>下跌放量（跌日成交放大）</td><td>资金在出逃，配合上面任一条更危险</td></tr>
+      </tbody>
+    </table>
+    <div class="signal-tip">上面任一亮起 → <b>暂停网格</b>（关掉自动买入，但底仓留着等）。</div>
+  </div>
+  <div class="signal-group">
+    <h5 class="signal-h5 sig-clear">清仓（暂停信号 + 任一重信号）</h5>
+    <table class="sig-table">
+      <thead><tr><th style="width:46%">重信号</th><th>含义</th></tr></thead>
+      <tbody>
+        <tr><td>长期均线（60日）空头排列</td><td>长期趋势彻底坏，不是短期回调</td></tr>
+        <tr><td>板块逻辑破坏（行业大利空）</td><td>这个标的本身出问题了，不值得留</td></tr>
+        <tr><td>跌破下限后越跌越深、看不到支撑</td><td>接不住，连底仓都危险</td></tr>
+      </tbody>
+    </table>
+    <div class="signal-tip">暂停 + 任一重信号同时出现 → <b>清仓</b>（连底仓一起走）。</div>
+  </div>
 </div>
 
 <!-- 登录/注册弹窗由 auth-client.js 动态注入 -->
@@ -1248,6 +1253,15 @@ if(CBAuth.isLoggedIn()){ wgAfterAuth(); }
 /* 启动：本地缓存优先渲染，已登录则后台拉取云端方案 */
 (function wgInit(){
   wgSetBar();wgRenderLib();
+})();
+
+/* 网格纪律悬浮按钮：点开/关闭弹出层 */
+(function sigFabInit(){
+  const fab=$('#sig-fab'), pop=$('#sig-pop'), close=$('#sig-pop-close');
+  if(!fab||!pop) return;
+  fab.addEventListener('click',e=>{ e.stopPropagation(); pop.hidden=!pop.hidden; });
+  close.addEventListener('click',e=>{ e.stopPropagation(); pop.hidden=true; });
+  document.addEventListener('click',e=>{ if(!pop.hidden && !pop.contains(e.target)) pop.hidden=true; });
 })();
 </script>
 </body>
