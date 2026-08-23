@@ -157,11 +157,15 @@
   .sig-fab{position:fixed; right:18px; bottom:52px; z-index:98; display:flex; align-items:center; gap:7px; padding:10px 16px; border:none; border-radius:22px; background:var(--brand); color:#fff; font-size:13px; font-weight:600; cursor:pointer; box-shadow:0 4px 14px rgba(16,31,60,.18); transition:transform .15s, box-shadow .15s;}
   .sig-fab:hover{transform:translateY(-2px); box-shadow:0 6px 18px rgba(16,31,60,.26);}
   .sig-fab .fab-dot{width:8px; height:8px; border-radius:50%; background:#ffd24d; box-shadow:0 0 0 3px rgba(255,210,77,.22);}
-  .sig-pop{position:fixed; right:18px; bottom:112px; z-index:99; width:min(430px, calc(100vw - 36px)); max-height:min(560px, calc(100vh - 140px)); overflow-y:auto; background:#fff; border:1px solid var(--line); border-radius:14px; box-shadow:0 12px 40px rgba(16,31,60,.16); padding:16px 18px 14px;}
+  .sig-mask{position:fixed; inset:0; z-index:99; background:rgba(20,30,48,.45); animation:sigFadeIn .18s ease;}
+  .sig-mask[hidden]{display:none;}
+  .sig-pop{position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:100; width:min(520px, 92vw); max-height:80vh; overflow-y:auto; background:#fff; border-radius:16px; box-shadow:0 20px 60px rgba(20,30,48,.28); padding:20px 22px 16px; animation:sigPopIn .22s cubic-bezier(.22,1,.36,1);}
   .sig-pop[hidden]{display:none;}
-  .sig-pop-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;}
-  .sig-pop-title{font-size:14px; font-weight:700; color:var(--ink);}
-  .sig-pop-close{border:none; background:#eef1f6; color:var(--sub); width:24px; height:24px; border-radius:50%; font-size:13px; cursor:pointer; line-height:1;}
+  @keyframes sigFadeIn{from{opacity:0} to{opacity:1}}
+  @keyframes sigPopIn{from{opacity:0; transform:translate(-50%,-46%)} to{opacity:1; transform:translate(-50%,-50%)}}
+  .sig-pop-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid var(--line);}
+  .sig-pop-title{font-size:15px; font-weight:700; color:var(--ink);}
+  .sig-pop-close{border:none; background:#eef1f6; color:var(--sub); width:28px; height:28px; border-radius:50%; font-size:15px; cursor:pointer; line-height:1;}
   .sig-pop-close:hover{background:#dfe4ea; color:var(--ink);}
   .signal-intro{font-size:12px; color:var(--sub); margin-bottom:14px; line-height:1.6;}
   .signal-group{margin-bottom:18px;}
@@ -315,6 +319,8 @@
     .pf-title{font-size:13px;}
     .plan-fold .pf-arrow{min-width:64px; height:30px; padding:0 12px; font-size:13px;}
     .plan-fold .plan-body{padding:14px 16px 16px;}
+    .sig-pop{top:0; left:0; right:0; bottom:0; transform:none; width:100%; max-width:100%; height:100%; max-height:100%; border-radius:0; padding:18px 18px 16px;}
+    .sig-pop-title{font-size:16px;}
     .modal-box{padding:22px 20px; width:300px;}
   }
 </style>
@@ -449,8 +455,9 @@
   </footer>
 </div>
 
-<!-- 网格纪律悬浮按钮 + 弹出层 -->
+<!-- 网格纪律悬浮按钮 + 弹出层（居中模态） -->
 <button class="sig-fab" id="sig-fab"><span class="fab-dot"></span>网格纪律</button>
+<div class="sig-mask" id="sig-mask" hidden></div>
 <div class="sig-pop" id="sig-pop" hidden>
   <div class="sig-pop-head">
     <span class="sig-pop-title">暂停 / 清仓信号</span>
@@ -1287,13 +1294,16 @@ if(CBAuth.isLoggedIn()){ wgAfterAuth(); }
   wgSetBar();wgRenderLib();
 })();
 
-/* 网格纪律悬浮按钮：点开/关闭弹出层 */
+/* 网格纪律悬浮按钮：点开/关闭弹出层（居中模态） */
 (function sigFabInit(){
-  const fab=$('#sig-fab'), pop=$('#sig-pop'), close=$('#sig-pop-close');
+  const fab=$('#sig-fab'), pop=$('#sig-pop'), close=$('#sig-pop-close'), mask=$('#sig-mask');
   if(!fab||!pop) return;
-  fab.addEventListener('click',e=>{ e.stopPropagation(); pop.hidden=!pop.hidden; });
-  close.addEventListener('click',e=>{ e.stopPropagation(); pop.hidden=true; });
-  document.addEventListener('click',e=>{ if(!pop.hidden && !pop.contains(e.target)) pop.hidden=true; });
+  const open=()=>{ pop.hidden=false; if(mask) mask.hidden=false; };
+  const closeAll=()=>{ pop.hidden=true; if(mask) mask.hidden=true; };
+  fab.addEventListener('click',e=>{ e.stopPropagation(); pop.hidden?open():closeAll(); });
+  close.addEventListener('click',e=>{ e.stopPropagation(); closeAll(); });
+  if(mask) mask.addEventListener('click', closeAll);
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape' && !pop.hidden) closeAll(); });
 })();
 </script>
 </body>
