@@ -195,10 +195,12 @@
   .plan-fold{padding:0; overflow:hidden;}
   .plan-fold summary{list-style:none; cursor:pointer; display:flex; align-items:center; gap:12px; padding:18px 22px; user-select:none;}
   .plan-fold summary::-webkit-details-marker{display:none;}
-  .plan-fold .pf-arrow{display:inline-flex; align-items:center; justify-content:center; margin-left:auto; width:28px; height:28px; border-radius:50%; background:#eef2f8; color:var(--brand); font-size:14px; font-weight:700; transition:transform .18s, background .18s;}
-  .plan-fold[open] .pf-arrow{transform:rotate(180deg); background:var(--brand); color:#fff;}
+  .plan-fold .pf-arrow{display:inline-flex; align-items:center; justify-content:center; margin-left:auto; min-width:72px; height:34px; padding:0 14px; border-radius:18px; background:var(--brand); color:#fff; font-size:14px; font-weight:700; letter-spacing:.3px; box-shadow:0 2px 6px rgba(85,115,168,.32); transition:background .18s, box-shadow .18s;}
+  .plan-fold .pf-arrow::before{content:'展开 ▾';}
+  .plan-fold[open] .pf-arrow{background:#384e80;}
+  .plan-fold[open] .pf-arrow::before{content:'收起 ▴';}
   .plan-fold summary:hover{background:#fafbfc;}
-  .plan-fold summary:hover .pf-arrow{background:#dde6f3;}
+  .plan-fold summary:hover .pf-arrow{background:#455f96; box-shadow:0 3px 9px rgba(85,115,168,.42);}
   .plan-fold[open] summary{border-bottom:1px solid var(--line); background:#fafbfc;}
   .pf-title{font-size:14px; font-weight:700; color:var(--ink);}
   .pf-sub{font-size:11.5px; color:var(--sub);}
@@ -311,7 +313,7 @@
     .mini.danger{background:#fff5f5; padding:3px 10px;}
     .plan-fold summary{padding:14px 16px; gap:10px;}
     .pf-title{font-size:13px;}
-    .plan-fold .pf-arrow{width:26px; height:26px; font-size:12px;}
+    .plan-fold .pf-arrow{min-width:64px; height:30px; padding:0 12px; font-size:13px;}
     .plan-fold .plan-body{padding:14px 16px 16px;}
     .modal-box{padding:22px 20px; width:300px;}
   }
