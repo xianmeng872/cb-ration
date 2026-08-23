@@ -152,6 +152,20 @@
   .risk{background:#f8fafc; border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-top:8px;}
   .risk h4{margin:0 0 8px; color:var(--ink); font-size:14px;}
   .risk ul{margin:0; padding-left:18px; font-size:13px; color:var(--ink); line-height:1.8;}
+
+  /* 暂停/清仓信号 */
+  .signal-intro{font-size:12px; color:var(--sub); margin-bottom:14px; line-height:1.6;}
+  .signal-group{margin-bottom:18px;}
+  .signal-group:last-child{margin-bottom:0;}
+  .signal-h5{margin:0 0 10px; font-size:13px; font-weight:700; padding:6px 12px; border-radius:8px; display:inline-block;}
+  .sig-pause{background:#fff7e8; color:#a05000; border:1px solid #f5d9a8;}
+  .sig-clear{background:#fdeaea; color:#a32a2a; border:1px solid #f5c0c0;}
+  .sig-table{width:100%; border-collapse:collapse; font-size:12.5px; margin-bottom:8px; background:#fafbfc; border-radius:10px; overflow:hidden;}
+  .sig-table th,.sig-table td{padding:9px 12px; text-align:left; border-bottom:1px solid var(--line); color:var(--ink); line-height:1.55;}
+  .sig-table th{background:#eef1f6; color:var(--sub); font-weight:600; font-size:11px; letter-spacing:.3px;}
+  .sig-table tr:last-child td{border-bottom:none;}
+  .signal-tip{font-size:11.5px; color:var(--sub); margin-top:8px; line-height:1.65;}
+  .signal-tip b{color:var(--ink);}
   footer{margin-top:40px; font-size:12px; color:#9aa6b8; line-height:1.8; text-align:center;}
   .src{font-size:11px; color:#9aa6b8; margin-top:10px;}
 
@@ -395,6 +409,12 @@
     <div class="panel">
       <p class="sec-title">风险提示与纪律</p>
       <div class="risk" id="risk-box"></div>
+    </div>
+
+    <!-- 暂停/清仓信号 -->
+    <div class="panel">
+      <p class="sec-title">暂停 / 清仓信号</p>
+      <div class="signal" id="signal-box"></div>
     </div>
   </div>
 
@@ -721,6 +741,43 @@ function render(){
   renderStrategy(type, m, g, perHand);
   // 风险
   renderRisk(type, m, g, total, scores);
+  // 暂停/清仓信号
+  renderSignal();
+}
+function renderSignal(){
+  const intro = '网格跑起来后盯紧这几个信号，亮起来就要动手——一条都别侥幸：';
+  const pauseRows = [
+    ['均线死叉（5日下穿20日，20日拐头向下）', '中期趋势转弱，别逆势接刀'],
+    ['跌破前低（如跌回 0.895 以下）', '反弹失败，新一轮下跌开始'],
+    ['网格连续只买不买（3格以上）', '价格单边下行，网格已失灵'],
+    ['逼近最大持仓（买满 6500 股）', '子弹打光，没法再摊'],
+    ['跌穿下限且停留（0.850 以下待着）', '网眼下方摞弃，接不住'],
+    ['下跌放量（跌日成交放大）', '资金在出逃，配合上面任一条更危险'],
+  ];
+  const clearRows = [
+    ['长期均线（60日）空头排列', '长期趋势彻底坏，不是短期回调'],
+    ['板块逻辑破坏（行业大利空）', '这个标的本身出问题了，不值得留'],
+    ['跌破下限后越跌越深、看不到支撑', '接不住，连底仓都危险'],
+  ];
+  $('#signal-box').innerHTML = `
+    <div class="signal-intro">${intro}</div>
+    <div class="signal-group">
+      <h5 class="signal-h5 sig-pause">暂停网格（关掉自动买入，但底仓留着等）</h5>
+      <table class="sig-table">
+        <thead><tr><th style="width:46%">信号</th><th>含义</th></tr></thead>
+        <tbody>${pauseRows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</tbody>
+      </table>
+      <div class="signal-tip">上面任一亮起 → <b>暂停网格</b>（关掉自动买入，但底仓留着等）。</div>
+    </div>
+    <div class="signal-group">
+      <h5 class="signal-h5 sig-clear">清仓（暂停信号 + 任一重信号）</h5>
+      <table class="sig-table">
+        <thead><tr><th style="width:46%">重信号</th><th>含义</th></tr></thead>
+        <tbody>${clearRows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</tbody>
+      </table>
+      <div class="signal-tip">暂停 + 任一重信号同时出现 → <b>清仓</b>（连底仓一起走）。</div>
+    </div>
+  `;
 }
 function cell(k,v){return `<div class="data-cell"><div class="k">${k}</div><div class="v">${v}</div></div>`;}
 function fmtWan(w){ if(w>=10000) return (w/10000).toFixed(2)+'亿'; return w.toFixed(0)+'万'; }
