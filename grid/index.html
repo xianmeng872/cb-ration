@@ -367,7 +367,7 @@
         <div class="gp-cell hidden" id="cell-buy"><div class="k">拐点幅度%</div><input id="g-buy" type="number" step="0.1"></div>
         <div class="gp-cell"><div class="k">价格上限(清仓)</div><div class="v" id="g-up">—</div></div>
         <div class="gp-cell"><div class="k">价格下限(价值线)</div><div class="v" id="g-down">—</div></div>
-        <div class="gp-cell"><div class="k">硬止损</div><div class="v" id="g-stop">—</div></div>
+        <div class="gp-cell"><div class="k">加仓警戒线</div><div class="v" id="g-stop">—</div></div>
         <div class="gp-cell hl"><div class="k">最小底仓(股/张)</div><div class="v" id="g-minbase">—</div></div>
         <div class="gp-cell hl"><div class="k">最大持仓(股/张)</div><div class="v" id="g-maxhold">—</div></div>
       </div>
@@ -763,7 +763,7 @@ function renderLevels(type, m, g, perHand, sellPct, buyPct){
       logic = '跌至目标价即买入';
       if(note) logic += '（' + note + '）';
     }
-    if(p<=g.stop) {cls='stop'; note='破止损·撤买'; logic='已破止损线，停止买入，防继续下行被套'; trigger=p;}
+    if(p<=g.stop) {cls='stop'; note='破警戒·停买'; logic='已破加仓警戒线，停止买入，防继续下行被套'; trigger=p;}
     rows += lvRow(`-${g.gap*i}%`, p, trigger, cls, '买', handCount, perLot, perAmtReal, uname, note, logic);
   }
   tb.innerHTML = rows;
@@ -788,7 +788,7 @@ function renderParamReason(type, m, g, perHand){
     `间距 <b>${g.gap}%</b>：取近20日(${m.avgAmp20.toFixed(2)}%)与近70日(${m.avgAmp.toFixed(2)}%)日均振幅较小值 ${m.baseAmp.toFixed(2)}%，向下取0.5%档；为双边成本 ${g.effCostPct}% 的 ${(g.gap/g.effCostPct).toFixed(0)} 倍，不白忙。`,
     `上限 <b>${g.up.toFixed(3)}</b>：基准价向上 ${g.upSteps} 档（+${upPct}%），触及即清仓；若超近70日高点 ${m.periodHigh.toFixed(3)} 8% 以上会下调，防卖飞。`,
     `下限 <b>${g.down.toFixed(3)}</b>：基准价向下 ${g.downSteps} 档（-${downPct}%）；若跌破近70日低点 ${m.periodLow.toFixed(3)} 8% 以上会上调，防极端低位过度加仓。`,
-    `硬止损 <b>${g.stop.toFixed(3)}</b>：下限再下 3%，破线停止买入，防趋势破位不断补仓。`,
+    `加仓警戒线 <b>${g.stop.toFixed(3)}</b>：下限再下 3%，跌破即停止买入，防趋势破位不断补仓。`,
     `仓位资金：每格 <b>${handCount} 手</b>（${perLot*handCount}${uname}≈¥${perAmtReal.toFixed(0)}），共 ${g.downSteps+1} 个买入档，全部买满约需 <b>¥${totalInvest.toFixed(0)}</b>；最小底仓 ${minBase}${uname}，最大持仓 ${maxHold}${uname}。`
   ];
   if(type==='bond' && g.bond && g.bond.redeemAfterTax){
@@ -847,12 +847,12 @@ function renderRisk(type, m, g, total, scores){
   items.push('网格间距 '+g.gap+'% 必须 &gt; 双边成本 '+g.effCostPct+'%，否则每格来回都亏——本方案已满足。');
   items.push(type==='stock'?'股票 T+1：当天买的不能当天卖，但网格卖的是之前攒的库存，正常隔日轮动不受影响。':'可转债 T+0：当天可反复买卖，网格触发更灵活。');
   if(type==='bond'){
-    items.push('转债下沿 '+g.down.toFixed(2)+' 为价值/区间线，破 '+g.stop.toFixed(2)+' 才撤买，防违约风险定价。');
+    items.push('转债下沿 '+g.down.toFixed(2)+' 为价值/区间线，破 '+g.stop.toFixed(2)+' 停止买入，防违约风险定价。');
     if(!g.bond || !g.bond.due) items.push('未填到期日：临期债（&lt;1年）价格会向到期价值回归，务必在 F10 核对到期日，到期前清仓。');
     else items.push('到期日 '+g.bond.due+'：临期债价格向到期价值回归，须在此日前清仓或处理。');
     if(!g.bond || !g.bond.redeemAfterTax) items.push('税后赎回价未知：填了它，下沿会自动抬到保本线，避免把价值中枢当止损割在地板上。');
   }else{
-    items.push('上下限按当前走势不对称设置：上方卖档 '+g.upSteps+' 档、下方买档 '+g.downSteps+' 档（高位压缩买档、低位加厚买档），再用近 70 日区间做软约束；下沿 '+g.down.toFixed(2)+' 为防守线，破线撤买，不无限制补仓。');
+    items.push('上下限按当前走势不对称设置：上方卖档 '+g.upSteps+' 档、下方买档 '+g.downSteps+' 档（高位压缩买档、低位加厚买档），再用近 70 日区间做软约束；下沿 '+g.down.toFixed(2)+' 为防守线，破 '+g.stop.toFixed(2)+' 警戒线停买，不无限制补仓。');
   }
   items.push('流动性偏薄时单格别下重，避免扫穿盘口、滑点变大。');
   $('#risk-box').innerHTML = `<h4>风险提示与纪律</h4><ul>${items.map(i=>`<li>${i}</li>`).join('')}</ul>`;
