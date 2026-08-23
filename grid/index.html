@@ -153,7 +153,17 @@
   .risk h4{margin:0 0 8px; color:var(--ink); font-size:14px;}
   .risk ul{margin:0; padding-left:18px; font-size:13px; color:var(--ink); line-height:1.8;}
 
-  /* 暂停/清仓信号 */
+  /* 暂停/清仓信号（折叠） */
+  .signal-fold{background:#fafbfc; border:1px solid var(--line); border-radius:12px; overflow:hidden;}
+  .signal-fold summary{list-style:none; cursor:pointer; display:flex; align-items:center; gap:10px; padding:12px 16px; user-select:none;}
+  .signal-fold summary::-webkit-details-marker{display:none;}
+  .signal-fold summary::after{content:'▾'; margin-left:auto; font-size:12px; color:var(--sub); transition:transform .18s;}
+  .signal-fold[open] summary::after{transform:rotate(180deg);}
+  .signal-fold summary:hover{background:#f2f5f9;}
+  .signal-fold[open] summary{border-bottom:1px solid var(--line);}
+  .sf-title{font-size:13px; font-weight:700; color:var(--ink);}
+  .sf-sub{font-size:11.5px; color:var(--sub);}
+  .signal-body{padding:16px;}
   .signal-intro{font-size:12px; color:var(--sub); margin-bottom:14px; line-height:1.6;}
   .signal-group{margin-bottom:18px;}
   .signal-group:last-child{margin-bottom:0;}
@@ -760,23 +770,31 @@ function renderSignal(){
     ['跌破下限后越跌越深、看不到支撑', '接不住，连底仓都危险'],
   ];
   $('#signal-box').innerHTML = `
-    <div class="signal-intro">${intro}</div>
-    <div class="signal-group">
-      <h5 class="signal-h5 sig-pause">暂停网格（关掉自动买入，但底仓留着等）</h5>
-      <table class="sig-table">
-        <thead><tr><th style="width:46%">信号</th><th>含义</th></tr></thead>
-        <tbody>${pauseRows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</tbody>
-      </table>
-      <div class="signal-tip">上面任一亮起 → <b>暂停网格</b>（关掉自动买入，但底仓留着等）。</div>
-    </div>
-    <div class="signal-group">
-      <h5 class="signal-h5 sig-clear">清仓（暂停信号 + 任一重信号）</h5>
-      <table class="sig-table">
-        <thead><tr><th style="width:46%">重信号</th><th>含义</th></tr></thead>
-        <tbody>${clearRows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</tbody>
-      </table>
-      <div class="signal-tip">暂停 + 任一重信号同时出现 → <b>清仓</b>（连底仓一起走）。</div>
-    </div>
+    <details class="signal-fold">
+      <summary>
+        <span class="sf-title">暂停 / 清仓信号</span>
+        <span class="sf-sub">6 条暂停 · 3 条清仓，点开看明细</span>
+      </summary>
+      <div class="signal-body">
+        <div class="signal-intro">${intro}</div>
+        <div class="signal-group">
+          <h5 class="signal-h5 sig-pause">暂停网格（关掉自动买入，但底仓留着等）</h5>
+          <table class="sig-table">
+            <thead><tr><th style="width:46%">信号</th><th>含义</th></tr></thead>
+            <tbody>${pauseRows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</tbody>
+          </table>
+          <div class="signal-tip">上面任一亮起 → <b>暂停网格</b>（关掉自动买入，但底仓留着等）。</div>
+        </div>
+        <div class="signal-group">
+          <h5 class="signal-h5 sig-clear">清仓（暂停信号 + 任一重信号）</h5>
+          <table class="sig-table">
+            <thead><tr><th style="width:46%">重信号</th><th>含义</th></tr></thead>
+            <tbody>${clearRows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</tbody>
+          </table>
+          <div class="signal-tip">暂停 + 任一重信号同时出现 → <b>清仓</b>（连底仓一起走）。</div>
+        </div>
+      </div>
+    </details>
   `;
 }
 function cell(k,v){return `<div class="data-cell"><div class="k">${k}</div><div class="v">${v}</div></div>`;}
