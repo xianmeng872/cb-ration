@@ -192,6 +192,17 @@
   .lib-head{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px; flex-wrap:wrap;}
   #plan-list{display:flex; flex-direction:column; gap:8px;}
   .plan-empty{font-size:13px; color:var(--sub); padding:8px 2px;}
+  .plan-fold{padding:0; overflow:hidden;}
+  .plan-fold summary{list-style:none; cursor:pointer; display:flex; align-items:center; gap:10px; padding:18px 20px; user-select:none;}
+  .plan-fold summary::-webkit-details-marker{display:none;}
+  .plan-fold summary::after{content:'▾'; margin-left:auto; font-size:12px; color:var(--sub); transition:transform .18s;}
+  .plan-fold[open] summary::after{transform:rotate(180deg);}
+  .plan-fold summary:hover{background:#fafbfc;}
+  .plan-fold[open] summary{border-bottom:1px solid var(--line); background:#fafbfc;}
+  .pf-title{font-size:14px; font-weight:700; color:var(--ink);}
+  .pf-sub{font-size:11px; color:var(--sub);}
+  .pf-save{margin-left:auto;}
+  .plan-fold .plan-body{padding:16px 20px 18px;}
   .plan-row{display:flex; align-items:center; justify-content:space-between; gap:10px;
     border:1px solid var(--line); border-radius:10px; padding:10px 14px; background:#fbfcfe;}
   .plan-meta{display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:13px;}
@@ -297,8 +308,11 @@
     .plan-time{flex:1; font-size:10px;}
     .plan-acts{flex:1; justify-content:flex-end; gap:8px;}
     .mini{padding:3px 10px; font-size:11px; border-radius:6px;}
-    .mini.danger{border-color:transparent; background:transparent; padding:3px 4px;}
-    .mini.danger:hover{background:#fdeaea;}
+    .mini.danger{background:#fff5f5; padding:3px 10px;}
+    .plan-fold summary{padding:14px 16px; gap:8px; flex-wrap:wrap;}
+    .pf-title{font-size:13px;}
+    .pf-save{margin-left:0; padding:4px 10px; font-size:11px;}
+    .plan-fold .plan-body{padding:14px 16px 16px;}
     .modal-box{padding:22px 20px; width:300px;}
   }
 </style>
@@ -327,14 +341,17 @@
     <div class="status" id="status"></div>
   </div>
 
-  <!-- 方案库 -->
-  <div class="panel hidden" id="plan-lib">
-    <div class="lib-head">
-      <p class="sec-title" style="margin:0">我的方案库（云端同步 · 多端通用）</p>
-      <button class="btn sm" id="wg-save-btn">保存当前方案</button>
+  <!-- 方案库（折叠） -->
+  <details class="panel plan-fold hidden" id="plan-lib">
+    <summary>
+      <span class="pf-title">我的方案库</span>
+      <span class="pf-sub">云端同步 · 多端通用</span>
+      <button class="btn sm pf-save" id="wg-save-btn" onclick="event.stopPropagation()">保存当前方案</button>
+    </summary>
+    <div class="plan-body">
+      <div id="plan-list"></div>
     </div>
-    <div id="plan-list"></div>
-  </div>
+  </details>
 
   <div id="result" class="hidden">
     <!-- 基本信息 -->
