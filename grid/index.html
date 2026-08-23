@@ -345,8 +345,8 @@
   <details class="panel plan-fold hidden" id="plan-lib">
     <summary>
       <span class="pf-title">我的方案库</span>
-      <span class="pf-sub">云端同步 · 多端通用</span>
-      <button class="btn sm pf-save" id="wg-save-btn" onclick="event.stopPropagation()">保存当前方案</button>
+      <span class="pf-sub">云端同步 · 多端通用 · <span id="plan-count">0</span> 个方案</span>
+      <button class="btn sm pf-save" id="wg-save-btn" type="button">保存当前方案</button>
     </summary>
     <div class="plan-body">
       <div id="plan-list"></div>
@@ -1251,6 +1251,8 @@ async function wgDeletePlan(id){
 }
 function wgRenderLib(){
   const el=$('#plan-list');
+  const cnt=$('#plan-count');
+  if(cnt) cnt.textContent=wgGrids.length;
   if(!wgGrids.length){el.innerHTML='<div class="plan-empty">暂无保存的方案。测评一个标的后，点上方"保存当前方案"即可云端保存（多端通用）。</div>';return;}
   el.innerHTML=wgGrids.map(p=>{
     const d=new Date(p.savedAt);const ds=(d.getMonth()+1)+'/'+d.getDate()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
@@ -1264,6 +1266,13 @@ $('#wg-login-btn').addEventListener('click',wgOpenModal);
 $('#wg-logout-btn').addEventListener('click',wgLogout);
 $('#wg-save-btn').addEventListener('click',wgSaveCurrent);
 $('#wg-lib-btn').addEventListener('click',()=>{$('#plan-lib').scrollIntoView({behavior:'smooth'});});
+// 兜底：summary 内 button 点击不应切换 details 展开状态（捕获阶段阻止冒泡）
+$('#plan-lib summary').addEventListener('click',e=>{
+  if(e.target.closest('button,a,input,select,textarea')){
+    e.stopPropagation();
+    e.preventDefault();
+  }
+},true);
 CBAuth.init({apiBase:'https://cb-ration-sync-cb-ration-sync-lvfqccjwzs.cn-shenzhen.fcapp.run',
   onLogin:wgAfterAuth,
   onLogout:function(){wgUser=null;wgGrids=[];wgOnline=false;wgCacheClear();wgSetBar();$('#plan-list').innerHTML='';}});
