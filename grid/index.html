@@ -193,16 +193,16 @@
   #plan-list{display:flex; flex-direction:column; gap:8px;}
   .plan-empty{font-size:13px; color:var(--sub); padding:8px 2px;}
   .plan-fold{padding:0; overflow:hidden;}
-  .plan-fold summary{list-style:none; cursor:pointer; display:flex; align-items:center; gap:10px; padding:18px 20px; user-select:none;}
+  .plan-fold summary{list-style:none; cursor:pointer; display:flex; align-items:center; gap:12px; padding:18px 22px; user-select:none;}
   .plan-fold summary::-webkit-details-marker{display:none;}
-  .plan-fold summary::after{content:'▾'; margin-left:auto; font-size:12px; color:var(--sub); transition:transform .18s;}
-  .plan-fold[open] summary::after{transform:rotate(180deg);}
+  .plan-fold .pf-arrow{display:inline-flex; align-items:center; justify-content:center; margin-left:auto; width:28px; height:28px; border-radius:50%; background:#eef2f8; color:var(--brand); font-size:14px; font-weight:700; transition:transform .18s, background .18s;}
+  .plan-fold[open] .pf-arrow{transform:rotate(180deg); background:var(--brand); color:#fff;}
   .plan-fold summary:hover{background:#fafbfc;}
+  .plan-fold summary:hover .pf-arrow{background:#dde6f3;}
   .plan-fold[open] summary{border-bottom:1px solid var(--line); background:#fafbfc;}
   .pf-title{font-size:14px; font-weight:700; color:var(--ink);}
-  .pf-sub{font-size:11px; color:var(--sub);}
-  .pf-save{margin-left:auto;}
-  .plan-fold .plan-body{padding:16px 20px 18px;}
+  .pf-sub{font-size:11.5px; color:var(--sub);}
+  .plan-fold .plan-body{padding:16px 22px 18px;}
   .plan-row{display:flex; align-items:center; justify-content:space-between; gap:10px;
     border:1px solid var(--line); border-radius:10px; padding:10px 14px; background:#fbfcfe;}
   .plan-meta{display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:13px;}
@@ -309,9 +309,9 @@
     .plan-acts{flex:1; justify-content:flex-end; gap:8px;}
     .mini{padding:3px 10px; font-size:11px; border-radius:6px;}
     .mini.danger{background:#fff5f5; padding:3px 10px;}
-    .plan-fold summary{padding:14px 16px; gap:8px; flex-wrap:wrap;}
+    .plan-fold summary{padding:14px 16px; gap:10px;}
     .pf-title{font-size:13px;}
-    .pf-save{margin-left:0; padding:4px 10px; font-size:11px;}
+    .plan-fold .pf-arrow{width:26px; height:26px; font-size:12px;}
     .plan-fold .plan-body{padding:14px 16px 16px;}
     .modal-box{padding:22px 20px; width:300px;}
   }
@@ -337,6 +337,7 @@
     <div class="search">
       <input id="code" placeholder="输入代码，如 160632（酒LOF） / 113610（灵康转债） / 600519（茅台）" autocomplete="off">
       <button class="btn" id="go">开 测</button>
+      <button class="btn ghost" id="wg-save-btn" type="button" title="把当前测算结果保存到方案库">保存方案</button>
     </div>
     <div class="status" id="status"></div>
   </div>
@@ -346,7 +347,7 @@
     <summary>
       <span class="pf-title">我的方案库</span>
       <span class="pf-sub">云端同步 · 多端通用 · <span id="plan-count">0</span> 个方案</span>
-      <button class="btn sm pf-save" id="wg-save-btn" type="button">保存当前方案</button>
+      <span class="pf-arrow" aria-hidden="true">▾</span>
     </summary>
     <div class="plan-body">
       <div id="plan-list"></div>
