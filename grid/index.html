@@ -581,7 +581,7 @@ function scoreSafe(type, bondExtra){
 
 /* ---------- 网格参数 ---------- */
 function buildGrid(type, m, params){
-  const {last, avgAmp, avgAmp20, periodHigh, periodLow, avgAmountWan} = m;
+  const {last, avgAmp, avgAmp20, periodHigh, periodLow, pos, slopePct} = m;
   const effCostPct = type==='stock' ? 0.12 : 0.02; // 双边有效成本%
   // 间距取近20日与近70日日均振幅的较小值，避免短期异常放大；向下取0.5%档，确保不超过典型日振幅
   const baseAmp = Math.min(avgAmp20, avgAmp);
@@ -589,11 +589,22 @@ function buildGrid(type, m, params){
   gap = Math.max(gap, effCostPct*5);              // 确保覆盖成本
   gap = Math.round(gap*10)/10;
 
-  // 网格默认上下对称各 5 档，避免价格靠近区间高点时变成"只买不卖"/"一涨就清仓"
-  let upSteps = 5, downSteps = 5;
-  // 软约束：若默认 5 档超出近 70 日区间 ±8%，逐档减少，但最少保留 2 档
-  while(upSteps > 2 && last*(1+gap*upSteps/100) > periodHigh*1.03) upSteps--;
-  while(downSteps > 2 && last*(1-gap*downSteps/100) < periodLow*1.0) downSteps--;
+  // 【关键修复】策略方向直接决定上下档位不对称度，让参数与下方"策略建议"一致：
+  // 高位/强势上行 → 偏防守：压缩下方买档（少买）、保留上方卖档（多卖），防回调被动加仓、防卖飞
+  // 低位/弱势下行 → 偏进攻：加厚下方买档（多买）、压缩上方卖档（少卖），在价值区囤筹码
+  // 中部 → 标准对称网格
+  const high = pos > 0.70 || slopePct > 15;
+  const low  = pos < 0.30 || slopePct < -15;
+  let upBias, downBias;
+  if(high){ upBias = 5; downBias = 2; }       // 少买：下方只给 2 档
+  else if(low){ upBias = 3; downBias = 6; }   // 多买：下方加厚到 6 档
+  else { upBias = 5; downBias = 5; }
+
+  // 区间软约束（仅兜底，不再破坏方向）：上限不超近70日高点+8%、下限不破近70日低点-8%，最少保留 2 档
+  const maxUp = Math.max(2, Math.floor(((periodHigh*1.08)/last - 1)/(gap/100)));
+  const maxDown = Math.max(2, Math.floor((1 - (periodLow*0.92)/last)/(gap/100)));
+  let upSteps = Math.min(upBias, maxUp);
+  let downSteps = Math.min(downBias, maxDown);
 
   let up = Math.round(last*(1+gap*upSteps/100)*100)/100;
   let down = Math.round(last*(1-gap*downSteps/100)*100)/100;
@@ -841,7 +852,7 @@ function renderRisk(type, m, g, total, scores){
     else items.push('到期日 '+g.bond.due+'：临期债价格向到期价值回归，须在此日前清仓或处理。');
     if(!g.bond || !g.bond.redeemAfterTax) items.push('税后赎回价未知：填了它，下沿会自动抬到保本线，避免把价值中枢当止损割在地板上。');
   }else{
-    items.push('上下限默认以基准价对称各 '+g.upSteps+' 档，再用近 70 日区间做软约束；下沿 '+g.down.toFixed(2)+' 为防守线，破线撤买，不无限制补仓。');
+    items.push('上下限按当前走势不对称设置：上方卖档 '+g.upSteps+' 档、下方买档 '+g.downSteps+' 档（高位压缩买档、低位加厚买档），再用近 70 日区间做软约束；下沿 '+g.down.toFixed(2)+' 为防守线，破线撤买，不无限制补仓。');
   }
   items.push('流动性偏薄时单格别下重，避免扫穿盘口、滑点变大。');
   $('#risk-box').innerHTML = `<h4>风险提示与纪律</h4><ul>${items.map(i=>`<li>${i}</li>`).join('')}</ul>`;
@@ -849,21 +860,26 @@ function renderRisk(type, m, g, total, scores){
 
 function renderStrategy(type, m, g, perHand){
   const posPct = Math.round(m.pos*100);
+  const high = m.pos > 0.70 || m.slopePct > 15;
+  const low  = m.pos < 0.30 || m.slopePct < -15;
 
-  // 方向判断：位置 + 趋势
-  let dir;
-  if(m.pos > 0.70){
-    dir = `当前位于区间 <b>${posPct}%</b> 分位（偏高），上行空间有限、回调风险大 → <b>偏防守：多卖少买</b>。基准可略上移、减少下方买档密度，避免回调时仓位被动加重。`;
-  }else if(m.pos < 0.30){
-    dir = `当前位于区间 <b>${posPct}%</b> 分位（偏低），下行空间有限、修复概率大 → <b>偏进攻：多买少卖</b>。基准可略下移、加厚下方买档，在价值区囤筹码。`;
+  // 方向判断：位置 + 趋势（与 buildGrid 使用同一套判定，文字直接报告实际参数）
+  let dir, action;
+  if(high){
+    dir = `当前位于区间 <b>${posPct}%</b> 分位（偏高），叠加近60日 <b>+${m.slopePct.toFixed(1)}%</b> 强势上行 → <b>偏防守：少买多卖</b>。`;
+    action = `已据此自动调整网格：<b>上方卖档 ${g.upSteps} 档、下方买档 ${g.downSteps} 档</b>（下方买档已压缩），回调时少接货、防仓位被动加重；上涨时优先卖出、防卖飞。`;
+  }else if(low){
+    dir = `当前位于区间 <b>${posPct}%</b> 分位（偏低），叠加近60日 <b>${m.slopePct.toFixed(1)}%</b> 弱势下行 → <b>偏进攻：多买少卖</b>。`;
+    action = `已据此自动调整网格：<b>上方卖档 ${g.upSteps} 档、下方买档 ${g.downSteps} 档</b>（下方买档已加厚），在价值区多囤筹码。`;
   }else{
     dir = `当前位于区间 <b>${posPct}%</b> 分位（中部），上下空间相对均衡 → <b>标准网格</b>。`;
+    action = `已据此自动调整网格：上下对称各 <b>${g.upSteps} 档</b>。`;
   }
 
-  // 趋势附加提示：强趋势时直接提示风险，而不是强制回落/拐点
+  // 趋势附加提示
   let trendAdd='';
-  if(m.slopePct > 15) trendAdd = `<br>叠加近60日 <b>+${m.slopePct.toFixed(1)}%</b> 强势上行，网格极易卖飞，建议把卖档上移或减仓应对。`;
-  else if(m.slopePct < -15) trendAdd = `<br>叠加近60日 <b>${m.slopePct.toFixed(1)}%</b> 弱势下行，易接飞刀，买档务必严守 ${g.stop.toFixed(2)} 止损线。`;
+  if(m.slopePct > 15) trendAdd = `<br>注：强势上行易卖飞，本网格已压缩买档、保留卖档应对。`;
+  else if(m.slopePct < -15) trendAdd = `<br>注：弱势下行易接飞刀，买档务必严守 ${g.stop.toFixed(2)} 止损线。`;
 
   // 动态触发参数提示：幅度根据实际K线影线动态算，不是固定值
   let paramTip='';
@@ -878,9 +894,9 @@ function renderStrategy(type, m, g, perHand){
   }
 
   $('#strat-box').innerHTML = `
-    <h4>方向与触发策略</h4>
-    <div class="strat-dir">${dir}${trendAdd||''}</div>
-    <div class="strat-param">${paramTip}</div>`;
+    <h4>方向与触发策略（已自动联动网格参数）</h4>
+    <div class="strat-dir">${dir}<br>${action}</div>
+    <div class="strat-param">${paramTip}${trendAdd}</div>`;
 }
 
 /* ---------- 主流程 ---------- */
