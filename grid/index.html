@@ -292,10 +292,13 @@
     .risk ul{font-size:12px; line-height:1.65;}
     footer{font-size:11px; margin-top:28px;}
 
-    .plan-row{padding:8px 12px;}
-    .plan-meta{font-size:12px;}
-    .plan-time{font-size:10px;}
-    .mini{padding:4px 9px; font-size:11px;}
+    .plan-row{flex-wrap:wrap; gap:6px; padding:8px 12px;}
+    .plan-meta{flex:1 0 100%; font-size:12px;}
+    .plan-time{flex:1; font-size:10px;}
+    .plan-acts{flex:1; justify-content:flex-end; gap:8px;}
+    .mini{padding:3px 10px; font-size:11px; border-radius:6px;}
+    .mini.danger{border-color:transparent; background:transparent; padding:3px 4px;}
+    .mini.danger:hover{background:#fdeaea;}
     .modal-box{padding:22px 20px; width:300px;}
   }
 </style>
