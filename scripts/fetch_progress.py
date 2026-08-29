@@ -261,6 +261,10 @@ def main():
         k = x.get("stockCode")
         if k in new_code_set and not any(c["stockCode"] == k for c in new_changed):
             new_changed.append(x)
+    # 【防膨胀】只保留最近 7 天的变化记录（前端广播条只显示 3 天窗口，7 天留冗余；
+    # 过期的老记录不再累积，避免 PROGRESS_CHANGED 数组无限增长拖慢页面加载）
+    cutoff7 = (datetime.now(timezone.utc).astimezone(timezone(timedelta(hours=8))) - timedelta(days=7)).strftime("%Y-%m-%d")
+    new_changed = [c for c in new_changed if c.get("changeDate") and str(c.get("changeDate")) >= cutoff7]
     prog_changed_lit = "[" + ",".join(json.dumps(x, ensure_ascii=False) for x in new_changed) + "]"
     new_html = re.sub(r"const PROGRESS_CHANGED=\[.*?\];", "const PROGRESS_CHANGED=" + prog_changed_lit + ";", new_html, count=1, flags=re.S)
     open(HTML, "w", encoding="utf-8").write(new_html)

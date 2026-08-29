@@ -75,6 +75,26 @@
   .tag-s10{background:#fff;color:#a1a1aa;font-weight:500;font-size:11px;border:1px solid #e5e7eb}
   /* 待发行（待发债Tab，未到申购日） */
   .tag-slist{background:#fff;color:var(--primary);font-weight:700;font-size:12px;border:1.5px solid var(--primary)}
+  /* ===== 审核进度变化广播条（PC + 手机端均显示） ===== */
+  .broadcast-bar{display:flex;background:linear-gradient(90deg,#fff4ea,#fff8f5);border-bottom:1px solid #ffdcc3;color:#7c2d12;font-size:13px;font-weight:700;padding:8px 16px;align-items:center;gap:10px;overflow:hidden}
+  .broadcast-bar .bc-icon{flex-shrink:0;font-size:16px;width:22px;text-align:center;line-height:1}
+  .broadcast-bar .bc-wrap{flex:1;position:relative;height:20px;overflow:hidden}
+  .broadcast-bar .bc-items{position:absolute;left:0;right:0;top:0;transition:transform .45s ease}
+  .broadcast-bar .bc-item{display:flex;align-items:center;height:20px;gap:8px;white-space:nowrap;cursor:pointer;padding-right:20px;color:#7c2d12}
+  .broadcast-bar .bc-item:hover{color:#c2410c}
+  .broadcast-bar .bc-tag{background:#f97316;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:9px}
+  .broadcast-bar .bc-close{flex-shrink:0;background:none;border:none;color:#7c2d12;font-size:18px;cursor:pointer;padding:0 4px;line-height:1;opacity:.7}
+  .broadcast-bar .bc-close:hover{opacity:1}
+  /* 手机端适配（≤720px）：缩小间距字号，避免挤占窄屏 */
+  @media(max-width:720px){
+    .broadcast-bar{font-size:12px;padding:6px 12px;gap:6px}
+    .broadcast-bar .bc-icon{font-size:14px;width:18px}
+    .broadcast-bar .bc-item{padding-right:14px;gap:6px}
+    .broadcast-bar .bc-close{font-size:16px}
+  }
+tr.bc-flash{animation:bcFlash 1.6s ease-in-out 2}
+@keyframes bcFlash{0%,100%{background:transparent}50%{background:rgba(249,115,22,.18)}}
+  
   .empty{text-align:center;color:var(--muted);padding:36px 0}
   .foot{text-align:center;color:var(--muted);font-size:11px;line-height:1.7;padding:16px 8px}
   .foot b{color:var(--ink)}
@@ -391,6 +411,11 @@
     <button class="btn btn-sm btn-refresh-bar" id="refreshBar" style="display:none">↻ 刷新实时</button>
   </div>
 </div>
+<div class="broadcast-bar" id="broadcastBar" style="display:none">
+  <span class="bc-icon">📢</span>
+  <div class="bc-wrap" id="broadcastWrap"><div class="bc-items" id="broadcastItems"></div></div>
+  <button class="bc-close" id="broadcastClose" title="关闭">×</button>
+</div
 <div class="wrap">
   <div class="tabs">
     <div class="tab active" id="tab-pend" data-tab="pend">待发债<span class="tab-sub">（实时）</span></div>
@@ -563,6 +588,7 @@ const SNAPSHOT_PEND=[
 {"code":"127115","name":"炬申转债","stockCode":"001202","stockName":"炬申股份","convertPrice":13.76,"perPre":2.2911,"scale":3.8,"publicStart":"2026-07-24 00:00:00","listDate":"","stage":"申购","_c":{"cv":111.33720930232558,"needShares":437,"needMoney":6694.84,"baiyuan":14.954960835509139,"price":15.32,"estFloat":1.32},"apply10":437,"rating_cd":"AA-"},
 {"code":"110103","name":"申能转债","stockCode":"600642","stockName":"申能股份","convertPrice":8.74,"perPre":0.408,"scale":20,"publicStart":"2026-07-24 00:00:00","listDate":"","stage":"申购","_c":{"cv":103.20366132723112,"needShares":2451,"needMoney":22108.02,"baiyuan":4.523281596452328,"price":9.02,"estFloat":7.39},"apply10":2451,"rating_cd":"AAA"}
 ];
+const PROGRESS_CHANGED=[{"stockCode": "603499", "stockName": "翔港科技", "changeDate": "2026-08-26"},{"stockCode": "688372", "stockName": "伟测科技", "changeDate": "2026-08-26"},{"stockCode": "300181", "stockName": "佐力药业", "changeDate": "2026-08-21"},{"stockCode": "002997", "stockName": "瑞鹄模具", "changeDate": "2026-08-21"},{"stockCode": "600368", "stockName": "五洲交通", "changeDate": "2026-08-21"},{"stockCode": "603163", "stockName": "圣晖集成", "changeDate": "2026-08-12"},{"stockCode": "688510", "stockName": "航亚科技", "changeDate": "2026-08-12"},{"stockCode": "300739", "stockName": "明阳电路", "changeDate": "2026-08-12"},{"stockCode": "301305", "stockName": "朗坤科技", "changeDate": "2026-08-11"},{"stockCode": "605020", "stockName": "永和股份", "changeDate": "2026-08-17"},{"stockCode": "688720", "stockName": "艾森股份", "changeDate": "2026-08-15"},{"stockCode": "301479", "stockName": "弘景光电", "changeDate": "2026-08-10"},{"stockCode": "301018", "stockName": "申菱环境", "changeDate": "2026-08-18"}];
 const SNAPSHOT_PROGRESS=[
 {"stockCode":"002550","stockName":"千红制药","code":"","name":"","progress":"90","progress_nm":"同意注册","scale":10,"convertPrice":6.77,"price":6.48,"perPre":null,"apply10":1280,"ration_rt":null,"rating_cd":null,"progress_full":"2024-11-22 董事会预案\n2024-12-11 股东大会通过\n2026-01-23 交易所受理\n2026-06-05 上市委通过\n2026-07-16 同意注册","accept_date":"2026-01-23","progress_dt":"2026-07-16","_c":{"cv":95.71639586410636,"needShares":1280,"needMoney":8294.400000000001,"baiyuan":12.056327160493826,"price":6.48,"estFloat":7.34}},
 {"stockCode":"301565","stockName":"中仑新材","code":"","name":"","progress":"90","progress_nm":"同意注册","scale":10.68,"convertPrice":20.96,"price":18.11,"perPre":null,"apply10":375,"ration_rt":null,"rating_cd":null,"progress_full":"2025-09-12 董事会预案\n2025-09-29 股东大会通过\n2025-10-30 交易所受理\n2026-06-05 上市委通过\n2026-07-16 同意注册","accept_date":"2025-10-30","progress_dt":"2026-07-16","_c":{"cv":86.40267175572518,"needShares":375,"needMoney":6791.25,"baiyuan":14.724829744156082,"price":18.11,"estFloat":3.6}},
@@ -973,6 +999,91 @@ function renderPend(){
     renderPend();
   });
 }
+// ===== 审核进度变化广播条 =====
+const BROADCAST_HIDE_KEY="cb_broadcast_hide";
+let _bcTimer=null,_bcIndex=0;
+function fmtBroadcastDate(d){
+  if(!d) return "-";
+  const s=String(d).replace(/-/g,"");
+  if(s.length>=8) return s.slice(4,6)+"-"+s.slice(6,8);
+  return s;
+}
+function recentProgressChanges(){
+  // 数据源：服务器内嵌的 PROGRESS_CHANGED（每日自动抓取维护），不依赖本地 localStorage
+  // 这样所有设备（含首次访问的手机端）都能看到最近3天的审核进度变化
+  const changed=(typeof PROGRESS_CHANGED!=="undefined")?PROGRESS_CHANGED:[];
+  const today=todayYMD();
+  const out=[];
+  (typeof PROGRESS!=="undefined"?PROGRESS:[]).forEach(r=>{
+    const k=r.stockCode; if(!k) return;
+    const c=changed.find(x=>x.stockCode===k); if(!c) return;
+    let d=c.changeDate; if(!d) return;
+    // 校正：若内嵌日期晚于官方进度日期，回退到官方进度日期
+    if(r.progress_dt && Date.parse(d)>Date.parse(r.progress_dt)) d=r.progress_dt;
+    const diff=(Date.parse(today)-Date.parse(d))/86400000;
+    if(diff>=0 && diff<=2) out.push({...r,changeDate:d});
+  });
+  return out;
+}
+function renderBroadcast(){
+  const bar=$("#broadcastBar"); if(!bar) return;
+  const hide=localStorage.getItem(BROADCAST_HIDE_KEY);
+  if(hide && hide===todayYMD()){ bar.style.display="none"; return; }
+  const list=recentProgressChanges();
+  if(!list.length){ bar.style.display="none"; return; }
+  bar.style.display="flex";
+  const wrap=$("#broadcastItems"); if(!wrap) return;
+  wrap.innerHTML=list.map((r,i) => {
+    return '<div class="bc-item" data-idx="'+i+'" data-code="'+(r.stockCode||"-")+'" title="点击跳转到审核进度">'+
+      '<span>'+(r.stockName||"-")+'（'+(r.stockCode||"-")+'）进度变化：'+progressLabel(r)+' · '+fmtBroadcastDate(r.changeDate)+'</span>'+
+      '<span class="bc-tag">新</span>'+
+      '</div>';
+  }).join("");
+  startBroadcast(list.length);
+  // 绑定点击
+  wrap.querySelectorAll(".bc-item").forEach(el=>{
+    el.onclick=()=>{
+      const code=el.dataset.code;
+      $("#tab-progress").click();
+      const input=$("#q2"); if(input){ input.value=code||""; keyword2=code||""; }
+      renderProgress();
+      setTimeout(()=>{
+        const row=document.querySelector('#progressPanel tr.clickable td[data-label="正股/转债"]');
+        if(row){ row.closest("tr")?.scrollIntoView({behavior:"smooth",block:"center"}); row.closest("tr")?.classList.add("bc-flash"); }
+      },80);
+    };
+  });
+  // 手机端触摸滑动切换（覆盖式绑定，避免重复堆叠）
+  if(list.length>1){
+    wrap.ontouchstart=(e)=>{ wrap._ty=e.touches[0].clientY; };
+    wrap.ontouchend=(e)=>{
+      if(wrap._ty==null) return;
+      const dy=e.changedTouches[0].clientY-wrap._ty; wrap._ty=null;
+      if(Math.abs(dy)<20) return;
+      if(_bcTimer){ clearInterval(_bcTimer); _bcTimer=null; }
+      _bcIndex=(_bcIndex+(dy<0?1:-1)+list.length)%list.length;
+      wrap.style.transform="translateY("+(-_bcIndex*20)+"px)";
+      startBroadcast(list.length);
+    };
+  }
+}
+function startBroadcast(len){
+  const wrap=$("#broadcastItems"); if(!wrap) return;
+  if(_bcTimer){ clearInterval(_bcTimer); _bcTimer=null; }
+  _bcIndex=0; wrap.style.transform="translateY(0)";
+  if(len<=1) return;
+  _bcTimer=setInterval(()=>{
+    _bcIndex=(_bcIndex+1)%len;
+    wrap.style.transform="translateY("+(-_bcIndex*20)+"px)";
+  },4200);
+}
+function hideBroadcast(){
+  const bar=$("#broadcastBar"); if(!bar) return;
+  bar.style.display="none"; localStorage.setItem(BROADCAST_HIDE_KEY,todayYMD());
+  if(_bcTimer){ clearInterval(_bcTimer); _bcTimer=null; }
+}
+
+function todayYMD(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
 function progressLabel(r){
   if(r.progress==="90") return (r.progress_nm&&r.progress_nm.indexOf("申购")>=0)?"已排期申购":"同意注册";
   if(r.progress==="80") return "上市委通过";
@@ -2192,6 +2303,7 @@ async function initApp(){
   renderPend();
   PROGRESS=SNAPSHOT_PROGRESS.map(r=>{ const cc=r._c; return {...r, _c: cc&&cc.price!=null?compute(r,cc.price):(cc||null)}; });
   renderProgress();
+  renderBroadcast();
 
   // 阿里云真账号初始化 + 登录态恢复（拉取云端收藏）
   CBAuth.init({apiBase:'https://cb-ration-sync-cb-ration-sync-lvfqccjwzs.cn-shenzhen.fcapp.run',
