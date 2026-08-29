@@ -1286,7 +1286,7 @@ function isNewProgress(r){
   const d=(loadProgSnap().changed||{})[k];
   if(!d) return false;
   const diff=(Date.parse(todayYMD())-Date.parse(d))/86400000;
-  return diff>=0 && diff<=2;
+  return diff>=0 && diff<=3;
 }
 
 // ===== 审核进度变化广播条 =====
@@ -1300,7 +1300,7 @@ function fmtBroadcastDate(d){
 }
 function recentProgressChanges(){
   // 数据源：服务器内嵌的 PROGRESS_CHANGED（每日自动抓取维护），不依赖本地 localStorage
-  // 这样所有设备（含首次访问的手机端）都能看到最近3天的审核进度变化
+  // 这样所有设备（含首次访问的手机端）都能看到最近4天（含变化当天+3天）的审核进度变化
   const changed=(typeof PROGRESS_CHANGED!=="undefined")?PROGRESS_CHANGED:[];
   const today=todayYMD();
   const out=[];
@@ -1311,7 +1311,7 @@ function recentProgressChanges(){
     // 校正：若内嵌日期晚于官方进度日期，回退到官方进度日期
     if(r.progress_dt && Date.parse(d)>Date.parse(r.progress_dt)) d=r.progress_dt;
     const diff=(Date.parse(today)-Date.parse(d))/86400000;
-    if(diff>=0 && diff<=2) out.push({...r,changeDate:d});
+    if(diff>=0 && diff<=3) out.push({...r,changeDate:d});
   });
   return out;
 }
