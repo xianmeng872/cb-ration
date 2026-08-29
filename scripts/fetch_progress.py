@@ -251,22 +251,28 @@ def main():
     new_code_set = {o.get("stockCode") for o in arr}
     old_prog_map = {o.get("stockCode"): o.get("progress") for o in old_arr}
     today_str = datetime.now(timezone.utc).astimezone(timezone(timedelta(hours=8))).strftime("%Y-%m-%d")
+    # 【飞哥规则 2026-08-30】公告只推「交易所受理(50)及以后」的进度变化；
+    # 董事会预案(10)/股东大会通过(20)不公告。变化后新阶段 >=50 才记录。
+    MIN_BROADCAST_PROG = 50
     new_changed = []
     for o in arr:
         k = o.get("stockCode")
         if not k:
             continue
         old_prog = old_prog_map.get(k)
-        # 记录条件：① 新进名单（旧快照无此股，即"新债首次出现"） ② 阶段编号变化。
-        # 【修复 2026-08-29】原代码只记 old 里已有的（k in old_prog_map），导致新进名单的
-        # 隆盛/致欧/乖宝/中瑞等 08-27 变化被漏掉，广播条不显示。现在新进名单也记录。
-        if old_prog is None or str(old_prog) != str(o.get("progress")):
+        # 记录条件：① 新进名单（旧快照无此股） ② 阶段编号变化。
+        # 且【新阶段 >=50】才记录（董事会预案/股东大会通过的变化不公告）
+        if (old_prog is None or str(old_prog) != str(o.get("progress"))) \
+                and o.get("progress") is not None and int(o.get("progress")) >= MIN_BROADCAST_PROG:
             cd = o.get("progress_dt") or today_str
             new_changed.append({"stockCode": k, "stockName": o.get("stockName"), "changeDate": cd})
     for x in old_changed:
         k = x.get("stockCode")
         if k in new_code_set and not any(c["stockCode"] == k for c in new_changed):
-            new_changed.append(x)
+            # 【飞哥规则】old 保留时也要求当前阶段 >=50（<50 的脏记录不再保留）
+            cur_prog = next((o.get("progress") for o in arr if o.get("stockCode") == k), None)
+            if cur_prog is not None and int(cur_prog) >= MIN_BROADCAST_PROG:
+                new_changed.append(x)
     # 【防膨胀】只保留最近 7 天的变化记录（前端广播条只显示 3 天窗口，7 天留冗余；
     # 过期的老记录不再累积，避免 PROGRESS_CHANGED 数组无限增长拖慢页面加载）
     cutoff7 = (datetime.now(timezone.utc).astimezone(timezone(timedelta(hours=8))) - timedelta(days=7)).strftime("%Y-%m-%d")
