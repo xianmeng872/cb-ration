@@ -254,7 +254,13 @@ def main():
     new_changed = []
     for o in arr:
         k = o.get("stockCode")
-        if k and k in old_prog_map and str(old_prog_map[k]) != str(o.get("progress")):
+        if not k:
+            continue
+        old_prog = old_prog_map.get(k)
+        # 记录条件：① 新进名单（旧快照无此股，即"新债首次出现"） ② 阶段编号变化。
+        # 【修复 2026-08-29】原代码只记 old 里已有的（k in old_prog_map），导致新进名单的
+        # 隆盛/致欧/乖宝/中瑞等 08-27 变化被漏掉，广播条不显示。现在新进名单也记录。
+        if old_prog is None or str(old_prog) != str(o.get("progress")):
             cd = o.get("progress_dt") or today_str
             new_changed.append({"stockCode": k, "stockName": o.get("stockName"), "changeDate": cd})
     for x in old_changed:
