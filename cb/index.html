@@ -1845,6 +1845,7 @@ async function loadAll(){
     renderPend();
     renderProgress(); // 待发债更新后，审核进度也去重（避免同一债在 progress Tab 重复出现）
     updateFavTab(); // 数据源变动后重算「我的关注」计数（口径依赖 PEND/PROGRESS，见 favMatchedRows）
+    renderBroadcast(); // PEND 已从外部快照更新，重新渲染广播条确保申购债（如四方）进条
     setTime("待发债实时");
     const t=todayStr();
     const visible=PEND.filter(r=>r.stage==='申购' && r.publicStart && r.publicStart.slice(0,10)>=t);
@@ -1892,6 +1893,7 @@ async function loadAll(){
         renderPend();
         renderProgress(); // 集思录异步增强后，审核进度同步去重
         updateFavTab(); // 集思录新增/剔除条目后重算关注计数
+        renderBroadcast(); // 集思录异步增强新增申购债后进广播条
         setTime("待发债实时");
         // 明确告知名单的数据时间：名单每日定时同步，价格才是逐次实时，避免误判为"秒级实时"
         const t2=todayStr();
