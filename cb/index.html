@@ -83,6 +83,7 @@
   .broadcast-bar .bc-item{display:flex;align-items:center;height:20px;gap:8px;white-space:nowrap;cursor:pointer;padding-right:20px;color:#7c2d12}
   .broadcast-bar .bc-item:hover{color:#c2410c}
   .broadcast-bar .bc-tag{background:#f97316;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:9px}
+  .broadcast-bar .bc-tag-buy{background:#ea580c;color:#fff;font-size:10px;font-weight:800;padding:1px 7px;border-radius:9px;box-shadow:0 1px 3px rgba(234,88,12,.35)}
   .broadcast-bar .bc-close{flex-shrink:0;background:none;border:none;color:#7c2d12;font-size:18px;cursor:pointer;padding:0 4px;line-height:1;opacity:.7}
   .broadcast-bar .bc-close:hover{opacity:1}
   /* 手机端适配（≤720px）：缩小间距字号，避免挤占窄屏 */
@@ -1363,16 +1364,28 @@ function recentProgressChanges(){
   const changed=(typeof PROGRESS_CHANGED!=="undefined")?PROGRESS_CHANGED:[];
   const today=todayYMD();
   const out=[];
+  const seen=new Set();
+  // —— 其他进度变更（受理/过会/同意注册等）：维持原广播机制（近3天 + PROGRESS_CHANGED 登记），申购阶段不在此处理 ——
   (typeof PROGRESS!=="undefined"?PROGRESS:[]).forEach(r=>{
     // 【飞哥规则】公告只推交易所受理(50)及以后，董事会预案/股东大会通过不推
     if(r.progress && +r.progress<50) return;
+    if(r.progress==="90") return; // 申购阶段单独处理（下方直接公告，不卡3天窗口）
     const k=r.stockCode; if(!k) return;
     const c=changed.find(x=>x.stockCode===k); if(!c) return;
     let d=c.changeDate; if(!d) return;
     // 校正：若内嵌日期晚于官方进度日期，回退到官方进度日期
     if(r.progress_dt && Date.parse(d)>Date.parse(r.progress_dt)) d=r.progress_dt;
     const diff=(Date.parse(today)-Date.parse(d))/86400000;
-    if(diff>=0 && diff<=2) out.push({...r,changeDate:d});
+    if(diff>=0 && diff<=2){ out.push({...r,changeDate:d,_kind:"progress"}); seen.add(k); }
+  });
+  // —— 进度变为申购：直接从待发债(PEND)取「已发行公告、申购日未过」的债，直接公告 ——
+  // 【飞哥规则】进度变申购后直接公告，不要求 PROGRESS_CHANGED 登记、不受近3天窗口限制；其他变更仍走上面原机制
+  (typeof PEND!=="undefined"?PEND:[]).forEach(r=>{
+    if(r.stage!=="申购") return;
+    if(!r.publicStart || r.publicStart.slice(0,10) < today) return; // 只播待申购中（申购日未过），已过申购日待上市的不再播
+    const k=r.stockCode||r.code; if(!k || seen.has(k)) return;
+    out.push({...r, stockCode:k, stockName:r.stockName||r.name, changeDate:r.publicStart.slice(0,10), _kind:"buy", progress_nm:"已排期申购"});
+    seen.add(k);
   });
   return out;
 }
@@ -1385,23 +1398,31 @@ function renderBroadcast(){
   bar.style.display="flex";
   const wrap=$("#broadcastItems"); if(!wrap) return;
   wrap.innerHTML=list.map((r,i) => {
-    return '<div class="bc-item" data-idx="'+i+'" data-code="'+(r.stockCode||"-")+'" title="点击跳转到审核进度">'+
-      '<span>'+(r.stockName||"-")+'（'+(r.stockCode||"-")+'）进度变化：'+progressLabel(r)+' · '+fmtBroadcastDate(r.changeDate)+'</span>'+
-      '<span class="bc-tag">新</span>'+
-      '</div>';
+      const isBuy=(r._kind==="buy");
+      const tag=isBuy?'<span class="bc-tag bc-tag-buy">申购</span>':'<span class="bc-tag">新</span>';
+      const label=isBuy?("已排期申购 · 申购日 "+fmtBroadcastDate(r.changeDate)):(progressLabel(r)+' · '+fmtBroadcastDate(r.changeDate));
+      return '<div class="bc-item" data-idx="'+i+'" data-code="'+(r.stockCode||"-")+'" data-kind="'+(isBuy?"buy":"progress")+'" title="点击跳转">'+
+        '<span>'+(r.stockName||"-")+'（'+(r.stockCode||"-")+'）进度变化：'+label+'</span>'+
+        tag+
+        '</div>';
   }).join("");
   startBroadcast(list.length);
   // 绑定点击
   wrap.querySelectorAll(".bc-item").forEach(el=>{
     el.onclick=()=>{
       const code=el.dataset.code;
-      $("#tab-progress").click();
-      const input=$("#q2"); if(input){ input.value=code||""; keyword2=code||""; }
-      renderProgress();
-      setTimeout(()=>{
-        const row=document.querySelector('#progressPanel tr.clickable td[data-label="正股/转债"]');
-        if(row){ row.closest("tr")?.scrollIntoView({behavior:"smooth",block:"center"}); row.closest("tr")?.classList.add("bc-flash"); }
-      },80);
+      const k=el.dataset.kind;
+      if(k==="buy"){
+        $("#tab-pend").click();
+        const input=$("#q"); if(input){ input.value=code||""; keyword=code||""; }
+        renderPend();
+        setTimeout(()=>{ const row=document.querySelector('#pendPanel tr.clickable td[data-label="正股/转债"]'); if(row){ row.closest("tr")?.scrollIntoView({behavior:"smooth",block:"center"}); row.closest("tr")?.classList.add("bc-flash"); } },80);
+      }else{
+        $("#tab-progress").click();
+        const input=$("#q2"); if(input){ input.value=code||""; keyword2=code||""; }
+        renderProgress();
+        setTimeout(()=>{ const row=document.querySelector('#progressPanel tr.clickable td[data-label="正股/转债"]'); if(row){ row.closest("tr")?.scrollIntoView({behavior:"smooth",block:"center"}); row.closest("tr")?.classList.add("bc-flash"); } },80);
+      }
     };
   });
   // 手机端触摸滑动切换（覆盖式绑定，避免重复堆叠）
