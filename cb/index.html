@@ -867,16 +867,20 @@ function setTime(msg){
 // 东财列表 -> 待发(空上市日) 且 申购日>=今天
 function todayStr(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
 async function fetchList(){
-  const j=await (await fetch(EM_URL)).json();
-  const all=(j.result&&j.result.data)||[];
-  const t=todayStr();
-  return all.filter(o=>!o.LISTING_DATE && (!o.PUBLIC_START_DATE || o.PUBLIC_START_DATE.slice(0,10)>=t)).map(o=>({
-    code:o.SECURITY_CODE, name:o.SECURITY_NAME_ABBR,
-    stockCode:o.CONVERT_STOCK_CODE, stockName:o.CONVERT_STOCK_NAME_ABBR||"",
-    convertPrice:o.INITIAL_TRANSFER_PRICE, perPre:o.FIRST_PER_PREPLACING,
-    scale:o.ACTUAL_ISSUE_SCALE, publicStart:o.PUBLIC_START_DATE||"", listDate:o.LISTING_DATE||"",
-    stage:o.PUBLIC_START_DATE?"申购":"待发行"
-  }));
+  const ac=("AbortController" in window)?new AbortController():null;
+  const timer=ac?setTimeout(()=>ac.abort(),5000):null;
+  try{
+    const j=await (await fetch(EM_URL,{signal:ac?ac.signal:undefined})).json();
+    const all=(j.result&&j.result.data)||[];
+    const t=todayStr();
+    return all.filter(o=>!o.LISTING_DATE && (!o.PUBLIC_START_DATE || o.PUBLIC_START_DATE.slice(0,10)>=t)).map(o=>({
+      code:o.SECURITY_CODE, name:o.SECURITY_NAME_ABBR,
+      stockCode:o.CONVERT_STOCK_CODE, stockName:o.CONVERT_STOCK_NAME_ABBR||"",
+      convertPrice:o.INITIAL_TRANSFER_PRICE, perPre:o.FIRST_PER_PREPLACING,
+      scale:o.ACTUAL_ISSUE_SCALE, publicStart:o.PUBLIC_START_DATE||"", listDate:o.LISTING_DATE||"",
+      stage:o.PUBLIC_START_DATE?"申购":"待发行"
+    }));
+  }finally{ if(timer) clearTimeout(timer); }
 }
 // 集思录「待发新债」pre_list：唯一能拿到**申购日**的公开源（东财 RPT_BOND_CB_LIST 常滞后 1~2 天，
 // 已发行公告、申购日已定的新债它可能还没收录；集思录 cb_list_new 是行情表，未上市条目 apply_cd 恒为 null，也拿不到申购日）。
@@ -962,6 +966,51 @@ function fetchPrice(stockCode){
     document.body.appendChild(s);
     setTimeout(()=>finish(null), 6000);
   });
+}
+// 腾讯行情批量拉取：把多个股票合并成一次请求，解决 80+ 条并发导致首屏卡住近 1 分钟的问题
+// 支持格式：https://qt.gtimg.cn/q=sh603339,sh600000 返回 v_sh603339="...";v_sh600000="...";
+async function batchFetchPrice(stockCodes){
+  const map=new Map();
+  const codes=[...new Set((stockCodes||[]).filter(Boolean))];
+  if(!codes.length) return map;
+  const groups=[];
+  // 每批最多 60 只（URL 长度与腾讯服务端限制兼顾）
+  const SH=codes.filter(c=>c[0]==="6"||c.slice(0,3)==="688"||c.slice(0,3)==="605"||c.slice(0,3)==="601"||c.slice(0,3)==="603"||c.slice(0,3)==="600");
+  const SZ=codes.filter(c=>!SH.includes(c));
+  const push=(arr,prefix)=>{ for(let i=0;i<arr.length;i+=60) groups.push("https://qt.gtimg.cn/q="+prefix+arr.slice(i,i+60).join(",")); };
+  push(SH,"sh"); push(SZ,"sz");
+  await Promise.all(groups.map(async url=>{
+    try{
+      const text=await (await fetch(url,{cache:"no-store"})).text();
+      text.split(";").forEach(line=>{
+        const m=line.match(/v_(sh|sz)(\d{6})="(.*)"/);
+        if(m && m[3]){
+          const code=m[2];
+          const f=m[3].split("~");
+          map.set(code,{price:parseFloat(f[3]),name:f[1]||""});
+        }
+      });
+    }catch(e){ console.warn("批量行情失败:",url,(e&&e.message)||e); }
+  }));
+  return map;
+}
+// 统一后台刷新价格：先立即用快照价渲染，再批量拉实时价并增量更新
+function refreshPricesBackground(rows, afterCallback){
+  const codes=rows.map(r=>r.stockCode).filter(Boolean);
+  batchFetchPrice(codes).then(priceMap=>{
+    let changed=false;
+    rows.forEach(r=>{
+      if(!r.stockCode) return;
+      const q=priceMap.get(r.stockCode);
+      if(!q || q.price==null || isNaN(q.price)) return;
+      const oldF=r._estFloat!=null?r._estFloat:(r._c&&r._c.estFloat!=null?r._c.estFloat:null);
+      if(!r.stockName) r.stockName=q.name;
+      r._c=compute(r,q.price);
+      if(oldF!=null) r._c.estFloat=oldF;
+      changed=true;
+    });
+    if(changed && typeof afterCallback==="function") afterCallback();
+  }).catch(e=>console.warn("后台刷新价格失败:",(e&&e.message)||e));
 }
 
 // ===== 正股K线数据获取（东方财富历史K线接口） =====
@@ -1755,26 +1804,23 @@ async function loadAll(){
     // 之前漏了对 SNAPSHOT_PEND 原有条目调用，导致震裕/丰茂等明明在 PROGRESS 有 estFloat，待发债 Tab 却显示"-"
     merged.forEach(fillFromProgress);
     PEND=merged;
-    // 价格刷新(腾讯<script>注入，file:// 可用)；东财列表失败也不影响实时价
-    // 腾讯价拉不到时用集思录正股价兜底，保证新并入的待申购债配售数据不空白
-    const refreshOne=async r=>{
-      const oldF=r._estFloat!=null?r._estFloat:(r._c&&r._c.estFloat!=null?r._c.estFloat:null);
-      try{
-        const q=await fetchPrice(r.stockCode);
-        if(q){ if(!r.stockName)r.stockName=q.name; r._c=compute(r,q.price); if(oldF!=null)r._c.estFloat=oldF; return; }
-      }catch(e){}
-      if(r._jslPrice!=null){ r._c=compute(r,r._jslPrice); if(oldF!=null)r._c.estFloat=oldF; }
-      else r._c=r._c||{};
-    };
-    await Promise.all(PEND.map(refreshOne));
+    // 先立即渲染快照价，不让实时价刷新卡住首屏（修复打开/刷新后近 1 分钟才出数据的问题）
     renderPend();
     renderProgress(); // 待发债更新后，审核进度也去重（避免同一债在 progress Tab 重复出现）
     updateFavTab(); // 数据源变动后重算「我的关注」计数（口径依赖 PEND/PROGRESS，见 favMatchedRows）
     setTime("待发债实时");
     const t=todayStr();
     const visible=PEND.filter(r=>r.stage==='申购' && r.publicStart && r.publicStart.slice(0,10)>=t);
-    const hit=visible.filter(r=>r._c&&r._c.cv!=null).length;
-    if(!visible.length){toast("ℹ️ 当前无待申购转债，无需刷新实时价（已用快照价）");}else if(hit>0){toast("✅ 待申购 "+visible.length+" 只（"+hit+"/"+visible.length+" 已刷新实时价）");}else{toast("⚠️ 实时价拉取失败，已用快照价");}
+    if(!visible.length){toast("ℹ️ 当前无待申购转债，已用快照价");}else{toast("⏳ 待申购 "+visible.length+" 只，快照价已显示，后台刷新实时价…");}
+
+    // 后台批量刷新实时价（解决 80+ 条并发 script 请求拖死页面的问题）
+    refreshPricesBackground(PEND, ()=>{
+      renderPend();
+      updateFavTab();
+      setTime("待发债实时");
+      const hit=visible.filter(r=>r._c&&r._c.cv!=null).length;
+      if(visible.length) toast("✅ 待申购 "+visible.length+" 只（"+hit+"/"+visible.length+" 已刷新实时价）");
+    });
     // ② 集思录 pre_list 异步增强（**不阻塞首屏**：代理可能 401/522 拖到 6 秒超时，绝不能挡住上面的渲染）
     // 拿到后用它的申购日/登记日/配售参数补齐或覆盖（东财对新发公告债常滞后 1~2 天），再增量重渲染。
     fetchJisiluPend().then(async jslList=>{
@@ -1804,16 +1850,19 @@ async function loadAll(){
         }
       }
       if(!touched.length) return;
-      await Promise.all(touched.map(refreshOne));
-      renderPend();
-      renderProgress(); // 集思录异步增强后，审核进度同步去重
-      updateFavTab(); // 集思录新增/剔除条目后重算关注计数
-      setTime("待发债实时");
-      // 明确告知名单的数据时间：名单每日定时同步，价格才是逐次实时，避免误判为"秒级实时"
-      const t2=todayStr();
-      const vis2=PEND.filter(r=>r.stage==='申购'&&r.publicStart&&r.publicStart.slice(0,10)>=t2);
-      const up=String(JSL_META.updated||"").replace(" (北京时间)","");
-      toast("🔄 名单已同步"+(up?("（数据 "+up+"）"):"")+"：待申购 "+vis2.length+" 只");
+      // 集思录增强后统一批量刷新价格，不再逐个请求
+      refreshPricesBackground(touched, ()=>{
+        renderPend();
+        renderProgress(); // 集思录异步增强后，审核进度同步去重
+        updateFavTab(); // 集思录新增/剔除条目后重算关注计数
+        setTime("待发债实时");
+        // 明确告知名单的数据时间：名单每日定时同步，价格才是逐次实时，避免误判为"秒级实时"
+        const t2=todayStr();
+        const vis2=PEND.filter(r=>r.stage==='申购'&&r.publicStart&&r.publicStart.slice(0,10)>=t2);
+        const up=String(JSL_META.updated||"").replace(" (北京时间)","");
+        toast("🔄 名单已同步"+(up?("（数据 "+up+"）"):"")+"：待申购 "+vis2.length+" 只");
+      });
+      // refreshPricesBackground 内部会回调渲染并 toast，这里不再继续执行原同步流程
     }).catch(e=>console.warn("集思录待发新债增强失败(已用快照/东财):",(e&&e.message)||e));
   }catch(e){console.error("刷新失败(非致命)，使用快照数据:",e.message);}
   finally{btn.disabled=false;btn.textContent="↻ 刷新实时";}
@@ -1822,11 +1871,15 @@ async function loadProgressRealtime(){
   if(!PROGRESS.length){renderProgress();return;}
   const btn=$("#refresh");btn.disabled=true;btn.textContent="刷新中…";
   try{
-    await Promise.all(PROGRESS.map(async r=>{try{const q=await fetchPrice(r.stockCode);if(q){if(!r.stockName&&q.name)r.stockName=q.name;if(q.price!=null&&r.convertPrice){const oldF=(r._c&&r._c.estFloat!=null)?r._c.estFloat:null;r.price=q.price;r._c=compute(r,q.price);if(oldF!=null)r._c.estFloat=oldF;}}}catch(e){}}));
+    // 先展示快照价，再批量后台刷新实时价
     renderProgress();
     setTime("审核进度实时");
-    const shown=filterProgressRaw(PROGRESS);
-    toast("✅ 审核进度 "+shown.length+" 只（已过滤上市/申购中，"+(shown.filter(r=>r._c&&r._c.cv!=null).length)+"/"+shown.length+" 命中实时价）");
+    refreshPricesBackground(PROGRESS, ()=>{
+      renderProgress();
+      setTime("审核进度实时");
+      const shown=filterProgressRaw(PROGRESS);
+      toast("✅ 审核进度 "+shown.length+" 只（已过滤上市/申购中，"+(shown.filter(r=>r._c&&r._c.cv!=null).length)+"/"+shown.length+" 命中实时价）");
+    });
   }catch(e){console.error("审核进度实时价刷新失败(非致命):",e.message);}
   finally{btn.disabled=false;btn.textContent="↻ 刷新实时";}
 }
