@@ -1133,7 +1133,7 @@ function compute(r,price){
   const needMoney=(needShares&&price)?needShares*price:null;
   const needMoneySafe=(needSharesSafe&&price)?needSharesSafe*price:null;
   // estFloat 由服务端按"总规模×(1−受限主体锁定比例)"算好，存于 r._c.estFloat；此处直接读取，不再用固定比例估算
-  const estFloat=(r._c&&r._c.estFloat!=null)?r._c.estFloat:null;
+  const estFloat=(r._estFloat!=null)?r._estFloat:((r._c&&r._c.estFloat!=null)?r._c.estFloat:null);
   return {cv,needShares,needSharesSafe,needMoney,needMoneySafe,baiyuan,price,market:isSH?"沪":"深",isSH,estFloat};
 }
 function fmt(v,d=2){return v==null?"待公告":(typeof v==="number"?v.toFixed(d):v);}
@@ -1783,6 +1783,11 @@ function loadStockChart(klineObj, stockName){
 async function loadAll(){
   const btn=$("#refresh");btn.disabled=true;btn.textContent="刷新中…";
   try{
+    // 用外部审核进度快照(含最新申购债如四方科技603339的 estFloat)覆盖内嵌 PROGRESS，确保流通值能补上；同源 GitHub Pages 加载，失败回退内嵌
+    try{
+      const spRes=await fetch('./审核进度快照.json',{cache:'no-store'});
+      if(spRes.ok){ const sp=await spRes.json(); const arr=Array.isArray(sp)?sp:Object.values(sp); if(arr.length) PROGRESS=arr.map(r=>{const cc=r._c;return {...r,_c:cc&&cc.price!=null?compute(r,cc.price):(cc||null)};}); }
+    }catch(e){ console.warn('外部审核进度快照加载失败(回退内嵌):',(e&&e.message)||e); }
     let emList=[];
     try{ emList=await fetchList(); }catch(e){ console.warn("东财列表拉取失败(用快照):",e.message); }
     const emMap={}; emList.forEach(o=>emMap[o.code]=o);
