@@ -1769,6 +1769,7 @@ async function loadAll(){
     await Promise.all(PEND.map(refreshOne));
     renderPend();
     renderProgress(); // 待发债更新后，审核进度也去重（避免同一债在 progress Tab 重复出现）
+    updateFavTab(); // 数据源变动后重算「我的关注」计数（口径依赖 PEND/PROGRESS，见 favMatchedRows）
     setTime("待发债实时");
     const t=todayStr();
     const visible=PEND.filter(r=>r.stage==='申购' && r.publicStart && r.publicStart.slice(0,10)>=t);
@@ -1806,6 +1807,7 @@ async function loadAll(){
       await Promise.all(touched.map(refreshOne));
       renderPend();
       renderProgress(); // 集思录异步增强后，审核进度同步去重
+      updateFavTab(); // 集思录新增/剔除条目后重算关注计数
       setTime("待发债实时");
       // 明确告知名单的数据时间：名单每日定时同步，价格才是逐次实时，避免误判为"秒级实时"
       const t2=todayStr();
@@ -2057,8 +2059,18 @@ function renderUserArea(){
   updateFavTab();
 }
 
+// 【关注匹配·单一口径】标题数字与列表渲染必须用同一套匹配逻辑，
+// 否则会出现「标题显示10、列表只显示9」的脱节（收藏里存在数据源已剔除的条目时必然发生）。
+function favMatchedRows(){
+  if(!currentUser||!currentUser.favorites||!currentUser.favorites.length) return [];
+  const all=[
+    ...PEND.map(r=>({...r,_kind:"pend"})),
+    ...PROGRESS.map(r=>({...r,_kind:"progress"}))
+  ];
+  return all.filter(r=>currentUser.favorites.some(f=>f.id===getRowId(r,r._kind)&&!f.del));
+}
 function updateFavTab(){
-  const count=currentUser?currentUser.favorites.filter(f=>!f.del).length:0;
+  const count=favMatchedRows().length;
   $("#favCount").textContent=count;
 }
 
@@ -2727,12 +2739,8 @@ function renderFav(){
     p.innerHTML='<div class="card"><div class="empty">还没有关注的转债，点击卡片右上角的 ☆ 加入关注</div></div>';
     return;
   }
-  // 合并所有数据
-  const all=[
-    ...PEND.map(r=>({...r,_kind:"pend"})),
-    ...PROGRESS.map(r=>({...r,_kind:"progress"}))
-  ];
-  let rows=all.filter(r=>currentUser.favorites.some(f=>f.id===getRowId(r,r._kind)&&!f.del));
+  // 与标题计数同口径（见 favMatchedRows），保证「标题数字 == 列表行数」
+  let rows=favMatchedRows();
   if(favKeyword){
     const q=favKeyword.toLowerCase();
     rows=rows.filter(r=>(r.name||"").toLowerCase().includes(q)||(r.code||"").includes(q)||(r.stockName||"").toLowerCase().includes(q)||(r.stockCode||"").includes(q));
