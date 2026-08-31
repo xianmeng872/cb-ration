@@ -967,32 +967,43 @@ function fetchPrice(stockCode){
     setTimeout(()=>finish(null), 6000);
   });
 }
-// 腾讯行情批量拉取：把多个股票合并成一次请求，解决 80+ 条并发导致首屏卡住近 1 分钟的问题
-// 支持格式：https://qt.gtimg.cn/q=sh603339,sh600000 返回 v_sh603339="...";v_sh600000="...";
-async function batchFetchPrice(stockCodes){
-  const map=new Map();
-  const codes=[...new Set((stockCodes||[]).filter(Boolean))];
-  if(!codes.length) return map;
-  const groups=[];
-  // 每批最多 60 只（URL 长度与腾讯服务端限制兼顾）
-  const SH=codes.filter(c=>c[0]==="6"||c.slice(0,3)==="688"||c.slice(0,3)==="605"||c.slice(0,3)==="601"||c.slice(0,3)==="603"||c.slice(0,3)==="600");
-  const SZ=codes.filter(c=>!SH.includes(c));
-  const push=(arr,prefix)=>{ for(let i=0;i<arr.length;i+=60) groups.push("https://qt.gtimg.cn/q="+prefix+arr.slice(i,i+60).join(",")); };
-  push(SH,"sh"); push(SZ,"sz");
-  await Promise.all(groups.map(async url=>{
-    try{
-      const text=await (await fetch(url,{cache:"no-store"})).text();
-      text.split(";").forEach(line=>{
-        const m=line.match(/v_(sh|sz)(\d{6})="(.*)"/);
-        if(m && m[3]){
-          const code=m[2];
-          const f=m[3].split("~");
-          map.set(code,{price:parseFloat(f[3]),name:f[1]||""});
-        }
-      });
-    }catch(e){ console.warn("批量行情失败:",url,(e&&e.message)||e); }
-  }));
-  return map;
+// 腾讯行情批量拉取：用 <script> 注入方式（返回 v_xxx="..." 全局变量），绕过 file:// 与 CORS 限制
+// 把多只合并成一次请求（sh/sz 各一组，每组最多 60 只），解决 80+ 条并发 script 拖死首屏近 1 分钟的问题
+// 注意：必须用 script 注入，不能用 fetch —— qt.gtimg.cn 不带 CORS 头，浏览器 fetch 会被拦截导致实时价全空
+function batchFetchPrice(stockCodes){
+  return new Promise(resolve=>{
+    const map=new Map();
+    const codes=[...new Set((stockCodes||[]).filter(Boolean))];
+    if(!codes.length) return resolve(map);
+    const groups=[];
+    const SH=codes.filter(c=>/^(60|68|605|601|603|600)/.test(c));
+    const SZ=codes.filter(c=>!/^(60|68|605|601|603|600)/.test(c));
+    const push=(arr,prefix)=>{ for(let i=0;i<arr.length;i+=60) groups.push(prefix+arr.slice(i,i+60).join(",")); };
+    push(SH,"sh"); push(SZ,"sz");
+    if(!groups.length) return resolve(map);
+    let done=0; const total=groups.length;
+    const finish=()=>{ if(++done>=total) resolve(map); };
+    groups.forEach(g=>{
+      const s=document.createElement("script");
+      const onend=()=>{ try{s.remove();}catch(e){} finish(); };
+      s.onload=()=>{
+        // 解析该组返回的全局变量 v_shxxxxx / v_szxxxxx
+        g.replace(/(sh|sz)(\d{6})/g,(m,p,c)=>{
+          const raw=window["v_"+p+c];
+          if(raw && typeof raw==="string"){
+            const f=raw.split("~");
+            map.set(c,{price:parseFloat(f[3]),name:f[1]||""});
+          }
+          return m;
+        });
+        onend();
+      };
+      s.onerror=onend;
+      s.src="https://qt.gtimg.cn/q="+g;
+      document.body.appendChild(s);
+      setTimeout(onend, 6000); // 单组 6 秒兜底，绝不无限等待
+    });
+  });
 }
 // 统一后台刷新价格：先立即用快照价渲染，再批量拉实时价并增量更新
 function refreshPricesBackground(rows, afterCallback){
