@@ -49,7 +49,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add cb/data/pending.json cb/index.html
+          git add cb/data/pending.json cb/index.html cb/审核进度快照.json
           if git diff --cached --quiet; then
             echo "名单与审核进度均无变化，跳过提交"
             echo "changed=false" >> "$GITHUB_OUTPUT"

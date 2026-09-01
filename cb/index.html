@@ -1804,11 +1804,27 @@ function loadStockChart(klineObj, stockName){
 async function loadAll(){
   const btn=$("#refresh");btn.disabled=true;btn.textContent="刷新中…";
   try{
-    // 用外部审核进度快照(含最新申购债如四方科技603339的 estFloat)覆盖内嵌 PROGRESS，确保流通值能补上；同源 GitHub Pages 加载，失败回退内嵌
+    // 外部审核进度快照仅作补充：以当前PROGRESS(或内嵌SNAPSHOT_PROGRESS)为基准按stockCode合并，
+    // 外部条目仅当其progress_dt比基准更新才覆盖——防止旧JSON把最新数据拖回(如曾冻结在8月7日)
     try{
       const spRes=await fetch('./审核进度快照.json',{cache:'no-store'});
-      if(spRes.ok){ const sp=await spRes.json(); const arr=Array.isArray(sp)?sp:Object.values(sp); if(arr.length) PROGRESS=arr.map(r=>{const cc=r._c;return {...r,_c:cc&&cc.price!=null?compute(r,cc.price):(cc||null)};}); }
-    }catch(e){ console.warn('外部审核进度快照加载失败(回退内嵌):',(e&&e.message)||e); }
+      if(spRes.ok){
+        const sp=await spRes.json();
+        const arr=Array.isArray(sp)?sp:Object.values(sp);
+        if(arr&&arr.length){
+          const base=(PROGRESS&&PROGRESS.length)?PROGRESS:SNAPSHOT_PROGRESS;
+          const map=new Map(base.map(r=>[r.stockCode||r.code,r]));
+          for(const r of arr){
+            const key=r.stockCode||r.code; const ex=map.get(key);
+            if(!ex || (r.progress_dt||"") >= (ex.progress_dt||"")){
+              const cc=r._c;
+              map.set(key, {...r,_c:cc&&cc.price!=null?compute(r,cc.price):(cc||null)});
+            }
+          }
+          PROGRESS=Array.from(map.values());
+        }
+      }
+    }catch(e){ console.warn('外部审核进度快照加载失败(保持内嵌):',(e&&e.message)||e); }
     let emList=[];
     try{ emList=await fetchList(); }catch(e){ console.warn("东财列表拉取失败(用快照):",e.message); }
     const emMap={}; emList.forEach(o=>emMap[o.code]=o);
