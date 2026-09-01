@@ -1913,6 +1913,8 @@ async function loadAll(){
           // 新条目：pending 自带的 estFloat 优先，再交给 fillFromProgress 用 PROGRESS 兜底
           if(o.estFloat!=null) o._estFloat=o.estFloat;
           const n=fillFromProgress(o);
+          // 异步新条目（如四方）立即用集思录兜底价 compute 出 _c，避免首屏/增强后列值全为 ---
+          if(!n._c && n._jslPrice!=null) n._c=compute(n, n._jslPrice);
           merged.push(n); if(n.stockCode)have.set(n.stockCode,n);
           touched.push(n);
         }
