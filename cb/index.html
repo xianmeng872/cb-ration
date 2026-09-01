@@ -939,6 +939,7 @@ async function fetchJisiluPend(){
           listDate:"",
           rating_cd:String(c.rating_cd||"").trim(),
           _jslPrice:num(c.price),                           // 集思录正股价，实时价拉不到时兜底
+          estFloat:num(c.estFloat),                         // 后端 fetch_pending.py 按锁定比例算好的预估流通盘
           stage:"申购"
         });
       }
@@ -1849,7 +1850,8 @@ async function loadAll(){
       if(pm){
         if(o.apply10==null&&pm.apply10!=null) o.apply10=pm.apply10;
         if(o.perPre==null&&pm.perPre!=null) o.perPre=pm.perPre;
-        if(pm._c&&pm._c.estFloat!=null) o._estFloat=pm._c.estFloat;
+        // 仅在 pending 自带无值时，才用 PROGRESS 快照的 estFloat 兜底（避免覆盖新算出的实时值）
+        if(o._estFloat==null && pm._c&&pm._c.estFloat!=null) o._estFloat=pm._c.estFloat;
         if(pm._kline) o._kline=pm._kline;
       }
       return o;
@@ -1857,6 +1859,13 @@ async function loadAll(){
     // 所有待发条目都尝试从 PROGRESS 快照补 estFloat（流通值）、apply10、perPre、kline；
     // 之前漏了对 SNAPSHOT_PEND 原有条目调用，导致震裕/丰茂等明明在 PROGRESS 有 estFloat，待发债 Tab 却显示"-"
     merged.forEach(fillFromProgress);
+    // 首屏预处理：动态新债（如四方）_c 初始为 null，先用集思录价兜底 compute 出 _c（含 estFloat），
+    // 避免首屏该列空白、必须等长轮询后台实时价刷新才出现（之前新债首屏 _c=null 即显示“-”）
+    merged.forEach(r=>{
+      if(!r._c && (r._estFloat!=null || (r._jslPrice!=null))){
+        r._c=compute(r, r._jslPrice!=null?r._jslPrice:null);
+      }
+    });
     PEND=merged;
     // 先立即渲染快照价，不让实时价刷新卡住首屏（修复打开/刷新后近 1 分钟才出数据的问题）
     renderPend();
@@ -1897,8 +1906,12 @@ async function loadAll(){
           if(o.name&&!ex.name){ ex.name=o.name; chg=true; }
           if(o.rating_cd&&!ex.rating_cd){ ex.rating_cd=o.rating_cd; chg=true; }
           if(o._jslPrice!=null&&ex._jslPrice==null) ex._jslPrice=o._jslPrice;
+          // 预估流通盘：pending 自带（后端算好的）优先，仅在已有值时保留
+          if(o.estFloat!=null && ex._estFloat==null){ ex._estFloat=o.estFloat; chg=true; }
           if(chg) touched.push(ex);
         }else{
+          // 新条目：pending 自带的 estFloat 优先，再交给 fillFromProgress 用 PROGRESS 兜底
+          if(o.estFloat!=null) o._estFloat=o.estFloat;
           const n=fillFromProgress(o);
           merged.push(n); if(n.stockCode)have.set(n.stockCode,n);
           touched.push(n);

@@ -12,16 +12,23 @@
 """
 import json
 import os
+import re
 import sys
 import urllib.request
 import urllib.error
 from datetime import datetime, timezone, timedelta
 
 JSL_URL = "https://www.jisilu.cn/data/cbnew/pre_list/?___jsl=LST___"
-OUT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "cb", "data", "pending.json")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+OUT_PATH = os.path.normpath(os.path.join(BASE_DIR, "..", "cb", "data", "pending.json"))
+# 与 fetch_progress.py 共享同一份「流通盘缓存」，避免重复请求 emweb 且保证锁定比例口径一致
+CACHE = os.path.normpath(os.path.join(BASE_DIR, "..", "cb", "流通盘缓存.json"))
+JSON_OUT = os.path.normpath(os.path.join(BASE_DIR, "..", "cb", "待发债快照.json"))
 
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36")
+
+EM_HOLDER = "https://emweb.securities.eastmoney.com/PC_HSF10/ShareholderResearch/PageAjax?code=CODE"
 
 # 页面需要的字段（其余丢弃以控制体积，避免仓库无意义膨胀）
 KEEP = [
@@ -31,6 +38,81 @@ KEEP = [
     "rating_cd", "apply_cd", "ration_cd", "price",
     "progress_nm", "cb_type",
 ]
+
+
+def em_code(sc):
+    if not sc:
+        return ""
+    if sc[0] in "69":
+        return "SH" + sc
+    if sc[0] in "84":
+        return "BJ" + sc
+    return "SZ" + sc
+
+
+def _ts(s):
+    try:
+        return datetime.strptime(str(s).strip()[:19], "%Y-%m-%d %H:%M:%S").timestamp()
+    except Exception:
+        try:
+            return datetime.strptime(str(s).strip()[:10], "%Y-%m-%d").timestamp()
+        except Exception:
+            return 0
+
+
+def get_lock_ratio(stock_code, cache):
+    """emweb 十大股东锁定比例 = 持股≥5% 的股东合计（与 fetch_progress.py 算法一致）。失败返回 None。"""
+    if not stock_code:
+        return None
+    if stock_code in cache and cache[stock_code] is not None:
+        return cache[stock_code]
+    url = EM_HOLDER.replace("CODE", em_code(stock_code))
+    for attempt in range(2):
+        try:
+            req = urllib.request.Request(url, headers={
+                "User-Agent": UA,
+                "Accept": "application/json, text/javascript, */*; q=0.01",
+                "Accept-Language": "zh-CN,zh;q=0.9",
+                "Referer": "https://emweb.securities.eastmoney.com/",
+            })
+            with urllib.request.urlopen(req, timeout=15) as r:
+                d = json.loads(r.read().decode("utf-8", errors="replace"))
+            sdhg = d.get("sdgd") or []
+            if not sdhg:
+                continue
+            times = [t for x in sdhg if (t := _ts(x.get("END_DATE"))) > 0]
+            if not times:
+                continue
+            max_t = max(times)
+            latest = [x for x in sdhg if _ts(x.get("END_DATE")) == max_t]
+            seen, uniq = set(), []
+            for x in latest:
+                k = x.get("HOLDER_NAME")
+                if k and k not in seen:
+                    seen.add(k)
+                    uniq.append(x)
+            lock = sum(float(x.get("HOLD_NUM_RATIO") or 0) for x in uniq if float(x.get("HOLD_NUM_RATIO") or 0) >= 5)
+            if lock <= 0:
+                continue
+            v = round(min(lock, 100), 2)
+            cache[stock_code] = v
+            return v
+        except Exception as e:
+            print("  [warn] %s emweb 第%d次失败: %s" % (stock_code, attempt + 1, e), file=sys.stderr)
+    return None
+
+
+def compute_est_float(stock_code, scale, cache, old_map):
+    """预估流通盘(亿) = 规模 × (1 − 持股≥5%股东的锁定比例)。
+    优先继承旧值（避免每日重复请求 emweb），否则实时拉取 emweb 计算。"""
+    if not stock_code or not scale:
+        return None
+    if stock_code in old_map and old_map[stock_code] is not None:
+        return old_map[stock_code]
+    lock = get_lock_ratio(stock_code, cache)
+    if lock is not None:
+        return round(float(scale) * (1 - lock / 100), 2)
+    return None
 
 
 def fetch(url, timeout=30):
@@ -58,13 +140,45 @@ def main():
         print("[ERROR] 集思录返回 rows 为空，判定为异常，不覆盖旧数据", file=sys.stderr)
         return 1
 
+    # 读取旧 pending.json，按 stock_id 建立 estFloat 继承表（避免每日重复请求 emweb）
+    old_est = {}
+    if os.path.exists(OUT_PATH):
+        try:
+            old_j = json.load(open(OUT_PATH, encoding="utf-8"))
+            for r in (old_j.get("rows") or []):
+                c = r.get("cell") or {}
+                sc = c.get("stock_id")
+                ef = c.get("estFloat")
+                if sc and ef is not None:
+                    old_est[sc] = ef
+        except Exception:
+            old_est = {}
+
+    # emweb 锁定比例缓存（与 fetch_progress.py 共享同一份文件，保证口径一致且减少重复请求）
+    cache = {}
+    if os.path.exists(CACHE):
+        try:
+            cache = json.load(open(CACHE, encoding="utf-8"))
+        except Exception:
+            cache = {}
+    for k in [k for k, v in cache.items() if v is None]:
+        del cache[k]
+
+    est_new = 0
     # 只保留未上市的债（list_date 为空）——这些才是「待发/待申购」，已上市的页面不需要
     out = []
     for r in rows:
         c = r.get("cell") or {}
         if c.get("list_date"):
             continue
-        out.append({"cell": {k: c.get(k) for k in KEEP}})
+        cell = {k: c.get(k) for k in KEEP}
+        # 预估流通盘：规模 × (1 − 锁定比例)，继承旧值或实时从 emweb 计算
+        ef = compute_est_float(
+            cell.get("stock_id"), cell.get("amount"), cache, old_est)
+        if ef is not None:
+            cell["estFloat"] = ef
+            est_new += 1
+        out.append({"cell": cell})
 
     applied = [c["cell"] for c in out if c["cell"].get("apply_date")]
     applied.sort(key=lambda x: str(x.get("apply_date") or ""))
@@ -115,7 +229,17 @@ def main():
     os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
     with open(OUT_PATH, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, separators=(",", ":"))
-    print("已写入:", os.path.normpath(OUT_PATH))
+    print("已写入:", os.path.normpath(OUT_PATH), "（估算流通盘 %d 只）" % est_new)
+    # 存档（供人工核对，不参与提交）
+    try:
+        json.dump(out, open(JSON_OUT, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    except Exception as e:
+        print("[warn] 写待发债快照json失败:", e, file=sys.stderr)
+    # 回写 emweb 锁定比例缓存（与 fetch_progress.py 共享）
+    try:
+        json.dump(cache, open(CACHE, "w", encoding="utf-8"), ensure_ascii=False)
+    except Exception:
+        pass
     return 0
 
 
