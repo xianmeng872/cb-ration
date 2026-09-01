@@ -20,9 +20,11 @@ permissions:
   pages: write
   id-token: write
 
-# 与 pages.yml 共用同一 concurrency group，避免两边同时部署 Pages 打架
+# 独立并发组：若与 pages.yml 共用 group:pages，用户 push 会同时触发两者，
+# pages.yml 的 cancel-in-progress:true 会把本 workflow 直接取消（fetch_kline 就跑不到了）。
+# 故用独立组 fetch-pending，保证抓取+自部署一定执行。
 concurrency:
-  group: pages
+  group: fetch-pending
   cancel-in-progress: false
 
 jobs:
@@ -54,7 +56,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add cb/data/pending.json cb/index.html cb/审核进度快照.json
+          git add cb/data/pending.json cb/index.html cb/审核进度快照.json cb/kline_status.json
           if git diff --cached --quiet; then
             echo "名单、审核进度、K线均无变化，跳过提交"
             echo "changed=false" >> "$GITHUB_OUTPUT"

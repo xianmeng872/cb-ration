@@ -21,6 +21,7 @@ import concurrent.futures
 import json
 import re
 import sys
+import time
 import urllib.request
 
 UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
@@ -104,6 +105,23 @@ def main():
                 + html[m.end():])
     with open(args.html, 'w', encoding='utf-8') as f:
         f.write(new_html)
+    # 生成极小状态摘要, 便于 CI/自动验证 K线是否补全到最新
+    try:
+        latest = max((kl[-1]['date'] for kl in new_snap.values() if kl), default='')
+        status = {
+            'updated_at': time.strftime('%Y-%m-%d %H:%M:%S'),
+            'total': len(codes),
+            'success': len(codes) - len(failed),
+            'failed': failed,
+            'latest_date': latest,
+            'sample': {c: (new_snap[c][-1]['date'] if new_snap.get(c) else None)
+                       for c in ['603125', '603339', '600368', '601717'] if c in new_snap},
+        }
+        with open('cb/kline_status.json', 'w', encoding='utf-8') as f:
+            json.dump(status, f, ensure_ascii=False, indent=1)
+        print('状态摘要已写入 cb/kline_status.json')
+    except Exception as e:  # noqa: BLE001
+        print(f'写状态摘要失败(不影响主流程): {e}')
     print(f'\n完成: 成功 {len(codes) - len(failed)} 只, 失败 {len(failed)} 只 {failed}')
     if failed and len(failed) == len(codes):
         sys.exit(2)
