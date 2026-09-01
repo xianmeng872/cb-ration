@@ -1,6 +1,8 @@
 name: 抓取待发新债数据
 
 on:
+  push:
+    branches: [main]
   schedule:
     # 北京时间 08:30 / 12:00 / 17:00 / 21:00（UTC+8，cron 用 UTC）
     # 新债发行公告多在盘后或晚间发布，故晚间必抓一次
@@ -44,17 +46,20 @@ jobs:
       - name: 抓取审核进度并回写页面快照
         run: python scripts/fetch_progress.py
 
-      - name: 有变化才提交（待发名单或审核进度任一变则提交）
+      - name: 抓取K线快照(补全全部股票日线到最新交易日)
+        run: python scripts/fetch_kline.py
+
+      - name: 有变化才提交（待发名单/审核进度/K线任一变则提交）
         id: commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add cb/data/pending.json cb/index.html cb/审核进度快照.json
           if git diff --cached --quiet; then
-            echo "名单与审核进度均无变化，跳过提交"
+            echo "名单、审核进度、K线均无变化，跳过提交"
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
-            git commit -m "chore(data): 自动更新待发新债名单与审核进度"
+            git commit -m "chore(data): 自动更新待发名单/审核进度/K线快照"
             git push
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
