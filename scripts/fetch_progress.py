@@ -35,6 +35,9 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 HTML = os.path.normpath(os.path.join(BASE_DIR, "..", "cb", "index.html"))
 JSON_OUT = os.path.normpath(os.path.join(BASE_DIR, "..", "cb", "审核进度快照.json"))
 CACHE = os.path.normpath(os.path.join(BASE_DIR, "..", "cb", "流通盘缓存.json"))
+# 数据已外置为独立 JS 文件（与 index.html 解耦，CI 只改写这两个文件）
+DATA_PROGRESS = os.path.normpath(os.path.join(BASE_DIR, "..", "cb", "data", "progress.js"))
+DATA_PROG_CHANGED = os.path.normpath(os.path.join(BASE_DIR, "..", "cb", "data", "progress_changed.js"))
 EM_HOLDER = "https://emweb.securities.eastmoney.com/PC_HSF10/ShareholderResearch/PageAjax?code=CODE"
 
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -193,19 +196,22 @@ def main():
         else:
             o["_c"] = None
 
-    # 4. 读取旧快照：estFloat 继承 + 名单比对基准
-    if not os.path.exists(HTML):
-        print("[ERROR] 找不到 %s" % HTML, file=sys.stderr)
+    # 4. 读取旧快照：estFloat 继承 + 名单比对基准（从外置数据文件读取）
+    if not os.path.exists(DATA_PROGRESS):
+        print("[ERROR] 找不到 %s" % DATA_PROGRESS, file=sys.stderr)
         return 1
-    html = open(HTML, encoding="utf-8").read()
-    m = re.search(r"const SNAPSHOT_PROGRESS=\[(.*?)\];", html, re.S)
+    prog_txt = open(DATA_PROGRESS, encoding="utf-8").read()
+    m = re.search(r"window\.SNAPSHOT_PROGRESS\s*=\s*\[(.*?)\];", prog_txt, re.S)
     if not m:
-        print("[ERROR] HTML 未找到 SNAPSHOT_PROGRESS", file=sys.stderr)
+        print("[ERROR] 未找到 SNAPSHOT_PROGRESS", file=sys.stderr)
         return 1
     old_arr = json.loads("[" + m.group(1) + "]")
     # 读取旧的 PROGRESS_CHANGED（广播条"最近变化"数据源，每日维护）
-    m2 = re.search(r"const PROGRESS_CHANGED=(\[.*?\]);", html, re.S)
-    old_changed = json.loads(m2.group(1)) if m2 else []
+    old_changed = []
+    if os.path.exists(DATA_PROG_CHANGED):
+        chg_txt = open(DATA_PROG_CHANGED, encoding="utf-8").read()
+        m2 = re.search(r"window\.PROGRESS_CHANGED\s*=\s*(\[.*?\]);", chg_txt, re.S)
+        old_changed = json.loads(m2.group(1)) if m2 else []
     old_by_code = {}
     old_sigs = []
     for o in old_arr:
@@ -246,7 +252,8 @@ def main():
     order = {"90": 0, "80": 1, "50": 2, "20": 3, "10": 4}
     arr.sort(key=lambda o: (order.get(o["progress"], 9), o["stockCode"] or ""))
     lit = "[\n" + ",\n".join(json.dumps(o, ensure_ascii=False, separators=(",", ":")) for o in arr) + "\n]"
-    new_html = html[: m.start()] + "const SNAPSHOT_PROGRESS=" + lit + ";" + html[m.end():]
+    with open(DATA_PROGRESS, "w", encoding="utf-8") as f:
+        f.write("window.SNAPSHOT_PROGRESS = " + lit + ";\n")
     # 维护 PROGRESS_CHANGED：对比本次抓取与上一次快照的阶段变化（广播条数据源，不依赖本地 localStorage）
     new_code_set = {o.get("stockCode") for o in arr}
     old_prog_map = {o.get("stockCode"): o.get("progress") for o in old_arr}
@@ -278,8 +285,8 @@ def main():
     cutoff7 = (datetime.now(timezone.utc).astimezone(timezone(timedelta(hours=8))) - timedelta(days=7)).strftime("%Y-%m-%d")
     new_changed = [c for c in new_changed if c.get("changeDate") and str(c.get("changeDate")) >= cutoff7]
     prog_changed_lit = "[" + ",".join(json.dumps(x, ensure_ascii=False) for x in new_changed) + "]"
-    new_html = re.sub(r"const PROGRESS_CHANGED=\[.*?\];", "const PROGRESS_CHANGED=" + prog_changed_lit + ";", new_html, count=1, flags=re.S)
-    open(HTML, "w", encoding="utf-8").write(new_html)
+    with open(DATA_PROG_CHANGED, "w", encoding="utf-8") as f:
+        f.write("window.PROGRESS_CHANGED = " + prog_changed_lit + ";\n")
 
     # 7. 存档
     try:

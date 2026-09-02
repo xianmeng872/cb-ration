@@ -32,6 +32,10 @@ EM_URL = ('https://push2his.eastmoney.com/api/qt/stock/kline/get'
 TX_URL = ('https://web.ifzq.gtimg.cn/appstock/app/fqkline/get'
           '?param={market}{code},day,2020-01-01,2099-12-31,500,qfq')
 
+# 数据已外置为独立 JS 文件（与 index.html 解耦，CI 只改写此文件）
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_KLINE = os.path.normpath(os.path.join(SCRIPT_DIR, "..", "cb", "data", "kline.js"))
+
 
 def secid_of(code):
     return ('1.' if code[0] == '6' else '0.') + code
@@ -73,13 +77,13 @@ def fetch_one(code):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--html', default='cb/index.html')
+    ap.add_argument('--data', default=DATA_KLINE)
     args = ap.parse_args()
-    with open(args.html, 'r', encoding='utf-8') as f:
-        html = f.read()
-    m = re.search(r'const KLINE_SNAPSHOT=(\{.*?\});', html, re.S)
+    with open(args.data, 'r', encoding='utf-8') as f:
+        txt = f.read()
+    m = re.search(r'window\.KLINE_SNAPSHOT\s*=\s*(\{.*?\})\s*;', txt, re.S)
     if not m:
-        print('ERROR: 未找到 const KLINE_SNAPSHOT', file=sys.stderr)
+        print('ERROR: 未找到 window.KLINE_SNAPSHOT', file=sys.stderr)
         sys.exit(1)
     snapshot = json.loads(m.group(1))
     codes = list(snapshot.keys())
@@ -101,10 +105,8 @@ def main():
                 print(f'  {code} FAIL {e} (保留原值)')
     new_snap = {c: results.get(c, snapshot[c]) for c in codes}
     new_json = json.dumps(new_snap, ensure_ascii=False, separators=(',', ':'))
-    new_html = (html[:m.start()] + 'const KLINE_SNAPSHOT=' + new_json + ';'
-                + html[m.end():])
-    with open(args.html, 'w', encoding='utf-8') as f:
-        f.write(new_html)
+    with open(args.data, 'w', encoding='utf-8') as f:
+        f.write('window.KLINE_SNAPSHOT = ' + new_json + ';\n')
     # 生成极小状态摘要, 便于 CI/自动验证 K线是否补全到最新
     try:
         latest = max((kl[-1]['date'] for kl in new_snap.values() if kl), default='')

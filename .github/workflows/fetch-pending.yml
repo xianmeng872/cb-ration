@@ -51,12 +51,15 @@ jobs:
       - name: 抓取K线快照(补全全部股票日线到最新交易日)
         run: python scripts/fetch_kline.py
 
+      - name: 校验数据完整性（发布闸门，失败则阻断部署）
+        run: python scripts/validate_data.py
+
       - name: 有变化才提交（待发名单/审核进度/K线任一变则提交）
         id: commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add cb/data/pending.json cb/index.html cb/审核进度快照.json cb/kline_status.json
+          git add cb/data/kline.js cb/data/progress.js cb/data/progress_changed.js cb/data/pending.json cb/审核进度快照.json cb/kline_status.json
           if git diff --cached --quiet; then
             echo "名单、审核进度、K线均无变化，跳过提交"
             echo "changed=false" >> "$GITHUB_OUTPUT"
