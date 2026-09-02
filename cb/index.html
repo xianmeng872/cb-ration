@@ -1908,6 +1908,8 @@ async function loadAll(){
           if(o._jslPrice!=null&&ex._jslPrice==null) ex._jslPrice=o._jslPrice;
           // 预估流通盘：pending 自带（后端算好的）优先，仅在已有值时保留
           if(o.estFloat!=null && ex._estFloat==null){ ex._estFloat=o.estFloat; chg=true; }
+          // 与 else 分支对称：补完字段立即用兜底价 compute，否则四方这类债干等实时价、拉不到就永远 ---
+          if(!ex._c && ex._jslPrice!=null){ ex._c=compute(ex, ex._jslPrice); if(touched.indexOf(ex)<0) touched.push(ex); }
           if(chg) touched.push(ex);
         }else{
           // 新条目：pending 自带的 estFloat 优先，再交给 fillFromProgress 用 PROGRESS 兜底
