@@ -19,6 +19,7 @@ fetch_kline.py — 抓取 KLINE_SNAPSHOT 中全部股票日线并回写 index.ht
 import argparse
 import concurrent.futures
 import json
+import os
 import re
 import sys
 import time
