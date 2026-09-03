@@ -26,7 +26,7 @@ import time
 import urllib.request
 
 UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-TIMEOUT = 8
+TIMEOUT = 3
 EM_URL = ('https://push2his.eastmoney.com/api/qt/stock/kline/get'
           '?secid={secid}&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f53'
           '&klt=101&fqt=0&end=20500101&lmt=250')

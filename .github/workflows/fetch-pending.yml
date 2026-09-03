@@ -43,12 +43,15 @@ jobs:
           python-version: '3.12'
 
       - name: 抓取集思录待发新债
+        continue-on-error: true
         run: python scripts/fetch_pending.py
 
       - name: 抓取审核进度并回写页面快照
+        continue-on-error: true
         run: python scripts/fetch_progress.py
 
       - name: 抓取K线快照(补全全部股票日线到最新交易日)
+        continue-on-error: true
         run: python scripts/fetch_kline.py
 
       - name: 校验数据完整性（发布闸门，失败则阻断部署）

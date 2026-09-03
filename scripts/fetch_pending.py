@@ -132,13 +132,15 @@ def main():
         raw = fetch(JSL_URL)
         data = json.loads(raw)
     except Exception as e:
-        print("[ERROR] 抓取集思录失败:", repr(e), file=sys.stderr)
-        return 1
+        # 云端（GitHub 美国 IP）访问集思录 pre_list 常被挡/超时，此时不杀 job，
+        # 保留旧 pending.json 让后续进度/K线/部署仍能跑，下次成功时再更新。
+        print("[WARN] 抓取集思录失败（可能云端网络受限），保留旧数据不更新:", repr(e), file=sys.stderr)
+        return 0
 
     rows = data.get("rows") or []
     if not rows:
-        print("[ERROR] 集思录返回 rows 为空，判定为异常，不覆盖旧数据", file=sys.stderr)
-        return 1
+        print("[WARN] 集思录返回 rows 为空，保留旧数据不覆盖", file=sys.stderr)
+        return 0
 
     # 读取旧 pending.json，按 stock_id 建立 estFloat 继承表（避免每日重复请求 emweb）
     old_est = {}
