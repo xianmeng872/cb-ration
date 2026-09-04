@@ -1283,7 +1283,13 @@ function recentProgressChanges(){
   (typeof PROGRESS!=="undefined"?PROGRESS:[]).forEach(r=>{
     // 【飞哥规则】公告只推交易所受理(50)及以后，董事会预案/股东大会通过不推
     if(r.progress && +r.progress<50) return;
-    if(r.progress==="90") return; // 申购阶段单独处理（下方直接公告，不卡3天窗口）
+    // 【2026-09-04 修复】progress===90 不等于申购：集思录语义里 90 = 「同意注册」。
+    // 真·申购记录已被 fetch_progress.py 过滤（progress_nm 含"申购"的 continue），
+    // 压根进不了 PROGRESS 数组。原写法无条件 return 会把所有「同意注册」的变化一起吞掉
+    // （华纬科技 001380 / 常青科技 603125 于 2026-09-04 中招，登记了却播不出来），
+    // 而下方 PEND 分支只认 stage==="申购"，同样接不住 —— 两头漏。
+    // 改为仅真·申购才跳过，「同意注册」正常走广播机制。
+    if(r.progress==="90" && /申购/.test(r.progress_nm||"")) return;
     const k=r.stockCode; if(!k) return;
     const c=changed.find(x=>x.stockCode===k); if(!c) return;
     let d=c.changeDate; if(!d) return;
