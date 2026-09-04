@@ -88,3 +88,12 @@ jobs:
         id: deployment
         if: steps.commit.outputs.changed == 'true'
         uses: actions/deploy-pages@v4
+
+      # 数据健康哨兵：抓完数据后跑，检测「公告漏播」+「进度数据落后」两类异常。
+      # 异常时若仓库配置了 PUSHPLUS_TOKEN secret 则推微信，否则只在日志报警（非阻塞）。
+      # 放在最后、continue-on-error：哨兵本身出问题绝不影响前面的抓取与部署。
+      - name: 数据健康哨兵（异常则微信报警）
+        continue-on-error: true
+        env:
+          PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
+        run: python scripts/sentinel.py
