@@ -118,6 +118,19 @@ def _ts(s):
             return 0
 
 
+def _safe_int(v, default=-1):
+    """安全转 int。
+
+    【2026-09-04 防御】progress 字段可能为空串/None/非数字（集思录新债刚录入时常缺），
+    直接 int() 会抛 ValueError → 脚本非 0 退出 → GitHub Actions step 失败 → 整条 job 中断，
+    K线/待发债/审核进度三种数据一起停止更新。改为返回 default(-1)，永远不会中断流水线。
+    """
+    try:
+        return int(str(v).strip())
+    except (TypeError, ValueError):
+        return default
+
+
 def sig(obj, extra=None):
     """实质字段快照，用于比对。"""
     d = {k: obj.get(k) for k in SIGNIFICANT}
@@ -141,15 +154,19 @@ def main():
 
     # 2. 字段映射 + 过滤（与 update.mjs 一致）
     arr = []
+    dropped = {"progress99": 0, "已申购": 0, "日期过旧": 0}   # 【2026-09-04】过滤明细，便于排障
     for x in data:
         progress = str(x.get("progress") or "")
         if progress == "99":
+            dropped["progress99"] += 1
             continue
         progress_nm = re.sub(r"\s+", " ", (x.get("progress_nm") or "").replace("<br>", " ")).strip()
         if progress == "90" and "申购" in progress_nm:
+            dropped["已申购"] += 1
             continue
         progress_dt = str(x.get("progress_dt") or "")
         if progress_dt and progress_dt < "2025-01-01":
+            dropped["日期过旧"] += 1
             continue
         o = {
             "stockCode": x.get("stock_id"),
@@ -228,10 +245,17 @@ def main():
             del cache[k]
 
     # estFloat：老条目继承；新条目尝试 emweb
+    # 【2026-09-04 防御】o["_c"] 可能为 None —— 当 price 或 convertPrice 缺失时，
+    # 上面第 3 步会走 else 分支把 _c 置为 None。此时执行 o["_c"]["estFloat"]= 会抛
+    # TypeError: 'NoneType' object does not support item assignment，导致脚本非 0 退出、
+    # CI 整条 job 中断（K线/待发债/审核进度全部停更）。故先补空壳字典再赋值。
     new_count = 0
     for o in arr:
+        if not isinstance(o.get("_c"), dict):
+            o["_c"] = {"cv": None, "needShares": None, "needMoney": None,
+                       "baiyuan": None, "price": None, "estFloat": None}
         old = old_by_code.get(o.get("stockCode"))
-        if old and old.get("_c") and old["_c"].get("estFloat") is not None:
+        if old and isinstance(old.get("_c"), dict) and old["_c"].get("estFloat") is not None:
             o["_c"]["estFloat"] = old["_c"]["estFloat"]
             continue
         lock = get_lock_ratio(o.get("stockCode"), cache)
@@ -240,11 +264,34 @@ def main():
             new_count += 1
 
     # 5. 实质变化比对（忽略 price / _c 推导值 / estFloat 已归入 SIGNIFICANT）
-    new_sigs = [sig(o, {"estFloat": o["_c"]["estFloat"] if o.get("_c") else None}) for o in arr]
+    new_sigs = [sig(o, {"estFloat": o["_c"].get("estFloat")
+                        if isinstance(o.get("_c"), dict) else None}) for o in arr]
     # 数组顺序也纳入比对（进度分布变化会引起顺序变化，属实质变化）
     changed = new_sigs != old_sigs
 
-    if not changed:
+    # 【2026-09-04】诊断日志：抓了多少、过滤掉多少、哪几只变了（以前全靠猜，出事定位不了）
+    print("[诊断] 接口返回 %d 条 → 过滤(progress99=%d, 已申购=%d, 日期过旧=%d) → 保留 %d 条"
+          % (len(data), dropped["progress99"], dropped["已申购"], dropped["日期过旧"], len(arr)))
+    if changed:
+        old_map = {o.get("stockCode"): o for o in old_arr}
+        diff_lines = []
+        for o in arr:
+            old = old_map.get(o.get("stockCode"))
+            if old is None:
+                diff_lines.append("  + 新增 %s %s [%s %s]"
+                                  % (o.get("stockCode"), o.get("stockName"),
+                                     o.get("progress"), o.get("progress_nm")))
+            elif str(old.get("progress")) != str(o.get("progress")):
+                diff_lines.append("  ~ %s %s 阶段 %s(%s) → %s(%s)"
+                                  % (o.get("stockCode"), o.get("stockName"),
+                                     old.get("progress"), old.get("progress_nm"),
+                                     o.get("progress"), o.get("progress_nm")))
+            elif (old.get("progress_full") or "") != (o.get("progress_full") or ""):
+                diff_lines.append("  ~ %s %s 时间线有更新(阶段未变)" % (o.get("stockCode"), o.get("stockName")))
+        print("[诊断] 本次实质变化 %d 处:" % len(diff_lines))
+        for ln in diff_lines[:30]:
+            print(ln)
+    else:
         print("审核进度无实质变化（仅价格浮动），保持文件不变，不产生提交")
         return 0
 
@@ -269,8 +316,9 @@ def main():
         old_prog = old_prog_map.get(k)
         # 记录条件：① 新进名单（旧快照无此股） ② 阶段编号变化。
         # 且【新阶段 >=50】才记录（董事会预案/股东大会通过的变化不公告）
+        # 【2026-09-04】int() 改 _safe_int()，空串/异常值返回 -1（<50 自然落选），不再中断 CI。
         if (old_prog is None or str(old_prog) != str(o.get("progress"))) \
-                and o.get("progress") is not None and int(o.get("progress")) >= MIN_BROADCAST_PROG:
+                and _safe_int(o.get("progress")) >= MIN_BROADCAST_PROG:
             cd = o.get("progress_dt") or today_str
             new_changed.append({"stockCode": k, "stockName": o.get("stockName"), "changeDate": cd})
     for x in old_changed:
@@ -278,7 +326,7 @@ def main():
         if k in new_code_set and not any(c["stockCode"] == k for c in new_changed):
             # 【飞哥规则】old 保留时也要求当前阶段 >=50（<50 的脏记录不再保留）
             cur_prog = next((o.get("progress") for o in arr if o.get("stockCode") == k), None)
-            if cur_prog is not None and int(cur_prog) >= MIN_BROADCAST_PROG:
+            if _safe_int(cur_prog) >= MIN_BROADCAST_PROG:
                 new_changed.append(x)
     # 【防膨胀】只保留最近 7 天的变化记录（前端广播条只显示 3 天窗口，7 天留冗余；
     # 过期的老记录不再累积，避免 PROGRESS_CHANGED 数组无限增长拖慢页面加载）
