@@ -76,7 +76,7 @@ def jsl_fetch(url):
 
 
 def send_pushplus(token, title, content):
-    url = "http://www.pushplus.plus/send"
+    url = "https://www.pushplus.plus/send"
     body = json.dumps({
         "token": token,
         "title": title,
@@ -137,11 +137,20 @@ def main():
     except Exception as e:
         print("⚠️ 接口比对跳过（抓取失败，非阻塞）：", repr(e))
 
+    token = os.environ.get("PUSHPLUS_TOKEN")
+
+    # 自检模式（CI 临时设 PUSHPLUS_SELFTEST=1）：强制发一条，确认微信通道通。
+    # 正常定时运行不设这个变量，不会每天骚扰。
+    if os.environ.get("PUSHPLUS_SELFTEST") and token:
+        send_pushplus(token, "cb-ration 报警通道自检",
+                      "大头测试：如果你收到这条，说明微信推送已接通 ✅ "
+                      "以后数据停更 / 公告漏播会自动推你。")
+        print("📨 自检微信已发（PUSHPLUS_SELFTEST）")
+
     if problems:
         print("❌ 发现 %d 项异常：" % len(problems))
         for p in problems:
             print("  -", p)
-        token = os.environ.get("PUSHPLUS_TOKEN")
         if token:
             send_pushplus(token, "cb-ration 数据健康警报", "\n".join(problems))
         else:

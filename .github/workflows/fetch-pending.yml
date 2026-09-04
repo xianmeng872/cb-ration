@@ -96,4 +96,5 @@ jobs:
         continue-on-error: true
         env:
           PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
+          PUSHPLUS_SELFTEST: "1"
         run: python scripts/sentinel.py
