@@ -28,6 +28,30 @@ JSON_OUT = os.path.normpath(os.path.join(BASE_DIR, "..", "cb", "待发债快照.
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36")
 
+# 【2026-09-07 降频】待发债一天 4 次偏多（新债发行公告/登记日 95% 在盘后或晚间发布）。
+# 改为每天只在两个窗口真正抓取：早盘前（对应原 08:30 班，放宽到 13:30 以容纳 GitHub Actions 排队延迟）
+# + 晚间（对应原 21:00 班）。其余运行直接秒退、不请求集思录、不覆盖数据。
+# 若要严格"9 点前"，把第一个窗口改为 (0, 0, 9, 0) 即可。
+FETCH_WINDOWS = [
+    (5, 0, 10, 0),     # 早盘前窗口（北京时间，对应原08:30班；放宽到10点以容纳GitHub排队延迟）
+    (21, 0, 23, 59),   # 晚间窗口（北京时间，对应原21:00班）
+]
+
+
+def beijing_now():
+    return datetime.now(timezone.utc).astimezone(timezone(timedelta(hours=8)))
+
+
+def in_fetch_window():
+    """当前是否处于允许抓取的北京时间窗口。"""
+    now = beijing_now()
+    cur = now.hour * 60 + now.minute
+    for (h1, m1, h2, m2) in FETCH_WINDOWS:
+        if h1 * 60 + m1 <= cur <= h2 * 60 + m2:
+            return True
+    return False
+
+
 EM_HOLDER = "https://emweb.securities.eastmoney.com/PC_HSF10/ShareholderResearch/PageAjax?code=CODE"
 
 # 页面需要的字段（其余丢弃以控制体积，避免仓库无意义膨胀）
@@ -128,6 +152,12 @@ def fetch(url, timeout=30):
 
 
 def main():
+    # 【2026-09-07 降频】非抓取窗口直接跳过（不请求、不覆盖，保持数据不变）
+    if not in_fetch_window():
+        bj = beijing_now().strftime("%H:%M")
+        print("[跳过] 当前北京时间 %s 不在抓取窗口(早05:00-10:00 / 晚21:00-23:59)，本次不抓取" % bj)
+        return 0
+
     try:
         raw = fetch(JSL_URL)
         data = json.loads(raw)
