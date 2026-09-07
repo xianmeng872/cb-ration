@@ -63,6 +63,25 @@ def will_broadcast(progress, progress_nm):
     return True
 
 
+def clean_nm(nm):
+    """复刻 fetch_progress.py 的 clean_nm（去空白、去 <br>）。"""
+    return re.sub(r"\s+", " ", (nm or "").replace("<br>", " ")).strip()
+
+
+def is_tracked(x):
+    """复刻 fetch_progress.py 的收录口径：排除已上市(99)与申购中(90+申购)。
+    否则哨兵用集思录原始接口全量取 progress_dt 最大值时，会把已上市的债
+    （如丰茂股份 progress=99 上市日 2026-09-09）误当成‘最新审核进度’，
+    而仓库不收录这类债，于是凭空报‘进度落后’。过滤后与仓库口径对齐。"""
+    p = str(x.get("progress") or "").strip()
+    nm = x.get("progress_nm") or ""
+    if p == "99":
+        return False
+    if p == "90" and "申购" in clean_nm(nm):
+        return False
+    return True
+
+
 def jsl_fetch(url):
     req = urllib.request.Request(url, headers={
         "User-Agent": UA,
@@ -126,7 +145,9 @@ def main():
     try:
         jsl = jsl_fetch(JSL_URL)
         arr = (jsl.get("data") or []) if isinstance(jsl, dict) else []
-        jsl_max = max((x.get("progress_dt") or "") for x in arr if x.get("progress_dt"))
+        # 【2026-09-07 修复】只比仓库实际收录的待审核进度，排除已上市(99)/申购中(90+申购)
+        jsl_max = max((x.get("progress_dt") or "") for x in arr
+                      if x.get("progress_dt") and is_tracked(x))
         repo_max = max((p.get("progress_dt") or "") for p in progress if p.get("progress_dt"))
         if jsl_max and repo_max and jsl_max > repo_max:
             gap = (datetime.datetime.strptime(jsl_max, "%Y-%m-%d").date()
