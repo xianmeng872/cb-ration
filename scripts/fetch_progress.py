@@ -31,6 +31,12 @@ import urllib.error
 from datetime import datetime, timezone, timedelta
 
 JSL_URL = "https://www.jisilu.cn/webapi/cb/pre/"
+JSL_REFERER = "https://www.jisilu.cn/web/data/cb/"
+# 【2026-09-07 备用源】webapi/cb/pre/ 在 GitHub Actions(境外 IP)时常不可达，
+# 而 data/cbnew/pre_list/ 与 fetch_pending.py 同源，云端实测长期可达。
+# 字段差异：pre_list 无 progress 数字编号，需由 progress_nm 反推（见 nm_to_progress）。
+JSL_URL_FALLBACK = "https://www.jisilu.cn/data/cbnew/pre_list/?___jsl=LST___t=0"
+JSL_REFERER_FALLBACK = "https://www.jisilu.cn/data/cbnew/"
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 HTML = os.path.normpath(os.path.join(BASE_DIR, "..", "cb", "index.html"))
 JSON_OUT = os.path.normpath(os.path.join(BASE_DIR, "..", "cb", "审核进度快照.json"))
@@ -38,6 +44,30 @@ CACHE = os.path.normpath(os.path.join(BASE_DIR, "..", "cb", "流通盘缓存.jso
 # 数据已外置为独立 JS 文件（与 index.html 解耦，CI 只改写这两个文件）
 DATA_PROGRESS = os.path.normpath(os.path.join(BASE_DIR, "..", "cb", "data", "progress.js"))
 DATA_PROG_CHANGED = os.path.normpath(os.path.join(BASE_DIR, "..", "cb", "data", "progress_changed.js"))
+# 【2026-09-07 降频】审核进度一天 4 次太频繁且绝大部分是空跑（集思录每月新增到"同意注册"不到 10 家，
+# 平均日增 <1 条）。改为每天只在两个窗口真正抓取：早盘前（对应原 08:30 班，放宽到 13:30 以容纳
+# GitHub Actions 排队延迟，否则 08:30 班常被拖到中午反而错过"9 点前"）+ 晚间（对应原 21:00 班）。
+# 其余运行直接秒退、不请求集思录、不覆盖数据。若要严格"9 点前"，把第一个窗口改为 (0, 0, 9, 0) 即可。
+FETCH_WINDOWS = [
+    (5, 0, 10, 0),     # 早盘前窗口（北京时间，对应原08:30班；放宽到10点以容纳GitHub排队延迟）
+    (21, 0, 23, 59),   # 晚间窗口（北京时间，对应原21:00班）
+]
+
+
+def beijing_now():
+    return datetime.now(timezone.utc).astimezone(timezone(timedelta(hours=8)))
+
+
+def in_fetch_window():
+    """当前是否处于允许抓取的北京时间窗口。"""
+    now = beijing_now()
+    cur = now.hour * 60 + now.minute
+    for (h1, m1, h2, m2) in FETCH_WINDOWS:
+        if h1 * 60 + m1 <= cur <= h2 * 60 + m2:
+            return True
+    return False
+
+
 EM_HOLDER = "https://emweb.securities.eastmoney.com/PC_HSF10/ShareholderResearch/PageAjax?code=CODE"
 
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -71,6 +101,98 @@ def fetch(url, referer, timeout=30):
     })
     with urllib.request.urlopen(req, timeout=timeout) as r:
         return r.read().decode("utf-8", errors="replace")
+
+
+def clean_nm(s):
+    """清洗阶段名：去 HTML 标签（pre_list 的申购条目带 <span>）、压平空白。"""
+    s = re.sub(r"<[^>]+>", " ", str(s or ""))
+    return re.sub(r"\s+", " ", s).strip()
+
+
+def nm_to_progress(nm):
+    """由阶段名反推 progress 编号（pre_list 接口不带该字段）。
+
+    编号口径与 update.mjs 的 order 表一致：
+    10 董事会预案 / 20 股东大会通过 / 50 交易所受理 / 80 上市委通过 / 90 同意注册·申购 / 99 上市
+    注意顺序：先判"上市委通过"（含"上市"二字），否则会被最后的"上市"误吞。
+    """
+    if "上市委通过" in nm:
+        return "80"
+    if "同意注册" in nm:
+        return "90"
+    if "交易所受理" in nm:
+        return "50"
+    if "股东大会通过" in nm:
+        return "20"
+    if "董事会预案" in nm:
+        return "10"
+    if "申购" in nm:
+        return "90"
+    if "上市" in nm:
+        return "99"
+    return ""
+
+
+def _num(v):
+    """pre_list 的数值字段可能是字符串，统一转 float；失败返回 None。"""
+    if v in (None, "", "-"):
+        return None
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return None
+
+
+def load_from_webapi():
+    """主源：webapi/cb/pre/（境内稳定，字段最全，带 progress 编号）。"""
+    d = json.loads(fetch(JSL_URL, JSL_REFERER, timeout=20))
+    data = d.get("data") or []
+    if not data:
+        raise ValueError("data 为空")
+    return data, "webapi/cb/pre"
+
+
+def load_from_prelist():
+    """备用源：data/cbnew/pre_list/（GitHub 云端可达，与 fetch_pending.py 同源）。"""
+    d = json.loads(fetch(JSL_URL_FALLBACK, JSL_REFERER_FALLBACK, timeout=20))
+    rows = d.get("rows") or []
+    out = []
+    for r in rows:
+        c = (r.get("cell") if isinstance(r, dict) else None) or r
+        if not isinstance(c, dict):
+            continue
+        nm = clean_nm(c.get("progress_nm"))
+        x = dict(c)
+        x["progress_nm"] = nm
+        x["progress"] = nm_to_progress(nm)
+        # 字段口径对齐 webapi：数值化，避免字符串混入前端排序
+        x["amount"] = _num(c.get("amount"))
+        x["convert_price"] = _num(c.get("convert_price"))
+        x["price"] = _num(c.get("price"))
+        x["ration"] = _num(c.get("ration"))
+        ap = _num(c.get("apply10"))
+        x["apply10"] = int(ap) if ap is not None else None
+        out.append(x)
+    if not out:
+        raise ValueError("rows 为空")
+    return out, "data/cbnew/pre_list(备用源)"
+
+
+def load_progress_data():
+    """主源优先，失败自动切备用源；两源皆失败才判失败。
+
+    【2026-09-07】此前只认 webapi 一个源，云端不可达时直接 return 1，
+    被 workflow 的 continue-on-error 静默吞掉 → 审核进度连续多日冻结。
+    改为双源后，只要集思录任一接口可达即可正常更新。
+    """
+    errs = []
+    for loader in (load_from_webapi, load_from_prelist):
+        try:
+            data, src = loader()
+            return data, src, errs
+        except Exception as e:
+            errs.append("%s 失败: %r" % (getattr(loader, "__name__", "?"), e))
+    return None, None, errs
 
 
 def get_lock_ratio(stock_code, cache):
@@ -140,27 +262,35 @@ def sig(obj, extra=None):
 
 
 def main():
-    # 1. 抓取集思录审核进度
-    try:
-        raw = fetch(JSL_URL, "https://www.jisilu.cn/web/data/cb/")
-        d = json.loads(raw)
-    except Exception as e:
-        print("[ERROR] 抓取集思录 webapi/cb/pre 失败:", repr(e), file=sys.stderr)
+    # 【2026-09-07 降频】非抓取窗口直接跳过（不请求、不覆盖，保持数据不变）
+    if not in_fetch_window():
+        bj = beijing_now().strftime("%H:%M")
+        print("[跳过] 当前北京时间 %s 不在抓取窗口(早05:00-10:00 / 晚21:00-23:59)，本次不抓取" % bj)
+        return 0
+
+    # 1. 抓取集思录审核进度（主源失败自动切备用源，两源皆失败才判失败）
+    data, source_used, src_errs = load_progress_data()
+    if data is None:
+        print("[ERROR] 集思录两个源都抓不到，不覆盖旧数据", file=sys.stderr)
+        for e in src_errs:
+            print("  -", e, file=sys.stderr)
         return 1
-    data = d.get("data") or []
-    if not data:
-        print("[ERROR] 集思录接口返回 data 为空，判定异常，不覆盖旧数据", file=sys.stderr)
-        return 1
+    for e in src_errs:
+        print("[warn] 主源不可用，已降级:", e, file=sys.stderr)
+    print("[数据源] %s，返回 %d 条" % (source_used, len(data)))
 
     # 2. 字段映射 + 过滤（与 update.mjs 一致）
     arr = []
     dropped = {"progress99": 0, "已申购": 0, "日期过旧": 0}   # 【2026-09-04】过滤明细，便于排障
     for x in data:
-        progress = str(x.get("progress") or "")
+        progress_nm = clean_nm(x.get("progress_nm"))
+        progress = str(x.get("progress") or "").strip()
+        # 备用源(及主源缺字段时)由阶段名反推编号，保证过滤与排序口径一致
+        if not progress:
+            progress = nm_to_progress(progress_nm)
         if progress == "99":
             dropped["progress99"] += 1
             continue
-        progress_nm = re.sub(r"\s+", " ", (x.get("progress_nm") or "").replace("<br>", " ")).strip()
         if progress == "90" and "申购" in progress_nm:
             dropped["已申购"] += 1
             continue
