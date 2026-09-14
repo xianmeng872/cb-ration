@@ -1,1 +1,1 @@
-window.PROGRESS_CHANGED = [{"stockCode": "301149", "stockName": "隆华新材", "changeDate": "2026-09-07"},{"stockCode": "301571", "stockName": "国科天成", "changeDate": "2026-09-07"},{"stockCode": "301175", "stockName": "中科环保", "changeDate": "2026-09-07"}];
+window.PROGRESS_CHANGED = [{"stockCode": "688510", "stockName": "航亚科技", "changeDate": "2026-09-12"},{"stockCode": "301149", "stockName": "隆华新材", "changeDate": "2026-09-07"},{"stockCode": "301571", "stockName": "国科天成", "changeDate": "2026-09-07"},{"stockCode": "301175", "stockName": "中科环保", "changeDate": "2026-09-07"}];
