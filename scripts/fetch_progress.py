@@ -178,21 +178,86 @@ def load_from_prelist():
     return out, "data/cbnew/pre_list(备用源)"
 
 
+def _normalize_item(x):
+    """把两源的原始记录统一成比较用的四元组 (code, progress, progress_dt, nm)。"""
+    c = (x.get("cell") if isinstance(x, dict) and "cell" in x else x) or {}
+    if not isinstance(c, dict):
+        return "", "", "", "", {}
+    nm = clean_nm(c.get("progress_nm"))
+    p = str(c.get("progress") or "").strip() or nm_to_progress(nm)
+    dt = str(c.get("progress_dt") or "")[:10]
+    return str(c.get("stock_id") or ""), p, dt, nm, c
+
+
+def _keep(p, nm):
+    """收录口径（与 main 的过滤一致）：排除已上市/申购中/日期过旧。"""
+    if p == "99":
+        return False
+    if p == "90" and "申购" in nm:
+        return False
+    return True
+
+
+def merge_sources(pairs):
+    """把多源记录逐条合并：同一只股票取「进度日期更新」的那条。
+
+    顺序以第一个源为主，只在出现全新股票时向后追加 —— 保证数据没变时
+    顺序不变、不产生无意义提交。
+    """
+    merged = {}
+    order = []
+    for records, src in pairs:
+        for x in records:
+            code, p, dt, nm, c = _normalize_item(x)
+            if not code or not _keep(p, nm):
+                continue
+            if dt and dt < "2025-01-01":
+                continue
+            if code not in merged:
+                order.append(code)
+                merged[code] = [c, dt, src]
+            elif dt > merged[code][1]:
+                merged[code] = [c, dt, src]
+    return [merged[k][0] for k in order], {k: merged[k][2] for k in order}
+
+
 def load_progress_data():
-    """主源优先，失败自动切备用源；两源皆失败才判失败。
+    """两源都抓，逐条取较新者；两源皆失败才判失败。
 
     【2026-09-07】此前只认 webapi 一个源，云端不可达时直接 return 1，
     被 workflow 的 continue-on-error 静默吞掉 → 审核进度连续多日冻结。
-    改为双源后，只要集思录任一接口可达即可正常更新。
+
+    【2026-09-17】只做「主源成功就用主源」还不够：实测 09-12~09-17 期间，
+    GitHub Actions 侧 webapi 返回的行情字段是当天值、但 progress/progress_dt
+    却冻结在 09-12（主源"成功"却内容滞后，脚本无从察觉），审核进度因此
+    连续 5 天不更新；同期的 pre_list（与 fetch_pending 同源）在云端是新鲜的。
+    故改为两源都抓、逐条按 progress_dt 取新，任一源新鲜即可补上。
     """
     errs = []
+    pairs = []
     for loader in (load_from_webapi, load_from_prelist):
         try:
             data, src = loader()
-            return data, src, errs
+            pairs.append((data, src))
         except Exception as e:
             errs.append("%s 失败: %r" % (getattr(loader, "__name__", "?"), e))
-    return None, None, errs
+    if not pairs:
+        return None, None, errs
+
+    if len(pairs) == 1:
+        return pairs[0][0], pairs[0][1], errs
+
+    (d1, s1), (d2, s2) = pairs[0], pairs[1]
+    max1 = max([_normalize_item(x)[2] for x in d1] or [""])
+    max2 = max([_normalize_item(x)[2] for x in d2] or [""])
+    if max1 != max2:
+        errs.append("两源进度日期不一致：%s 到 %s，%s 到 %s（逐条取较新者）"
+                    % (s1, max1 or "-", s2, max2 or "-"))
+    merged, src_of = merge_sources(pairs)
+    n2 = sum(1 for v in src_of.values() if v == s2)
+    print("[双源] %s 进度到 %s / %s 进度到 %s → 合并 %d 条（其中 %d 条取自备用源）"
+          % (s1, max1 or "-", s2, max2 or "-", len(merged), n2))
+    return merged, "%s + %s(逐条取新)" % (s1, s2), errs
 
 
 def get_lock_ratio(stock_code, cache):
@@ -364,6 +429,19 @@ def main():
     for o in old_arr:
         old_by_code[o.get("stockCode")] = o
         old_sigs.append(sig(o, {"estFloat": o.get("_c", {}).get("estFloat") if isinstance(o.get("_c"), dict) else None}))
+
+    # 【2026-09-17】兜底：若某条（多为备用源）缺 progress_full，从旧快照继承，
+    # 避免换源瞬间前端"进度全流程"空白。
+    miss_pf = 0
+    for o in arr:
+        if (o.get("progress_full") or "").strip():
+            continue
+        old = old_by_code.get(o.get("stockCode"))
+        if old and (old.get("progress_full") or ""):
+            o["progress_full"] = old["progress_full"]
+            miss_pf += 1
+    if miss_pf:
+        print("[双源] %d 条缺 progress_full，已从旧快照继承" % miss_pf)
 
     cache = {}
     if os.path.exists(CACHE):
