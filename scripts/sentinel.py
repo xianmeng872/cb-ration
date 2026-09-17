@@ -30,9 +30,17 @@ JSL_URL = os.environ.get(
     "SENTINEL_JSL_URL",
     "https://www.jisilu.cn/webapi/cb/pre/",
 )
+# 【2026-09-17】备用源（与 fetch_pending.py / fetch_progress.py 同源）。
+# 实测 CI 侧 webapi 的 progress 字段会滞后数日，若哨兵只认 webapi，
+# 会与仓库"一起瞎"——两边都停在同一天，于是误判为健康。两源取更晚者才准。
+JSL_URL_FALLBACK = os.environ.get(
+    "SENTINEL_JSL_URL_FALLBACK",
+    "https://www.jisilu.cn/data/cbnew/pre_list/?___jsl=LST___t=0",
+)
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36")
 REFERER = "https://www.jisilu.cn/web/data/cb/"
+REFERER_FALLBACK = "https://www.jisilu.cn/data/cbnew/"
 
 
 def load_arr(filename, var_name):
@@ -68,12 +76,33 @@ def clean_nm(nm):
     return re.sub(r"\s+", " ", (nm or "").replace("<br>", " ")).strip()
 
 
+def nm_to_progress(nm):
+    """由阶段名反推 progress 编号（pre_list 不带该字段，口径与 fetch_progress.py 一致）。"""
+    if "上市委通过" in nm:
+        return "80"
+    if "同意注册" in nm:
+        return "90"
+    if "交易所受理" in nm:
+        return "50"
+    if "股东大会通过" in nm:
+        return "20"
+    if "董事会预案" in nm:
+        return "10"
+    if "申购" in nm:
+        return "90"
+    if "上市" in nm:
+        return "99"
+    return ""
+
+
 def is_tracked(x):
     """复刻 fetch_progress.py 的收录口径：排除已上市(99)与申购中(90+申购)。
     否则哨兵用集思录原始接口全量取 progress_dt 最大值时，会把已上市的债
     （如丰茂股份 progress=99 上市日 2026-09-09）误当成‘最新审核进度’，
-    而仓库不收录这类债，于是凭空报‘进度落后’。过滤后与仓库口径对齐。"""
-    p = str(x.get("progress") or "").strip()
+    而仓库不收录这类债，于是凭空报‘进度落后’。过滤后与仓库口径对齐。
+    【2026-09-17】pre_list 无 progress 编号，改由阶段名反推，否则会被当成待跟踪。
+    """
+    p = str(x.get("progress") or "").strip() or nm_to_progress(clean_nm(x.get("progress_nm")))
     nm = x.get("progress_nm") or ""
     if p == "99":
         return False
@@ -82,12 +111,29 @@ def is_tracked(x):
     return True
 
 
-def jsl_fetch(url):
+def source_max_dt(url, referer, label):
+    """取某源「待跟踪条目」里最新的 progress_dt；失败返回空串。"""
+    try:
+        jsl = jsl_fetch(url, referer)
+        rows = (jsl.get("data") or []) if isinstance(jsl, dict) else []
+        if not rows:
+            rows = (jsl.get("rows") or []) if isinstance(jsl, dict) else []
+        rows = [(x.get("cell") or x) if isinstance(x, dict) else {} for x in rows]
+        m = max((str(x.get("progress_dt") or "")[:10] for x in rows
+                 if x.get("progress_dt") and is_tracked(x)), default="")
+        print("   [%s] 最新进度 %s（%d 条）" % (label, m or "-", len(rows)))
+        return m
+    except Exception as e:
+        print("   [%s] 取用失败：%r" % (label, e))
+        return ""
+
+
+def jsl_fetch(url, referer=REFERER):
     req = urllib.request.Request(url, headers={
         "User-Agent": UA,
         "Accept": "application/json, text/javascript, */*; q=0.01",
         "Accept-Language": "zh-CN,zh;q=0.9",
-        "Referer": REFERER,
+        "Referer": referer,
         "X-Requested-With": "XMLHttpRequest",
     })
     with urllib.request.urlopen(req, timeout=30) as r:
@@ -142,12 +188,11 @@ def main():
                                p.get("progress"), p.get("progress_nm")))
 
     # ---- ② 进度数据落后 ----
+    # 【2026-09-17】两源取更晚者作为基准：只认 webapi 时，一旦 webapi 侧滞后，
+    # 哨兵会与仓库一起停在同一天，把"停更"误判成"健康"（09-12~09-17 就是这样静默的）。
     try:
-        jsl = jsl_fetch(JSL_URL)
-        arr = (jsl.get("data") or []) if isinstance(jsl, dict) else []
-        # 【2026-09-07 修复】只比仓库实际收录的待审核进度，排除已上市(99)/申购中(90+申购)
-        jsl_max = max((x.get("progress_dt") or "") for x in arr
-                      if x.get("progress_dt") and is_tracked(x))
+        jsl_max = max(source_max_dt(JSL_URL, REFERER, "webapi/cb/pre"),
+                      source_max_dt(JSL_URL_FALLBACK, REFERER_FALLBACK, "pre_list"))
         repo_max = max((p.get("progress_dt") or "") for p in progress if p.get("progress_dt"))
         if jsl_max and repo_max and jsl_max > repo_max:
             gap = (datetime.datetime.strptime(jsl_max, "%Y-%m-%d").date()
