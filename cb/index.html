@@ -860,6 +860,40 @@ async function fetchJisiluPend(){
   }
   return []; // 全部失败返回空，由快照兜底
 }
+// 审核进度增强专用：读与待发债**完全同源**的 ./data/pending.json，但保留全部待发债（含尚未公告申购日的审核中项目）。
+// fetchJisiluPend() 只保留有申购日的债（待发债 Tab 用）；而审核进度 Tab 显示的多是「同意注册 / 上市委通过 / 交易所受理」
+// 等尚未定申购日的项目 —— 若沿用它，增强一行都覆盖不到（这正是快照转股价 68/69 全对不上的根源）。
+async function fetchJisiluProgressAll(){
+  for(const url of JSL_ENDPOINTS){
+    try{
+      const ac=("AbortController" in window)?new AbortController():null;
+      const timer=ac?setTimeout(()=>ac.abort(),6000):null;
+      let j;
+      try{ j=await (await fetch(url,{cache:"no-store",signal:ac?ac.signal:undefined})).json(); }
+      finally{ if(timer)clearTimeout(timer); }
+      const rows=(j&&j.rows)||[];
+      if(!rows.length) continue;
+      const out=[];
+      for(const r of rows){
+        const c=r.cell||{};
+        if(c.list_date) continue;                        // 已定上市日 → 已上市，不属审核进度
+        const stockCode=String(c.stock_id||"").trim();
+        if(!stockCode) continue;
+        const num=v=>(v!=null&&v!==""&&!isNaN(Number(v)))?Number(v):null;
+        out.push({
+          stockCode,
+          convertPrice:num(c.convert_price),              // 最新转股价（审核中项目也会随方案/正股调整而变）
+          apply10:num(c.apply10),                          // 配 10 张所需股数
+          perPre:num(c.ration),                            // 每股配售元面值（未到申购阶段集思录通常不给）
+          scale:num(c.amount),
+          _jslPrice:num(c.price)
+        });
+      }
+      if(out.length) return out;
+    }catch(e){ console.warn("审核进度集思录数据读取失败:",url,(e&&e.message)||e); }
+  }
+  return [];
+}
 // 腾讯实时价：用 <script> 注入方式(返回 v_xxxx="..." 全局变量)，绕过 file:// 跨域限制，本地双击也能刷新
 function fetchPrice(stockCode){
   return new Promise((resolve)=>{
@@ -1724,8 +1758,14 @@ function loadStockChart(klineObj, stockName){
 async function loadAll(){
   const btn=$("#refresh");btn.disabled=true;btn.textContent="刷新中…";
   try{
-    // 外部审核进度快照仅作补充：以当前PROGRESS(或内嵌SNAPSHOT_PROGRESS)为基准按stockCode合并，
-    // 外部条目仅当其progress_dt比基准更新才覆盖——防止旧JSON把最新数据拖回(如曾冻结在8月7日)
+    // 外部审核进度快照仅作补充：以当前PROGRESS(或内嵌SNAPSHOT_PROGRESS)为基准按stockCode合并。
+    // 【2026-09-24 根因修复】原条件是 `(r.progress_dt||"") >= (ex.progress_dt||"")` —— 只要审核日期
+    // 相同就整体覆盖。但 progress_dt 是「审核阶段发生变化的日期」，一只债几个月都不会变；而转股价/
+    // 配售参数是天天变的。该 JSON 自 2026-09-18 起停更（阿里云FC模式下脚本不再写它，progress.js 才是
+    // 每小时更新的权威源），于是旧值以「日期相同」为由把新数据整批拖回 09-18 —— 实测 70/70 只债的
+    // 转股价被污染，这就是「数据全部对不上」的根因。
+    // 修法：改为【只补充 progress.js 里没有的条目，绝不覆盖已有条目】。既不丢它独有的数据，
+    // 也不会让停更文件污染权威源。
     try{
       const spRes=await fetch('./审核进度快照.json',{cache:'no-store'});
       if(spRes.ok){
@@ -1736,7 +1776,8 @@ async function loadAll(){
           const map=new Map(base.map(r=>[r.stockCode||r.code,r]));
           for(const r of arr){
             const key=r.stockCode||r.code; const ex=map.get(key);
-            if(!ex || (r.progress_dt||"") >= (ex.progress_dt||"")){
+            // 【2026-09-24 根因修复】仅当基准里根本没有这只债时才追加，不再覆盖已有条目
+            if(!ex){
               const cc=r._c;
               map.set(key, {...r,_c:cc&&cc.price!=null?compute(r,cc.price):(cc||null)});
             }
@@ -1865,6 +1906,31 @@ async function loadProgressRealtime(){
     // 先展示快照价，再批量后台刷新实时价
     renderProgress();
     setTime("审核进度实时");
+    // ① 集思录实时增强（与待发债同源）：用 pre_list 最新的「转股价 / apply10 / 每股配售(perPre) / 规模」覆盖冻结快照里的旧值。
+    //    这是「审核进度对不上待发债」的根治 —— 之前审核进度只读静态快照，配置型字段原地冻结；现在改用 fetchJisiluProgressAll()
+    //    （主链路读同源 ./data/pending.json，每天 4 次更新、无 CORS），让两个 Tab 共用同一份实时配售数据，自然对齐。
+    try{
+      const jslList=await fetchJisiluProgressAll();   // 全量：审核进度多为未定申购日的项目，不能只取有申购日的
+      if(jslList&&jslList.length){
+        const jmap=new Map(jslList.map(o=>[o.stockCode,o]));
+        let hit=0;
+        for(const p of PROGRESS){
+          const o=jmap.get(p.stockCode); if(!o) continue;   // pending 里没有的项目（更早期的预案）保持原样
+          let chg=false;
+          if(o.convertPrice!=null && p.convertPrice!==o.convertPrice){ p.convertPrice=o.convertPrice; chg=true; }
+          if(o.apply10!=null      && p.apply10!==o.apply10){ p.apply10=o.apply10; chg=true; }
+          if(o.perPre!=null       && p.perPre!==o.perPre){ p.perPre=o.perPre; chg=true; }
+          if(o.scale!=null        && p.scale!==o.scale){ p.scale=o.scale; chg=true; }
+          if(o._jslPrice!=null && p._jslPrice==null) p._jslPrice=o._jslPrice;
+          if(chg){
+            // 配置变了，先用集思录兜底价立即重算 _c（实时价随后由 refreshPricesBackground 覆盖），避免列值短暂错乱
+            p._c=compute(p, (p._c&&p._c.price!=null)?p._c.price:(p._jslPrice!=null?p._jslPrice:null));
+            hit++;
+          }
+        }
+        if(hit) console.log("【审核进度】集思录增强覆盖 "+hit+" 只冻结配置");
+      }
+    }catch(e){ console.warn("审核进度集思录增强失败(回退快照):",(e&&e.message)||e); }
     refreshPricesBackground(PROGRESS, ()=>{
       renderProgress();
       setTime("审核进度实时");
