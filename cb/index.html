@@ -927,14 +927,24 @@ function batchFetchPrice(stockCodes){
     const groups=[];
     const SH=codes.filter(c=>/^(60|68|605|601|603|600)/.test(c));
     const SZ=codes.filter(c=>!/^(60|68|605|601|603|600)/.test(c));
-    const push=(arr,prefix)=>{ for(let i=0;i<arr.length;i+=60) groups.push(prefix+arr.slice(i,i+60).join(",")); };
+    // 【2026-09-24 根因修复 · 价格冻结】qt.gtimg.cn 要求"每个代码都带市场前缀"（sh600368,sh603163,...）。
+    // 原写法 `prefix+arr.slice(i,i+60).join(",")` 只给第 1 个代码加了前缀，腾讯只认第 1 只，
+    // 实测返回条数：q=sh600368,603163,601717 → 仅 1 条；q=sh600368,sh603163,sh601717 → 3 条。
+    // 后果：每次刷新 70 只债里只有 2 只（沪市组第 1 只 + 深市组第 1 只）拿到实时价，
+    // 其余 68 只一直沿用 progress.js 里机器人抓取时刻的冻结快照价 —— 这就是
+    // 「一手党 / 所需资金 与集思录、实时行情对不上」的根因（资金 = 股数 × 正股价，价是旧的则金额全错）。
+    // 修法：map 给每个代码都补上前缀，再 join。
+    const push=(arr,prefix)=>{ for(let i=0;i<arr.length;i+=60) groups.push(arr.slice(i,i+60).map(c=>prefix+c).join(",")); };
     push(SH,"sh"); push(SZ,"sz");
     if(!groups.length) return resolve(map);
     let done=0; const total=groups.length;
     const finish=()=>{ if(++done>=total) resolve(map); };
     groups.forEach(g=>{
       const s=document.createElement("script");
-      const onend=()=>{ try{s.remove();}catch(e){} finish(); };
+      // 【2026-09-24 加固】onload 与下方 6 秒兜底都会走到 onend，原代码无守卫会让 done 多加一次，
+      // 当 done 提前达到 total 时 resolve(map)，把另一组还没回来的价格直接丢掉。加 ended 保证每组只结算一次。
+      let ended=false;
+      const onend=()=>{ if(ended)return; ended=true; try{s.remove();}catch(e){} finish(); };
       s.onload=()=>{
         // 解析该组返回的全局变量 v_shxxxxx / v_szxxxxx
         g.replace(/(sh|sz)(\d{6})/g,(m,p,c)=>{
