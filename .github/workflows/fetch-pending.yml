@@ -1,8 +1,10 @@
 ﻿name: 抓取待发新债数据
 
 on:
-  push:
-    branches: [main]
+  # 【2026-09-27 变更】去掉 push 触发：阿里云 FC 推送数据时会同时拉起本 workflow，
+  # 同整点多个 run 并发 checkout+commit+push 互相顶掉（non-fast-forward），
+  # 导致「有变化才提交」步骤失败、失败邮件轰炸。
+  # K 线仍由下方 schedule 每天 4 次抓取，不受影响。
   schedule:
     # 北京时间 08:30 / 12:00 / 17:00 / 21:00（UTC+8，cron 用 UTC）
     # 新债发行公告多在盘后或晚间发布，故晚间必抓一次
