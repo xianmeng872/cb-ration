@@ -1,1 +1,1 @@
-window.PROGRESS_CHANGED = [];
+window.PROGRESS_CHANGED = [{"stockCode": "002913", "stockName": "奥士康", "changeDate": "2026-10-20"},{"stockCode": "301149", "stockName": "隆华新材", "changeDate": "2026-10-19"},{"stockCode": "301571", "stockName": "国科天成", "changeDate": "2026-10-19"}];
