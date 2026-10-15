@@ -1785,6 +1785,13 @@ async function loadAll(){
     // 转股价被污染，这就是「数据全部对不上」的根因。
     // 修法：改为【只补充 progress.js 里没有的条目，绝不覆盖已有条目】。既不丢它独有的数据，
     // 也不会让停更文件污染权威源。
+    // 【2026-10-16 停用】下面这段"外部审核进度快照"补缺逻辑不再执行。
+    // 实测依据：该 JSON 自 2026-09-18 13:15 起停更；74 条中 66 条与权威源 progress.js 重复且全是旧值
+    // （转股价 66/66 全不一致，配售股数 17 条、审核阶段 13 条为旧值），剩余 8 条全部是"已发行仍挂同意注册"
+    // 的僵尸条目（奥士康、隆华新材、国科天成已漏到审核进度页，其余 4 只随时会冒出来）。
+    // 结论：它今天唯一的作用就是把旧值和过期条目塞回页面。需要恢复时把下面开关改回 true 即可。
+    const USE_LEGACY_PROGRESS_SNAPSHOT=false;
+    if(USE_LEGACY_PROGRESS_SNAPSHOT){
     try{
       const spRes=await fetch('./审核进度快照.json',{cache:'no-store'});
       if(spRes.ok){
@@ -1805,6 +1812,7 @@ async function loadAll(){
         }
       }
     }catch(e){ console.warn('外部审核进度快照加载失败(保持内嵌):',(e&&e.message)||e); }
+    }
     let emList=[];
     try{ emList=await fetchList(); }catch(e){ console.warn("东财列表拉取失败(用快照):",e.message); }
     const emMap={}; emList.forEach(o=>emMap[o.code]=o);
